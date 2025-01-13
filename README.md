@@ -37,7 +37,7 @@
 | [Then](https://github.com/devxoul/Then) | `3.0.0` | 간결하고 직관적인 방식으로 객체를 설정할 수 있게 도와준다. |
 | [SnapKit](https://github.com/SnapKit/SnapKit) | `5.7.1` | Auto Layout 코드 작성을 더욱 간결하게 도와준다. |
 | [Moya](https://github.com/Moya/Moya) |  `15.0.3`  | 네트워크 요청을 관리하는 데 도움을 주는 Alamofire 기반의 네트워크 추상화 라이브러리.|
-| [Kingfisher](https://github.com/onevcat/Kingfisher) | `8.1.3` | URL로부터 이미지 다운로드하거나 이미지를 캐싱하 것을 도와준다. |
+| [Kingfisher](https://github.com/onevcat/Kingfisher) | `8.1.3` | URL로부터 이미지 다운로드하거나 이미지를 캐싱하는 것을 도와준다. |
 <br/>
 
 <div align=left>
