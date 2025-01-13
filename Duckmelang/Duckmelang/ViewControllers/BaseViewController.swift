@@ -10,6 +10,7 @@ import UIKit
 class BaseViewController: UITabBarController {
     private let homeVC = UINavigationController(rootViewController: HomeViewController())
     private let chatVC = UINavigationController(rootViewController: ChatViewController())
+    private let myAccompanyVC = UINavigationController(rootViewController: MyAccompanyViewController())
     private let myPageVC = UINavigationController(rootViewController: MyPageViewController())
 
     override func viewDidLoad() {
@@ -17,7 +18,7 @@ class BaseViewController: UITabBarController {
         
         view.backgroundColor = .white
         
-        self.viewControllers = [homeVC, chatVC, myPageVC]
+        self.viewControllers = [homeVC, chatVC, myAccompanyVC, myPageVC]
         
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.backgroundColor = .white
@@ -28,7 +29,8 @@ class BaseViewController: UITabBarController {
         
         homeVC.tabBarItem = UITabBarItem(title: "메인", image: UIImage(named: "Home"), tag: 0)
         chatVC.tabBarItem = UITabBarItem(title: "채팅", image: UIImage(named: "Message"), tag: 1)
-        myPageVC.tabBarItem = UITabBarItem(title: "마이", image: UIImage(named: "Person"), tag: 2)
+        myAccompanyVC.tabBarItem = UITabBarItem(title: "나의 동행", image: UIImage(named: "Union"), tag: 2)
+        myPageVC.tabBarItem = UITabBarItem(title: "마이", image: UIImage(named: "Person"), tag: 3)
         
         self.selectedIndex = 0
     }
