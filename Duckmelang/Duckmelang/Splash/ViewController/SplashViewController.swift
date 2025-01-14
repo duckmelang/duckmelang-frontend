@@ -1,0 +1,38 @@
+//
+//  SplashViewController.swift
+//  Duckmelang
+//
+//  Created by 김연우 on 1/14/25.
+//
+
+import UIKit
+import SnapKit
+import Then
+
+class SplashViewController: UIViewController {
+
+    override func loadView() {
+            // SplashView를 뷰로 설정
+            let splashView = YellowSplashView()
+            self.view = splashView
+        }
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+
+            // 2초 후 메인 화면으로 전환
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.transitionToMainScreen()
+            }
+        }
+
+        private func transitionToMainScreen() {
+            // 메인 화면으로 전환
+            let view = BaseViewController()
+            let navigationController = UINavigationController(rootViewController: view)
+            navigationController.modalTransitionStyle = .crossDissolve
+            navigationController.modalPresentationStyle = .fullScreen
+            self.present(navigationController, animated: true, completion: nil)
+        }
+
+}
