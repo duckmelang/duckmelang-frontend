@@ -8,6 +8,8 @@
 import UIKit
 
 class MyAccompanyViewController: UIViewController {
+    var selectedTag: Int = 0
+    
     let data1 = MyAccompanyModel.dummy()
     let data2 = PostModel.dummy1()
     let data3 = PostModel.dummy2()
@@ -18,12 +20,19 @@ class MyAccompanyViewController: UIViewController {
         self.view = myAccompanyView
         setupDelegate()
         setupAction()
+        updateBtnSelected()
     }
     
     private lazy var myAccompanyView: MyAccompanyView = {
         let view = MyAccompanyView()
+        
         return view
     }()
+    
+    @objc func clickBtn(_ sender: UIButton) {
+        selectedTag = sender.tag
+        updateBtnSelected()
+    }
     
     private func setupDelegate() {
         myAccompanyView.myAccompanyTableView.dataSource = self
@@ -37,11 +46,16 @@ class MyAccompanyViewController: UIViewController {
     }
     
     private func setupAction() {
+        // segmentedControl
         myAccompanyView.segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(segment:)), for: .valueChanged)
+        
+        // Btns
+        myAccompanyView.awaitingBtn.addTarget(self, action: #selector(clickBtn), for: .touchUpInside)
+        myAccompanyView.sentBtn.addTarget(self, action: #selector(clickBtn), for: .touchUpInside)
+        myAccompanyView.receivedBtn.addTarget(self, action: #selector(clickBtn), for: .touchUpInside)
     }
     
     @objc private func segmentedControlValueChanged(segment: UISegmentedControl) {
-        
         if segment.selectedSegmentIndex == 0 {
             myAccompanyView.myAccompanyTableView.isHidden = false
             myAccompanyView.scrapTableView.isHidden = true
@@ -61,6 +75,16 @@ class MyAccompanyViewController: UIViewController {
                 
         UIView.animate(withDuration: 0.2) {
             self.myAccompanyView.underLineView.frame.origin.x = xPosition
+        }
+    }
+    
+    private func updateBtnSelected() {
+        for btn in [myAccompanyView.awaitingBtn, myAccompanyView.sentBtn, myAccompanyView.receivedBtn] {
+            if btn.tag == selectedTag {
+                btn.isSelected = true
+            } else {
+                btn.isSelected = false
+            }
         }
     }
 }

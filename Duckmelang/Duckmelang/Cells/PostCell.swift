@@ -44,7 +44,7 @@ class PostCell: UITableViewCell {
     let postImage = UIImageView().then {
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.grey300?.cgColor
-        $0.layer.cornerRadius = 6
+        $0.layer.cornerRadius = 5
         $0.clipsToBounds = true
         $0.backgroundColor = .grey200
     }

@@ -51,7 +51,7 @@ class MyAccompanyCell: UITableViewCell {
     let postImage = UIImageView().then {
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.grey400?.cgColor
-        $0.layer.cornerRadius = 10
+        $0.layer.cornerRadius = 5
         $0.clipsToBounds = true
         $0.backgroundColor = .grey300
     }
@@ -81,6 +81,41 @@ class MyAccompanyCell: UITableViewCell {
         $0.textAlignment = .center
     }
     
+    let acceptBtn = UIButton().then {
+        $0.setTitle("수락", for: .normal)
+        $0.titleLabel?.font = UIFont.ptdSemiBoldFont(ofSize: 14)
+        $0.backgroundColor = .dmrBlue
+        $0.setTitleColor(.grey0, for: .normal)
+        $0.layer.cornerRadius = 15
+        $0.addTarget(self, action: #selector(acceptBtnTapped), for: .touchUpInside)
+    }
+    
+    // TODO: delegate로 구현
+    @objc private func acceptBtnTapped() {
+        print("수락")
+    }
+    
+    let rejectBtn = UIButton().then {
+        $0.setTitle("거절", for: .normal)
+        $0.titleLabel?.font = UIFont.ptdSemiBoldFont(ofSize: 14)
+        $0.backgroundColor = .white
+        $0.setTitleColor(.dmrBlue, for: .normal)
+        $0.layer.cornerRadius = 15
+        $0.addTarget(self, action: #selector(rejectBtnTapped), for: .touchUpInside)
+    }
+    
+    // TODO: delegate로 구현
+    @objc private func rejectBtnTapped() {
+        print("거절")
+    }
+    
+    let btnStackView = UIStackView().then {
+        $0.axis = .horizontal
+        $0.alignment = .center
+        $0.distribution = .equalSpacing
+        $0.spacing = 8
+    }
+    
     private func setView() {
         [
             postImage,
@@ -88,10 +123,14 @@ class MyAccompanyCell: UITableViewCell {
             userName,
             sentTime,
             postTitle,
+            btnStackView,
             status
         ].forEach {
             contentView.addSubview($0)
         }
+        
+        btnStackView.addArrangedSubview(rejectBtn)
+        btnStackView.addArrangedSubview(acceptBtn)
         
         userImage.snp.makeConstraints {
             $0.top.leading.equalToSuperview()
@@ -117,7 +156,22 @@ class MyAccompanyCell: UITableViewCell {
         postTitle.snp.makeConstraints {
             $0.top.equalTo(userName.snp.bottom).offset(6)
             $0.leading.equalTo(userName.snp.leading)
-            $0.width.equalTo(210)
+            $0.width.equalTo(200)
+        }
+        
+        rejectBtn.snp.makeConstraints {
+            $0.width.equalTo(49)
+            $0.height.equalTo(28)
+        }
+        
+        acceptBtn.snp.makeConstraints {
+            $0.width.equalTo(49)
+            $0.height.equalTo(28)
+        }
+        
+        btnStackView.snp.makeConstraints {
+            $0.centerY.equalToSuperview().offset(4)
+            $0.trailing.equalToSuperview()
         }
         
         status.snp.makeConstraints {
@@ -133,16 +187,51 @@ class MyAccompanyCell: UITableViewCell {
         self.sentTime.text = model.sentTime
         self.postTitle.text = model.postTitle
         
+        updateStatus(model: model)
+        updateViewVisibility(model: model)
+    }
+
+    private func updateStatus(model: MyAccompanyModel) {
+        var statusText = ""
+
         switch model.status {
         case .accepted:
-            self.status.text = "수락됨"
+            statusText = "수락"
             self.status.textColor = .dmrBlue
         case .awaiting:
-            self.status.text = "수락 대기중"
+            statusText = "수락 대기중"
             self.status.textColor = .grey600
+            self.status.text = statusText
+            return
         case .rejected:
-            self.status.text = "거절됨"
+            statusText = "거절"
             self.status.textColor = .errorPrimary
         }
+
+        switch model.requestType {
+        case .sent:
+            statusText += "됨"
+        case .received:
+            statusText += "함"
+        default:
+            break
+        }
+
+        self.status.text = statusText
     }
+
+    private func updateViewVisibility(model: MyAccompanyModel) {
+        switch (model.status, model.requestType) {
+        case (.awaiting, _):
+            self.btnStackView.isHidden = true
+            self.status.isHidden = false
+        case (_, .awaiting):
+            self.btnStackView.isHidden = false
+            self.status.isHidden = true
+        default:
+            self.btnStackView.isHidden = true
+            self.status.isHidden = false
+        }
+    }
+
 }
