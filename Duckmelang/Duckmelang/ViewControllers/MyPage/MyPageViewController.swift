@@ -11,8 +11,11 @@ class MyPageViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        self.view = myPageView
     }
+    
+    private lazy var myPageView = MyPageView().then {_ in}
     
 
     /*
