@@ -17,7 +17,7 @@ class MyAccompanyCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         self.contentView.layoutIfNeeded()
-        self.profileImage.layer.cornerRadius = self.profileImage.frame.width / 2
+        self.userImage.layer.cornerRadius = self.userImage.frame.width / 2
         self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: 14, left: 16, bottom: 14, right: 16))
     }
 
@@ -29,7 +29,7 @@ class MyAccompanyCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        self.profileImage.image = nil
+        self.userImage.image = nil
         self.postImage.image = nil
         self.userName.text = nil
         self.sentTime.text = nil
@@ -41,7 +41,7 @@ class MyAccompanyCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    let profileImage = UIImageView().then {
+    let userImage = UIImageView().then {
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.grey500?.cgColor
         $0.clipsToBounds = true
@@ -84,7 +84,7 @@ class MyAccompanyCell: UITableViewCell {
     private func setView() {
         [
             postImage,
-            profileImage,
+            userImage,
             userName,
             sentTime,
             postTitle,
@@ -93,7 +93,7 @@ class MyAccompanyCell: UITableViewCell {
             contentView.addSubview($0)
         }
         
-        profileImage.snp.makeConstraints {
+        userImage.snp.makeConstraints {
             $0.top.leading.equalToSuperview()
             $0.width.height.equalTo(36)
         }
@@ -127,7 +127,7 @@ class MyAccompanyCell: UITableViewCell {
     }
     
     public func configure(model: MyAccompanyModel) {
-        self.profileImage.image = model.profileImage
+        self.userImage.image = model.userImage
         self.postImage.image = model.postImage
         self.userName.text = model.userName
         self.sentTime.text = model.sentTime

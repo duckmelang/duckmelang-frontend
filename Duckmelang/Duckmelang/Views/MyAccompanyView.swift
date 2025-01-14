@@ -49,10 +49,25 @@ class MyAccompanyView: UIView {
         $0.backgroundColor = .black
     }
     
-    lazy var tableView = UITableView().then {
+    lazy var myAccompanyTableView = UITableView().then {
         $0.register(MyAccompanyCell.self, forCellReuseIdentifier: MyAccompanyCell.identifier)
         $0.separatorStyle = .none
-        $0.rowHeight = 70
+        $0.rowHeight = 79
+        $0.isHidden = false
+    }
+    
+    lazy var scrapTableView = UITableView().then {
+        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 106
+        $0.isHidden = true
+    }
+    
+    lazy var myPostsTableView = UITableView().then {
+        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 106
+        $0.isHidden = true
     }
     
     private func setupView() {
@@ -60,7 +75,9 @@ class MyAccompanyView: UIView {
             title,
             segmentedControl,
             underLineView,
-            tableView,
+            myAccompanyTableView,
+            scrapTableView,
+            myPostsTableView
         ].forEach {
             addSubview($0)
         }
@@ -84,8 +101,18 @@ class MyAccompanyView: UIView {
             $0.height.equalTo(1)
         }
         
-        tableView.snp.makeConstraints {
+        myAccompanyTableView.snp.makeConstraints {
             $0.top.equalTo(segmentedControl.snp.bottom).offset(66)
+            $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        scrapTableView.snp.makeConstraints {
+            $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
+            $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        myPostsTableView.snp.makeConstraints {
+            $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
         }
     }

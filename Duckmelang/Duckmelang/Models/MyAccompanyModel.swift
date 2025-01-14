@@ -21,7 +21,7 @@ enum Status {
 
 struct MyAccompanyModel {
     let requestType: RequestType
-    let profileImage: UIImage // url: string으로 변경예정
+    let userImage: UIImage // url: string으로 변경예정
     let userName: String
     let postImage: UIImage // url: string으로 변경예정
     let postTitle: String
@@ -32,11 +32,10 @@ struct MyAccompanyModel {
 extension MyAccompanyModel {
     static func dummy() -> [MyAccompanyModel] {
         return [
-            MyAccompanyModel(requestType: .awaiting, profileImage: UIImage(), userName: "minyoy", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .accepted),
-            MyAccompanyModel(requestType: .sent, profileImage: UIImage(), userName: "nau", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .awaiting),
-            MyAccompanyModel(requestType: .received, profileImage: UIImage(), userName: "yeon", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .accepted),
-            MyAccompanyModel(requestType: .received, profileImage: UIImage(), userName: "minyoy", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .rejected)
+            MyAccompanyModel(requestType: .awaiting, userImage: UIImage(), userName: "minyoy", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .accepted),
+            MyAccompanyModel(requestType: .sent, userImage: UIImage(), userName: "nau", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .awaiting),
+            MyAccompanyModel(requestType: .received, userImage: UIImage(), userName: "yeon", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .accepted),
+            MyAccompanyModel(requestType: .received, userImage: UIImage(), userName: "minyoy", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .rejected)
         ]
     }
 }
-
