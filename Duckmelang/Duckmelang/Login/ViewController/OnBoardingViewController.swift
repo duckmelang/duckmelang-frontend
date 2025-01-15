@@ -48,8 +48,10 @@ class OnBoardingViewController: UIViewController {
     
     private func navigateToLoginView() {
         let view = LoginViewController()
-        view.modalPresentationStyle = .fullScreen
-        present(view, animated: true)
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        self.navigationController?.navigationBar.tintColor = UIColor.grey600
+        self.navigationController?.pushViewController(view, animated: true)
+
     }
     
     //TODO: - kakao login 구현 필요
