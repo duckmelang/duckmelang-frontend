@@ -48,11 +48,11 @@ extension UIColor {
     static let bgcSecondary = UIColor(hex: "#F2B60D") // background container Secondary
     static let bgcThird = UIColor(hex: "#FDEAB4") // background container Third
     static let dmrBlue = UIColor(hex: "#4B4FBB")
+    static let pressedBlue = UIColor(hex: "#474A85")
     static let errorPrimary = UIColor(hex: "#E75427")
     static let errorSecondary = UIColor(hex: "#F9D1B9")
     static let errorThird = UIColor(hex: "#A93609")
     
-    static let black = UIColor(hex: "#111412")
     static let grey900 = UIColor(hex: "#121211")
     static let grey800 = UIColor(hex: "#434240")
     static let grey700 = UIColor(hex: "#72716D")
