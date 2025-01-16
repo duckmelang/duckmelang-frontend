@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SegmentedButton: UIButton {
+class ChipButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupStyle()

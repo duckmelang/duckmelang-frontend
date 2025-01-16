@@ -16,7 +16,10 @@ class MyAccompanyViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.isNavigationBarHidden = true
+        
+        self.navigationItem.title = "나의 동행"
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
+        
         self.view = myAccompanyView
         setupDelegate()
         setupAction()
