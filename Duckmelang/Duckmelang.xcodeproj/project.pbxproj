@@ -7,10 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FA4FE4DC2D2FA7C6007423E3 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA4FE4DB2D2FA7C6007423E3 /* SnapKit */; };
-		FA4FE4DF2D2FA7CF007423E3 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = FA4FE4DE2D2FA7CF007423E3 /* Then */; };
-		FA4FE4E22D2FA7F9007423E3 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = FA4FE4E12D2FA7F9007423E3 /* Moya */; };
-		FA4FE4E52D2FA80D007423E3 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = FA4FE4E42D2FA80D007423E3 /* Kingfisher */; };
+		991E291B2D39ECEB0036A9AC /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291A2D39ECEB0036A9AC /* Then */; };
+		991E291E2D39ECF20036A9AC /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291D2D39ECF20036A9AC /* SnapKit */; };
+		991E29202D39EDBF0036A9AC /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291F2D39EDBF0036A9AC /* Then */; };
+		991E29232D39EDD60036A9AC /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29222D39EDD60036A9AC /* Then */; };
+		991E29262D39EDE30036A9AC /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29252D39EDE30036A9AC /* SnapKit */; };
+		991E29292D39EE040036A9AC /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29282D39EE040036A9AC /* Then */; };
+		991E292C2D39EE120036A9AC /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292B2D39EE120036A9AC /* SnapKit */; };
+		991E292E2D39EE460036A9AC /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292D2D39EE460036A9AC /* Then */; };
+		991E29312D39EF990036A9AC /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29302D39EF990036A9AC /* Then */; };
+		991E29342D39EFA40036A9AC /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29332D39EFA40036A9AC /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,10 +49,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA4FE4E52D2FA80D007423E3 /* Kingfisher in Frameworks */,
-				FA4FE4DC2D2FA7C6007423E3 /* SnapKit in Frameworks */,
-				FA4FE4DF2D2FA7CF007423E3 /* Then in Frameworks */,
-				FA4FE4E22D2FA7F9007423E3 /* Moya in Frameworks */,
+				991E291B2D39ECEB0036A9AC /* Then in Frameworks */,
+				991E29312D39EF990036A9AC /* Then in Frameworks */,
+				991E29292D39EE040036A9AC /* Then in Frameworks */,
+				991E29202D39EDBF0036A9AC /* Then in Frameworks */,
+				991E292E2D39EE460036A9AC /* Then in Frameworks */,
+				991E292C2D39EE120036A9AC /* SnapKit in Frameworks */,
+				991E291E2D39ECF20036A9AC /* SnapKit in Frameworks */,
+				991E29232D39EDD60036A9AC /* Then in Frameworks */,
+				991E29262D39EDE30036A9AC /* SnapKit in Frameworks */,
+				991E29342D39EFA40036A9AC /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,10 +101,16 @@
 			);
 			name = Duckmelang;
 			packageProductDependencies = (
-				FA4FE4DB2D2FA7C6007423E3 /* SnapKit */,
-				FA4FE4DE2D2FA7CF007423E3 /* Then */,
-				FA4FE4E12D2FA7F9007423E3 /* Moya */,
-				FA4FE4E42D2FA80D007423E3 /* Kingfisher */,
+				991E291A2D39ECEB0036A9AC /* Then */,
+				991E291D2D39ECF20036A9AC /* SnapKit */,
+				991E291F2D39EDBF0036A9AC /* Then */,
+				991E29222D39EDD60036A9AC /* Then */,
+				991E29252D39EDE30036A9AC /* SnapKit */,
+				991E29282D39EE040036A9AC /* Then */,
+				991E292B2D39EE120036A9AC /* SnapKit */,
+				991E292D2D39EE460036A9AC /* Then */,
+				991E29302D39EF990036A9AC /* Then */,
+				991E29332D39EFA40036A9AC /* SnapKit */,
 			);
 			productName = Duckmelang;
 			productReference = FA4FE4072D2FA23D007423E3 /* Duckmelang.app */;
@@ -123,10 +141,8 @@
 			mainGroup = FA4FE3FE2D2FA23D007423E3;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				FA4FE4DA2D2FA7C6007423E3 /* XCRemoteSwiftPackageReference "SnapKit" */,
-				FA4FE4DD2D2FA7CF007423E3 /* XCRemoteSwiftPackageReference "Then" */,
-				FA4FE4E02D2FA7F9007423E3 /* XCRemoteSwiftPackageReference "Moya" */,
-				FA4FE4E32D2FA80D007423E3 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				991E292F2D39EF990036A9AC /* XCLocalSwiftPackageReference "../../../../Then" */,
+				991E29322D39EFA40036A9AC /* XCLocalSwiftPackageReference "../../../../Downloads/SnapKit-develop" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FA4FE4082D2FA23D007423E3 /* Products */;
@@ -353,61 +369,57 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		FA4FE4DA2D2FA7C6007423E3 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SnapKit/SnapKit";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.7.1;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		991E292F2D39EF990036A9AC /* XCLocalSwiftPackageReference "../../../../Then" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../../../Then;
 		};
-		FA4FE4DD2D2FA7CF007423E3 /* XCRemoteSwiftPackageReference "Then" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/devxoul/Then";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
-			};
+		991E29322D39EFA40036A9AC /* XCLocalSwiftPackageReference "../../../../Downloads/SnapKit-develop" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../../../Downloads/SnapKit-develop";
 		};
-		FA4FE4E02D2FA7F9007423E3 /* XCRemoteSwiftPackageReference "Moya" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Moya/Moya";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 15.0.3;
-			};
-		};
-		FA4FE4E32D2FA80D007423E3 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.1.3;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FA4FE4DB2D2FA7C6007423E3 /* SnapKit */ = {
+		991E291A2D39ECEB0036A9AC /* Then */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA4FE4DA2D2FA7C6007423E3 /* XCRemoteSwiftPackageReference "SnapKit" */;
-			productName = SnapKit;
-		};
-		FA4FE4DE2D2FA7CF007423E3 /* Then */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA4FE4DD2D2FA7CF007423E3 /* XCRemoteSwiftPackageReference "Then" */;
 			productName = Then;
 		};
-		FA4FE4E12D2FA7F9007423E3 /* Moya */ = {
+		991E291D2D39ECF20036A9AC /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA4FE4E02D2FA7F9007423E3 /* XCRemoteSwiftPackageReference "Moya" */;
-			productName = Moya;
+			productName = SnapKit;
 		};
-		FA4FE4E42D2FA80D007423E3 /* Kingfisher */ = {
+		991E291F2D39EDBF0036A9AC /* Then */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA4FE4E32D2FA80D007423E3 /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
+			productName = Then;
+		};
+		991E29222D39EDD60036A9AC /* Then */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Then;
+		};
+		991E29252D39EDE30036A9AC /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SnapKit;
+		};
+		991E29282D39EE040036A9AC /* Then */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Then;
+		};
+		991E292B2D39EE120036A9AC /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SnapKit;
+		};
+		991E292D2D39EE460036A9AC /* Then */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Then;
+		};
+		991E29302D39EF990036A9AC /* Then */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Then;
+		};
+		991E29332D39EFA40036A9AC /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SnapKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
