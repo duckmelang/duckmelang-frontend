@@ -22,7 +22,7 @@ class MyPageView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var myPageTopView = MyPageTopView()
+    lazy var myPageTopView = MyPageTopView()
     
     public lazy var tableView = UITableView().then() {
         $0.register(MyPageCell.self, forCellReuseIdentifier: MyPageCell.identifier)

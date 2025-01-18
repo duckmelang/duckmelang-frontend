@@ -27,7 +27,7 @@ class MyPageTopView: UIView {
     }
     
     private lazy var profileImage = UIImageView().then {
-        $0.image = .home
+        $0.image = .profile
         $0.frame = CGRect(x: 0, y: 0, width: 48, height: 48)
         $0.layer.cornerRadius = $0.frame.height/2
         $0.clipsToBounds = true
@@ -41,7 +41,7 @@ class MyPageTopView: UIView {
     
     private lazy var age = Label(text: "나이", font: .ptdMediumFont(ofSize: 13), color: .grey600)
     
-    private lazy var profileSeeBtn = UIButton().then {
+    lazy var profileSeeBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
         $0.backgroundColor = .dmrBlue
@@ -51,7 +51,7 @@ class MyPageTopView: UIView {
         
     }
 
-    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1)
+    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1)
     private lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var profileInfo = Stack(axis: .horizontal, spacing: 12, alignment: .center)
     

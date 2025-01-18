@@ -15,17 +15,14 @@ class MyPageViewController: UIViewController {
         self.view = myPageView
     }
     
-    private lazy var myPageView = MyPageView().then {_ in}
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    private lazy var myPageView = MyPageView().then {
+        $0.myPageTopView.profileSeeBtn.addTarget(self, action: #selector(profileSeeBtnDidTap), for: .touchUpInside)
     }
-    */
-
+    
+    @objc
+    private func profileSeeBtnDidTap() {
+        let profileVC = UINavigationController(rootViewController: ProfileViewController())
+        profileVC.modalPresentationStyle = .fullScreen
+        present(profileVC, animated: false)
+    }
 }

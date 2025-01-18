@@ -8,7 +8,7 @@
 import UIKit
 
 class Stack : UIStackView {
-    init(axis: NSLayoutConstraint.Axis, spacing: CGFloat, distribution: UIStackView.Distribution = .fill, alignment: UIStackView.Alignment = .leading){
+    init(axis: NSLayoutConstraint.Axis, spacing: CGFloat = .zero, distribution: UIStackView.Distribution = .fill, alignment: UIStackView.Alignment = .leading){
         super.init(frame: .zero)
         self.axis = axis
         self.spacing = spacing
