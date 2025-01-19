@@ -13,6 +13,8 @@ class MyPageViewController: UIViewController {
         super.viewDidLoad()
         
         self.view = myPageView
+        
+        navigationController?.isNavigationBarHidden = true
     }
     
     private lazy var myPageView = MyPageView().then {

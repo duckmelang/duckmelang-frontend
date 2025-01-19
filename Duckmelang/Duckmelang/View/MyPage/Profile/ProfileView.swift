@@ -16,11 +16,48 @@ class ProfileView: UIView {
         setupView()
     }
     
+    let profileTopView = ProfileTopView()
+    let profileBottomView = ProfileBottomView()
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var backBtn = UIButton().then {
+    private func addStack(){
+        
+    }
+    
+    private func setupView(){
+        [profileTopView, profileBottomView].forEach{addSubview($0)}
+        
+        profileTopView.snp.makeConstraints{
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.top.equalToSuperview()
+            $0.height.equalTo(250)//188
+        }
+        
+        profileBottomView.snp.makeConstraints{
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.top.equalTo(profileTopView.snp.bottom)
+        }
+    }
+}
+
+//상단 바와 프로필, 자기소개 부분
+class ProfileTopView: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.backgroundColor = .white
+        
+        addStack()
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    lazy var backBtn = UIButton().then {
         $0.setImage(.back, for: .normal)
     }
     
@@ -77,19 +114,19 @@ class ProfileView: UIView {
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(42)
         }
         
         middleView.snp.makeConstraints{
-            $0.top.equalTo(topStack.snp.bottom).offset(2)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.top.equalTo(topStack.snp.bottom).offset(10)
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(68)
         }
         
         profileImage.snp.makeConstraints{
             $0.top.equalToSuperview()
-            $0.left.equalToSuperview().inset(16)
+            $0.left.equalToSuperview()
             $0.height.width.equalTo(68)
         }
         
@@ -110,7 +147,7 @@ class ProfileView: UIView {
         
         backView.snp.makeConstraints{
             $0.top.equalTo(middleView.snp.bottom).offset(8)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(56)
         }
         
@@ -121,3 +158,82 @@ class ProfileView: UIView {
     }
 }
 
+//세그먼트 컨트롤부터 아래부분
+class ProfileBottomView: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.backgroundColor = .white
+        
+        addStack()
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    let segmentedControl = UISegmentedControl(items: ["업로드한 게시물", "나와의 동행 후기"]).then {
+        $0.setBackgroundImage(UIImage(), for: .normal, barMetrics: .default)
+        $0.setBackgroundImage(UIImage(), for: .selected, barMetrics: .default)
+        $0.setBackgroundImage(UIImage(), for: .highlighted, barMetrics: .default)
+        $0.setDividerImage(UIImage(), forLeftSegmentState: .selected, rightSegmentState: .normal, barMetrics: .default)
+        
+        $0.setTitleTextAttributes([
+            NSAttributedString.Key.foregroundColor: UIColor.grey900!,
+            .font: UIFont.ptdSemiBoldFont(ofSize: 17)
+        ], for: .selected)
+        
+        $0.setTitleTextAttributes([
+            NSAttributedString.Key.foregroundColor: UIColor.grey400!,
+            .font: UIFont.ptdSemiBoldFont(ofSize: 17)
+        ], for: .normal)
+        $0.selectedSegmentIndex = 0
+    }
+    
+    lazy var underLineView = UIView().then {
+        $0.backgroundColor = .black
+    }
+    
+    lazy var uploadPostView = UITableView().then {
+        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 106
+        $0.isHidden = true
+    }
+    
+    //변경 예정
+    lazy var reviewTableView = UITableView().then {
+        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 106
+        $0.isHidden = true
+    }
+   
+    private func addStack(){
+        
+    }
+    
+    private func setupView(){
+        [segmentedControl, underLineView, uploadPostView].forEach{addSubview($0)}
+        
+        segmentedControl.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide).offset(20)
+            $0.centerX.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(40)
+        }
+        
+        underLineView.snp.makeConstraints {
+            $0.top.equalTo(segmentedControl.snp.bottom)
+            $0.leading.equalTo(segmentedControl.snp.leading)
+            $0.width.equalTo(segmentedControl.snp.width).multipliedBy(0.5)
+            $0.height.equalTo(1)
+        }
+        
+        uploadPostView.snp.makeConstraints {
+            $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
+            $0.horizontalEdges.bottom.equalToSuperview()
+            $0.height.equalTo(200)
+        }
+    }
+}
