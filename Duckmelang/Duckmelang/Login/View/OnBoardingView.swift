@@ -40,8 +40,15 @@ class OnBoardingView: UIView {
         return label
     }()
     
-    private lazy var logoImageView: UIImageView = {
-        return createImageView(named: "logo_yellow")
+    //FIXME: - 개발 종료 후 원상복구
+//    private lazy var logoImageView: UIImageView = {
+//        return createImageView(named: "logo_yellow")
+//    }()
+    
+    public lazy var logoImageView: UIImageView = {
+        let imageView = createImageView(named: "logo_yellow")
+        imageView.isUserInteractionEnabled = true
+        return imageView
     }()
     
     public lazy var kakaoLoginButton: UIButton = {
@@ -97,7 +104,8 @@ class OnBoardingView: UIView {
         logoImageView.snp.makeConstraints {
             $0.top.equalTo(title.snp.bottom).offset(22)
             $0.centerX.equalToSuperview()
-            $0.width.height.equalTo(75)
+            $0.width.equalTo(75)
+            $0.height.equalTo(75)
         }
         
         return view

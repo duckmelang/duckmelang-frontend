@@ -15,6 +15,11 @@ class OnBoardingViewController: UIViewController {
         let view = OnBoardingView()
         view.loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
         view.kakaoLoginButton.addTarget(self, action: #selector(didTapKakaoLoginButton), for: .touchUpInside)
+        
+        //FIXME: - 개발 종료 후 지울것1. Main으로 연결되는 통로
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapLogo))
+            view.logoImageView.isUserInteractionEnabled = true
+            view.addGestureRecognizer(tapGesture)
         return view
     }()
 
@@ -55,4 +60,16 @@ class OnBoardingViewController: UIViewController {
     }
     
     //TODO: - kakao login 구현 필요
+    
+    //FIXME: - 개발 종료 후 지울것2. Main으로 연결되는 통로
+    @objc private func didTapLogo() {
+        navigateToHomeView()
+        print("go home")
+    }
+    
+    private func navigateToHomeView() {
+        let mainVC = BaseViewController()
+        mainVC.modalPresentationStyle = .fullScreen
+        present(mainVC, animated: true)
+    }
 }
