@@ -6,23 +6,43 @@
 //
 
 import UIKit
+import SnapKit
 
 class ChatViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        self.view = chatView
+        
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    private lazy var chatView: ChatView = {
+        let view = ChatView()
+        view.btn.addTarget(self, action: #selector(buttonDidTap), for: .touchUpInside)
+        view.btn1.addTarget(self, action: #selector(button1DidTap), for: .touchUpInside)
+        view.btn2.addTarget(self, action: #selector(button2DidTap), for: .touchUpInside)
+        view.btn3.addTarget(self, action: #selector(button3DidTap), for: .touchUpInside)
+        return view
+    }()
+    
+    @objc private func buttonDidTap() {
+        let popupVC = RequestPopupViewController()
+        popupVC.modalPresentationStyle = .overFullScreen
+        present(popupVC, animated: false)
     }
-    */
-
+    @objc private func button1DidTap() {
+        let popupVC = ConfirmPopupViewController()
+        popupVC.modalPresentationStyle = .overFullScreen
+        present(popupVC, animated: false)
+    }
+    @objc private func button2DidTap() {
+        let popupVC = OtherAcceptReviewPopupViewController()
+        popupVC.modalPresentationStyle = .overFullScreen
+        present(popupVC, animated: false)
+    }
+    @objc private func button3DidTap() {
+        let popupVC = MyAcceptReviewPopupViewController()
+        popupVC.modalPresentationStyle = .overFullScreen
+        present(popupVC, animated: false)
+    }
 }
