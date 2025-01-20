@@ -43,6 +43,9 @@ extension UIColor {
 // let buttonColor = UIColor(hex: "#314B9E")
 
 extension UIColor {
+    static let white = UIColor(hex: "#FFFFFF")
+    static let black = UIColor(hex: "#111412")
+    
     static let mainColor = UIColor(hex: "#FFD766")
     static let bgcPrimary = UIColor(hex: "#FCF7E8") // background container Primary
     static let bgcSecondary = UIColor(hex: "#F2B60D") // background container Secondary
@@ -63,6 +66,8 @@ extension UIColor {
     static let grey200 = UIColor(hex: "#F3F0E8")
     static let grey100 = UIColor(hex: "#FBF8F0")
     static let grey0 = UIColor(hex: "#FFFCF5")
+    
+    static let kakaoYellow = UIColor(hex: "#FEE800")
 }
 
 // Example
