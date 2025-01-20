@@ -44,7 +44,6 @@ extension UIColor {
 
 extension UIColor {
     static let white = UIColor(hex: "#FFFFFF")
-    static let transparent = UIColor(hex: "#000000")
     static let black = UIColor(hex: "#111412")
     
     static let mainColor = UIColor(hex: "#FFD766")
