@@ -1,0 +1,7 @@
+# Xcode user-specific files
+*.xcuserstate
+xcuserdata/
+xcshareddata/xcschemes/xcschememanagement.plist
+
+# macOS system files
+.DS_Store
