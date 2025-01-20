@@ -163,6 +163,7 @@ class LoginView: UIView {
         loginContainer.snp.makeConstraints{
             $0.top.equalToSuperview().inset(116)
             $0.left.right.equalToSuperview().inset(16)
+            $0.bottom.equalTo(foundBtnContainer.snp.bottom)
         }
     }
 }
