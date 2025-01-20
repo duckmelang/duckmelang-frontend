@@ -24,7 +24,6 @@ class ProfileViewController: UIViewController{
         
         setupAction()
         setupDelegate()
-        
     }
 
     private lazy var profileView = ProfileView()

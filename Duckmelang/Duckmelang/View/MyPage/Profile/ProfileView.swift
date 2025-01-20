@@ -164,7 +164,6 @@ class ProfileBottomView: UIView {
         super.init(frame: frame)
         self.backgroundColor = .white
         
-        addStack()
         setupView()
     }
     
@@ -198,7 +197,7 @@ class ProfileBottomView: UIView {
         $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 106
-        $0.isHidden = true
+        $0.isHidden = false
     }
     
     //변경 예정
@@ -208,13 +207,9 @@ class ProfileBottomView: UIView {
         $0.rowHeight = 106
         $0.isHidden = true
     }
-   
-    private func addStack(){
-        
-    }
     
     private func setupView(){
-        [segmentedControl, underLineView, uploadPostView].forEach{addSubview($0)}
+        [segmentedControl, underLineView, uploadPostView, reviewTableView].forEach{addSubview($0)}
         
         segmentedControl.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(20)
@@ -232,6 +227,12 @@ class ProfileBottomView: UIView {
         
         uploadPostView.snp.makeConstraints {
             $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
+            $0.horizontalEdges.bottom.equalToSuperview()
+            $0.height.equalTo(200)
+        }
+        
+        reviewTableView.snp.makeConstraints{
+            $0.top.equalTo(segmentedControl.snp.bottom).offset(60)
             $0.horizontalEdges.bottom.equalToSuperview()
             $0.height.equalTo(200)
         }

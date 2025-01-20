@@ -24,9 +24,9 @@ class MyPageView: UIView {
     
     lazy var myPageTopView = MyPageTopView()
     
-    public lazy var tableView = UITableView().then() {
+    lazy var tableView = UITableView().then() {
         $0.register(MyPageCell.self, forCellReuseIdentifier: MyPageCell.identifier)
-        $0.separatorStyle = .singleLine
+        $0.separatorStyle = .none
     }
     
     private func addStack() {
