@@ -132,4 +132,3 @@ class PostCell: UITableViewCell {
         self.postTime.text = model.postTime
     }
 }
-
