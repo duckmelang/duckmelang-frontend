@@ -18,7 +18,7 @@ class longCustomBtn: UIButton {
     init(
         backgroundColor: UIColor = UIColor.dmrBlue ?? .systemBlue,
         title: String = "",
-        titleColor: UIColor = .white,
+        titleColor: UIColor = .white!,
         font: UIFont? = nil,
         radius: CGFloat? = nil,
         isEnabled: Bool? = nil,
