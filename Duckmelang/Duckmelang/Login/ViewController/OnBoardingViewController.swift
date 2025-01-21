@@ -1,0 +1,75 @@
+//
+//  OnBoardingViewController.swift
+//  Duckmelang
+//
+//  Created by 김연우 on 1/14/25.
+//
+
+import UIKit
+
+class OnBoardingViewController: UIViewController {
+
+    // MARK: - Properties
+    
+    private lazy var onboardingView: OnBoardingView = {
+        let view = OnBoardingView()
+        view.loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
+        view.kakaoLoginButton.addTarget(self, action: #selector(didTapKakaoLoginButton), for: .touchUpInside)
+        
+        //FIXME: - 개발 종료 후 지울것1. Main으로 연결되는 통로
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapLogo))
+            view.logoImageView.isUserInteractionEnabled = true
+            view.addGestureRecognizer(tapGesture)
+        return view
+    }()
+
+    // MARK: - Lifecycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupView()
+    }
+    
+    // MARK: - Setup
+    
+    private func setupView() {
+        self.view = onboardingView
+        self.view.backgroundColor = .white
+    }
+
+    // MARK: - Actions
+    
+    @objc private func didTapLoginButton() {
+        navigateToLoginView()
+        print("Login button tapped")
+    }
+    
+    @objc private func didTapKakaoLoginButton() {
+        print("Kakao login button tapped")
+        //handleKakaoLogin()
+    }
+    
+    // MARK: - Navigation
+    
+    private func navigateToLoginView() {
+        let view = LoginViewController()
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        self.navigationController?.navigationBar.tintColor = UIColor.grey600
+        self.navigationController?.pushViewController(view, animated: true)
+
+    }
+    
+    //TODO: - kakao login 구현 필요
+    
+    //FIXME: - 개발 종료 후 지울것2. Main으로 연결되는 통로
+    @objc private func didTapLogo() {
+        navigateToHomeView()
+        print("go home")
+    }
+    
+    private func navigateToHomeView() {
+        let mainVC = BaseViewController()
+        mainVC.modalPresentationStyle = .fullScreen
+        present(mainVC, animated: true)
+    }
+}
