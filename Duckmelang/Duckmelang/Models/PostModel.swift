@@ -2,9 +2,8 @@
 //  PostModel.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 1/14/25.
+//  Created by 고현낭 on 1/19/25.
 //
-
 import UIKit
 
 struct PostModel {

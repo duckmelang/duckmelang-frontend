@@ -2,14 +2,15 @@
 //  PostCell.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 1/14/25.
+//  Created by 고현낭 on 1/19/25.
 //
+
 
 import UIKit
 
 class PostCell: UITableViewCell {
     static let identifier = "PostCell"
-
+    
     override func awakeFromNib() {
         super.awakeFromNib()
     }
@@ -20,7 +21,7 @@ class PostCell: UITableViewCell {
         self.userImage.layer.cornerRadius = self.userImage.frame.width / 2
         self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: 6, left: 16, bottom: 6, right: 16))
     }
-
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
