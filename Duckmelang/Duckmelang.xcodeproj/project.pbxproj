@@ -7,6 +7,39 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AF65D4722D40AB1B006AD2F6 /* ProfileModifyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D45E2D40AB1A006AD2F6 /* ProfileModifyView.swift */; };
+		AF65D4732D40AB1B006AD2F6 /* PostScrapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D46B2D40AB1A006AD2F6 /* PostScrapView.swift */; };
+		AF65D4742D40AB1B006AD2F6 /* AccountClosing2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4632D40AB1A006AD2F6 /* AccountClosing2View.swift */; };
+		AF65D4752D40AB1B006AD2F6 /* IdolChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4652D40AB1A006AD2F6 /* IdolChangeView.swift */; };
+		AF65D4762D40AB1B006AD2F6 /* OtherProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D46E2D40AB1A006AD2F6 /* OtherProfileView.swift */; };
+		AF65D4772D40AB1B006AD2F6 /* MyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4682D40AB1A006AD2F6 /* MyPageView.swift */; };
+		AF65D4782D40AB1B006AD2F6 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D45F2D40AB1A006AD2F6 /* ProfileView.swift */; };
+		AF65D4792D40AB1B006AD2F6 /* PushNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D46C2D40AB1A006AD2F6 /* PushNotificationView.swift */; };
+		AF65D47A2D40AB1B006AD2F6 /* IdolAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4642D40AB1A006AD2F6 /* IdolAddView.swift */; };
+		AF65D47B2D40AB1B006AD2F6 /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4602D40AB1A006AD2F6 /* ReviewView.swift */; };
+		AF65D47C2D40AB1B006AD2F6 /* LoginInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4662D40AB1A006AD2F6 /* LoginInfo.swift */; };
+		AF65D47D2D40AB1B006AD2F6 /* FeedManagementViewl.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D45D2D40AB1A006AD2F6 /* FeedManagementViewl.swift */; };
+		AF65D47E2D40AB1B006AD2F6 /* MyPageTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4672D40AB1A006AD2F6 /* MyPageTopView.swift */; };
+		AF65D47F2D40AB1B006AD2F6 /* PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4692D40AB1A006AD2F6 /* PostDetailView.swift */; };
+		AF65D4802D40AB1B006AD2F6 /* AccountClosing1View.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4622D40AB1A006AD2F6 /* AccountClosing1View.swift */; };
+		AF65D4812D40AB1B006AD2F6 /* ReviewWriteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D46F2D40AB1A006AD2F6 /* ReviewWriteView.swift */; };
+		AF65D4822D40AB1B006AD2F6 /* PostRecommendedFilterChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D46A2D40AB1A006AD2F6 /* PostRecommendedFilterChangeView.swift */; };
+		AF65D49C2D40AB2F006AD2F6 /* AccountClosing1ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4882D40AB2F006AD2F6 /* AccountClosing1ViewController.swift */; };
+		AF65D49D2D40AB2F006AD2F6 /* IdolChangeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D48B2D40AB2F006AD2F6 /* IdolChangeViewController.swift */; };
+		AF65D49E2D40AB2F006AD2F6 /* AccountClosing2ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4892D40AB2F006AD2F6 /* AccountClosing2ViewController.swift */; };
+		AF65D49F2D40AB2F006AD2F6 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4852D40AB2F006AD2F6 /* ProfileViewController.swift */; };
+		AF65D4A12D40AB2F006AD2F6 /* IdolAddViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D48A2D40AB2F006AD2F6 /* IdolAddViewController.swift */; };
+		AF65D4A42D40AB2F006AD2F6 /* FeedManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4832D40AB2F006AD2F6 /* FeedManagementViewController.swift */; };
+		AF65D4A52D40AB2F006AD2F6 /* PostRecommendedFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D48F2D40AB2F006AD2F6 /* PostRecommendedFilterViewController.swift */; };
+		AF65D4A62D40AB2F006AD2F6 /* PostDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D48E2D40AB2F006AD2F6 /* PostDetailViewController.swift */; };
+		AF65D4A72D40AB2F006AD2F6 /* OtherProfileModifyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4932D40AB2F006AD2F6 /* OtherProfileModifyViewController.swift */; };
+		AF65D4A82D40AB2F006AD2F6 /* ReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4862D40AB2F006AD2F6 /* ReviewViewController.swift */; };
+		AF65D4A92D40AB2F006AD2F6 /* ProfileModifyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4842D40AB2F006AD2F6 /* ProfileModifyViewController.swift */; };
+		AF65D4AA2D40AB2F006AD2F6 /* ReviewWriteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4942D40AB2F006AD2F6 /* ReviewWriteViewController.swift */; };
+		AF65D4AB2D40AB2F006AD2F6 /* PostScrapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4902D40AB2F006AD2F6 /* PostScrapViewController.swift */; };
+		AF65D4AD2D40AB2F006AD2F6 /* LoginInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D48C2D40AB2F006AD2F6 /* LoginInfoViewController.swift */; };
+		AF65D4AE2D40AB2F006AD2F6 /* PushNotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D4912D40AB2F006AD2F6 /* PushNotificationViewController.swift */; };
+		AF65D4B72D40B481006AD2F6 /* Cosmos in Frameworks */ = {isa = PBXBuildFile; productRef = AF65D4B62D40B481006AD2F6 /* Cosmos */; };
 		FA4FE4DC2D2FA7C6007423E3 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA4FE4DB2D2FA7C6007423E3 /* SnapKit */; };
 		FA4FE4DF2D2FA7CF007423E3 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = FA4FE4DE2D2FA7CF007423E3 /* Then */; };
 		FA4FE4E22D2FA7F9007423E3 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = FA4FE4E12D2FA7F9007423E3 /* Moya */; };
@@ -14,7 +47,39 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		FA4FE4072D2FA23D007423E3 /* Duckmelang.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Duckmelang.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF65D45D2D40AB1A006AD2F6 /* FeedManagementViewl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedManagementViewl.swift; sourceTree = "<group>"; };
+		AF65D45E2D40AB1A006AD2F6 /* ProfileModifyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModifyView.swift; sourceTree = "<group>"; };
+		AF65D45F2D40AB1A006AD2F6 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		AF65D4602D40AB1A006AD2F6 /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
+		AF65D4622D40AB1A006AD2F6 /* AccountClosing1View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountClosing1View.swift; sourceTree = "<group>"; };
+		AF65D4632D40AB1A006AD2F6 /* AccountClosing2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountClosing2View.swift; sourceTree = "<group>"; };
+		AF65D4642D40AB1A006AD2F6 /* IdolAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdolAddView.swift; sourceTree = "<group>"; };
+		AF65D4652D40AB1A006AD2F6 /* IdolChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdolChangeView.swift; sourceTree = "<group>"; };
+		AF65D4662D40AB1A006AD2F6 /* LoginInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginInfo.swift; sourceTree = "<group>"; };
+		AF65D4672D40AB1A006AD2F6 /* MyPageTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageTopView.swift; sourceTree = "<group>"; };
+		AF65D4682D40AB1A006AD2F6 /* MyPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageView.swift; sourceTree = "<group>"; };
+		AF65D4692D40AB1A006AD2F6 /* PostDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailView.swift; sourceTree = "<group>"; };
+		AF65D46A2D40AB1A006AD2F6 /* PostRecommendedFilterChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostRecommendedFilterChangeView.swift; sourceTree = "<group>"; };
+		AF65D46B2D40AB1A006AD2F6 /* PostScrapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostScrapView.swift; sourceTree = "<group>"; };
+		AF65D46C2D40AB1A006AD2F6 /* PushNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationView.swift; sourceTree = "<group>"; };
+		AF65D46E2D40AB1A006AD2F6 /* OtherProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherProfileView.swift; sourceTree = "<group>"; };
+		AF65D46F2D40AB1A006AD2F6 /* ReviewWriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewWriteView.swift; sourceTree = "<group>"; };
+		AF65D4832D40AB2F006AD2F6 /* FeedManagementViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedManagementViewController.swift; sourceTree = "<group>"; };
+		AF65D4842D40AB2F006AD2F6 /* ProfileModifyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModifyViewController.swift; sourceTree = "<group>"; };
+		AF65D4852D40AB2F006AD2F6 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		AF65D4862D40AB2F006AD2F6 /* ReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewController.swift; sourceTree = "<group>"; };
+		AF65D4882D40AB2F006AD2F6 /* AccountClosing1ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountClosing1ViewController.swift; sourceTree = "<group>"; };
+		AF65D4892D40AB2F006AD2F6 /* AccountClosing2ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountClosing2ViewController.swift; sourceTree = "<group>"; };
+		AF65D48A2D40AB2F006AD2F6 /* IdolAddViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdolAddViewController.swift; sourceTree = "<group>"; };
+		AF65D48B2D40AB2F006AD2F6 /* IdolChangeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdolChangeViewController.swift; sourceTree = "<group>"; };
+		AF65D48C2D40AB2F006AD2F6 /* LoginInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginInfoViewController.swift; sourceTree = "<group>"; };
+		AF65D48E2D40AB2F006AD2F6 /* PostDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailViewController.swift; sourceTree = "<group>"; };
+		AF65D48F2D40AB2F006AD2F6 /* PostRecommendedFilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostRecommendedFilterViewController.swift; sourceTree = "<group>"; };
+		AF65D4902D40AB2F006AD2F6 /* PostScrapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostScrapViewController.swift; sourceTree = "<group>"; };
+		AF65D4912D40AB2F006AD2F6 /* PushNotificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationViewController.swift; sourceTree = "<group>"; };
+		AF65D4932D40AB2F006AD2F6 /* OtherProfileModifyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherProfileModifyViewController.swift; sourceTree = "<group>"; };
+		AF65D4942D40AB2F006AD2F6 /* ReviewWriteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewWriteViewController.swift; sourceTree = "<group>"; };
+		FA4FE4072D2FA23D007423E3 /* Duckmelang.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Duckmelang.app; path = "/Users/nauvy__/Documents/GitHub/duckmelang-frontend/Duckmelang/build/Debug-iphoneos/Duckmelang.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -43,6 +108,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF65D4B72D40B481006AD2F6 /* Cosmos in Frameworks */,
 				FA4FE4E52D2FA80D007423E3 /* Kingfisher in Frameworks */,
 				FA4FE4DC2D2FA7C6007423E3 /* SnapKit in Frameworks */,
 				FA4FE4DF2D2FA7CF007423E3 /* Then in Frameworks */,
@@ -53,20 +119,107 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AF65D4612D40AB1A006AD2F6 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				AF65D45D2D40AB1A006AD2F6 /* FeedManagementViewl.swift */,
+				AF65D45E2D40AB1A006AD2F6 /* ProfileModifyView.swift */,
+				AF65D45F2D40AB1A006AD2F6 /* ProfileView.swift */,
+				AF65D4602D40AB1A006AD2F6 /* ReviewView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		AF65D46D2D40AB1A006AD2F6 /* MyPage */ = {
+			isa = PBXGroup;
+			children = (
+				AF65D4612D40AB1A006AD2F6 /* Profile */,
+				AF65D4622D40AB1A006AD2F6 /* AccountClosing1View.swift */,
+				AF65D4632D40AB1A006AD2F6 /* AccountClosing2View.swift */,
+				AF65D4642D40AB1A006AD2F6 /* IdolAddView.swift */,
+				AF65D4652D40AB1A006AD2F6 /* IdolChangeView.swift */,
+				AF65D4662D40AB1A006AD2F6 /* LoginInfo.swift */,
+				AF65D4672D40AB1A006AD2F6 /* MyPageTopView.swift */,
+				AF65D4682D40AB1A006AD2F6 /* MyPageView.swift */,
+				AF65D4692D40AB1A006AD2F6 /* PostDetailView.swift */,
+				AF65D46A2D40AB1A006AD2F6 /* PostRecommendedFilterChangeView.swift */,
+				AF65D46B2D40AB1A006AD2F6 /* PostScrapView.swift */,
+				AF65D46C2D40AB1A006AD2F6 /* PushNotificationView.swift */,
+			);
+			path = MyPage;
+			sourceTree = "<group>";
+		};
+		AF65D4702D40AB1A006AD2F6 /* OthersPage */ = {
+			isa = PBXGroup;
+			children = (
+				AF65D46E2D40AB1A006AD2F6 /* OtherProfileView.swift */,
+				AF65D46F2D40AB1A006AD2F6 /* ReviewWriteView.swift */,
+			);
+			path = OthersPage;
+			sourceTree = "<group>";
+		};
+		AF65D4712D40AB1A006AD2F6 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				AF65D46D2D40AB1A006AD2F6 /* MyPage */,
+				AF65D4702D40AB1A006AD2F6 /* OthersPage */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		AF65D4872D40AB2F006AD2F6 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				AF65D4832D40AB2F006AD2F6 /* FeedManagementViewController.swift */,
+				AF65D4842D40AB2F006AD2F6 /* ProfileModifyViewController.swift */,
+				AF65D4852D40AB2F006AD2F6 /* ProfileViewController.swift */,
+				AF65D4862D40AB2F006AD2F6 /* ReviewViewController.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		AF65D4922D40AB2F006AD2F6 /* MyPage */ = {
+			isa = PBXGroup;
+			children = (
+				AF65D4872D40AB2F006AD2F6 /* Profile */,
+				AF65D4882D40AB2F006AD2F6 /* AccountClosing1ViewController.swift */,
+				AF65D4892D40AB2F006AD2F6 /* AccountClosing2ViewController.swift */,
+				AF65D48A2D40AB2F006AD2F6 /* IdolAddViewController.swift */,
+				AF65D48B2D40AB2F006AD2F6 /* IdolChangeViewController.swift */,
+				AF65D48C2D40AB2F006AD2F6 /* LoginInfoViewController.swift */,
+				AF65D48E2D40AB2F006AD2F6 /* PostDetailViewController.swift */,
+				AF65D48F2D40AB2F006AD2F6 /* PostRecommendedFilterViewController.swift */,
+				AF65D4902D40AB2F006AD2F6 /* PostScrapViewController.swift */,
+				AF65D4912D40AB2F006AD2F6 /* PushNotificationViewController.swift */,
+			);
+			path = MyPage;
+			sourceTree = "<group>";
+		};
+		AF65D4952D40AB2F006AD2F6 /* OtherPage */ = {
+			isa = PBXGroup;
+			children = (
+				AF65D4932D40AB2F006AD2F6 /* OtherProfileModifyViewController.swift */,
+				AF65D4942D40AB2F006AD2F6 /* ReviewWriteViewController.swift */,
+			);
+			path = OtherPage;
+			sourceTree = "<group>";
+		};
+		AF65D49A2D40AB2F006AD2F6 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				AF65D4922D40AB2F006AD2F6 /* MyPage */,
+				AF65D4952D40AB2F006AD2F6 /* OtherPage */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
 		FA4FE3FE2D2FA23D007423E3 = {
 			isa = PBXGroup;
 			children = (
 				FA4FE4092D2FA23D007423E3 /* Duckmelang */,
-				FA4FE4082D2FA23D007423E3 /* Products */,
+				AF65D4712D40AB1A006AD2F6 /* View */,
+				AF65D49A2D40AB2F006AD2F6 /* ViewControllers */,
 			);
-			sourceTree = "<group>";
-		};
-		FA4FE4082D2FA23D007423E3 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				FA4FE4072D2FA23D007423E3 /* Duckmelang.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -93,6 +246,7 @@
 				FA4FE4DE2D2FA7CF007423E3 /* Then */,
 				FA4FE4E12D2FA7F9007423E3 /* Moya */,
 				FA4FE4E42D2FA80D007423E3 /* Kingfisher */,
+				AF65D4B62D40B481006AD2F6 /* Cosmos */,
 			);
 			productName = Duckmelang;
 			productReference = FA4FE4072D2FA23D007423E3 /* Duckmelang.app */;
@@ -127,9 +281,10 @@
 				FA4FE4DD2D2FA7CF007423E3 /* XCRemoteSwiftPackageReference "Then" */,
 				FA4FE4E02D2FA7F9007423E3 /* XCRemoteSwiftPackageReference "Moya" */,
 				FA4FE4E32D2FA80D007423E3 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				AF65D4B52D40B481006AD2F6 /* XCRemoteSwiftPackageReference "Cosmos" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = FA4FE4082D2FA23D007423E3 /* Products */;
+			productRefGroup = FA4FE3FE2D2FA23D007423E3;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -153,6 +308,38 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF65D4722D40AB1B006AD2F6 /* ProfileModifyView.swift in Sources */,
+				AF65D4732D40AB1B006AD2F6 /* PostScrapView.swift in Sources */,
+				AF65D4742D40AB1B006AD2F6 /* AccountClosing2View.swift in Sources */,
+				AF65D4752D40AB1B006AD2F6 /* IdolChangeView.swift in Sources */,
+				AF65D4762D40AB1B006AD2F6 /* OtherProfileView.swift in Sources */,
+				AF65D4772D40AB1B006AD2F6 /* MyPageView.swift in Sources */,
+				AF65D4782D40AB1B006AD2F6 /* ProfileView.swift in Sources */,
+				AF65D4792D40AB1B006AD2F6 /* PushNotificationView.swift in Sources */,
+				AF65D47A2D40AB1B006AD2F6 /* IdolAddView.swift in Sources */,
+				AF65D47B2D40AB1B006AD2F6 /* ReviewView.swift in Sources */,
+				AF65D47C2D40AB1B006AD2F6 /* LoginInfo.swift in Sources */,
+				AF65D47D2D40AB1B006AD2F6 /* FeedManagementViewl.swift in Sources */,
+				AF65D47E2D40AB1B006AD2F6 /* MyPageTopView.swift in Sources */,
+				AF65D47F2D40AB1B006AD2F6 /* PostDetailView.swift in Sources */,
+				AF65D4802D40AB1B006AD2F6 /* AccountClosing1View.swift in Sources */,
+				AF65D49C2D40AB2F006AD2F6 /* AccountClosing1ViewController.swift in Sources */,
+				AF65D49D2D40AB2F006AD2F6 /* IdolChangeViewController.swift in Sources */,
+				AF65D49E2D40AB2F006AD2F6 /* AccountClosing2ViewController.swift in Sources */,
+				AF65D49F2D40AB2F006AD2F6 /* ProfileViewController.swift in Sources */,
+				AF65D4A12D40AB2F006AD2F6 /* IdolAddViewController.swift in Sources */,
+				AF65D4A42D40AB2F006AD2F6 /* FeedManagementViewController.swift in Sources */,
+				AF65D4A52D40AB2F006AD2F6 /* PostRecommendedFilterViewController.swift in Sources */,
+				AF65D4A62D40AB2F006AD2F6 /* PostDetailViewController.swift in Sources */,
+				AF65D4A72D40AB2F006AD2F6 /* OtherProfileModifyViewController.swift in Sources */,
+				AF65D4A82D40AB2F006AD2F6 /* ReviewViewController.swift in Sources */,
+				AF65D4A92D40AB2F006AD2F6 /* ProfileModifyViewController.swift in Sources */,
+				AF65D4AA2D40AB2F006AD2F6 /* ReviewWriteViewController.swift in Sources */,
+				AF65D4AB2D40AB2F006AD2F6 /* PostScrapViewController.swift in Sources */,
+				AF65D4AD2D40AB2F006AD2F6 /* LoginInfoViewController.swift in Sources */,
+				AF65D4AE2D40AB2F006AD2F6 /* PushNotificationViewController.swift in Sources */,
+				AF65D4812D40AB1B006AD2F6 /* ReviewWriteView.swift in Sources */,
+				AF65D4822D40AB1B006AD2F6 /* PostRecommendedFilterChangeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,6 +541,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		AF65D4B52D40B481006AD2F6 /* XCRemoteSwiftPackageReference "Cosmos" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/Cosmos.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 25.0.1;
+			};
+		};
 		FA4FE4DA2D2FA7C6007423E3 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit";
@@ -389,6 +584,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AF65D4B62D40B481006AD2F6 /* Cosmos */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AF65D4B52D40B481006AD2F6 /* XCRemoteSwiftPackageReference "Cosmos" */;
+			productName = Cosmos;
+		};
 		FA4FE4DB2D2FA7C6007423E3 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = FA4FE4DA2D2FA7C6007423E3 /* XCRemoteSwiftPackageReference "SnapKit" */;
