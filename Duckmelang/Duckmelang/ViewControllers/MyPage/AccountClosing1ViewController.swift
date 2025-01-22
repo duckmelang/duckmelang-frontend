@@ -1,16 +1,17 @@
 //
-//  MyPageViewController.swift
+//  AccountClosing1ViewController.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 1/9/25.
+//  Created by KoNangYeon on 1/14/25.
 //
 
 import UIKit
 
-class MyPageViewController: UIViewController {
+class AccountClosing1ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         // Do any additional setup after loading the view.
     }
     
