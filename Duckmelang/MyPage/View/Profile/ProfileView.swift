@@ -68,7 +68,7 @@ class ProfileTopView: UIView {
         $0.setImage(.moreVertical, for: .normal)
     }
     
-    private lazy var topStack = Stack(axis: .horizontal, distribution: .equalSpacing, alignment: .center)
+    private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
     private lazy var profileImage = UIImageView().then {
         $0.image = .profile
