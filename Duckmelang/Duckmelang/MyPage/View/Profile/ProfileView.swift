@@ -206,7 +206,7 @@ class ProfileBottomView: UIView {
     lazy var reviewTableView = UITableView().then {
         $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
         $0.separatorStyle = .none
-        $0.rowHeight = 106
+        $0.rowHeight = 72
         $0.isHidden = true
     }
     
