@@ -53,7 +53,7 @@ class reviewCell: UITableViewCell {
         $0.textInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
     }
     
-    let genderAndAgeStack = Stack(axis: .horizontal, spacing: 0.2)
+    let genderAndAgeStack = Stack(axis: .horizontal)
     let nicknameAndInfr = Stack(axis: .vertical, spacing: 5, alignment: .leading)
 
     private func addStack(){
@@ -68,7 +68,7 @@ class reviewCell: UITableViewCell {
             $0.height.equalTo(40)
             $0.top.equalToSuperview().inset(15)
             $0.leading.equalToSuperview().inset(16)
-            $0.width.equalTo(76)
+            $0.width.equalTo(70)
         }
         
         review.snp.makeConstraints{
