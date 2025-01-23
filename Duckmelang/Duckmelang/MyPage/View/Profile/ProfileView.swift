@@ -204,7 +204,7 @@ class ProfileBottomView: UIView {
     
     //변경 예정
     lazy var reviewTableView = UITableView().then {
-        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
+        $0.register(reviewCell.self, forCellReuseIdentifier: reviewCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 72
         $0.isHidden = true
@@ -253,7 +253,7 @@ class ProfileBottomView: UIView {
         uploadPostView.snp.makeConstraints {
             $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
-            $0.height.equalTo(200)
+            $0.height.equalTo(400)
         }
         
         cosmosView.snp.makeConstraints{
@@ -269,9 +269,9 @@ class ProfileBottomView: UIView {
         }
         
         reviewTableView.snp.makeConstraints{
-            $0.top.equalTo(segmentedControl.snp.bottom).offset(60)
+            $0.top.equalTo(cosmosStack.snp.bottom).offset(18)
             $0.horizontalEdges.bottom.equalToSuperview()
-            $0.height.equalTo(200)
+            $0.height.equalTo(400)
         }
     }
 }

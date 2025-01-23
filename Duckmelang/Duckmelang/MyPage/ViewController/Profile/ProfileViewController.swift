@@ -11,9 +11,7 @@ class ProfileViewController: UIViewController{
     var selectedTag: Int = 0
        
     let data1 = PostModel.dummy1()
-    
-    //reviewTabelView의 더미인데 일단 이렇게 해둠..
-    let data2 = PostModel.dummy2()
+    let data2 = reviewModel.dummy()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,7 +88,7 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
                 return cell
                 
             } else if (tableView == profileView.profileBottomView.reviewTableView) {
-                guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
+                guard let cell = tableView.dequeueReusableCell(withIdentifier: reviewCell.identifier, for: indexPath) as? reviewCell else {
                     return UITableViewCell()
                 }
                 cell.configure(model: data2[indexPath.row])
@@ -99,4 +97,4 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
             
             return UITableViewCell()
         }
-    }
+}
