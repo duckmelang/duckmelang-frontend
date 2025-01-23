@@ -18,11 +18,12 @@ class MyPageViewController: UIViewController {
     }
     
     private lazy var myPageView = MyPageView().then {
-        $0.myPageTopView.profileSeeBtn.addTarget(self, action: #selector(profileSeeBtnDidTap), for: .touchUpInside)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backViewDidTap))
+        tapGesture.numberOfTapsRequired = 1 // 단일 탭, 횟수 설정
+        $0.myPageTopView.backView.addGestureRecognizer(tapGesture)
     }
-    
-    @objc
-    private func profileSeeBtnDidTap() {
+
+    @objc func backViewDidTap() {
         let profileVC = UINavigationController(rootViewController: ProfileViewController())
         profileVC.modalPresentationStyle = .fullScreen
         present(profileVC, animated: false)

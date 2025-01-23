@@ -20,7 +20,7 @@ class MyPageTopView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var backView = UIView().then {
+    lazy var backView = UIView().then {
         $0.layer.borderColor = UIColor.grey200?.cgColor
         $0.layer.borderWidth = 1
         $0.layer.cornerRadius = 7
@@ -41,15 +41,14 @@ class MyPageTopView: UIView {
     
     private lazy var age = Label(text: "나이", font: .ptdMediumFont(ofSize: 13), color: .grey600)
     
-    lazy var profileSeeBtn = UIButton().then {
+    /*lazy var profileSeeBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
         $0.backgroundColor = .dmrBlue
         config.attributedTitle = AttributedString("프로필 보기", attributes: AttributeContainer([.font: UIFont.ptdBoldFont(ofSize: 13), .foregroundColor: UIColor.grey100!]))
         $0.layer.cornerRadius = 5
         $0.configuration = config
-        
-    }
+    }*///와이어 프레임에서 버튼 없앰
 
     lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1)
     private lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
@@ -63,7 +62,7 @@ class MyPageTopView: UIView {
     
     private func setupView() {
         [backView].forEach{addSubview($0)}
-        [profileInfo, profileSeeBtn].forEach{backView.addSubview($0)}
+        [profileInfo].forEach{backView.addSubview($0)}
         
         backView.snp.makeConstraints{
             $0.centerX.equalToSuperview()
@@ -74,11 +73,6 @@ class MyPageTopView: UIView {
         
         profileInfo.snp.makeConstraints{
             $0.left.equalToSuperview().inset(16)
-            $0.centerY.equalToSuperview()
-        }
-        
-        profileSeeBtn.snp.makeConstraints{
-            $0.right.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }
     }
