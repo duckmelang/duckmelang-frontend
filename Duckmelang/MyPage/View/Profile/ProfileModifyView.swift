@@ -42,7 +42,7 @@ class ProfileModifyView: UIView {
         $0.layer.cornerRadius = $0.frame.height/2
     }
     
-    private lazy var profileAddBtn = UIButton().then {
+    lazy var profileAddBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = UIImage(resource: .add)
         $0.configuration = config
@@ -65,6 +65,18 @@ class ProfileModifyView: UIView {
         $0.configTextField(placeholder: "자기소개를 입력해주세요", leftView: UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0)), leftViewMode: .always, interaction: true)
     }
     
+    lazy var alert = UIImageView().then {
+        $0.image = UIImage(resource: .alert)
+        $0.isUserInteractionEnabled = true
+        $0.contentMode = .scaleAspectFit
+        $0.isHidden = true
+    }
+    
+    lazy var blurBackgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .dark)).then {
+        $0.isHidden = true // 기본적으로 숨김
+        $0.alpha = 0.8
+    }
+    
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     private lazy var nicknameStack = Stack(axis: .vertical, spacing: 10, alignment: .leading)
     private lazy var selfPRStack = Stack(axis: .vertical, spacing: 10, alignment: .leading)
@@ -78,7 +90,11 @@ class ProfileModifyView: UIView {
     }
     
     private func setupView(){
-        [topStack, profileImage, profileAddBtn, textFieldStack].forEach{addSubview($0)}
+        [blurBackgroundView,topStack, profileImage, profileAddBtn, textFieldStack, alert].forEach{addSubview($0)}
+        
+        blurBackgroundView.snp.makeConstraints {
+            $0.edges.equalToSuperview() // 화면 전체를 덮음
+        }
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
@@ -111,6 +127,11 @@ class ProfileModifyView: UIView {
         selfPRTextFiled.snp.makeConstraints{
             $0.height.equalTo(39)
             $0.width.equalTo(textFieldStack.snp.width)
+        }
+        
+        alert.snp.makeConstraints{
+            $0.centerX.centerY.equalToSuperview()
+            $0.height.equalTo(118)
         }
     }
 }
