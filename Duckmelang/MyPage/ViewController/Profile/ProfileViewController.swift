@@ -82,11 +82,13 @@ class ProfileViewController: UIViewController{
             let profileModifyVC = UINavigationController(rootViewController: ProfileModifyViewController())
             profileModifyVC.modalPresentationStyle = .fullScreen
             present(profileModifyVC, animated: false)
+            profileView.profileTopView.setBtnImage.isHidden = true
         } else {
             // 아랫부분 터치
             let feedVC = UINavigationController(rootViewController: FeedManagementViewController())
             feedVC.modalPresentationStyle = .fullScreen
             present(feedVC, animated: false)
+            profileView.profileTopView.setBtnImage.isHidden = true
         }
     }
     

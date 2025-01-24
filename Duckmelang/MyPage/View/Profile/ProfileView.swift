@@ -72,6 +72,7 @@ class ProfileTopView: UIView {
     
     private lazy var profileImage = UIImageView().then {
         $0.image = .profile
+        $0.layer.cornerRadius = $0.frame.height/2
     }
     
     private lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 17), color: .black)

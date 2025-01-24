@@ -18,7 +18,7 @@ class ProfileModifyViewController: UIViewController {
         setupAction()
     }
     
-    private lazy var profileModifyView = FeedManagementView()
+    private lazy var profileModifyView = ProfileModifyView()
 
     @objc
     private func backBtnDidTap() {
