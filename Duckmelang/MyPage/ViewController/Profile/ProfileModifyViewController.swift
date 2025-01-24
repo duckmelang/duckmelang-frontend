@@ -40,7 +40,13 @@ class ProfileModifyViewController: UIViewController {
     
     @objc
     private func finishBtnDidTap() {
-        self.presentingViewController?.dismiss(animated: false)
+        if (profileModifyView.nicknameTextField.text == ""){
+            profileModifyView.nicknameTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
+            profileModifyView.nicknameTextField.textColor = .errorPrimary
+            profileModifyView.nicknameErrorText.isHidden = false
+        }else {
+            self.presentingViewController?.dismiss(animated: false)
+        }
     }
     
     @objc

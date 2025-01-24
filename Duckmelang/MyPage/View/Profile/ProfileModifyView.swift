@@ -53,10 +53,14 @@ class ProfileModifyView: UIView {
     
     private lazy var selfPR = Label(text: "자기소개", font: .ptdMediumFont(ofSize: 15), color: .grey700)
     
-    private lazy var nicknameTextFiled = TextField().then {
+    lazy var nicknameTextField = TextField().then {
         $0.configLabel(text: "", font: .ptdMediumFont(ofSize: 15), color: .grey600!)
         $0.configLayer(layerBorderWidth: 1, layerCornerRadius: 5, layerColor: .grey400)
         $0.configTextField(placeholder: "닉네임을 입력해주세요", leftView: UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0)), leftViewMode: .always, interaction: true)
+    }
+    
+    lazy var nicknameErrorText = Label(text: "닉네임을 정확히 입력해주세요.", font: .ptdMediumFont(ofSize: 13), color: .errorPrimary).then {
+        $0.isHidden = true
     }
     
     private lazy var selfPRTextFiled = TextField().then {
@@ -84,13 +88,13 @@ class ProfileModifyView: UIView {
     
     private func addStack(){
         [backBtn, profileModifyTitle, finishBtn].forEach{topStack.addArrangedSubview($0)}
-        [nickname, nicknameTextFiled].forEach{nicknameStack.addArrangedSubview($0)}
+        [nickname, nicknameTextField].forEach{nicknameStack.addArrangedSubview($0)}
         [selfPR, selfPRTextFiled].forEach{selfPRStack.addArrangedSubview($0)}
         [nicknameStack, selfPRStack].forEach{textFieldStack.addArrangedSubview($0)}
     }
     
     private func setupView(){
-        [blurBackgroundView,topStack, profileImage, profileAddBtn, textFieldStack, alert].forEach{addSubview($0)}
+        [blurBackgroundView,topStack, profileImage, profileAddBtn, textFieldStack, alert, nicknameErrorText].forEach{addSubview($0)}
         
         blurBackgroundView.snp.makeConstraints {
             $0.edges.equalToSuperview() // 화면 전체를 덮음
@@ -119,9 +123,14 @@ class ProfileModifyView: UIView {
             $0.top.equalTo(profileImage.snp.bottom).offset(28)
         }
         
-        nicknameTextFiled.snp.makeConstraints{
+        nicknameTextField.snp.makeConstraints{
             $0.height.equalTo(39)
             $0.width.equalTo(textFieldStack.snp.width)
+        }
+        
+        nicknameErrorText.snp.makeConstraints{
+            $0.leading.equalToSuperview().inset(16)
+            $0.top.equalTo(nicknameTextField.snp.bottom).offset(2)
         }
         
         selfPRTextFiled.snp.makeConstraints{
