@@ -20,6 +20,7 @@ class MessageViewController: UIViewController {
         
         setupNavigationBar()
         setupDelegate()
+        setupAction()
     }
     
     private lazy var messageView: MessageView = {
@@ -46,6 +47,37 @@ class MessageViewController: UIViewController {
         messageView.messageCollectionView.delegate = self
         messageView.messageCollectionView.dataSource = self
         messageView.bottomView.messageTextField.delegate = self
+    }
+    
+    private func setupAction() {
+        messageView.bottomView.sendBtn.addTarget(self, action: #selector(appendNewMessage), for: .touchUpInside)
+    }
+    
+    @objc private func appendNewMessage() {
+        if (messageView.bottomView.messageTextField.text == "") {
+            return
+        }
+        
+        let newMessage = MessageModel(text: messageView.bottomView.messageTextField.text ?? "", chatType: .send, date: Date())
+        data.append(newMessage)
+        messageView.messageCollectionView.reloadData()
+        
+        DispatchQueue.main.async {
+            self.scrollToLastItem()
+        }
+        
+        messageView.bottomView.messageTextField.text = "" // 입력창 초기화
+    }
+    
+    private func scrollToLastItem() {
+        let lastSection = messageView.messageCollectionView.numberOfSections - 1
+        guard lastSection >= 0 else { return } // 섹션이 없을 경우 방지
+
+        let lastItem = messageView.messageCollectionView.numberOfItems(inSection: lastSection) - 1
+        guard lastItem >= 0 else { return } // 항목이 없을 경우 방지
+
+        let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
+        messageView.messageCollectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
     }
 }
 
@@ -99,26 +131,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
 
 extension MessageViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        let newMessage = MessageModel(text: textField.text ?? "", chatType: .send, date: Date())
-        data.append(newMessage)
-        messageView.messageCollectionView.reloadData()
-        
-        DispatchQueue.main.async {
-            self.scrollToLastItem()
-        }
-        
-        messageView.bottomView.messageTextField.text = "" // 입력창 초기화
+        appendNewMessage()
         return true
-    }
-    
-    func scrollToLastItem() {
-        let lastSection = messageView.messageCollectionView.numberOfSections - 1
-        guard lastSection >= 0 else { return } // 섹션이 없을 경우 방지
-
-        let lastItem = messageView.messageCollectionView.numberOfItems(inSection: lastSection) - 1
-        guard lastItem >= 0 else { return } // 항목이 없을 경우 방지
-
-        let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
-        messageView.messageCollectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
     }
 }
