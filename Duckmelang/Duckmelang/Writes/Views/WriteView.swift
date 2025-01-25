@@ -95,6 +95,8 @@ class WriteView: UIView {
     }
 
     private let idolSelectButton = smallStorkeCustomBtn(title: "선택").then {
+        $0.borderColor = .grey400
+        $0.titleColor = .grey400
         $0.addTarget(self,action: #selector(idolSelectButtonTapped),for: .touchUpInside)
     }
     
@@ -237,8 +239,9 @@ class WriteView: UIView {
     }
 
     func updateSelectedCeleb(_ celeb: Celeb) {
-        selectedCelebLabel.text = celeb.name
-        selectedCelebLabel.textColor = .black
+        idolSelectButton.setTitle(celeb.name, for: .normal)
+        idolSelectButton.titleColor = .black
+        idolSelectButton.borderColor = .black
     }
 }
 
