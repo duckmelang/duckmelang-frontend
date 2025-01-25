@@ -48,7 +48,7 @@ class HomeViewController: UIViewController {
     }
 
     @objc private func showCelebSelection() {
-        let selectionVC = CelebSelectionView(
+        let selectionVC = CelebSelectionViewController(
             celebs: homeView.celebs,
             selectedCeleb: selectedCeleb
         )
@@ -63,11 +63,10 @@ class HomeViewController: UIViewController {
         
         isSelectionOpen = true
         homeView.updateChevronIcon(isExpanded: true)
+        
         selectionVC.dismissCompletion = { [weak self] in
-            guard let self = self else { return }
-            self.isSelectionOpen = false
-            self.homeView
-                .updateChevronIcon(isExpanded: false)
+            self?.isSelectionOpen = false
+            self?.homeView.updateChevronIcon(isExpanded: false)
         }
 
         present(selectionVC, animated: true)
@@ -75,14 +74,10 @@ class HomeViewController: UIViewController {
     
     @objc private func bellIconTapped() {
         print("🔔 Bell icon tapped!")
-        //        let notificationsVC = NotificationsViewController()
-        //        navigationController?.pushViewController(notificationsVC, animated: true)
     }
 
     @objc private func findIconTapped() {
         print("🔍 Find icon tapped!")
-        //        let searchVC = SearchViewController()
-        //        navigationController?.pushViewController(searchVC, animated: true)
     }
 
     @objc private func writeButtonTapped() {

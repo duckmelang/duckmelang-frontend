@@ -9,7 +9,13 @@ import UIKit
 import Then
 import SnapKit
 
+protocol WriteViewDelegate: AnyObject {
+    func didTapIdolSelectButton()
+}
+
 class WriteView: UIView {
+    
+    weak var delegate: WriteViewDelegate?
     
     private let scrollView = UIScrollView().then {
         $0.isScrollEnabled = true
@@ -70,11 +76,10 @@ class WriteView: UIView {
         $0.textColor = .black
     }
     
-    // 레이블 (회색 적용)
-    private let idolLabel = UILabel().then {
+    private let selectedCelebLabel = UILabel().then {
         $0.text = "아이돌"
         $0.font = .ptdRegularFont(ofSize: 15)
-        $0.textColor = .systemGray
+        $0.textColor = .grey600
     }
     
     private let eventTypeLabel = UILabel().then {
@@ -88,14 +93,16 @@ class WriteView: UIView {
         $0.font = .ptdRegularFont(ofSize: 15)
         $0.textColor = .systemGray
     }
+
+    private let idolSelectButton = smallStorkeCustomBtn(title: "선택").then {
+        $0.addTarget(self,action: #selector(idolSelectButtonTapped),for: .touchUpInside)
+    }
     
-    // smallStorkeCustomBtn 사용
-    private let idolSelectButton = smallStorkeCustomBtn(title: "선택")
     private let eventTypeSelectButton = smallStorkeCustomBtn(title: "선택")
     private let eventDateSelectButton = smallStorkeCustomBtn(title: "선택")
 
     // StackView 정렬 (왼쪽 레이블, 오른쪽 버튼)
-    private lazy var idolStackView = UIStackView(arrangedSubviews: [idolLabel, idolSelectButton]).then {
+    private lazy var idolStackView = UIStackView(arrangedSubviews: [selectedCelebLabel, idolSelectButton]).then {
         $0.axis = .horizontal
         $0.spacing = 10
         $0.alignment = .fill
@@ -223,6 +230,14 @@ class WriteView: UIView {
     
     private func setupPlaceholder() {
         contentTextView.delegate = self
+    }
+
+    @objc private func idolSelectButtonTapped() {
+        delegate?.didTapIdolSelectButton()
+    }
+
+    func updateSelectedCeleb(_ celeb: Celeb) {
+        selectedCelebLabel.text = celeb.name
     }
 }
 
