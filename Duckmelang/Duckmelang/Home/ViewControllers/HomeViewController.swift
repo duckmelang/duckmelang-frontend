@@ -87,8 +87,8 @@ class HomeViewController: UIViewController {
 
     @objc private func writeButtonTapped() {
         print("📝 Write button tapped!")
-        //        let writeVC = WriteViewController()
-        //        navigationController?.pushViewController(writeVC, animated: true)
+        let writeVC = WriteViewController()
+        navigationController?.pushViewController(writeVC, animated: true)
     }
 }
 
