@@ -25,20 +25,9 @@ class EventSelectionView: UIViewController {
         return stackView
     }()
     
-    private lazy var completeButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("완료", for: .normal)
-        button.backgroundColor = UIColor.systemBlue
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 10
-        button
-            .addTarget(
-                self,
-                action: #selector(didTapCompleteButton),
-                for: .touchUpInside
-            )
-        return button
-    }()
+    let completeButton = smallFilledCustomBtn(title: "완료").then{
+        $0.addTarget(self,action: #selector(didTapCompleteButton),for: .touchUpInside)
+    }
 
     init(selectedEvent: Event?) {
         self.selectedEvent = selectedEvent
