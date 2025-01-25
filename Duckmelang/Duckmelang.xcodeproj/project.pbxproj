@@ -17,38 +17,6 @@
 		AF65D89A2D429167006AD2F6 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292D2D39EE460036A9AC /* Then */; };
 		AF65D89B2D429167006AD2F6 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29302D39EF990036A9AC /* Then */; };
 		AF65D89C2D429167006AD2F6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29332D39EFA40036A9AC /* SnapKit */; };
-		AF65D9732D429584006AD2F6 /* PostScrapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9682D429584006AD2F6 /* PostScrapViewController.swift */; };
-		AF65D9742D429584006AD2F6 /* ProfileModifyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D94C2D429584006AD2F6 /* ProfileModifyView.swift */; };
-		AF65D9752D429584006AD2F6 /* PushNotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9692D429584006AD2F6 /* PushNotificationViewController.swift */; };
-		AF65D9762D429584006AD2F6 /* ProfileModifyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D95D2D429584006AD2F6 /* ProfileModifyViewController.swift */; };
-		AF65D9772D429584006AD2F6 /* PostRecommendedFilterChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9582D429584006AD2F6 /* PostRecommendedFilterChangeView.swift */; };
-		AF65D9782D429584006AD2F6 /* PostScrapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9592D429584006AD2F6 /* PostScrapView.swift */; };
-		AF65D9792D429584006AD2F6 /* FeedManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D95C2D429584006AD2F6 /* FeedManagementViewController.swift */; };
-		AF65D97A2D429584006AD2F6 /* OtherProfileModifyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D96F2D429584006AD2F6 /* OtherProfileModifyViewController.swift */; };
-		AF65D97B2D429584006AD2F6 /* IdolAddViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9632D429584006AD2F6 /* IdolAddViewController.swift */; };
-		AF65D97C2D429584006AD2F6 /* PushNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D95A2D429584006AD2F6 /* PushNotificationView.swift */; };
-		AF65D97D2D429584006AD2F6 /* ReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D95F2D429584006AD2F6 /* ReviewViewController.swift */; };
-		AF65D97E2D429584006AD2F6 /* LoginInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9542D429584006AD2F6 /* LoginInfo.swift */; };
-		AF65D97F2D429584006AD2F6 /* IdolChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9532D429584006AD2F6 /* IdolChangeView.swift */; };
-		AF65D9802D429584006AD2F6 /* AccountClosing2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9512D429584006AD2F6 /* AccountClosing2View.swift */; };
-		AF65D9812D429584006AD2F6 /* MyPageTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9552D429584006AD2F6 /* MyPageTopView.swift */; };
-		AF65D9822D429584006AD2F6 /* ReviewWriteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9702D429584006AD2F6 /* ReviewWriteViewController.swift */; };
-		AF65D9832D429584006AD2F6 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D94D2D429584006AD2F6 /* ProfileView.swift */; };
-		AF65D9842D429584006AD2F6 /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D94E2D429584006AD2F6 /* ReviewView.swift */; };
-		AF65D9852D429584006AD2F6 /* OtherProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D96C2D429584006AD2F6 /* OtherProfileView.swift */; };
-		AF65D9862D429584006AD2F6 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D95E2D429584006AD2F6 /* ProfileViewController.swift */; };
-		AF65D9872D429584006AD2F6 /* ReviewWriteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D96D2D429584006AD2F6 /* ReviewWriteView.swift */; };
-		AF65D9882D429584006AD2F6 /* LoginInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9652D429584006AD2F6 /* LoginInfoViewController.swift */; };
-		AF65D9892D429584006AD2F6 /* PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9572D429584006AD2F6 /* PostDetailView.swift */; };
-		AF65D98A2D429584006AD2F6 /* FeedManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D94B2D429584006AD2F6 /* FeedManagementView.swift */; };
-		AF65D98B2D429584006AD2F6 /* MyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9562D429584006AD2F6 /* MyPageView.swift */; };
-		AF65D98C2D429584006AD2F6 /* PostDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9662D429584006AD2F6 /* PostDetailViewController.swift */; };
-		AF65D98D2D429584006AD2F6 /* AccountClosing1ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9612D429584006AD2F6 /* AccountClosing1ViewController.swift */; };
-		AF65D98E2D429584006AD2F6 /* PostRecommendedFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9672D429584006AD2F6 /* PostRecommendedFilterViewController.swift */; };
-		AF65D98F2D429584006AD2F6 /* IdolAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9522D429584006AD2F6 /* IdolAddView.swift */; };
-		AF65D9902D429584006AD2F6 /* IdolChangeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9642D429584006AD2F6 /* IdolChangeViewController.swift */; };
-		AF65D9912D429584006AD2F6 /* AccountClosing1View.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9502D429584006AD2F6 /* AccountClosing1View.swift */; };
-		AF65D9922D429584006AD2F6 /* AccountClosing2ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF65D9622D429584006AD2F6 /* AccountClosing2ViewController.swift */; };
 		AF65D99D2D429654006AD2F6 /* Cosmos in Frameworks */ = {isa = PBXBuildFile; productRef = AF65D99C2D429654006AD2F6 /* Cosmos */; };
 		FA6B34992D3F8FF1000D9697 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34982D3F8FF1000D9697 /* SnapKit */; };
 		FA6B349F2D3F8FFD000D9697 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B349E2D3F8FFD000D9697 /* Kingfisher */; };
@@ -59,38 +27,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		AF65D94B2D429584006AD2F6 /* FeedManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedManagementView.swift; sourceTree = "<group>"; };
-		AF65D94C2D429584006AD2F6 /* ProfileModifyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModifyView.swift; sourceTree = "<group>"; };
-		AF65D94D2D429584006AD2F6 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		AF65D94E2D429584006AD2F6 /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
-		AF65D9502D429584006AD2F6 /* AccountClosing1View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountClosing1View.swift; sourceTree = "<group>"; };
-		AF65D9512D429584006AD2F6 /* AccountClosing2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountClosing2View.swift; sourceTree = "<group>"; };
-		AF65D9522D429584006AD2F6 /* IdolAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdolAddView.swift; sourceTree = "<group>"; };
-		AF65D9532D429584006AD2F6 /* IdolChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdolChangeView.swift; sourceTree = "<group>"; };
-		AF65D9542D429584006AD2F6 /* LoginInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginInfo.swift; sourceTree = "<group>"; };
-		AF65D9552D429584006AD2F6 /* MyPageTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageTopView.swift; sourceTree = "<group>"; };
-		AF65D9562D429584006AD2F6 /* MyPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageView.swift; sourceTree = "<group>"; };
-		AF65D9572D429584006AD2F6 /* PostDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailView.swift; sourceTree = "<group>"; };
-		AF65D9582D429584006AD2F6 /* PostRecommendedFilterChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostRecommendedFilterChangeView.swift; sourceTree = "<group>"; };
-		AF65D9592D429584006AD2F6 /* PostScrapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostScrapView.swift; sourceTree = "<group>"; };
-		AF65D95A2D429584006AD2F6 /* PushNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationView.swift; sourceTree = "<group>"; };
-		AF65D95C2D429584006AD2F6 /* FeedManagementViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedManagementViewController.swift; sourceTree = "<group>"; };
-		AF65D95D2D429584006AD2F6 /* ProfileModifyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModifyViewController.swift; sourceTree = "<group>"; };
-		AF65D95E2D429584006AD2F6 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
-		AF65D95F2D429584006AD2F6 /* ReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewController.swift; sourceTree = "<group>"; };
-		AF65D9612D429584006AD2F6 /* AccountClosing1ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountClosing1ViewController.swift; sourceTree = "<group>"; };
-		AF65D9622D429584006AD2F6 /* AccountClosing2ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountClosing2ViewController.swift; sourceTree = "<group>"; };
-		AF65D9632D429584006AD2F6 /* IdolAddViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdolAddViewController.swift; sourceTree = "<group>"; };
-		AF65D9642D429584006AD2F6 /* IdolChangeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdolChangeViewController.swift; sourceTree = "<group>"; };
-		AF65D9652D429584006AD2F6 /* LoginInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginInfoViewController.swift; sourceTree = "<group>"; };
-		AF65D9662D429584006AD2F6 /* PostDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailViewController.swift; sourceTree = "<group>"; };
-		AF65D9672D429584006AD2F6 /* PostRecommendedFilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostRecommendedFilterViewController.swift; sourceTree = "<group>"; };
-		AF65D9682D429584006AD2F6 /* PostScrapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostScrapViewController.swift; sourceTree = "<group>"; };
-		AF65D9692D429584006AD2F6 /* PushNotificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationViewController.swift; sourceTree = "<group>"; };
-		AF65D96C2D429584006AD2F6 /* OtherProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherProfileView.swift; sourceTree = "<group>"; };
-		AF65D96D2D429584006AD2F6 /* ReviewWriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewWriteView.swift; sourceTree = "<group>"; };
-		AF65D96F2D429584006AD2F6 /* OtherProfileModifyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherProfileModifyViewController.swift; sourceTree = "<group>"; };
-		AF65D9702D429584006AD2F6 /* ReviewWriteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewWriteViewController.swift; sourceTree = "<group>"; };
 		FA4FE4072D2FA23D007423E3 /* Duckmelang.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Duckmelang.app; path = "/Users/nauvy__/Documents/GitHub/duckmelang-frontend/Duckmelang/build/Debug-iphoneos/Duckmelang.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -143,106 +79,10 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AF65D94F2D429584006AD2F6 /* Profile */ = {
-			isa = PBXGroup;
-			children = (
-				AF65D94B2D429584006AD2F6 /* FeedManagementView.swift */,
-				AF65D94C2D429584006AD2F6 /* ProfileModifyView.swift */,
-				AF65D94D2D429584006AD2F6 /* ProfileView.swift */,
-				AF65D94E2D429584006AD2F6 /* ReviewView.swift */,
-			);
-			path = Profile;
-			sourceTree = "<group>";
-		};
-		AF65D95B2D429584006AD2F6 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				AF65D94F2D429584006AD2F6 /* Profile */,
-				AF65D9502D429584006AD2F6 /* AccountClosing1View.swift */,
-				AF65D9512D429584006AD2F6 /* AccountClosing2View.swift */,
-				AF65D9522D429584006AD2F6 /* IdolAddView.swift */,
-				AF65D9532D429584006AD2F6 /* IdolChangeView.swift */,
-				AF65D9542D429584006AD2F6 /* LoginInfo.swift */,
-				AF65D9552D429584006AD2F6 /* MyPageTopView.swift */,
-				AF65D9562D429584006AD2F6 /* MyPageView.swift */,
-				AF65D9572D429584006AD2F6 /* PostDetailView.swift */,
-				AF65D9582D429584006AD2F6 /* PostRecommendedFilterChangeView.swift */,
-				AF65D9592D429584006AD2F6 /* PostScrapView.swift */,
-				AF65D95A2D429584006AD2F6 /* PushNotificationView.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		AF65D9602D429584006AD2F6 /* Profile */ = {
-			isa = PBXGroup;
-			children = (
-				AF65D95C2D429584006AD2F6 /* FeedManagementViewController.swift */,
-				AF65D95D2D429584006AD2F6 /* ProfileModifyViewController.swift */,
-				AF65D95E2D429584006AD2F6 /* ProfileViewController.swift */,
-				AF65D95F2D429584006AD2F6 /* ReviewViewController.swift */,
-			);
-			path = Profile;
-			sourceTree = "<group>";
-		};
-		AF65D96A2D429584006AD2F6 /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				AF65D9602D429584006AD2F6 /* Profile */,
-				AF65D9612D429584006AD2F6 /* AccountClosing1ViewController.swift */,
-				AF65D9622D429584006AD2F6 /* AccountClosing2ViewController.swift */,
-				AF65D9632D429584006AD2F6 /* IdolAddViewController.swift */,
-				AF65D9642D429584006AD2F6 /* IdolChangeViewController.swift */,
-				AF65D9652D429584006AD2F6 /* LoginInfoViewController.swift */,
-				AF65D9662D429584006AD2F6 /* PostDetailViewController.swift */,
-				AF65D9672D429584006AD2F6 /* PostRecommendedFilterViewController.swift */,
-				AF65D9682D429584006AD2F6 /* PostScrapViewController.swift */,
-				AF65D9692D429584006AD2F6 /* PushNotificationViewController.swift */,
-			);
-			path = ViewController;
-			sourceTree = "<group>";
-		};
-		AF65D96B2D429584006AD2F6 /* MyPage */ = {
-			isa = PBXGroup;
-			children = (
-				AF65D95B2D429584006AD2F6 /* View */,
-				AF65D96A2D429584006AD2F6 /* ViewController */,
-			);
-			path = MyPage;
-			sourceTree = "<group>";
-		};
-		AF65D96E2D429584006AD2F6 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				AF65D96C2D429584006AD2F6 /* OtherProfileView.swift */,
-				AF65D96D2D429584006AD2F6 /* ReviewWriteView.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		AF65D9712D429584006AD2F6 /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				AF65D96F2D429584006AD2F6 /* OtherProfileModifyViewController.swift */,
-				AF65D9702D429584006AD2F6 /* ReviewWriteViewController.swift */,
-			);
-			path = ViewController;
-			sourceTree = "<group>";
-		};
-		AF65D9722D429584006AD2F6 /* OtherPage */ = {
-			isa = PBXGroup;
-			children = (
-				AF65D96E2D429584006AD2F6 /* View */,
-				AF65D9712D429584006AD2F6 /* ViewController */,
-			);
-			path = OtherPage;
-			sourceTree = "<group>";
-		};
 		FA4FE3FE2D2FA23D007423E3 = {
 			isa = PBXGroup;
 			children = (
 				FA4FE4092D2FA23D007423E3 /* Duckmelang */,
-				AF65D96B2D429584006AD2F6 /* MyPage */,
-				AF65D9722D429584006AD2F6 /* OtherPage */,
 			);
 			sourceTree = "<group>";
 		};
@@ -344,38 +184,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF65D9732D429584006AD2F6 /* PostScrapViewController.swift in Sources */,
-				AF65D9742D429584006AD2F6 /* ProfileModifyView.swift in Sources */,
-				AF65D9752D429584006AD2F6 /* PushNotificationViewController.swift in Sources */,
-				AF65D9762D429584006AD2F6 /* ProfileModifyViewController.swift in Sources */,
-				AF65D9772D429584006AD2F6 /* PostRecommendedFilterChangeView.swift in Sources */,
-				AF65D9782D429584006AD2F6 /* PostScrapView.swift in Sources */,
-				AF65D9792D429584006AD2F6 /* FeedManagementViewController.swift in Sources */,
-				AF65D97A2D429584006AD2F6 /* OtherProfileModifyViewController.swift in Sources */,
-				AF65D97B2D429584006AD2F6 /* IdolAddViewController.swift in Sources */,
-				AF65D97C2D429584006AD2F6 /* PushNotificationView.swift in Sources */,
-				AF65D97D2D429584006AD2F6 /* ReviewViewController.swift in Sources */,
-				AF65D97E2D429584006AD2F6 /* LoginInfo.swift in Sources */,
-				AF65D97F2D429584006AD2F6 /* IdolChangeView.swift in Sources */,
-				AF65D9802D429584006AD2F6 /* AccountClosing2View.swift in Sources */,
-				AF65D9812D429584006AD2F6 /* MyPageTopView.swift in Sources */,
-				AF65D9822D429584006AD2F6 /* ReviewWriteViewController.swift in Sources */,
-				AF65D9832D429584006AD2F6 /* ProfileView.swift in Sources */,
-				AF65D9842D429584006AD2F6 /* ReviewView.swift in Sources */,
-				AF65D9852D429584006AD2F6 /* OtherProfileView.swift in Sources */,
-				AF65D9862D429584006AD2F6 /* ProfileViewController.swift in Sources */,
-				AF65D9872D429584006AD2F6 /* ReviewWriteView.swift in Sources */,
-				AF65D9882D429584006AD2F6 /* LoginInfoViewController.swift in Sources */,
-				AF65D9892D429584006AD2F6 /* PostDetailView.swift in Sources */,
-				AF65D98A2D429584006AD2F6 /* FeedManagementView.swift in Sources */,
-				AF65D98B2D429584006AD2F6 /* MyPageView.swift in Sources */,
-				AF65D98C2D429584006AD2F6 /* PostDetailViewController.swift in Sources */,
-				AF65D98D2D429584006AD2F6 /* AccountClosing1ViewController.swift in Sources */,
-				AF65D98E2D429584006AD2F6 /* PostRecommendedFilterViewController.swift in Sources */,
-				AF65D98F2D429584006AD2F6 /* IdolAddView.swift in Sources */,
-				AF65D9902D429584006AD2F6 /* IdolChangeViewController.swift in Sources */,
-				AF65D9912D429584006AD2F6 /* AccountClosing1View.swift in Sources */,
-				AF65D9922D429584006AD2F6 /* AccountClosing2ViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
