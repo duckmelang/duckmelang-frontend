@@ -238,6 +238,7 @@ class WriteView: UIView {
 
     func updateSelectedCeleb(_ celeb: Celeb) {
         selectedCelebLabel.text = celeb.name
+        selectedCelebLabel.textColor = .black
     }
 }
 
