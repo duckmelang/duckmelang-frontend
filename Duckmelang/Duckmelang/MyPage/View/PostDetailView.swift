@@ -1,5 +1,5 @@
 //
-//  MyProfileModifyView.swift
+//  PostDetailView.swift
 //  Duckmelang
 //
 //  Created by KoNangYeon on 1/14/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProfileModifyView: UIView {
+class PostDetailView: UIView {
 
     /*
     // Only override draw() if you perform custom drawing.

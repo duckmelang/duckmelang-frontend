@@ -1,5 +1,5 @@
 //
-//  FeedManagementViewController.swift
+//  PostDetailViewController.swift
 //  Duckmelang
 //
 //  Created by KoNangYeon on 1/14/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FeedManagementViewController: UIViewController {
+class PostDetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -1,5 +1,5 @@
 //
-//  FeedManagementViewl.swift
+//  PostRecommendedFilterChangeView.swift
 //  Duckmelang
 //
 //  Created by KoNangYeon on 1/14/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FeedManagementViewl: UIView {
+class PostRecommendedFilterChangeView: UIView {
 
     /*
     // Only override draw() if you perform custom drawing.

@@ -25,7 +25,7 @@ class MyPageView: UIView {
     lazy var myPageTopView = MyPageTopView()
     
     lazy var tableView = UITableView().then() {
-        $0.register(MyPageCell.self, forCellReuseIdentifier: MyPageCell.identifier)
+        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
         $0.separatorStyle = .none
     }
     
