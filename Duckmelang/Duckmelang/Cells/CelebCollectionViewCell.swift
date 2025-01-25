@@ -39,6 +39,10 @@ class CelebCell: UICollectionViewCell {
         contentView.addSubview(profileImageView)
         contentView.addSubview(nameLabel)
         contentView.addSubview(checkmarkIcon)
+        
+        contentView.layer.cornerRadius = 10
+        contentView.layer.borderWidth = 1
+        contentView.layer.borderColor = UIColor.clear.cgColor // 기본적으로 테두리 없음
 
         profileImageView.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(10)
@@ -62,5 +66,6 @@ class CelebCell: UICollectionViewCell {
         nameLabel.text = celeb.name
         nameLabel.textColor = isSelected ? .black : .grey400
         checkmarkIcon.isHidden = !isSelected
+        contentView.layer.borderColor = isSelected ? UIColor.grey200!.cgColor : UIColor.clear.cgColor
     }
 }
