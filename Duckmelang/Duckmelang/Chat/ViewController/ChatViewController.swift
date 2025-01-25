@@ -14,20 +14,29 @@ class ChatViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.navigationItem.title = "채팅"
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
-        
         self.view = chatView
+        self.tabBarController?.tabBar.isHidden = false
+        
+        setupNavigationBar()
         setupDelegate()
         setupAction()
         updateBtnSelected()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     private lazy var chatView: ChatView = {
         let view = ChatView()
         return view
     }()
+    
+    private func setupNavigationBar() {
+        self.navigationItem.title = "채팅"
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
+    }
     
     private func setupDelegate() {
         chatView.chatTableView.dataSource = self
@@ -69,5 +78,10 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         cell.configure(model: data1[indexPath.row])
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let messageVC = MessageViewController()
+        navigationController?.pushViewController(messageVC, animated: true)
     }
 }
