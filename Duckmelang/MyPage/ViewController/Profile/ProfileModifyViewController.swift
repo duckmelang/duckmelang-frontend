@@ -24,6 +24,8 @@ class ProfileModifyViewController: UIViewController {
         profileModifyView.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         profileModifyView.finishBtn.addTarget(self, action: #selector(finishBtnDidTap), for: .touchUpInside)
         profileModifyView.profileAddBtn.addTarget(self, action: #selector(addBtnDidTap), for: .touchUpInside)
+        profileModifyView.nicknameTextField.addTarget(self, action: #selector(nicknameTextFieldInput), for: .editingChanged)
+        profileModifyView.selfPRTextField.addTarget(self, action: #selector(selfPRTextFieldInput), for: .editingChanged)
         
         let viewDidTap = UITapGestureRecognizer(target: self, action: #selector(viewDidTap))
         viewDidTap.numberOfTapsRequired = 1 // 단일 탭, 횟수 설정
@@ -40,13 +42,39 @@ class ProfileModifyViewController: UIViewController {
     
     @objc
     private func finishBtnDidTap() {
-        if (profileModifyView.nicknameTextField.text == ""){
+        if (profileModifyView.nicknameTextField.text == "")||(profileModifyView.selfPRTextField.text == ""){
+            profileModifyView.nicknameTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
+            profileModifyView.nicknameTextField.textColor = .errorPrimary
+            profileModifyView.nicknameErrorText.isHidden = false
+            
+            profileModifyView.selfPRTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
+            profileModifyView.selfPRTextField.textColor = .errorPrimary
+            profileModifyView.selfPRErrorText.isHidden = false
+        }else if (profileModifyView.selfPRTextField.text == ""){
+            profileModifyView.selfPRTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
+            profileModifyView.selfPRTextField.textColor = .errorPrimary
+            profileModifyView.selfPRErrorText.isHidden = false
+        }else if (profileModifyView.nicknameTextField.text == ""){
             profileModifyView.nicknameTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.nicknameTextField.textColor = .errorPrimary
             profileModifyView.nicknameErrorText.isHidden = false
         }else {
             self.presentingViewController?.dismiss(animated: false)
         }
+    }
+    
+    @objc
+    private func nicknameTextFieldInput() {
+        profileModifyView.nicknameTextField.layer.borderColor = UIColor.dmrBlue?.cgColor
+        profileModifyView.nicknameTextField.textColor = .dmrBlue
+        profileModifyView.nicknameErrorText.isHidden = true
+    }
+    
+    @objc
+    private func selfPRTextFieldInput() {
+        profileModifyView.selfPRTextField.layer.borderColor = UIColor.dmrBlue?.cgColor
+        profileModifyView.selfPRTextField.textColor = .dmrBlue
+        profileModifyView.selfPRErrorText.isHidden = true
     }
     
     @objc
