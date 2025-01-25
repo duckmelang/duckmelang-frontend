@@ -7,9 +7,10 @@
 
 import UIKit
 
-class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDelegate {
+class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDelegate, EventSelectionDelegate {
 
-    private var selectedCeleb: Celeb? // 현재 선택된 아이돌 정보
+    private var selectedCeleb: Celeb? // 선택된 아이돌 정보
+    private var selectedEvent: Event? // 선택된 이벤트 정보
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,22 +40,38 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         navigationController?.navigationBar.compactAppearance = appearance
     }
     
-    // MARK: - WriteViewDelegate (아이돌 선택 버튼 클릭)
+    // MARK: - WriteViewDelegate (선택 버튼 클릭)
     func didTapIdolSelectButton() {
-        let celebSelectionVC = CelebSelectionViewController(
-            celebs: Celeb.sampleCelebs, // ✅ 샘플 아이돌 목록 사용
+        let selectVC = CelebSelectionViewController(
+            celebs: Celeb.sampleCelebs, // 샘플 아이돌 목록 사용
             selectedCeleb: selectedCeleb
         )
-        celebSelectionVC.delegate = self
-        celebSelectionVC.modalPresentationStyle = .pageSheet
+        selectVC.delegate = self
+        selectVC.modalPresentationStyle = .pageSheet
         
-        if let sheet = celebSelectionVC.sheetPresentationController {
+        if let sheet = selectVC.sheetPresentationController {
             sheet.prefersGrabberVisible = true
             sheet.detents = [.medium(), .large()]
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
         }
         
-        present(celebSelectionVC, animated: true)
+        present(selectVC, animated: true)
+    }
+    
+    func didTapeventTypeSelectButton() {
+        let selectVC = EventSelectionViewController(
+            selectedEvent: selectedEvent // 선택된 이벤트 전달
+        )
+        selectVC.delegate = self
+        selectVC.modalPresentationStyle = .pageSheet
+        
+        if let sheet = selectVC.sheetPresentationController {
+            sheet.prefersGrabberVisible = true
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+        }
+        
+        present(selectVC, animated: true)
     }
     
     // MARK: - CelebSelectionDelegate (아이돌 선택 완료)
@@ -62,4 +79,10 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         selectedCeleb = celeb // 선택된 아이돌 정보 업데이트
         writeView.updateSelectedCeleb(celeb) // WriteView에 반영
     }
+    
+    // MARK: - EventSelectionDelegate (이벤트 선택 완료)
+        func didSelectEvent(_ event: Event) {
+            selectedEvent = event // 선택된 이벤트 정보 업데이트
+            writeView.updateSelectedEvent(event) // WriteView에 반영하는 함수 추가
+        }
 }

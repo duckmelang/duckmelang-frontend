@@ -11,6 +11,7 @@ import SnapKit
 
 protocol WriteViewDelegate: AnyObject {
     func didTapIdolSelectButton()
+    func didTapeventTypeSelectButton()
 }
 
 class WriteView: UIView {
@@ -100,7 +101,12 @@ class WriteView: UIView {
         $0.addTarget(self,action: #selector(idolSelectButtonTapped),for: .touchUpInside)
     }
     
-    private let eventTypeSelectButton = smallStorkeCustomBtn(title: "선택")
+    private let eventTypeSelectButton = smallStorkeCustomBtn(title: "선택").then {
+        $0.borderColor = .grey400
+        $0.titleColor = .grey400
+        $0.addTarget(self,action: #selector(eventTypeSelectButtonTapped),for: .touchUpInside)
+    }
+    
     private let eventDateSelectButton = smallStorkeCustomBtn(title: "선택")
 
     // StackView 정렬 (왼쪽 레이블, 오른쪽 버튼)
@@ -237,11 +243,22 @@ class WriteView: UIView {
     @objc private func idolSelectButtonTapped() {
         delegate?.didTapIdolSelectButton()
     }
+    
+    @objc private func eventTypeSelectButtonTapped() {
+        delegate?.didTapeventTypeSelectButton()
+    }
+
 
     func updateSelectedCeleb(_ celeb: Celeb) {
         idolSelectButton.setTitle(celeb.name, for: .normal)
         idolSelectButton.titleColor = .black
         idolSelectButton.borderColor = .black
+    }
+    
+    func updateSelectedEvent(_ event: Event) {
+        eventTypeSelectButton.setTitle(event.tag.rawValue, for: .normal)
+        eventTypeSelectButton.titleColor = .black
+        eventTypeSelectButton.borderColor = .black
     }
 }
 
