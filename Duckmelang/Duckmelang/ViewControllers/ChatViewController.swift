@@ -8,21 +8,28 @@
 import UIKit
 
 class ChatViewController: UIViewController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        self.tabBarController?.tabBar.isHidden = false
+        
+        let btn = smallFilledCustomBtn(title: "메세지창 열기")
+        self.view.addSubview(btn)
+        
+        btn.snp.makeConstraints {
+            $0.centerX.centerY.equalToSuperview()
+        }
+        
+        btn.addTarget(self, action: #selector(goMessage), for: .touchUpInside)
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.tabBarController?.tabBar.isHidden = false
     }
-    */
-
+    
+    @objc func goMessage() {
+        let messageVC = MessageViewController()
+        navigationController?.pushViewController(messageVC, animated: true)
+    }
 }
