@@ -194,7 +194,7 @@ class MyAccompanyCell: UITableViewCell {
     private func updateStatus(model: MyAccompanyModel) {
         var statusText = ""
 
-        switch model.status {
+        switch model.responseState {
         case .accepted:
             statusText = "수락"
             self.status.textColor = .dmrBlue
@@ -221,7 +221,7 @@ class MyAccompanyCell: UITableViewCell {
     }
 
     private func updateViewVisibility(model: MyAccompanyModel) {
-        switch (model.status, model.requestType) {
+        switch (model.responseState, model.requestType) {
         case (.awaiting, _):
             self.btnStackView.isHidden = true
             self.status.isHidden = false
