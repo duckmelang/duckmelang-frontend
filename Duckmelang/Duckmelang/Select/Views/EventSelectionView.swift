@@ -52,7 +52,6 @@ class EventSelectionView: UIViewController {
         completeButton.snp.makeConstraints {
             $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(20) // 하단 고정
             $0.centerX.equalToSuperview()
-            $0.width.equalTo(120)
             $0.height.equalTo(44)
         }
     }
