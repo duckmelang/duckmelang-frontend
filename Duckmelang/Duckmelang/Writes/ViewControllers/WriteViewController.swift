@@ -27,6 +27,21 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         return view
     }()
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.backgroundColor = .white // 원래 HomeViewController의 네비게이션 바 색상
+        appearance.shadowColor = .clear
+        appearance.titleTextAttributes = [
+            NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)
+        ]
+        
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+    }
+    
     private func configureNavigationBar() {
         let appearance = UINavigationBarAppearance()
         appearance.backgroundColor = .grey200
