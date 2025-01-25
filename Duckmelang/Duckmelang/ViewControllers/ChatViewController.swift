@@ -9,40 +9,66 @@ import UIKit
 import SnapKit
 
 class ChatViewController: UIViewController {
+    var selectedTag: Int = 0
 
+    let data1 = ChatModel.dummy()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view = chatView
         
+        self.navigationItem.title = "채팅"
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
+        
+        self.view = chatView
+        setupDelegate()
+        setupAction()
+        updateBtnSelected()
     }
     
     private lazy var chatView: ChatView = {
         let view = ChatView()
-        view.btn.addTarget(self, action: #selector(buttonDidTap), for: .touchUpInside)
-        view.btn1.addTarget(self, action: #selector(button1DidTap), for: .touchUpInside)
-        view.btn2.addTarget(self, action: #selector(button2DidTap), for: .touchUpInside)
-        view.btn3.addTarget(self, action: #selector(button3DidTap), for: .touchUpInside)
         return view
     }()
     
-    @objc private func buttonDidTap() {
-        let popupVC = RequestPopupViewController()
-        popupVC.modalPresentationStyle = .overFullScreen
-        present(popupVC, animated: false)
+    private func setupDelegate() {
+        chatView.chatTableView.dataSource = self
+        chatView.chatTableView.delegate = self
     }
-    @objc private func button1DidTap() {
-        let popupVC = ConfirmPopupViewController()
-        popupVC.modalPresentationStyle = .overFullScreen
-        present(popupVC, animated: false)
+    
+    private func setupAction() {
+        chatView.allBtn.addTarget(self, action: #selector(clickBtn), for: .touchUpInside)
+        chatView.ongoingBtn.addTarget(self, action: #selector(clickBtn), for: .touchUpInside)
+        chatView.doneBtn.addTarget(self, action: #selector(clickBtn), for: .touchUpInside)
     }
-    @objc private func button2DidTap() {
-        let popupVC = OtherAcceptReviewPopupViewController()
-        popupVC.modalPresentationStyle = .overFullScreen
-        present(popupVC, animated: false)
+    
+    @objc func clickBtn(_ sender: UIButton) {
+        selectedTag = sender.tag
+        updateBtnSelected()
     }
-    @objc private func button3DidTap() {
-        let popupVC = MyAcceptReviewPopupViewController()
-        popupVC.modalPresentationStyle = .overFullScreen
-        present(popupVC, animated: false)
+    
+    private func updateBtnSelected() {
+        for btn in [chatView.allBtn, chatView.ongoingBtn, chatView.doneBtn] {
+            if btn.tag == selectedTag {
+                btn.isSelected = true
+            } else {
+                btn.isSelected = false
+            }
+        }
+    }
+}
+
+extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return data1.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChatCell.identifier, for: indexPath) as? ChatCell else {
+            return UITableViewCell()
+        }
+        
+        cell.configure(model: data1[indexPath.row])
+        
+        return cell
     }
 }

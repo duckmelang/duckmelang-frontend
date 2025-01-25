@@ -2,15 +2,17 @@
 //  ChatView.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 1/19/25.
+//  Created by 주민영 on 1/16/25.
 //
 
 import UIKit
+import Then
+import SnapKit
 
 class ChatView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = UIColor.clear
+        self.backgroundColor = UIColor.white
         setupView()
     }
     
@@ -18,28 +20,45 @@ class ChatView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // 팝업창 열리는 지 확인하기 위한 임시 버튼들
-    let btn = smallFilledCustomBtn(title: "동행 확정 요청 열기")
-    let btn1 = smallFilledCustomBtn(title: "동행 확정 열기")
-    let btn2 = smallFilledCustomBtn(title: "상대방 수락 후기 작성")
-    let btn3 = smallFilledCustomBtn(title: "내가 수락 후기 작성")
+    lazy var allBtn = ChipButton(title: "전체", width: 47, tag: 0)
+    lazy var ongoingBtn = ChipButton(title: "진행 중", width: 62, tag: 1)
+    lazy var doneBtn = ChipButton(title: "완료", width: 47, tag: 2)
     
-    let btnStack = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 30
-        $0.alignment = .center
+    lazy var btnStackView = UIStackView().then {
+        $0.axis = .horizontal
         $0.distribution = .equalSpacing
+        $0.alignment = .leading
+        $0.spacing = 8
     }
     
-    func setupView() {
-        btnStack.addArrangedSubview(btn)
-        btnStack.addArrangedSubview(btn1)
-        btnStack.addArrangedSubview(btn2)
-        btnStack.addArrangedSubview(btn3)
-        addSubview(btnStack)
+    lazy var chatTableView = UITableView().then {
+        $0.register(ChatCell.self, forCellReuseIdentifier: ChatCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 75
+    }
+    
+    private func setupView() {
+        btnStackView.addArrangedSubview(allBtn)
+        btnStackView.addArrangedSubview(ongoingBtn)
+        btnStackView.addArrangedSubview(doneBtn)
         
-        btnStack.snp.makeConstraints {
-            $0.centerX.centerY.equalToSuperview()
+        [
+            btnStackView,
+            chatTableView
+        ].forEach {
+            addSubview($0)
+        }
+        
+        btnStackView.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide).offset(12)
+            $0.leading.equalToSuperview().offset(16)
+            $0.width.equalTo(180)
+        }
+        
+        chatTableView.snp.makeConstraints {
+            $0.top.equalTo(btnStackView.snp.bottom).offset(12)
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
     }
+
 }
