@@ -13,7 +13,7 @@ enum RequestType {
     case received
 }
 
-enum Status {
+enum ResponseState {
     case accepted
     case rejected
     case awaiting
@@ -26,17 +26,17 @@ struct MyAccompanyModel {
     let postImage: UIImage // url: string으로 변경예정
     let postTitle: String
     let sentTime: String
-    let status: Status
+    let responseState: ResponseState
 }
 
 extension MyAccompanyModel {
     static func dummy() -> [MyAccompanyModel] {
         return [
-            MyAccompanyModel(requestType: .awaiting, userImage: UIImage(), userName: "minyoy", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .accepted),
-            MyAccompanyModel(requestType: .sent, userImage: UIImage(), userName: "nau", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .awaiting),
-            MyAccompanyModel(requestType: .sent, userImage: UIImage(), userName: "nau", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .rejected),
-            MyAccompanyModel(requestType: .received, userImage: UIImage(), userName: "yeon", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .accepted),
-            MyAccompanyModel(requestType: .received, userImage: UIImage(), userName: "minyoy", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", status: .rejected)
+            MyAccompanyModel(requestType: .awaiting, userImage: UIImage(), userName: "minyoy", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", responseState: .accepted),
+            MyAccompanyModel(requestType: .sent, userImage: UIImage(), userName: "nau", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", responseState: .awaiting),
+            MyAccompanyModel(requestType: .sent, userImage: UIImage(), userName: "nau", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", responseState: .rejected),
+            MyAccompanyModel(requestType: .received, userImage: UIImage(), userName: "yeon", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", responseState: .accepted),
+            MyAccompanyModel(requestType: .received, userImage: UIImage(), userName: "minyoy", postImage: UIImage(), postTitle: "콘서트 가실 분 구해요~", sentTime: "오전 10 : 29", responseState: .rejected)
         ]
     }
 }
