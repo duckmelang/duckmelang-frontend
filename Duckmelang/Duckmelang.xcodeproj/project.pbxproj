@@ -14,15 +14,6 @@
 		FA6B34A42D3F900E000D9697 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34A32D3F900E000D9697 /* Moya */; };
 		FA6B34A62D3F900E000D9697 /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34A52D3F900E000D9697 /* ReactiveMoya */; };
 		FA6B34A82D3F900E000D9697 /* RxMoya in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34A72D3F900E000D9697 /* RxMoya */; };
-		FA6B36BC2D3F92A8000D9697 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291D2D39ECF20036A9AC /* SnapKit */; };
-		FA6B36BD2D3F92A8000D9697 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291F2D39EDBF0036A9AC /* Then */; };
-		FA6B36BE2D3F92A8000D9697 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29222D39EDD60036A9AC /* Then */; };
-		FA6B36BF2D3F92A8000D9697 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29252D39EDE30036A9AC /* SnapKit */; };
-		FA6B36C02D3F92A8000D9697 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29282D39EE040036A9AC /* Then */; };
-		FA6B36C12D3F92A8000D9697 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292B2D39EE120036A9AC /* SnapKit */; };
-		FA6B36C22D3F92A8000D9697 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292D2D39EE460036A9AC /* Then */; };
-		FA6B36C32D3F92A8000D9697 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29302D39EF990036A9AC /* Then */; };
-		FA6B36C42D3F92A8000D9697 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29332D39EFA40036A9AC /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,15 +46,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA6B36C42D3F92A8000D9697 /* SnapKit in Frameworks */,
-				FA6B36C32D3F92A8000D9697 /* Then in Frameworks */,
-				FA6B36C22D3F92A8000D9697 /* Then in Frameworks */,
-				FA6B36C12D3F92A8000D9697 /* SnapKit in Frameworks */,
-				FA6B36C02D3F92A8000D9697 /* Then in Frameworks */,
-				FA6B36BF2D3F92A8000D9697 /* SnapKit in Frameworks */,
-				FA6B36BE2D3F92A8000D9697 /* Then in Frameworks */,
-				FA6B36BD2D3F92A8000D9697 /* Then in Frameworks */,
-				FA6B36BC2D3F92A8000D9697 /* SnapKit in Frameworks */,
 				991E291B2D39ECEB0036A9AC /* Then in Frameworks */,
 				FA6B34A62D3F900E000D9697 /* ReactiveMoya in Frameworks */,
 				FA6B34A42D3F900E000D9697 /* Moya in Frameworks */,
