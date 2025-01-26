@@ -11,9 +11,7 @@ class ProfileViewController: UIViewController{
     var selectedTag: Int = 0
        
     let data1 = PostModel.dummy1()
-    
-    //reviewTabelView의 더미인데 일단 이렇게 해둠..
-    let data2 = PostModel.dummy2()
+    let data2 = reviewModel.dummy()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,6 +19,8 @@ class ProfileViewController: UIViewController{
         self.view = profileView
         
         navigationController?.isNavigationBarHidden = true
+        profileView.profileBottomView.cosmosView.isHidden = true
+        profileView.profileBottomView.cosmosStack.isHidden = true
         
         setupAction()
         setupDelegate()
@@ -51,9 +51,13 @@ class ProfileViewController: UIViewController{
         if segment.selectedSegmentIndex == 0 {
             profileView.profileBottomView.uploadPostView.isHidden = false
             profileView.profileBottomView.reviewTableView.isHidden = true
+            profileView.profileBottomView.cosmosView.isHidden = true
+            profileView.profileBottomView.cosmosStack.isHidden = true
         } else {
             profileView.profileBottomView.uploadPostView.isHidden = true
             profileView.profileBottomView.reviewTableView.isHidden = false
+            profileView.profileBottomView.cosmosView.isHidden = false
+            profileView.profileBottomView.cosmosStack.isHidden = false
         }
         
         let width = profileView.profileBottomView.segmentedControl.frame.width / CGFloat(profileView.profileBottomView.segmentedControl.numberOfSegments)
@@ -84,7 +88,7 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
                 return cell
                 
             } else if (tableView == profileView.profileBottomView.reviewTableView) {
-                guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
+                guard let cell = tableView.dequeueReusableCell(withIdentifier: reviewCell.identifier, for: indexPath) as? reviewCell else {
                     return UITableViewCell()
                 }
                 cell.configure(model: data2[indexPath.row])
@@ -93,4 +97,4 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
             
             return UITableViewCell()
         }
-    }
+}
