@@ -29,9 +29,10 @@ class IdolChangeViewController: UIViewController {
     private func backBtnDidTap() {
         self.presentingViewController?.dismiss(animated: false)
     }
-
+ 
     private func setupDelegate() {
         idolChangeView.idolChangeCollectionView.dataSource = self
+        idolChangeView.idolChangeCollectionView.delegate = self
     }
 }
 
@@ -49,5 +50,17 @@ extension IdolChangeViewController: UICollectionViewDataSource {
         cell.configure(model: data[indexPath.row], isLastCell: isLastCell)
          
         return cell
+    }
+}
+
+extension IdolChangeViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // 마지막 셀인지 확인
+        if indexPath.item == data.count - 1 {
+            // 다른 화면으로 전환
+            let idolAddVC = UINavigationController(rootViewController: IdolAddViewController())
+            idolAddVC.modalPresentationStyle = .fullScreen
+            present(idolAddVC, animated: false)
+        }
     }
 }
