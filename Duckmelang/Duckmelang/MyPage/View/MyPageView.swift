@@ -26,19 +26,19 @@ class MyPageView: UIView {
     
     private lazy var myInfoChange = Label(text: "내 정보 변경", font: .ptdSemiBoldFont(ofSize: 16), color: .black)
     
-    private lazy var idolChange = myPageBtn(text: "아이들 변경")
+    lazy var idolChange = myPageBtn(text: "아이들 변경")
     
-    private lazy var postRecommendChange = myPageBtn(text: "게시글 추천 필터 변경")
+    lazy var postRecommendChange = myPageBtn(text: "게시글 추천 필터 변경")
     
     private lazy var setup = Label(text: "설정", font: .ptdSemiBoldFont(ofSize: 16), color: .black)
     
-    private lazy var login = myPageBtn(text: "로그인 정보")
+    lazy var login = myPageBtn(text: "로그인 정보")
     
-    private lazy var push = myPageBtn(text: "푸시알림")
+    lazy var push = myPageBtn(text: "푸시알림")
     
-    private lazy var logout = myPageBtn(text: "로그아웃")
+    lazy var logout = myPageBtn(text: "로그아웃")
     
-    private lazy var out = myPageBtn(text: "계정 탈퇴").then {
+    lazy var out = myPageBtn(text: "계정 탈퇴").then {
         $0.setTitleColor(.errorPrimary, for: .normal)
     }
     
