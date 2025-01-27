@@ -34,8 +34,18 @@ class ChatViewController: UIViewController {
     }()
     
     private func setupNavigationBar() {
+        self.navigationController?.navigationBar.backgroundColor = .white
+        
         self.navigationItem.title = "채팅"
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
+        
+        let rightBarButton = UIBarButtonItem(image: UIImage(named: "bell"), style: .plain, target: self, action: #selector(clickBell))
+        rightBarButton.tintColor = .grey500
+        self.navigationItem.setRightBarButton(rightBarButton, animated: true)
+    }
+    
+    @objc private func clickBell() {
+        print("알림 버튼 클릭")
     }
     
     private func setupDelegate() {
