@@ -21,6 +21,21 @@ class MessageViewController: UIViewController {
         setupNavigationBar()
         setupDelegate()
         setupAction()
+        
+        DispatchQueue.main.async {
+            self.scrollToLastItem()
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.isNavigationBarHidden = false
+        self.tabBarController?.tabBar.isHidden = true
+        
+        DispatchQueue.main.async {
+            self.scrollToLastItem()
+        }
     }
     
     private lazy var messageView: MessageView = {
