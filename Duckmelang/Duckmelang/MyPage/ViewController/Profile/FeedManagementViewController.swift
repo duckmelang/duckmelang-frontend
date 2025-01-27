@@ -32,11 +32,6 @@ class FeedManagementViewController: UIViewController {
     }
     
     @objc
-    private func finishBtnDidTap() {
-        self.presentingViewController?.dismiss(animated: false)
-    }
-    
-    @objc
     private func deleteBtnDidTap() {
         guard !selectedIndices.isEmpty else {
             // 선택된 셀이 없을 경우
@@ -57,6 +52,22 @@ class FeedManagementViewController: UIViewController {
         
         // 선택 상태 초기화
         selectedIndices.removeAll()
+    }
+    
+    @objc
+    private func finishBtnDidTap() {
+        // 선택된 IndexPath에 해당하는 데이터를 삭제
+        selectedIndices.sorted(by: { $0.row > $1.row }).forEach { indexPath in
+            data.remove(at: indexPath.row)
+        }
+        
+        // 테이블 뷰 갱신
+        feedManagementView.postView.reloadData()
+        
+        // 선택된 IndexPath 초기화
+        selectedIndices.removeAll()
+        
+        feedManagementView.deleteBtn.isHidden = true
     }
     
     private func setupDelegate() {
@@ -112,6 +123,9 @@ extension FeedManagementViewController: UITableViewDataSource, UITableViewDelega
                 cell.selectBtn.setImage(.select, for: .normal)
                 cell.contentView.backgroundColor = .grey100
             }
+            
+            // delete 버튼 상태 업데이트
+            feedManagementView.deleteBtn.isHidden = selectedIndices.isEmpty
         }
     }
 }

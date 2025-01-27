@@ -43,6 +43,7 @@ class FeedManagementView: UIView {
     
     lazy var deleteBtn = UIButton().then {
         $0.setImage(.delete, for: .normal)
+        $0.isHidden = true
     }
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)

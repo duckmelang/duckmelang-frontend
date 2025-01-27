@@ -7,18 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		991E291B2D39ECEB0036A9AC /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291A2D39ECEB0036A9AC /* Then */; settings = {ATTRIBUTES = (Required, ); }; };
-		AF65D8942D429167006AD2F6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291D2D39ECF20036A9AC /* SnapKit */; };
-		AF65D8952D429167006AD2F6 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291F2D39EDBF0036A9AC /* Then */; };
-		AF65D8962D429167006AD2F6 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29222D39EDD60036A9AC /* Then */; };
-		AF65D8972D429167006AD2F6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29252D39EDE30036A9AC /* SnapKit */; };
-		AF65D8982D429167006AD2F6 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29282D39EE040036A9AC /* Then */; };
-		AF65D8992D429167006AD2F6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292B2D39EE120036A9AC /* SnapKit */; };
-		AF65D89A2D429167006AD2F6 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292D2D39EE460036A9AC /* Then */; };
 		AF65D89B2D429167006AD2F6 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29302D39EF990036A9AC /* Then */; };
 		AF65D89C2D429167006AD2F6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29332D39EFA40036A9AC /* SnapKit */; };
 		AF65D99D2D429654006AD2F6 /* Cosmos in Frameworks */ = {isa = PBXBuildFile; productRef = AF65D99C2D429654006AD2F6 /* Cosmos */; };
-		FA6B34992D3F8FF1000D9697 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34982D3F8FF1000D9697 /* SnapKit */; };
 		FA6B349F2D3F8FFD000D9697 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B349E2D3F8FFD000D9697 /* Kingfisher */; };
 		FA6B34A22D3F900E000D9697 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34A12D3F900E000D9697 /* CombineMoya */; };
 		FA6B34A42D3F900E000D9697 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34A32D3F900E000D9697 /* Moya */; };
@@ -58,20 +49,11 @@
 			files = (
 				AF65D89C2D429167006AD2F6 /* SnapKit in Frameworks */,
 				AF65D89B2D429167006AD2F6 /* Then in Frameworks */,
-				AF65D89A2D429167006AD2F6 /* Then in Frameworks */,
-				AF65D8992D429167006AD2F6 /* SnapKit in Frameworks */,
-				AF65D8982D429167006AD2F6 /* Then in Frameworks */,
-				AF65D8972D429167006AD2F6 /* SnapKit in Frameworks */,
-				AF65D8962D429167006AD2F6 /* Then in Frameworks */,
-				AF65D8952D429167006AD2F6 /* Then in Frameworks */,
-				AF65D8942D429167006AD2F6 /* SnapKit in Frameworks */,
-				991E291B2D39ECEB0036A9AC /* Then in Frameworks */,
 				FA6B34A62D3F900E000D9697 /* ReactiveMoya in Frameworks */,
 				FA6B34A42D3F900E000D9697 /* Moya in Frameworks */,
 				FA6B349F2D3F8FFD000D9697 /* Kingfisher in Frameworks */,
 				FA6B34A82D3F900E000D9697 /* RxMoya in Frameworks */,
 				FA6B34A22D3F900E000D9697 /* CombineMoya in Frameworks */,
-				FA6B34992D3F8FF1000D9697 /* SnapKit in Frameworks */,
 				AF65D99D2D429654006AD2F6 /* Cosmos in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
