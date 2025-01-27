@@ -218,7 +218,7 @@ class ProfileBottomView: UIView {
     
     //변경 예정
     lazy var reviewTableView = UITableView().then {
-        $0.register(reviewCell.self, forCellReuseIdentifier: reviewCell.identifier)
+        $0.register(ReviewCell.self, forCellReuseIdentifier: ReviewCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 72
         $0.isHidden = true

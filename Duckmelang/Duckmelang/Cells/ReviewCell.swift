@@ -1,5 +1,5 @@
 //
-//  reviewCell.swift
+//  ReviewCell.swift
 //  Duckmelang
 //
 //  Created by KoNangYeon on 1/23/25.
@@ -7,8 +7,8 @@
 
 import UIKit
 
-class reviewCell: UITableViewCell {
-    static let identifier = "reviewCell"
+class ReviewCell: UITableViewCell {
+    static let identifier = "ReviewCell"
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -79,7 +79,7 @@ class reviewCell: UITableViewCell {
         }
     }
     
-    public func configure(model: reviewModel) {
+    public func configure(model: ReviewModel) {
         self.nickname.text = model.nickname
         self.gender.text = model.gender
         self.age.text = model.age
