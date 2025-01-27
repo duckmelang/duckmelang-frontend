@@ -91,6 +91,7 @@ class TopMessageView: UIView {
         postTitle.snp.makeConstraints {
             $0.top.equalTo(postImage.snp.top).offset(3)
             $0.leading.equalTo(postImage.snp.trailing).offset(8)
+            $0.trailing.equalToSuperview().offset(21)
         }
         
         inProgress.snp.makeConstraints {

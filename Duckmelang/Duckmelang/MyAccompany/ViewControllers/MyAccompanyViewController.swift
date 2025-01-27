@@ -16,11 +16,9 @@ class MyAccompanyViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.navigationItem.title = "나의 동행"
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
-        
         self.view = myAccompanyView
+        
+        setupNavigationBar()
         setupDelegate()
         setupAction()
         updateBtnSelected()
@@ -28,11 +26,25 @@ class MyAccompanyViewController: UIViewController {
     
     private lazy var myAccompanyView: MyAccompanyView = {
         let view = MyAccompanyView()
-        
         return view
     }()
     
-    @objc func clickBtn(_ sender: UIButton) {
+    private func setupNavigationBar() {
+        self.navigationController?.navigationBar.backgroundColor = .white
+        
+        self.navigationItem.title = "나의 동행"
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
+        
+        let rightBarButton = UIBarButtonItem(image: UIImage(named: "bell"), style: .plain, target: self, action: #selector(clickBell))
+        rightBarButton.tintColor = .grey500
+        self.navigationItem.setRightBarButton(rightBarButton, animated: true)
+    }
+    
+    @objc private func clickBell() {
+        print("알림 버튼 클릭")
+    }
+    
+    @objc private func clickBtn(_ sender: UIButton) {
         selectedTag = sender.tag
         updateBtnSelected()
     }
