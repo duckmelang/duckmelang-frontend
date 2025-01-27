@@ -64,14 +64,15 @@ class ProfileTopView: UIView {
     
     private lazy var myProfileTitle = Label(text: "내 프로필", font: .aritaSemiBoldFont(ofSize: 18), color: .black)
     
-    private lazy var setBtn = UIButton().then {
+    lazy var setBtn = UIButton().then {
         $0.setImage(.moreVertical, for: .normal)
     }
     
-    private lazy var topStack = Stack(axis: .horizontal, distribution: .equalSpacing, alignment: .center)
+    private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
     private lazy var profileImage = UIImageView().then {
         $0.image = .profile
+        $0.layer.cornerRadius = $0.frame.height/2
     }
     
     private lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 17), color: .black)
@@ -100,6 +101,12 @@ class ProfileTopView: UIView {
     
     private lazy var selfPR = Label(text: "메랑이 구해요!", font: .ptdRegularFont(ofSize: 12), color: .grey800)
     
+    lazy var setBtnImage = UIImageView().then {
+        $0.image = UIImage(resource: .menu)
+        $0.isHidden = true
+        $0.isUserInteractionEnabled = true
+    }
+    
     private func addStack(){
         [backBtn, myProfileTitle, setBtn].forEach{topStack.addArrangedSubview($0)}
         [nickname, genderAndAgeStack].forEach{nicknameAndInfo.addArrangedSubview($0)}
@@ -111,7 +118,7 @@ class ProfileTopView: UIView {
     private func setupView(){
         [profileImage, nicknameAndInfo, postMatchingStack].forEach{middleView.addSubview($0)}
         [selfPR].forEach{backView.addSubview($0)}
-        [topStack, middleView, backView].forEach{addSubview($0)}
+        [topStack, middleView, backView, setBtnImage].forEach{addSubview($0)}
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
@@ -155,6 +162,13 @@ class ProfileTopView: UIView {
         selfPR.snp.makeConstraints{
             $0.centerY.equalToSuperview()
             $0.left.equalToSuperview().inset(16)
+        }
+        
+        setBtnImage.snp.makeConstraints{
+            $0.top.equalTo(safeAreaLayoutGuide).inset(26)
+            $0.right.equalTo(setBtn.snp.left).offset(-2.25)
+            $0.height.equalTo(80)
+            $0.width.equalTo(96)
         }
     }
 }
