@@ -33,6 +33,19 @@ class ProfileViewController: UIViewController{
         self.presentingViewController?.dismiss(animated: false)
     }
     
+    @objc
+    private func setBtnDidTap() {
+        profileView.profileTopView.setBtnImage.isHidden = false
+    }
+    
+    // setBtn 창 떠 있는 상태에서 다른 뷰를 누를때
+    @objc
+    private func viewDidTap() {
+        if profileView.profileTopView.setBtnImage.isHidden == false {
+            profileView.profileTopView.setBtnImage.isHidden = true
+        }
+    }
+
     private func setupDelegate() {
         profileView.profileBottomView.uploadPostView.dataSource = self
         profileView.profileBottomView.uploadPostView.delegate = self
@@ -45,6 +58,38 @@ class ProfileViewController: UIViewController{
         profileView.profileTopView.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         // segmentedControl
         profileView.profileBottomView.segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(segment:)), for: .valueChanged)
+        profileView.profileTopView.setBtn.addTarget(self, action: #selector(setBtnDidTap), for: .touchUpInside)
+        
+        let setBtnDidTap = UITapGestureRecognizer(target: self, action: #selector(viewDidTap))
+        setBtnDidTap.numberOfTapsRequired = 1 // 단일 탭, 횟수 설정
+        profileView.addGestureRecognizer(setBtnDidTap)
+        
+        let feedManagementDidTap = UITapGestureRecognizer(target: self, action: #selector(handleImageTap(_:)))
+        profileView.profileTopView.setBtnImage.addGestureRecognizer(feedManagementDidTap)
+    }
+    
+    @objc private func handleImageTap(_ sender: UITapGestureRecognizer) {
+        guard let tappedView = sender.view else { return }
+        
+        // 터치한 위치 가져오기
+        let touchPoint = sender.location(in: tappedView)
+        
+        // 이미지를 절반으로 나누기
+        let halfHeight = tappedView.bounds.height / 2
+        
+        if touchPoint.y <= halfHeight {
+            // 윗부분 터치
+            let profileModifyVC = UINavigationController(rootViewController: ProfileModifyViewController())
+            profileModifyVC.modalPresentationStyle = .fullScreen
+            present(profileModifyVC, animated: false)
+            profileView.profileTopView.setBtnImage.isHidden = true
+        } else {
+            // 아랫부분 터치
+            let feedVC = UINavigationController(rootViewController: FeedManagementViewController())
+            feedVC.modalPresentationStyle = .fullScreen
+            present(feedVC, animated: false)
+            profileView.profileTopView.setBtnImage.isHidden = true
+        }
     }
     
     @objc private func segmentedControlValueChanged(segment: UISegmentedControl) {

@@ -8,22 +8,34 @@
 import UIKit
 
 class FeedManagementViewController: UIViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+    
+        self.view = feedManagementView
+        
+        navigationController?.isNavigationBarHidden = true
+        
+        setupAction()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    private lazy var feedManagementView = FeedManagementView()
+    
+    @objc
+    private func backBtnDidTap() {
+        self.presentingViewController?.dismiss(animated: false)
     }
-    */
-
+    
+    @objc
+    private func finishBtnDidTap() {
+        self.presentingViewController?.dismiss(animated: false)
+    }
+    
+    private func setupAction() {
+        feedManagementView.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
+        feedManagementView.finishBtn.addTarget(self, action: #selector(finishBtnDidTap), for: .touchUpInside)
+    }
+    
+    
 }
+
