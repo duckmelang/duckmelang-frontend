@@ -14,6 +14,20 @@ class smallStorkeCustomBtn: UIButton {
     /// 버튼 활성화 상태에서의 기본 배경색
     private var originalStrokeColor: UIColor = .dmrBlue!
     
+    /// 버튼 테두리 색상 (setter 추가)
+    var borderColor: UIColor? {
+        didSet {
+            self.layer.borderColor = borderColor?.cgColor
+        }
+    }
+    
+    /// 버튼 타이틀 색상
+    var titleColor: UIColor? {
+            didSet {
+                self.setTitleColor(titleColor, for: .normal)
+            }
+        }
+    
     // MARK: - Initializer
     init(
         borderColor: CGColor = UIColor.dmrBlue?.cgColor ?? UIColor.systemBlue.cgColor,

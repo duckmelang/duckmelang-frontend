@@ -1,5 +1,5 @@
 //
-//  HomeViewController.swift
+//  ChatViewController.swift
 //  Duckmelang
 //
 //  Created by 주민영 on 1/9/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HomeViewController: UIViewController {
+class ChatViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()

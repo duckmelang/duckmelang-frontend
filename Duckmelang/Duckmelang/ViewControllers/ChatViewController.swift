@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class ChatViewController: UIViewController {
     var selectedTag: Int = 0

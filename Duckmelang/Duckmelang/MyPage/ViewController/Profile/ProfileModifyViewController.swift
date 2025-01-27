@@ -8,6 +8,7 @@
 import UIKit
 
 class ProfileModifyViewController: UIViewController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -113,4 +114,6 @@ class ProfileModifyViewController: UIViewController {
             profileModifyView.blurBackgroundView.isHidden = true
         }
     }
+
+    
 }
