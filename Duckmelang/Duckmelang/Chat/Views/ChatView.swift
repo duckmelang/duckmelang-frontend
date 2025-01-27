@@ -52,7 +52,7 @@ class ChatView: UIView {
         btnStackView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(12)
             $0.leading.equalToSuperview().offset(16)
-            $0.width.equalTo(180)
+            $0.width.equalTo(170)
         }
         
         chatTableView.snp.makeConstraints {
