@@ -43,10 +43,7 @@ class ProfileModifyView: UIView {
     }
     
     lazy var profileAddBtn = UIButton().then {
-        var config = UIButton.Configuration.plain()
-        config.image = UIImage(resource: .add)
-        $0.configuration = config
-        $0.backgroundColor = .clear
+        $0.setImage(.addBtn, for: .normal)
     }
     
     private lazy var nickname = Label(text: "닉네임", font: .ptdMediumFont(ofSize: 15), color: .grey700)
