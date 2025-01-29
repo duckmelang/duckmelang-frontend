@@ -44,7 +44,7 @@ class ProfileModifyView: UIView {
     
     lazy var profileAddBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
-        config.image = UIImage(resource: .add)
+        config.image = UIImage(resource: .addBtn)
         $0.configuration = config
         $0.backgroundColor = .clear
     }

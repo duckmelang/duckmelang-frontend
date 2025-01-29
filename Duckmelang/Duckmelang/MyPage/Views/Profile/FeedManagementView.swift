@@ -34,6 +34,18 @@ class FeedManagementView: UIView {
         $0.backgroundColor = .clear
     }
     
+    lazy var postView = UITableView().then {
+        $0.register(FeedManagementCell.self, forCellReuseIdentifier: FeedManagementCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 120
+        $0.isHidden = false
+    }
+    
+    lazy var deleteBtn = UIButton().then {
+        $0.setImage(.delete, for: .normal)
+        $0.isHidden = true
+    }
+    
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
     private func addStack(){
@@ -41,12 +53,24 @@ class FeedManagementView: UIView {
     }
     
     private func setupView(){
-        [topStack].forEach{addSubview($0)}
+        [topStack, postView, deleteBtn].forEach{addSubview($0)}
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(42)
+        }
+        
+        postView.snp.makeConstraints {
+            $0.top.equalTo(topStack.snp.bottom).offset(16)
+            $0.horizontalEdges.bottom.equalToSuperview()
+            $0.height.equalTo(400)
+        }
+        
+        deleteBtn.snp.makeConstraints{
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(46)
+            $0.height.width.equalTo(64)
         }
     }
 }
