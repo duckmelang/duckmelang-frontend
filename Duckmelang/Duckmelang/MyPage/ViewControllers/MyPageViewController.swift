@@ -8,7 +8,7 @@
 import UIKit
 
 class MyPageViewController: UIViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -24,8 +24,9 @@ class MyPageViewController: UIViewController {
         $0.idolChange.addTarget(self, action: #selector(idolChangeDidTap), for: .touchUpInside)
         $0.postRecommendChange.addTarget(self, action: #selector(postRecommendDidTap), for: .touchUpInside)
         $0.login.addTarget(self, action: #selector(loginInfoDidTap), for: .touchUpInside)
+        $0.push.addTarget(self, action: #selector(pushDidTap), for: .touchUpInside)
     }
-
+    
     @objc
     private func backViewDidTap() {
         let profileVC = UINavigationController(rootViewController: ProfileViewController())
@@ -52,6 +53,13 @@ class MyPageViewController: UIViewController {
         let loginInfoVC = UINavigationController(rootViewController: LoginInfoViewController())
         loginInfoVC.modalPresentationStyle = .fullScreen
         present(loginInfoVC, animated: false)
+    }
+    
+    @objc
+    private func pushDidTap() {
+        let pushVC = UINavigationController(rootViewController: PushNotificationViewController())
+        pushVC.modalPresentationStyle = .fullScreen
+        present(pushVC, animated: false)
     }
 }
 

@@ -31,6 +31,12 @@ class PushNotificationView: UIView {
         $0.backgroundColor = .clear
     }
     
+    let tableView = UITableView(frame: .zero, style: .plain).then {
+        $0.backgroundColor = .clear
+        $0.separatorStyle = .none
+        $0.allowsSelection = false
+    }
+    
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
     private func addStack(){
@@ -38,12 +44,18 @@ class PushNotificationView: UIView {
     }
     
     private func setupView(){
-        [topStack].forEach{addSubview($0)}
+        [topStack, tableView].forEach{addSubview($0)}
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(42)
+        }
+        
+        tableView.snp.makeConstraints{
+            $0.top.equalTo(topStack.snp.bottom).offset(-10)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview()
         }
         
     }
