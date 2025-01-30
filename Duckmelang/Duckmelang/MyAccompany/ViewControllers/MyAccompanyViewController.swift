@@ -6,12 +6,15 @@
 //
 
 import UIKit
+import Moya
 
 class MyAccompanyViewController: UIViewController {
+    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    
     var selectedTag: Int = 0
     
     let data1 = MyAccompanyModel.dummy()
-    let data2 = PostModel.dummy1()
+    var data2 = PostModel.dummy1()
     let data3 = PostModel.dummy2()
     
     override func viewDidLoad() {
@@ -79,10 +82,12 @@ class MyAccompanyViewController: UIViewController {
             myAccompanyView.myAccompanyTableView.isHidden = true
             myAccompanyView.scrapTableView.isHidden = false
             myAccompanyView.myPostsTableView.isHidden = true
+            getBookmarksAPI()
         } else {
             myAccompanyView.myAccompanyTableView.isHidden = true
             myAccompanyView.scrapTableView.isHidden = true
             myAccompanyView.myPostsTableView.isHidden = false
+            getMyPostsAPI()
         }
         
         let width = myAccompanyView.segmentedControl.frame.width / CGFloat(myAccompanyView.segmentedControl.numberOfSegments)
@@ -90,6 +95,31 @@ class MyAccompanyViewController: UIViewController {
                 
         UIView.animate(withDuration: 0.2) {
             self.myAccompanyView.underLineView.frame.origin.x = xPosition
+        }
+    }
+    
+    private func getBookmarksAPI() {
+        provider.request(.getMyPosts(memberId: 1, page: 0)) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<PostResponse>.self)
+                guard let result = response?.result?.postList else { return }
+                print("스크랩: \(result)")
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    private func getMyPostsAPI() {
+        provider.request(.getMyPosts(memberId: 1, page: 0)) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<PostResponse>.self)
+                guard let result = response?.result?.postList else { return }
+                print("내 게시물: \(result)")
+            case .failure(let error):
+                print(error)
+            }
         }
     }
     
