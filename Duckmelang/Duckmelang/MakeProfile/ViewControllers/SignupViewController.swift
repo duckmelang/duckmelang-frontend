@@ -100,8 +100,23 @@ class SignupViewController: UIViewController {
         } else {
             let splashViewController = BlueSplashViewController()
             splashViewController.modalPresentationStyle = .fullScreen
-            splashViewController.modalTransitionStyle = .crossDissolve // 페이드 인/아웃 효과 적용
-            present(splashViewController, animated: true, completion: nil)
+            splashViewController.modalTransitionStyle = .crossDissolve
+
+            if let window = view.window {
+                window.rootViewController = splashViewController
+                UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: nil) { _ in
+                    // 1.5초 후 BaseViewController로 전환
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        let baseViewController = BaseViewController()
+                        let navigationController = UINavigationController(rootViewController: baseViewController)
+                        navigationController.modalPresentationStyle = .fullScreen
+                        navigationController.modalTransitionStyle = .crossDissolve
+
+                        window.rootViewController = navigationController
+                        UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: nil, completion: nil)
+                    }
+                }
+            }
         }
     }
 }
