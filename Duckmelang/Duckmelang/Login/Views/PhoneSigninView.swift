@@ -117,11 +117,24 @@ class PhoneSigninView: UIView {
         textField.layer.cornerRadius = 5
         textField.layer.borderColor = UIColor.grey400!.cgColor
         
-        // 초기에는 숨김 처리
-        textField.isHidden = true
-        
         return textField
     }()
+    
+    public let verifyCodeButton = UIButton().then {
+        $0.setTitle("인증", for: .normal)
+        $0.titleLabel?.font = UIFont.ptdSemiBoldFont(ofSize: 13)
+        $0.setTitleColor(.grey100, for: .normal)
+        $0.backgroundColor = UIColor.dmrBlue
+        $0.layer.cornerRadius = 8
+    }
+    
+    public let verifyCodeContainer = UIStackView().then {
+        $0.axis = .horizontal
+        $0.distribution = .fill
+        $0.alignment = .fill
+        $0.spacing = 8
+        $0.isHidden = true
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -140,10 +153,13 @@ class PhoneSigninView: UIView {
         phoneVerifyContainer.addArrangedSubview(phoneTextField)
         phoneVerifyContainer.addArrangedSubview(verifyButton)
         
+        verifyCodeContainer.addArrangedSubview(certificationNumberField)
+        verifyCodeContainer.addArrangedSubview(verifyCodeButton)
+        
         [
             topLabelContainer,
             phoneVerifyContainer,
-            certificationNumberField
+            verifyCodeContainer
         ].forEach {
             addSubview($0)
         }
@@ -159,6 +175,11 @@ class PhoneSigninView: UIView {
             $0.leading.trailing.equalToSuperview().inset(16)
         }
         
+        verifyCodeContainer.snp.makeConstraints {
+            $0.top.equalTo(phoneVerifyContainer.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview().inset(16)
+        }
+        
         phoneTextField.snp.makeConstraints {
             $0.height.equalTo(40)
             $0.left.equalToSuperview()
@@ -171,8 +192,12 @@ class PhoneSigninView: UIView {
 
         certificationNumberField.snp.makeConstraints{
             $0.height.equalTo(40)
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.top.equalTo(phoneVerifyContainer.snp.bottom).offset(8)
+            $0.left.equalToSuperview()
+        }
+        
+        verifyCodeButton.snp.makeConstraints{
+            $0.height.equalTo(40)
+            $0.width.equalTo(65)
         }
         
         

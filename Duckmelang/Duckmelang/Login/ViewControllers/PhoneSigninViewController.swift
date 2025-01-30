@@ -24,7 +24,11 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         view.verifyButton.addTarget(self, action: #selector(didTapVerifyBtn),for: .touchUpInside)
         view.verifyButton.isEnabled = false // 초기 상태에서 비활성화
         view.verifyButton.alpha = 0.5 // 비활성화 시 투명도 50%
+        
         view.certificationNumberField.addTarget(self, action: #selector(putCertificationNumber),for: .editingChanged)
+        view.verifyCodeButton.addTarget(self, action: #selector(didTapVerifyCodeBtn),for: .touchUpInside)
+        view.verifyCodeButton.isEnabled = false // 초기 상태에서 비활성화
+        view.verifyCodeButton.alpha = 0.5 // 비활성화 시 투명도 50%
         return view
     }()
     
@@ -83,8 +87,8 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
             print("인증번호 요청 버튼 눌림")
             
             // 인증번호 입력 필드 표시
-            phoneSigninView.certificationNumberField.alpha = 0
-            phoneSigninView.certificationNumberField.isHidden = false
+            phoneSigninView.verifyCodeContainer.alpha = 0
+            phoneSigninView.verifyCodeContainer.isHidden = false
             
             // 휴대폰 번호 입력창 비활성화 및 색상 변경
             phoneSigninView.phoneTextField.isUserInteractionEnabled = false
@@ -97,7 +101,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
             phoneSigninView.verifyButton.backgroundColor = .grey800
             
             UIView.animate(withDuration: 0.3, animations: {
-                self.phoneSigninView.certificationNumberField.alpha = 1
+                self.phoneSigninView.verifyCodeContainer.alpha = 1
             }) { _ in
                 // 애니메이션 완료 후 키보드 활성화
                 self.phoneSigninView.certificationNumberField
@@ -120,9 +124,21 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         if limitedText.count == 6 {
             phoneSigninView.certificationNumberField.textColor = UIColor.dmrBlue
             phoneSigninView.certificationNumberField.layer.borderColor = UIColor.dmrBlue!.cgColor
+            // 인증 확인 버튼 활성화
+            phoneSigninView.verifyCodeButton.isEnabled = true
+            phoneSigninView.verifyCodeButton.alpha = 1.0
         } else {
             phoneSigninView.certificationNumberField.textColor = UIColor.black
             phoneSigninView.certificationNumberField.layer.borderColor = UIColor.grey400!.cgColor
+            // 인증 확인 버튼 비활성화
+            phoneSigninView.verifyCodeButton.isEnabled = false
+            phoneSigninView.verifyCodeButton.alpha = 0.5
+        }
+    }
+    
+    @objc private func didTapVerifyCodeBtn() {
+        if phoneSigninView.verifyCodeButton.isEnabled {
+            print("인증번호 확인")
         }
     }
     
