@@ -23,7 +23,7 @@ class SelectEventView: UIView {
         $0.textColor = .grey600
     }
     
-    private let celebTextField = UITextField().then {
+    private let eventTextField = UITextField().then {
         $0.placeholder = "텍스트 입력"
         $0.borderStyle = .roundedRect
 
@@ -60,7 +60,7 @@ class SelectEventView: UIView {
         [
             titleLabel,
             subtitleLabel,
-            celebTextField
+            eventTextField
         ].forEach {
             addSubview($0)
         }
@@ -75,7 +75,7 @@ class SelectEventView: UIView {
             $0.left.equalToSuperview()
         }
             
-        celebTextField.snp.makeConstraints {
+        eventTextField.snp.makeConstraints {
             $0.top.equalTo(subtitleLabel.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(44)

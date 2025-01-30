@@ -23,7 +23,7 @@ class FilterKeywordsView: UIView {
         $0.textColor = .grey600
     }
     
-    private let celebTextField = UITextField().then {
+    private let filterKeywordTextField = UITextField().then {
         $0.placeholder = "텍스트 입력"
         $0.borderStyle = .roundedRect
 
@@ -60,7 +60,7 @@ class FilterKeywordsView: UIView {
         [
             titleLabel,
             subtitleLabel,
-            celebTextField
+            filterKeywordTextField
         ].forEach {
             addSubview($0)
         }
@@ -75,7 +75,7 @@ class FilterKeywordsView: UIView {
             $0.left.equalToSuperview()
         }
             
-        celebTextField.snp.makeConstraints {
+        filterKeywordTextField.snp.makeConstraints {
             $0.top.equalTo(subtitleLabel.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(44)
