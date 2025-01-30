@@ -139,7 +139,16 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     @objc private func didTapVerifyCodeBtn() {
         if phoneSigninView.verifyCodeButton.isEnabled {
             print("인증번호 확인")
+            navigateToIDPWView()
         }
+    }
+    
+    private func navigateToIDPWView() {
+        let view = SinginViewController()
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        self.navigationController?.navigationBar.tintColor = UIColor.grey600
+        self.navigationController?.pushViewController(view, animated: true)
+
     }
     
     //FIXME: - 전화번호, 인증번호 설정 변경 필요 시 코드 수정
