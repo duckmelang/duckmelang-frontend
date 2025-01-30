@@ -92,6 +92,36 @@ class PhoneSigninView: UIView {
         $0.alignment = .fill
         $0.spacing = 8
     }
+    
+    public lazy var certificationNumberField: UITextField = {
+        let textField = UITextField()
+        
+        // 텍스트 스타일 설정
+        textField.font = UIFont.ptdRegularFont(ofSize: 15)
+        textField.textColor = UIColor.grey600
+        
+        //FIXME: - 인증시간 Count
+        // 플레이스홀더 설정
+        textField.placeholder = "(인증시간 Count)"
+        
+        // 왼쪽 패딩 추가
+        let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
+        textField.leftView = leftPaddingView
+        textField.leftViewMode = .always
+        
+        // 사용자 입력 가능하도록 설정
+        textField.isUserInteractionEnabled = true
+        
+        // 테두리 설정
+        textField.layer.borderWidth = 1
+        textField.layer.cornerRadius = 5
+        textField.layer.borderColor = UIColor.grey400!.cgColor
+        
+        // 초기에는 숨김 처리
+        textField.isHidden = true
+        
+        return textField
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -112,7 +142,8 @@ class PhoneSigninView: UIView {
         
         [
             topLabelContainer,
-            phoneVerifyContainer
+            phoneVerifyContainer,
+            certificationNumberField
         ].forEach {
             addSubview($0)
         }
@@ -138,6 +169,11 @@ class PhoneSigninView: UIView {
             $0.width.equalTo(65)
         }
 
+        certificationNumberField.snp.makeConstraints{
+            $0.height.equalTo(40)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.top.equalTo(phoneVerifyContainer.snp.bottom).offset(8)
+        }
         
         
     }

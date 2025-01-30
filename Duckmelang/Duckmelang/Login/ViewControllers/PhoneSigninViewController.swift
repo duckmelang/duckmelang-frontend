@@ -24,6 +24,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         view.verifyButton.addTarget(self, action: #selector(didTapVerifyBtn),for: .touchUpInside)
         view.verifyButton.isEnabled = false // 초기 상태에서 비활성화
         view.verifyButton.alpha = 0.5 // 비활성화 시 투명도 50%
+        view.certificationNumberField.addTarget(self, action: #selector(putCertificationNumber),for: .editingChanged)
         return view
     }()
     
@@ -77,6 +78,55 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    @objc private func didTapVerifyBtn() {
+        if phoneSigninView.verifyButton.isEnabled {
+            print("인증번호 요청 버튼 눌림")
+            
+            // 인증번호 입력 필드 표시
+            phoneSigninView.certificationNumberField.alpha = 0
+            phoneSigninView.certificationNumberField.isHidden = false
+            
+            // 휴대폰 번호 입력창 비활성화 및 색상 변경
+            phoneSigninView.phoneTextField.isUserInteractionEnabled = false
+            phoneSigninView.phoneTextField.textColor = .black
+            phoneSigninView.phoneTextField.layer.borderColor = UIColor.black!.cgColor
+            
+            // 인증 버튼 비활성화 및 색상 변경
+            phoneSigninView.verifyButton.isEnabled = false
+            phoneSigninView.verifyButton.setTitleColor(.white, for: .normal)
+            phoneSigninView.verifyButton.backgroundColor = .grey800
+            
+            UIView.animate(withDuration: 0.3, animations: {
+                self.phoneSigninView.certificationNumberField.alpha = 1
+            }) { _ in
+                // 애니메이션 완료 후 키보드 활성화
+                self.phoneSigninView.certificationNumberField
+                    .becomeFirstResponder()
+            }
+        }
+    }
+    
+    @objc private func putCertificationNumber() {
+        guard let text = phoneSigninView.certificationNumberField.text else { return }
+
+        // 숫자만 입력하도록 필터링
+        let filteredText = text.filter { $0.isNumber }
+        
+        // 최대 6자리까지만 입력 가능하도록 설정
+        let limitedText = String(filteredText.prefix(6))
+        phoneSigninView.certificationNumberField.text = limitedText
+
+        // 6자리 입력되었을 때 색상 변경
+        if limitedText.count == 6 {
+            phoneSigninView.certificationNumberField.textColor = UIColor.dmrBlue
+            phoneSigninView.certificationNumberField.layer.borderColor = UIColor.dmrBlue!.cgColor
+        } else {
+            phoneSigninView.certificationNumberField.textColor = UIColor.black
+            phoneSigninView.certificationNumberField.layer.borderColor = UIColor.grey400!.cgColor
+        }
+    }
+    
+    //FIXME: - 전화번호, 인증번호 설정 변경 필요 시 코드 수정
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         // 숫자만 입력 가능하도록 제한
         let allowedCharacters = CharacterSet.decimalDigits
@@ -84,11 +134,5 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         
         // 숫자가 아닌 문자는 입력 불가
         return allowedCharacters.isSuperset(of: characterSet)
-    }
-    
-    @objc private func didTapVerifyBtn() {
-        if phoneSigninView.verifyButton.isEnabled {
-            print("인증번호 요청 버튼 눌림")
-        }
     }
 }
