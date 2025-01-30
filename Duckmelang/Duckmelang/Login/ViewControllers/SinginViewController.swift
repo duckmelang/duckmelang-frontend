@@ -56,7 +56,7 @@ class SinginViewController: UIViewController {
     // MARK: - Navigation
     
     private func navigateToMakeProfileView() {
-        let view = MakeProfileViewController()
+        let view = SignupViewController()
         self.navigationController?.pushViewController(view, animated: true)
     }
 
