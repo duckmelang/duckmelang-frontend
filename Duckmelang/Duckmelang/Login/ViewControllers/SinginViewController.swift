@@ -42,22 +42,22 @@ class SinginViewController: UIViewController {
         
     private lazy var loginView: SinginView = {
         let view = SinginView()
+        view.signUpButton.addTarget(self, action: #selector(didTapSigninButton), for: .touchUpInside)
         return view
     }()
 
     
     
-//    @objc private func didTapLoginButton() {
-//        navigateToHomeView()
-//        print("gotoMain")
-//    }
+    @objc private func didTapSigninButton() {
+        navigateToMakeProfileView()
+        print("goto MakeProfile")
+    }
     
     // MARK: - Navigation
     
-//    private func navigateToHomeView() {
-//        let mainVC = BaseViewController()
-//        mainVC.modalPresentationStyle = .fullScreen
-//        present(mainVC, animated: true)
-//    }
+    private func navigateToMakeProfileView() {
+        let view = MakeProfileViewController()
+        self.navigationController?.pushViewController(view, animated: true)
+    }
 
 }

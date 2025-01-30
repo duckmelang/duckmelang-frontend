@@ -64,8 +64,6 @@ class OnBoardingViewController: UIViewController {
     
     private func navigateToLoginView() {
         let view = LoginViewController()
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        self.navigationController?.navigationBar.tintColor = UIColor.grey600
         self.navigationController?.pushViewController(view, animated: true)
 
     }
@@ -73,8 +71,6 @@ class OnBoardingViewController: UIViewController {
     
     private func navigateToPhoneSinginView() {
         let view = PhoneSigninViewController()
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        self.navigationController?.navigationBar.tintColor = UIColor.grey600
         self.navigationController?.pushViewController(view, animated: true)
 
     }
