@@ -1,5 +1,5 @@
 //
-//  SplashViewController.swift
+//  YellowSplashViewController.swift
 //  Duckmelang
 //
 //  Created by 김연우 on 1/14/25.
@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
-class SplashViewController: UIViewController {
+class YellowSplashViewController: UIViewController {
 
     override func loadView() {
             // SplashView를 뷰로 설정

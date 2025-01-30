@@ -16,7 +16,7 @@ class SignupViewController: UIViewController {
     private var currentStep = 0
     private let stepViews: [UIView] = [
         MakeProfileView(),
-        SelectFavoriteIdolView(),
+        SelectFavoriteCelebView(),
         SelectEventView(),
         FilterKeywordsView()
     ]
@@ -97,6 +97,11 @@ class SignupViewController: UIViewController {
             currentStep += 1
             showStep(step: currentStep)
             progressBarView.moveToNextStep()
+        } else {
+            let splashViewController = BlueSplashViewController()
+            splashViewController.modalPresentationStyle = .fullScreen
+            splashViewController.modalTransitionStyle = .crossDissolve // 페이드 인/아웃 효과 적용
+            present(splashViewController, animated: true, completion: nil)
         }
     }
 }
