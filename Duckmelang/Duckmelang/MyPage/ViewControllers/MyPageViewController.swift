@@ -18,17 +18,16 @@ class MyPageViewController: UIViewController {
     }
     
     private lazy var myPageView = MyPageView().then {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backViewDidTap))
-        tapGesture.numberOfTapsRequired = 1 // 단일 탭, 횟수 설정
-        $0.myPageTopView.backView.addGestureRecognizer(tapGesture)
+        $0.myPageTopView.profileSeeBtn.addTarget(self, action: #selector(profileSeeBtnDidTap), for: .touchUpInside)
         $0.idolChange.addTarget(self, action: #selector(idolChangeDidTap), for: .touchUpInside)
         $0.postRecommendChange.addTarget(self, action: #selector(postRecommendDidTap), for: .touchUpInside)
         $0.login.addTarget(self, action: #selector(loginInfoDidTap), for: .touchUpInside)
         $0.push.addTarget(self, action: #selector(pushDidTap), for: .touchUpInside)
+        $0.out.addTarget(self, action: #selector(outDidTap), for: .touchUpInside)
     }
     
     @objc
-    private func backViewDidTap() {
+    private func profileSeeBtnDidTap() {
         let profileVC = UINavigationController(rootViewController: ProfileViewController())
         profileVC.modalPresentationStyle = .fullScreen
         present(profileVC, animated: false)
@@ -60,6 +59,13 @@ class MyPageViewController: UIViewController {
         let pushVC = UINavigationController(rootViewController: PushNotificationViewController())
         pushVC.modalPresentationStyle = .fullScreen
         present(pushVC, animated: false)
+    }
+    
+    @objc
+    private func outDidTap() {
+        let outVC = UINavigationController(rootViewController: AccountClosing1ViewController())
+        outVC.modalPresentationStyle = .fullScreen
+        present(outVC, animated: false)
     }
 }
 

@@ -12,18 +12,17 @@ class AccountClosing1ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        self.view = accountClosing1View
+        
+        navigationController?.isNavigationBarHidden = true
+    }
+
+    private lazy var accountClosing1View = AccountClosing1View().then {
+        $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    @objc
+    private func backBtnDidTap() {
+        self.presentingViewController?.dismiss(animated: false)
     }
-    */
-
 }
