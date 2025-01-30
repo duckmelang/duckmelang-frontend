@@ -15,11 +15,12 @@ class OnBoardingViewController: UIViewController {
         let view = OnBoardingView()
         view.loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
         view.kakaoLoginButton.addTarget(self, action: #selector(didTapKakaoLoginButton), for: .touchUpInside)
+        view.googleLoginButton.addTarget(self, action: #selector(didTapGoogleLoginButton), for: .touchUpInside)
+        view.phoneLoginButton.addTarget(self, action: #selector(didTapPhoneLoginButton), for: .touchUpInside)
         
         //FIXME: - 개발 종료 후 지울것1. Main으로 연결되는 통로
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapLogo))
-            view.logoImageView.isUserInteractionEnabled = true
-            view.addGestureRecognizer(tapGesture)
+        view.goHome.addTarget(self, action: #selector(didTapGoHome), for: .touchUpInside)
+        
         return view
     }()
 
@@ -49,6 +50,16 @@ class OnBoardingViewController: UIViewController {
         //handleKakaoLogin()
     }
     
+    @objc private func didTapGoogleLoginButton() {
+        print("Google login button tapped")
+        //handleGoogleLogin()
+    }
+    
+    @objc private func didTapPhoneLoginButton() {
+        print("Phone Signin button tapped")
+        navigateToPhoneSinginView()
+    }
+    
     // MARK: - Navigation
     
     private func navigateToLoginView() {
@@ -58,13 +69,20 @@ class OnBoardingViewController: UIViewController {
         self.navigationController?.pushViewController(view, animated: true)
 
     }
+    //TODO: - Kakao Login, Google Login 구현
     
-    //TODO: - kakao login 구현 필요
+    private func navigateToPhoneSinginView() {
+        let view = PhoneSigninViewController()
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        self.navigationController?.navigationBar.tintColor = UIColor.grey600
+        self.navigationController?.pushViewController(view, animated: true)
+
+    }
     
     //FIXME: - 개발 종료 후 지울것2. Main으로 연결되는 통로
-    @objc private func didTapLogo() {
-        navigateToHomeView()
+    @objc private func didTapGoHome() {
         print("go home")
+        navigateToHomeView()
     }
     
     private func navigateToHomeView() {
