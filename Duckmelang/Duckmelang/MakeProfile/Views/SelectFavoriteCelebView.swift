@@ -1,5 +1,5 @@
 //
-//  FilterKeywordsView.swift
+//  SelectFavoriteIdolView.swift
 //  Duckmelang
 //
 //  Created by 김연우 on 1/28/25.
@@ -9,16 +9,16 @@ import UIKit
 import Then
 import SnapKit
 
-class FilterKeywordsView: UIView {
+class SelectFavoriteCelebView: UIView {
     
     private let titleLabel = UILabel().then {
-        $0.text = "피하고싶은 키워드를 알려주세요!"
+        $0.text = "좋아하는 아이돌을 알려주세요!"
         $0.font = UIFont.aritaBoldFont(ofSize: 20)
         $0.textColor = .grey800
     }
     
     private let subtitleLabel = UILabel().then {
-        $0.text = "해당 키워드가 포함된 게시글은 필터가 씌워져요."
+        $0.text = "언제든 변경할 수 있어요"
         $0.font = UIFont.ptdRegularFont(ofSize: 13)
         $0.textColor = .grey600
     }
