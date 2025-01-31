@@ -92,13 +92,13 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
             
             // 휴대폰 번호 입력창 비활성화 및 색상 변경
             phoneSigninView.phoneTextField.isUserInteractionEnabled = false
-            phoneSigninView.phoneTextField.textColor = .black
-            phoneSigninView.phoneTextField.layer.borderColor = UIColor.black!.cgColor
+            phoneSigninView.phoneTextField.textColor = .grey100
+            phoneSigninView.phoneTextField.layer.borderColor = UIColor.grey300!.cgColor
             
             // 인증 버튼 비활성화 및 색상 변경
             phoneSigninView.verifyButton.isEnabled = false
-            phoneSigninView.verifyButton.setTitleColor(.white, for: .normal)
-            phoneSigninView.verifyButton.backgroundColor = .grey800
+            phoneSigninView.verifyButton.setTitleColor(.grey100, for: .normal)
+            phoneSigninView.verifyButton.backgroundColor = .grey300
             
             UIView.animate(withDuration: 0.3, animations: {
                 self.phoneSigninView.verifyCodeContainer.alpha = 1
