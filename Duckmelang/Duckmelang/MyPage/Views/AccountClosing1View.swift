@@ -54,7 +54,7 @@ class AccountClosing1View: UIView {
     
     private lazy var text4 = Label(text: "회원 탈퇴(이용약관 동의 철회)를 하시겠습니까?", font: .ptdSemiBoldFont(ofSize: 16), color: .grey800)
     
-    private lazy var outBtn = UIButton().then {
+    lazy var outBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.attributedTitle = AttributedString("회원 탈퇴", attributes: AttributeContainer([.font: UIFont.ptdSemiBoldFont(ofSize: 17), .foregroundColor: UIColor.grey0!]))
         $0.configuration = config
