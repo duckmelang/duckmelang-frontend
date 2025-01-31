@@ -54,6 +54,14 @@ class AccountClosing1View: UIView {
     
     private lazy var text4 = Label(text: "회원 탈퇴(이용약관 동의 철회)를 하시겠습니까?", font: .ptdSemiBoldFont(ofSize: 16), color: .grey800)
     
+    private lazy var outBtn = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        config.attributedTitle = AttributedString("회원 탈퇴", attributes: AttributeContainer([.font: UIFont.ptdSemiBoldFont(ofSize: 17), .foregroundColor: UIColor.grey0!]))
+        $0.configuration = config
+        $0.backgroundColor = .dmrBlue
+        $0.layer.cornerRadius = 23
+        $0.clipsToBounds = true
+    }
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
@@ -65,7 +73,7 @@ class AccountClosing1View: UIView {
     }
     
     private func setupView(){
-        [topStack, textStack, view, text4].forEach{addSubview($0)}
+        [topStack, textStack, view, text4, outBtn].forEach{addSubview($0)}
         view.addSubview(text3)
         
         topStack.snp.makeConstraints{
@@ -95,6 +103,12 @@ class AccountClosing1View: UIView {
         text4.snp.makeConstraints{
             $0.top.equalTo(view.snp.bottom).offset(25)
             $0.leading.equalToSuperview().inset(16)
+        }
+        
+        outBtn.snp.makeConstraints{
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(12)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(46)
         }
     }
 }
