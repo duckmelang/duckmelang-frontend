@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import Moya
 
 class OnBoardingViewController: UIViewController {
+    private let provider = MoyaProvider<AllEndpoint>()
 
     // MARK: - Properties
     
@@ -47,18 +49,59 @@ class OnBoardingViewController: UIViewController {
     
     @objc private func didTapKakaoLoginButton() {
         print("Kakao login button tapped")
-        //handleKakaoLogin()
+        loginWithKakao()
     }
     
     @objc private func didTapGoogleLoginButton() {
         print("Google login button tapped")
-        //handleGoogleLogin()
+        loginWithGoogle()
     }
     
     @objc private func didTapPhoneLoginButton() {
         print("Phone Signin button tapped")
         navigateToPhoneSinginView()
     }
+    
+    // MARK: - OAuth 로그인 처리
+        
+    private func loginWithKakao() {
+        provider.request(.kakaoLogin) { result in
+            switch result {
+            case .success(let response):
+                if let loginURL = try? response.mapString(), let url = URL(string: loginURL) {
+                    DispatchQueue.main.async {
+                        let oauthVC = OAuthLoginViewController(url: url)
+                        oauthVC.modalPresentationStyle = .fullScreen
+                        self.present(oauthVC, animated: true)
+                    }
+                } else {
+                    print("Kakao 로그인 URL을 가져오지 못했습니다.")
+                }
+            case .failure(let error):
+                print("Kakao 로그인 요청 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func loginWithGoogle() {
+        provider.request(.googleLogin) { result in
+            switch result {
+            case .success(let response):
+                if let loginURL = try? response.mapString(), let url = URL(string: loginURL) {
+                    DispatchQueue.main.async {
+                        let oauthVC = OAuthLoginViewController(url: url)
+                        oauthVC.modalPresentationStyle = .fullScreen
+                        self.present(oauthVC, animated: true)
+                    }
+                } else {
+                    print("Google 로그인 URL을 가져오지 못했습니다.")
+                }
+            case .failure(let error):
+                print("Google 로그인 요청 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+
     
     // MARK: - Navigation
     
@@ -67,7 +110,6 @@ class OnBoardingViewController: UIViewController {
         self.navigationController?.pushViewController(view, animated: true)
 
     }
-    //TODO: - Kakao Login, Google Login 구현
     
     private func navigateToPhoneSinginView() {
         let view = PhoneSigninViewController()

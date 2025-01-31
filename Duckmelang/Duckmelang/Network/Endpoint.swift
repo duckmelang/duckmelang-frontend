@@ -16,6 +16,8 @@ public enum AllEndpoint {
     case getMyPosts(memberId: Int, page: Int)
     case getBookmarks(memberId: Int, page: Int)
     case getProfileImage(memberId: Int, page: Int)
+    case kakaoLogin
+    case googleLogin
 }
 
 extension AllEndpoint: TargetType {
@@ -51,6 +53,16 @@ extension AllEndpoint: TargetType {
                 fatalError("baseURL 오류")
             }
             return url
+        case .kakaoLogin:
+            guard let url = URL(string: API.oauthURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
+        case .googleLogin:
+            guard let url = URL(string: API.oauthURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
         }
     }
     
@@ -62,6 +74,10 @@ extension AllEndpoint: TargetType {
             return "/verify"
         case .login:
             return "/login"
+        case .kakaoLogin:
+            return "/kakao"
+        case .googleLogin:
+            return "/google"
         case .signUp:
             return "/signup"
         case .getMyPosts(_, _):
@@ -81,6 +97,8 @@ extension AllEndpoint: TargetType {
             return .post
         case .signUp:
             return .post
+        case .kakaoLogin, .googleLogin:
+            return .get
         default:
             return .get
         }
@@ -103,6 +121,8 @@ extension AllEndpoint: TargetType {
                 parameters: ["email": email, "password": password],
                 encoding: JSONEncoding.default
             )
+        case .kakaoLogin, .googleLogin:
+            return .requestPlain
         case .signUp(let email, let password):
             return .requestParameters(
                 parameters: [email: email, password: password],
