@@ -71,11 +71,11 @@ class HomeView: UIView {
         
         celebNameLabel.snp.makeConstraints {
             $0.leading.equalTo(chevronIcon.snp.trailing).offset(8)
-            $0.top.equalTo(safeAreaLayoutGuide.snp.top)
+            $0.top.equalToSuperview().offset(55)
         }
         
         // 아이콘 컨테이너 뷰 생성
-        let iconStackView = UIStackView(arrangedSubviews: [findIcon, bellIcon])
+        let iconStackView = UIStackView(arrangedSubviews: [bellIcon, findIcon])
         iconStackView.axis = .horizontal
         iconStackView.spacing = 16 // 아이콘 간 간격 조절
 

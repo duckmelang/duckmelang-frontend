@@ -11,6 +11,7 @@ class HomeViewController: UIViewController {
 
     private lazy var homeView: HomeView = {
         let view = HomeView()
+        self.navigationController?.isNavigationBarHidden = true
         return view
     }()
     
