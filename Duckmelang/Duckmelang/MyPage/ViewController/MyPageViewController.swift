@@ -21,11 +21,28 @@ class MyPageViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backViewDidTap))
         tapGesture.numberOfTapsRequired = 1 // 단일 탭, 횟수 설정
         $0.myPageTopView.backView.addGestureRecognizer(tapGesture)
+        $0.idolChange.addTarget(self, action: #selector(idolChangeDidTap), for: .touchUpInside)
+        $0.postRecommendChange.addTarget(self, action: #selector(postRecommendDidTap), for: .touchUpInside)
     }
 
-    @objc func backViewDidTap() {
+    @objc
+    private func backViewDidTap() {
         let profileVC = UINavigationController(rootViewController: ProfileViewController())
         profileVC.modalPresentationStyle = .fullScreen
         present(profileVC, animated: false)
+    }
+    
+    @objc
+    private func idolChangeDidTap() {
+        let idolChangeVC = UINavigationController(rootViewController: IdolChangeViewController())
+        idolChangeVC.modalPresentationStyle = .fullScreen
+        present(idolChangeVC, animated: false)
+    }
+    
+    @objc
+    private func postRecommendDidTap() {
+        let PostRecommendedFilterVC = UINavigationController(rootViewController: PostRecommendedFilterViewController())
+        PostRecommendedFilterVC.modalPresentationStyle = .fullScreen
+        present(PostRecommendedFilterVC, animated: false)
     }
 }
