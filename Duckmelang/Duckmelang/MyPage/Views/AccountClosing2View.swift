@@ -27,7 +27,7 @@ class AccountClosing2View: UIView {
     
     private lazy var text1 = Label(text: "언젠가 다시 만나요!", font: .aritaBoldFont(ofSize: 20), color: .grey800)
     
-    private lazy var text2 = Label(text: "서비스를 이용해주셔서 감사합니다.", font: .ptdRegularFont(ofSize: 13), color: .grey600)
+    private lazy var text2 = Label(text: "서비스를 이용해주셔서 감사합니다.", font: .ptdRegularFont(ofSize: 13), color: .grey800)
     
     lazy var outBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
@@ -38,7 +38,7 @@ class AccountClosing2View: UIView {
         $0.clipsToBounds = true
     }
     
-    private lazy var textStack = Stack(axis: .vertical, spacing: 8, alignment: .center)
+    private lazy var textStack = Stack(axis: .vertical, spacing: 13, alignment: .center)
     
     private func addStack(){
         [text1, text2].forEach{textStack.addArrangedSubview($0)}
