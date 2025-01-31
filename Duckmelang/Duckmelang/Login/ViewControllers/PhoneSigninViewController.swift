@@ -155,7 +155,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     }
     
     private func navigateToIDPWView() {
-        let view = SigninViewController()
+        let view = SignUpViewController()
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         self.navigationController?.navigationBar.tintColor = UIColor.grey600
         self.navigationController?.pushViewController(view, animated: true)

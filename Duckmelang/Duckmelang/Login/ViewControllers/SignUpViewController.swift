@@ -1,5 +1,5 @@
 //
-//  LoginViewController.swift
+//  SignUpViewController.swift
 //  Duckmelang
 //
 //  Created by 김연우 on 1/25/25.
@@ -7,12 +7,12 @@
 
 import UIKit
 
-class SinginViewController: UIViewController {
+class SignUpViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.isNavigationBarHidden = false
-        self.view = loginView
+        self.view = signupView
         setupNavigationBar()
     }
     
@@ -40,10 +40,10 @@ class SinginViewController: UIViewController {
     
     // MARK: - Properties
         
-    private lazy var loginView: SinginView = {
-        let view = SinginView()
-        view.signUpButton.addTarget(self, action: #selector(didTapSigninButton), for: .touchUpInside)
-        return view
+    private lazy var signupView: SignUpView = {
+            let view = SignUpView()
+            view.signUpButton.addTarget(self, action: #selector(didTapSigninButton), for: .touchUpInside)
+            return view
     }()
 
     
@@ -56,7 +56,7 @@ class SinginViewController: UIViewController {
     // MARK: - Navigation
     
     private func navigateToMakeProfileView() {
-        let view = SignupViewController()
+        let view = MakeProfilesViewController()
         self.navigationController?.pushViewController(view, animated: true)
     }
 
