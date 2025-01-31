@@ -9,22 +9,15 @@ import UIKit
 import Moya
 
 class MyAccompanyViewController: UIViewController {
-    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
-    
-    var selectedTag: Int = 0
-    
-    let data1 = MyAccompanyModel.dummy()
-    var data2 = PostModel.dummy1()
-    let data3 = PostModel.dummy2()
+    private var currentViewController: UIViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = myAccompanyView
         
         setupNavigationBar()
-        setupDelegate()
         setupAction()
-        updateBtnSelected()
+        switchSegment(segment: myAccompanyView.segmentedControl)
     }
     
     private lazy var myAccompanyView: MyAccompanyView = {
@@ -33,8 +26,6 @@ class MyAccompanyViewController: UIViewController {
     }()
     
     private func setupNavigationBar() {
-        self.navigationController?.navigationBar.backgroundColor = .white
-        
         self.navigationItem.title = "나의 동행"
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
         
@@ -47,127 +38,55 @@ class MyAccompanyViewController: UIViewController {
         print("알림 버튼 클릭")
     }
     
-    @objc private func clickBtn(_ sender: UIButton) {
-        selectedTag = sender.tag
-        updateBtnSelected()
-    }
-    
-    private func setupDelegate() {
-        myAccompanyView.myAccompanyTableView.dataSource = self
-        myAccompanyView.myAccompanyTableView.delegate = self
-        
-        myAccompanyView.scrapTableView.dataSource = self
-        myAccompanyView.scrapTableView.delegate = self
-        
-        myAccompanyView.myPostsTableView.dataSource = self
-        myAccompanyView.myPostsTableView.delegate = self
-    }
-    
     private func setupAction() {
-        // segmentedControl
-        myAccompanyView.segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(segment:)), for: .valueChanged)
-        
-        // Btns
-        myAccompanyView.awaitingBtn.addTarget(self, action: #selector(clickBtn), for: .touchUpInside)
-        myAccompanyView.sentBtn.addTarget(self, action: #selector(clickBtn), for: .touchUpInside)
-        myAccompanyView.receivedBtn.addTarget(self, action: #selector(clickBtn), for: .touchUpInside)
+        myAccompanyView.segmentedControl.addTarget(self, action: #selector(switchSegment(segment:)), for: .valueChanged)
     }
-    
-    @objc private func segmentedControlValueChanged(segment: UISegmentedControl) {
-        if segment.selectedSegmentIndex == 0 {
-            myAccompanyView.myAccompanyTableView.isHidden = false
-            myAccompanyView.scrapTableView.isHidden = true
-            myAccompanyView.myPostsTableView.isHidden = true
-        } else if segment.selectedSegmentIndex == 1 {
-            myAccompanyView.myAccompanyTableView.isHidden = true
-            myAccompanyView.scrapTableView.isHidden = false
-            myAccompanyView.myPostsTableView.isHidden = true
-            getBookmarksAPI()
-        } else {
-            myAccompanyView.myAccompanyTableView.isHidden = true
-            myAccompanyView.scrapTableView.isHidden = true
-            myAccompanyView.myPostsTableView.isHidden = false
-            getMyPostsAPI()
+
+    @objc private func switchSegment(segment: UISegmentedControl) {
+        let selectedIndex = segment.selectedSegmentIndex
+        let newViewController: UIViewController
+        
+        switch selectedIndex {
+        case 0:
+            newViewController = RequestViewController()
+        case 1:
+            newViewController = BookmarksViewController()
+        case 2:
+            newViewController = MyPostsViewController()
+        default:
+            return
         }
         
-        let width = myAccompanyView.segmentedControl.frame.width / CGFloat(myAccompanyView.segmentedControl.numberOfSegments)
-        let xPosition = myAccompanyView.segmentedControl.frame.origin.x + (width * CGFloat(myAccompanyView.segmentedControl.selectedSegmentIndex))
+        moveUnderline()
+        switchToViewController(newViewController)
+    }
+    
+    private func moveUnderline() {
+        // 세그먼트 컨트롤 하단바 이동
+        let width = self.myAccompanyView.segmentedControl.frame.width / CGFloat(self.myAccompanyView.segmentedControl.numberOfSegments)
+        let xPosition = self.myAccompanyView.segmentedControl.frame.origin.x + (width * CGFloat(self.myAccompanyView.segmentedControl.selectedSegmentIndex))
                 
         UIView.animate(withDuration: 0.2) {
-            self.myAccompanyView.underLineView.frame.origin.x = xPosition
+            self.myAccompanyView.underLineView.transform = CGAffineTransform(translationX: xPosition, y: 0)
         }
     }
     
-    private func getBookmarksAPI() {
-        provider.request(.getMyPosts(memberId: 1, page: 0)) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<PostResponse>.self)
-                guard let result = response?.result?.postList else { return }
-                print("스크랩: \(result)")
-            case .failure(let error):
-                print(error)
-            }
-        }
-    }
-    private func getMyPostsAPI() {
-        provider.request(.getMyPosts(memberId: 1, page: 0)) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<PostResponse>.self)
-                guard let result = response?.result?.postList else { return }
-                print("내 게시물: \(result)")
-            case .failure(let error):
-                print(error)
-            }
-        }
-    }
-    
-    private func updateBtnSelected() {
-        for btn in [myAccompanyView.awaitingBtn, myAccompanyView.sentBtn, myAccompanyView.receivedBtn] {
-            if btn.tag == selectedTag {
-                btn.isSelected = true
-            } else {
-                btn.isSelected = false
-            }
-        }
-    }
-}
-
-extension MyAccompanyViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if (tableView == myAccompanyView.myAccompanyTableView) {
-            return data1.count
-        } else if (tableView == myAccompanyView.scrapTableView) {
-            return data2.count
-        } else if (tableView == myAccompanyView.myPostsTableView) {
-            return data3.count
-        }
-        return 0
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if (tableView == myAccompanyView.myAccompanyTableView) {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: MyAccompanyCell.identifier, for: indexPath) as? MyAccompanyCell else {
-                return UITableViewCell()
-            }
-            cell.configure(model: data1[indexPath.row])
-            return cell
-            
-        } else if (tableView == myAccompanyView.scrapTableView) {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
-                return UITableViewCell()
-            }
-            cell.configure(model: data2[indexPath.row])
-            return cell
-        } else if (tableView == myAccompanyView.myPostsTableView) {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
-                return UITableViewCell()
-            }
-            cell.configure(model: data3[indexPath.row])
-            return cell
+    private func switchToViewController(_ newViewController: UIViewController) {
+        if let currentVC = currentViewController {
+            currentVC.view.removeFromSuperview()
+            currentVC.removeFromParent()
         }
         
-        return UITableViewCell()
+        addChild(newViewController)
+        newViewController.view.frame = myAccompanyView.bounds
+        myAccompanyView.addSubview(newViewController.view)
+        newViewController.didMove(toParent: self)
+        
+        newViewController.view.snp.makeConstraints {
+            $0.top.equalTo(myAccompanyView.underLineView.snp.bottom)
+            $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        currentViewController = newViewController
     }
 }
