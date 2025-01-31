@@ -53,17 +53,21 @@ class PostRecommendedFilterViewController: UIViewController, UICollectionViewDel
     }
     
     @objc private func deleteButtonTapped(_ sender: UIButton) {
-        let index = sender.tag // 버튼의 태그로 셀 인덱스 가져오기
+        let index = sender.tag // 버튼의 태그를 기반으로 삭제할 필터의 인덱스를 가져옴
         
-        // 데이터 삭제
+        // ✅ 배열 범위 내의 index인지 확인하여 삭제
+        guard index >= 0, index < filters.count else {
+            return
+        }
+
+        // ✅ 배열에서 해당 필터 삭제
         filters.remove(at: index)
         
-        // 컬렉션 뷰 업데이트
-        let indexPath = IndexPath(item: index, section: 0)
-        postRecommendedFilterView.recommendFilterCollectionView.performBatchUpdates {
-            postRecommendedFilterView.recommendFilterCollectionView.deleteItems(at: [indexPath])
-        }
+        // ✅ 컬렉션 뷰 갱신 (performBatchUpdates 대신 reloadData() 사용)
+        postRecommendedFilterView.recommendFilterCollectionView.reloadData()
     }
+
+
     
     private func setupDelegate() {
         postRecommendedFilterView.recommendFilterCollectionView.dataSource = self
@@ -96,17 +100,23 @@ extension PostRecommendedFilterViewController: UICollectionViewDataSource {
 
 extension PostRecommendedFilterViewController: PostRecommendedFilterCellDelegate {
     func didTapDeleteButton(cell: PostRecommendedFilterCell) {
-        // 클릭된 셀의 IndexPath를 가져옴
         guard let indexPath = postRecommendedFilterView.recommendFilterCollectionView.indexPath(for: cell) else { return }
+
+        let index = indexPath.item
         
-        // 데이터 삭제
-        filters.remove(at: indexPath.item)
-        
-        // 셀 삭제 애니메이션
-        postRecommendedFilterView.recommendFilterCollectionView.performBatchUpdates {
-            postRecommendedFilterView.recommendFilterCollectionView.deleteItems(at: [indexPath])
+        // ✅ 배열 범위 내의 index인지 확인하여 삭제
+        guard index >= 0, index < filters.count else {
+            return
         }
+        
+        // ✅ 배열에서 해당 필터 삭제
+        filters.remove(at: index)
+
+        // ✅ 컬렉션 뷰 갱신 (performBatchUpdates 대신 reloadData() 사용)
+        postRecommendedFilterView.recommendFilterCollectionView.reloadData()
     }
+
+
 }
 
 protocol PostRecommendedFilterCellDelegate: AnyObject {
