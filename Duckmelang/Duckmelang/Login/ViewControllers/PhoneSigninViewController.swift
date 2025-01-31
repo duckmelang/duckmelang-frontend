@@ -92,7 +92,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
             
             // 휴대폰 번호 입력창 비활성화 및 색상 변경
             phoneSigninView.phoneTextField.isUserInteractionEnabled = false
-            phoneSigninView.phoneTextField.textColor = .grey100
+            phoneSigninView.phoneTextField.textColor = .grey300
             phoneSigninView.phoneTextField.layer.borderColor = UIColor.grey300!.cgColor
             
             // 인증 버튼 비활성화 및 색상 변경
