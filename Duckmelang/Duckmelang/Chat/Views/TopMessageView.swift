@@ -8,14 +8,17 @@
 import UIKit
 
 class TopMessageView: UIView {
-    init(isMyFirstMessage: Bool) {
+    init(isReview: Bool, isMyFirstMessage: Bool) {
         super.init(frame: .zero)
         
         self.backgroundColor = .clear
         setupView()
-        
-        if (isMyFirstMessage) {
+        if (isReview) {
+            confirmBtn.isHidden = true
+            reviewBtn.isHidden = false
+        } else if (isMyFirstMessage) {
             confirmBtn.isHidden = false
+            reviewBtn.isHidden = true
         }
     }
     
@@ -56,9 +59,18 @@ class TopMessageView: UIView {
         $0.font = .ptdSemiBoldFont(ofSize: 13)
     }
     
-    private lazy var confirmBtn = UIButton().then {
+    public lazy var confirmBtn = UIButton().then {
         $0.backgroundColor = .dmrBlue
         $0.setTitle("동행 확정", for: .normal)
+        $0.setTitleColor(.grey100, for: .normal)
+        $0.titleLabel?.font = .ptdSemiBoldFont(ofSize: 13)
+        $0.layer.cornerRadius = 5
+        $0.isHidden = true
+    }
+    
+    public lazy var reviewBtn = UIButton().then {
+        $0.backgroundColor = .dmrBlue
+        $0.setTitle("후기 작성", for: .normal)
         $0.setTitleColor(.grey100, for: .normal)
         $0.titleLabel?.font = .ptdSemiBoldFont(ofSize: 13)
         $0.layer.cornerRadius = 5
@@ -73,6 +85,7 @@ class TopMessageView: UIView {
             postTitle,
             inProgress,
             confirmBtn,
+            reviewBtn,
         ].forEach {
             main.addSubview($0)
         }
@@ -100,6 +113,13 @@ class TopMessageView: UIView {
         }
         
         confirmBtn.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.trailing.equalToSuperview().offset(-17)
+            $0.width.equalTo(65)
+            $0.height.equalTo(30)
+        }
+        
+        reviewBtn.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview().offset(-17)
             $0.width.equalTo(65)
