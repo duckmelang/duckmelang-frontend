@@ -11,6 +11,7 @@ import Moya
 public enum AllEndpoint {
     case sendVerificationCode(phoneNumber: String)
     case verifyCode(phoneNumber: String, code: String)
+    case login(email: String, password: String)
     case getMyPosts(memberId: Int, page: Int)
     case getBookmarks(memberId: Int, page: Int)
     case getProfileImage(memberId: Int, page: Int)
@@ -39,6 +40,11 @@ extension AllEndpoint: TargetType {
                 fatalError("baseURL 오류")
             }
             return url
+        case .login(email: _, password: _):
+            guard let url = URL(string: API.postURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
         }
     }
     
@@ -48,6 +54,8 @@ extension AllEndpoint: TargetType {
             return "/send"
         case .verifyCode:
             return "/verify"
+        case .login:
+            return "/login"
         case .getMyPosts(_, _):
             return "/my"
         case .getBookmarks(let memberId, _):
@@ -59,6 +67,8 @@ extension AllEndpoint: TargetType {
     
     public var method: Moya.Method {
         switch self {
+        case .login:
+            return .post
         case .sendVerificationCode, .verifyCode:
             return .post
         default:
@@ -76,6 +86,11 @@ extension AllEndpoint: TargetType {
         case .verifyCode(let phoneNumber, let code):
             return .requestParameters(
                 parameters: ["phoneNumber": phoneNumber, "code": code],
+                encoding: JSONEncoding.default
+            )
+        case .login(let email, let password):
+            return .requestParameters(
+                parameters: ["email": email, "password": password],
                 encoding: JSONEncoding.default
             )
         case .getMyPosts(let memberId, let page), .getProfileImage(let memberId, let page):

@@ -25,54 +25,85 @@ class LoginView: UIView {
     }()
     
     private lazy var idView: UIView = {
-        return createInputView(
-            placeholder: "아이디",
-            textField: emailTextField
-        )
+        let view = UIView()
+        view.addSubview(emailTextField)
+        emailTextField.snp.makeConstraints {
+            $0.top.bottom.equalToSuperview()
+            $0.left.right.equalToSuperview()
+        }
+        return view
     }()
     
-    private lazy var emailTextField: UITextField = {
-        return createTextField()
+    public lazy var emailTextField: TextField = {
+        let textField = TextField()
+        let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
+        textField.configTextField(
+            placeholder: "이메일",
+            leftView: leftPadding,
+            leftViewMode: .always,
+            interaction: true
+        )
+        textField.configLayer(layerBorderWidth: 1.0, layerCornerRadius: 5, layerColor: UIColor.grey400)
+        return textField
     }()
     
     private lazy var pwdView: UIView = {
-        return createInputView(
+        let view = UIView()
+        view.addSubview(pwdTextField)
+        pwdTextField.snp.makeConstraints {
+            $0.top.bottom.equalToSuperview()
+            $0.left.right.equalToSuperview()
+        }
+        return view
+    }()
+    
+    public lazy var pwdTextField: TextField = {
+        let textField = TextField()
+        let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
+        textField.configTextField(
             placeholder: "비밀번호",
-            textField: pwdTextField
+            leftView: leftPadding,
+            leftViewMode: .always,
+            interaction: true
         )
+        textField.configLayer(layerBorderWidth: 1.0, layerCornerRadius: 5, layerColor: UIColor.grey400)
+        textField.isSecureTextEntry = true
+        return textField
     }()
     
-    private lazy var pwdTextField: UITextField = {
-        return createTextField(isSecure: true)
-    }()
-    
-    public lazy var loginButton: UIButton = {
-        return createButton(
+    public lazy var loginButton: longCustomBtn = {
+        return longCustomBtn(
+            backgroundColor: UIColor.grey400!,
             title: "확인",
-            titleColor: UIColor.white!,
-            backgroundColor: UIColor.grey400!
+            titleColor: .white!,
+            width: 343,
+            height: 45
         )
     }()
     
-    public lazy var foundIDBtn: UIButton = {
-        return createButton(
-            title: "ID찾기",
+    public lazy var foundIDBtn: longCustomBtn = {
+        return longCustomBtn(
+            backgroundColor: .clear,
+            title: "ID 찾기",
             titleColor: .grey400!,
-            backgroundColor: .clear
+            width: 100,
+            height: 30
         )
     }()
     
-    public lazy var foundPWBtn: UIButton = {
-        return createButton(
-            title: "PW찾기",
+    public lazy var foundPWBtn: longCustomBtn = {
+        return longCustomBtn(
+            backgroundColor: .clear,
+            title: "PW 찾기",
             titleColor: .grey400!,
-            backgroundColor: .clear
+            width: 100,
+            height: 30
         )
     }()
     
     private lazy var verticalLine: UIView = {
         let line = UIView()
-        line.backgroundColor = .grey300 // 선 색상 설정
+        line.backgroundColor = .grey300
         line.snp.makeConstraints {
             $0.width.equalTo(1)
             $0.height.equalTo(16)
@@ -80,41 +111,42 @@ class LoginView: UIView {
         return line
     }()
     
-    
-    
     //MARK: - container
+    
     private lazy var loginContainer: UIView = {
         let view = UIView()
-        view
-            .addSubviews(
-                logoImageView,
-                inputTextContainer,
-                loginButton,
-                foundBtnContainer
-            )
-        
-        logoImageView.snp.makeConstraints {
-            $0.top.equalToSuperview()
-            $0.centerX.equalToSuperview()
-            $0.size.equalTo(CGSize(width: 75, height: 75)) // 로고 크기
+        [
+            logoImageView,
+            inputTextContainer,
+            loginButton,
+            foundBtnContainer
+        ].forEach {
+            view.addSubview($0)
         }
         
-        inputTextContainer.snp.makeConstraints{
-            $0.top.equalTo(logoImageView.snp.bottom).offset(40)
-            $0.width.equalToSuperview()
+        logoImageView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(40)
             $0.centerX.equalToSuperview()
+            $0.size.equalTo(CGSize(width: 75, height: 75))
+        }
+        
+        inputTextContainer.snp.makeConstraints {
+            $0.top.equalTo(logoImageView.snp.bottom).offset(40)
+            $0.width.equalToSuperview().offset(16)
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(pwdTextField.snp.bottom)
         }
         
         loginButton.snp.makeConstraints {
-            $0.top.equalTo(pwdView.snp.bottom).offset(16)
+            $0.top.equalTo(inputTextContainer.snp.bottom).offset(16)
             $0.centerX.equalToSuperview()
-            $0.width.equalToSuperview().inset(16)
             $0.height.equalTo(45)
         }
+        
         foundBtnContainer.snp.makeConstraints {
             $0.top.equalTo(loginButton.snp.bottom).offset(12)
             $0.centerX.equalToSuperview()
-            $0.height.equalTo(20)
+            $0.height.equalTo(30)
         }
         
         return view
@@ -122,20 +154,24 @@ class LoginView: UIView {
     
     private lazy var inputTextContainer: UIView = {
         let view = UIView()
-        view.addSubviews(idView, pwdView)
+        view.clipsToBounds = false
+        [
+            idView,
+            pwdView
+        ].forEach {
+            view.addSubview($0)
+        }
         
         idView.snp.makeConstraints {
             $0.top.equalToSuperview()
-            $0.centerX.equalToSuperview()
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(50)
+            $0.left.right.equalToSuperview().inset(16)
+            $0.height.equalTo(40)
         }
 
         pwdView.snp.makeConstraints {
             $0.top.equalTo(idView.snp.bottom).offset(8)
-            $0.centerX.equalToSuperview()
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(50)
+            $0.left.right.equalToSuperview().inset(16)
+            $0.height.equalTo(40)
         }
         
         return view
@@ -145,8 +181,7 @@ class LoginView: UIView {
         let stackView = UIStackView(arrangedSubviews: [foundIDBtn, verticalLine, foundPWBtn])
         stackView.axis = .horizontal
         stackView.alignment = .center
-        stackView.spacing = 12 // 버튼과 선 사이 간격 조정
-
+        stackView.spacing = 12
         return stackView
     }()
     
@@ -154,25 +189,16 @@ class LoginView: UIView {
     
     private func setupView() {
         backgroundColor = .white
-        addSubviews(loginContainer)
+        addSubview(loginContainer)
         setupConstraints()
-        
     }
     
     private func setupConstraints() {
-        loginContainer.snp.makeConstraints{
-            $0.top.equalToSuperview().inset(116)
+        loginContainer.snp.makeConstraints {
+            $0.top.equalTo(self.safeAreaLayoutGuide.snp.top).offset(40)
             $0.left.right.equalToSuperview().inset(16)
             $0.bottom.equalTo(foundBtnContainer.snp.bottom)
         }
-    }
-}
-
-// MARK: - UIView Extension
-
-private extension UIView {
-    func addSubviews(_ views: UIView...) {
-        views.forEach { self.addSubview($0) }
     }
 }
 
@@ -183,49 +209,4 @@ private func createImageView(named name: String) -> UIImageView {
     imageView.image = UIImage(named: name)
     imageView.contentMode = .scaleAspectFit
     return imageView
-}
-
-private func createTextField(isSecure: Bool = false) -> UITextField {
-    let textField = UITextField()
-    textField.layer.cornerRadius = 5
-    textField.layer.borderWidth = 1.0
-    textField.layer.borderColor = UIColor.grey400!.cgColor
-    textField.font = UIFont.ptdRegularFont(ofSize: 15)
-    textField.textColor = .grey600
-    textField.isSecureTextEntry = isSecure
-    
-    // 왼쪽 여백 추가
-    let leftPaddingView = UIView(
-        frame: CGRect(x: 0, y: 0, width: 16, height: 0)
-    )
-    textField.leftView = leftPaddingView
-    textField.leftViewMode = .always
-    
-    return textField
-}
-
-private func createInputView(placeholder: String, textField: UITextField) -> UIView {
-    let view = UIView()
-    view.backgroundColor = .white
-    textField.placeholder = placeholder
-    
-    view.addSubviews(textField)
-    
-    textField.snp.makeConstraints {
-        $0.top.equalToSuperview()
-        $0.bottom.equalToSuperview()
-        $0.left.right.equalToSuperview().inset(16) // 좌우 여백
-    }
-    
-    return view
-}
-
-private func createButton(title: String, titleColor: UIColor, backgroundColor: UIColor) -> UIButton {
-    let button = UIButton()
-    button.setTitle(title, for: .normal)
-    button.setTitleColor(titleColor, for: .normal)
-    button.backgroundColor = backgroundColor
-    button.layer.cornerRadius = 20
-    button.titleLabel?.font = UIFont.ptdSemiBoldFont(ofSize: 16)
-    return button
 }
