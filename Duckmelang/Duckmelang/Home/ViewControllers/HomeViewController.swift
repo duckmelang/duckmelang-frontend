@@ -11,6 +11,7 @@ class HomeViewController: UIViewController {
 
     private lazy var homeView: HomeView = {
         let view = HomeView()
+        self.navigationController?.isNavigationBarHidden = true
         return view
     }()
     
@@ -45,6 +46,14 @@ class HomeViewController: UIViewController {
                 action: #selector(writeButtonTapped),
                 for: .touchUpInside
             )
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let selectedCeleb = selectedCeleb {
+            homeView.celebNameLabel.text = selectedCeleb.name
+        }
+        self.navigationController?.isNavigationBarHidden = true
     }
 
     @objc private func showCelebSelection() {
@@ -84,6 +93,7 @@ class HomeViewController: UIViewController {
         print("📝 Write button tapped!")
         let writeVC = WriteViewController()
         writeVC.hidesBottomBarWhenPushed = true
+        writeVC.delegate = self // WriteViewController에 delegate 연결
         navigationController?.pushViewController(writeVC, animated: true)
     }
 }
@@ -93,5 +103,15 @@ extension HomeViewController: CelebSelectionDelegate {
     func didSelectCeleb(_ celeb: Celeb) {
         selectedCeleb = celeb
         homeView.celebNameLabel.text = celeb.name
+    }
+}
+
+// MARK: - WriteViewControllerDelegate
+extension HomeViewController: WriteViewControllerDelegate {
+    func didUpdateSelectedCeleb(_ celeb: Celeb?) {
+        if let celeb = celeb {
+            selectedCeleb = celeb
+            homeView.celebNameLabel.text = celeb.name
+        }
     }
 }

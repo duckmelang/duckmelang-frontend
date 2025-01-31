@@ -11,7 +11,8 @@ import SnapKit
 
 protocol WriteViewDelegate: AnyObject {
     func didTapIdolSelectButton()
-    func didTapeventTypeSelectButton()
+    func didTapEventTypeSelectButton()
+    func didTapEventDateSelectButton()
 }
 
 class WriteView: UIView {
@@ -95,43 +96,39 @@ class WriteView: UIView {
         $0.textColor = .systemGray
     }
 
-    private let idolSelectButton = smallStorkeCustomBtn(title: "선택").then {
+    public let idolSelectButton = smallStorkeCustomBtn(title: "선택").then {
         $0.borderColor = .grey400
         $0.titleColor = .grey400
-        $0.addTarget(self,action: #selector(idolSelectButtonTapped),for: .touchUpInside)
     }
     
-    private let eventTypeSelectButton = smallStorkeCustomBtn(title: "선택").then {
+    public let eventTypeSelectButton = smallStorkeCustomBtn(title: "선택").then {
         $0.borderColor = .grey400
         $0.titleColor = .grey400
-        $0.addTarget(self,action: #selector(eventTypeSelectButtonTapped),for: .touchUpInside)
     }
     
-    private let eventDateSelectButton = smallStorkeCustomBtn(title: "선택").then {
+    public let eventDateSelectButton = smallStorkeCustomBtn(title: "선택").then {
         $0.borderColor = .grey400
         $0.titleColor = .grey400
-        $0.addTarget(self, action: #selector(eventDateSelectButtonTapped), for: .touchUpInside)
     }
 
-    // StackView 정렬 (왼쪽 레이블, 오른쪽 버튼)
     private lazy var idolStackView = UIStackView(arrangedSubviews: [selectedCelebLabel, idolSelectButton]).then {
         $0.axis = .horizontal
         $0.spacing = 10
-        $0.alignment = .fill
+        $0.alignment = .center
         $0.distribution = .equalSpacing
     }
     
     private lazy var eventTypeStackView = UIStackView(arrangedSubviews: [eventTypeLabel, eventTypeSelectButton]).then {
         $0.axis = .horizontal
         $0.spacing = 10
-        $0.alignment = .fill
+        $0.alignment = .center
         $0.distribution = .equalSpacing
     }
     
     private lazy var eventDateStackView = UIStackView(arrangedSubviews: [eventDateLabel, eventDateSelectButton]).then {
         $0.axis = .horizontal
         $0.spacing = 10
-        $0.alignment = .fill
+        $0.alignment = .center
         $0.distribution = .equalSpacing
     }
     
@@ -154,9 +151,8 @@ class WriteView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = UIColor.white
+        self.backgroundColor = .white
         setupView()
-        setupPlaceholder()
     }
     
     required init?(coder: NSCoder) {
@@ -233,94 +229,10 @@ class WriteView: UIView {
         }
         
         uploadButton.snp.makeConstraints {
-            $0.top.equalTo(eventDateStackView.snp.bottom).offset(20)
+            $0.top.equalTo(companionStackView.snp.bottom).offset(20)
             $0.left.right.equalToSuperview().inset(16)
             $0.height.equalTo(50)
             $0.bottom.equalToSuperview().offset(-20)
         }
-    }
-    
-    private func setupPlaceholder() {
-        contentTextView.delegate = self
-    }
-
-    @objc private func idolSelectButtonTapped() {
-        delegate?.didTapIdolSelectButton()
-    }
-    
-    @objc private func eventTypeSelectButtonTapped() {
-        delegate?.didTapeventTypeSelectButton()
-    }
-
-    @objc private func eventDateSelectButtonTapped() {
-        showDatePicker()
-    }
-    
-    private func showDatePicker() {
-        let alertController = UIAlertController(title: "날짜 선택", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .alert)
-        
-        let datePicker = UIDatePicker()
-        datePicker.datePickerMode = .date
-        datePicker.preferredDatePickerStyle = .wheels
-        datePicker.locale = Locale(identifier: "ko_KR")
-        datePicker.frame = CGRect(x: 10, y: 50, width: 260, height: 150)
-
-        alertController.view.addSubview(datePicker)
-
-        let selectAction = UIAlertAction(title: "확인", style: .default) { _ in
-            self.dateChanged(datePicker.date)
-        }
-
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
-
-        alertController.addAction(selectAction)
-        alertController.addAction(cancelAction)
-
-        if let viewController = self.findViewController() {
-            viewController.present(alertController, animated: true, completion: nil)
-        }
-    }
-
-    private func dateChanged(_ date: Date) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy년 MM월 dd일"
-        let selectedDate = dateFormatter.string(from: date)
-
-        eventDateSelectButton.setTitle(selectedDate, for: .normal)
-        eventDateSelectButton.titleColor = .black
-        eventDateSelectButton.borderColor = .black
-    }
-
-    func updateSelectedCeleb(_ celeb: Celeb) {
-        idolSelectButton.setTitle(celeb.name, for: .normal)
-        idolSelectButton.titleColor = .black
-        idolSelectButton.borderColor = .black
-    }
-    
-    func updateSelectedEvent(_ event: Event) {
-        eventTypeSelectButton.setTitle(event.tag.rawValue, for: .normal)
-        eventTypeSelectButton.titleColor = .black
-        eventTypeSelectButton.borderColor = .black
-    }
-}
-
-// Placeholder 자동 숨김
-extension WriteView: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) {
-        placeholderLabel.isHidden = !textView.text.isEmpty
-    }
-}
-
-// UIView 확장 - 현재 뷰가 속한 뷰 컨트롤러 찾기
-extension UIView {
-    func findViewController() -> UIViewController? {
-        var responder: UIResponder? = self
-        while let nextResponder = responder?.next {
-            if let viewController = nextResponder as? UIViewController {
-                return viewController
-            }
-            responder = nextResponder
-        }
-        return nil
     }
 }
