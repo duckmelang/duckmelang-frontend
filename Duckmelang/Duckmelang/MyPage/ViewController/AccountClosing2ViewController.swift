@@ -12,18 +12,20 @@ class AccountClosing2ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        self.view = accountClosing2View
+        
+        navigationController?.isNavigationBarHidden = true
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    private lazy var accountClosing2View = AccountClosing2View().then {
+        $0.outBtn.addTarget(self, action: #selector(outBtnDidTap), for: .touchUpInside)
     }
-    */
+ 
+    @objc
+    private func outBtnDidTap() {
+        let loginVC = UINavigationController(rootViewController: LoginViewController())
+        loginVC.modalPresentationStyle = .fullScreen
+        present(loginVC, animated: false)
+    }
 
 }
