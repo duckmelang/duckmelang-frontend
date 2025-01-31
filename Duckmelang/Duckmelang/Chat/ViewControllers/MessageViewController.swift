@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MessageViewController: UIViewController {
+class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate {
     var data = MessageModel.dummy()
     
     override func viewDidLoad() {
@@ -61,19 +61,33 @@ class MessageViewController: UIViewController {
     private func setupDelegate() {
         messageView.messageCollectionView.delegate = self
         messageView.messageCollectionView.dataSource = self
-        messageView.bottomView.messageTextField.delegate = self
+        messageView.bottomMessageView.messageTextField.delegate = self
     }
     
     private func setupAction() {
-        messageView.bottomView.sendBtn.addTarget(self, action: #selector(appendNewMessage), for: .touchUpInside)
+        messageView.topMessageView.confirmBtn.addTarget(self, action: #selector(openConfirmPopup), for: .touchUpInside)
+        messageView.topMessageView.reviewBtn.addTarget(self, action: #selector(openReview), for: .touchUpInside)
+        messageView.bottomMessageView.sendBtn.addTarget(self, action: #selector(appendNewMessage), for: .touchUpInside)
+    }
+    
+    @objc private func openConfirmPopup() {
+        let popupVC = ConfirmPopupViewController()
+        popupVC.modalPresentationStyle = .overFullScreen
+        popupVC.delegate = self
+        present(popupVC, animated: false)
+    }
+    
+    @objc private func openReview() {
+        let afterReviewVC = AfterReviewViewController()
+        navigationController?.pushViewController(afterReviewVC, animated: true)
     }
     
     @objc private func appendNewMessage() {
-        if (messageView.bottomView.messageTextField.text == "") {
+        if (messageView.bottomMessageView.messageTextField.text == "") {
             return
         }
         
-        let newMessage = MessageModel(text: messageView.bottomView.messageTextField.text ?? "", chatType: .send, date: Date())
+        let newMessage = MessageModel(text: messageView.bottomMessageView.messageTextField.text ?? "", chatType: .send, date: Date())
         data.append(newMessage)
         messageView.messageCollectionView.reloadData()
         
@@ -81,7 +95,7 @@ class MessageViewController: UIViewController {
             self.scrollToLastItem()
         }
         
-        messageView.bottomView.messageTextField.text = "" // 입력창 초기화
+        messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
     }
     
     private func scrollToLastItem() {
@@ -93,6 +107,10 @@ class MessageViewController: UIViewController {
 
         let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
         messageView.messageCollectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
+    }
+    
+    func hideConfirmBtn() {
+        messageView.topMessageView.confirmBtn.isHidden = true
     }
 }
 

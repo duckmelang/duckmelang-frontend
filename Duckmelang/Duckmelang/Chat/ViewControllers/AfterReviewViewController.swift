@@ -18,6 +18,7 @@ class AfterReviewViewController: UIViewController {
         self.view = afterReviewView
         
         setupNavigationBar()
+        setupAction()
     }
     
     private lazy var afterReviewView: AfterReviewView = {
@@ -31,17 +32,26 @@ class AfterReviewViewController: UIViewController {
     }()
     
     private func setupNavigationBar() {
-        self.navigationController?.navigationBar.backgroundColor = .white
+        self.navigationController?.navigationBar.backgroundColor = .clear
         
         self.navigationItem.title = "유저네임 님의 페이지"
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
         
-        let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
+        let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goHome))
         leftBarButton.tintColor = .grey500
         self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
     }
     
-    @objc private func goBack() {
+    private func setupAction() {
+        afterReviewView.finishBtn.addTarget(self, action: #selector(clickFinishBtn), for: .touchUpInside)
+    }
+    
+    @objc private func goHome() {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func clickFinishBtn() {
+        goHome()
+        print("리뷰 작성 완료!")
     }
 }
