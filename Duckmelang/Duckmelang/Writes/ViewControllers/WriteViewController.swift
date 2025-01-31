@@ -7,8 +7,14 @@
 
 import UIKit
 
+protocol WriteViewControllerDelegate: AnyObject {
+    func didUpdateSelectedCeleb(_ celeb: Celeb?)
+}
+
 class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDelegate, EventSelectionDelegate {
 
+    weak var delegate: WriteViewControllerDelegate?
+    
     private var selectedCeleb: Celeb?
     private var selectedEvent: Event?
 
@@ -51,6 +57,14 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         self.navigationController?.popViewController(animated: true)
     }
     
+    // HomeViewController에 selectedCeleb 값 전달
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if self.isMovingFromParent {
+            delegate?.didUpdateSelectedCeleb(selectedCeleb)
+        }
+    }
+
     @objc func didTapIdolSelectButton() {
         let selectVC = CelebSelectionViewController(
             celebs: Celeb.sampleCelebs,
@@ -105,7 +119,6 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         present(alertController, animated: true)
     }
 
-    /// ✅ 날짜 선택 후 버튼 업데이트 메서드 (VC에 구현)
     private func updateSelectedDate(_ date: Date) {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy년 MM월 dd일"

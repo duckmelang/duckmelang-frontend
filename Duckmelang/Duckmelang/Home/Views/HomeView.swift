@@ -71,7 +71,7 @@ class HomeView: UIView {
         
         celebNameLabel.snp.makeConstraints {
             $0.leading.equalTo(chevronIcon.snp.trailing).offset(8)
-            $0.top.equalToSuperview().offset(55)
+            $0.top.equalToSuperview().offset(65)
         }
         
         // 아이콘 컨테이너 뷰 생성
