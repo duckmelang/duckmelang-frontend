@@ -14,20 +14,39 @@ class ChatViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.navigationItem.title = "채팅"
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
-        
         self.view = chatView
+        self.tabBarController?.tabBar.isHidden = false
+        
+        setupNavigationBar()
         setupDelegate()
         setupAction()
         updateBtnSelected()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     private lazy var chatView: ChatView = {
         let view = ChatView()
         return view
     }()
+    
+    private func setupNavigationBar() {
+        self.navigationController?.navigationBar.backgroundColor = .white
+        
+        self.navigationItem.title = "채팅"
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
+        
+        let rightBarButton = UIBarButtonItem(image: UIImage(named: "bell"), style: .plain, target: self, action: #selector(clickBell))
+        rightBarButton.tintColor = .grey500
+        self.navigationItem.setRightBarButton(rightBarButton, animated: true)
+    }
+    
+    @objc private func clickBell() {
+        print("알림 버튼 클릭")
+    }
     
     private func setupDelegate() {
         chatView.chatTableView.dataSource = self
@@ -69,5 +88,10 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         cell.configure(model: data1[indexPath.row])
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let messageVC = MessageViewController()
+        navigationController?.pushViewController(messageVC, animated: true)
     }
 }
