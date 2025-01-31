@@ -33,13 +33,13 @@ class MyPageTopView: UIView {
         $0.clipsToBounds = true
     }
     
-    private lazy var nickname = Label(text: "닉네임", font: .ptdMediumFont(ofSize: 16), color: .black)
+    private lazy var nickname = Label(text: "닉네임", font: .ptdRegularFont(ofSize: 16), color: .black)
     
-    private lazy var gender = Label(text: "여성", font: .ptdMediumFont(ofSize: 13), color: .grey600)
+    private lazy var gender = Label(text: "여성", font: .ptdRegularFont(ofSize: 13), color: .grey600)
     
-    private lazy var line = Label(text: "ㅣ", font: .ptdMediumFont(ofSize: 13), color: .grey400)
+    private lazy var line = Label(text: "ㅣ", font: .ptdRegularFont(ofSize: 13), color: .grey400)
     
-    private lazy var age = Label(text: "나이", font: .ptdMediumFont(ofSize: 13), color: .grey600)
+    private lazy var age = Label(text: "나이", font: .ptdRegularFont(ofSize: 13), color: .grey600)
     
     lazy var profileSeeBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
