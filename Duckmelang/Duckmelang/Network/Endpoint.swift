@@ -12,6 +12,7 @@ public enum AllEndpoint {
     case sendVerificationCode(phoneNumber: String)
     case verifyCode(phoneNumber: String, code: String)
     case login(email: String, password: String)
+    case signUp(email: String, password: String)
     case getMyPosts(memberId: Int, page: Int)
     case getBookmarks(memberId: Int, page: Int)
     case getProfileImage(memberId: Int, page: Int)
@@ -45,6 +46,11 @@ extension AllEndpoint: TargetType {
                 fatalError("baseURL 오류")
             }
             return url
+        case .signUp(email: _, password: _):
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
         }
     }
     
@@ -56,6 +62,8 @@ extension AllEndpoint: TargetType {
             return "/verify"
         case .login:
             return "/login"
+        case .signUp:
+            return "/signup"
         case .getMyPosts(_, _):
             return "/my"
         case .getBookmarks(let memberId, _):
@@ -70,6 +78,8 @@ extension AllEndpoint: TargetType {
         case .login:
             return .post
         case .sendVerificationCode, .verifyCode:
+            return .post
+        case .signUp:
             return .post
         default:
             return .get
@@ -91,6 +101,11 @@ extension AllEndpoint: TargetType {
         case .login(let email, let password):
             return .requestParameters(
                 parameters: ["email": email, "password": password],
+                encoding: JSONEncoding.default
+            )
+        case .signUp(let email, let password):
+            return .requestParameters(
+                parameters: [email: email, password: password],
                 encoding: JSONEncoding.default
             )
         case .getMyPosts(let memberId, let page), .getProfileImage(let memberId, let page):
