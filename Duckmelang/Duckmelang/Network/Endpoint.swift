@@ -9,6 +9,8 @@ import UIKit
 import Moya
 
 public enum AllEndpoint {
+    case sendVerificationCode(phoneNumber: String)
+    case verifyCode(phoneNumber: String, code: String)
     case getMyPosts(memberId: Int, page: Int)
     case getBookmarks(memberId: Int, page: Int)
     case getProfileImage(memberId: Int, page: Int)
@@ -27,11 +29,25 @@ extension AllEndpoint: TargetType {
                 fatalError("baseURL 오류")
             }
             return url
+        case .sendVerificationCode(phoneNumber: _):
+            guard let url = URL(string: API.smsURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
+        case .verifyCode(phoneNumber: _, code: _):
+            guard let url = URL(string: API.smsURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
         }
     }
     
     public var path: String {
         switch self {
+        case .sendVerificationCode:
+            return "/send"
+        case .verifyCode:
+            return "/verify"
         case .getMyPosts(_, _):
             return "/my"
         case .getBookmarks(let memberId, _):
@@ -43,6 +59,8 @@ extension AllEndpoint: TargetType {
     
     public var method: Moya.Method {
         switch self {
+        case .sendVerificationCode, .verifyCode:
+            return .post
         default:
             return .get
         }
@@ -50,6 +68,16 @@ extension AllEndpoint: TargetType {
     
     public var task: Moya.Task {
         switch self {
+        case .sendVerificationCode(let phoneNumber):
+            return .requestParameters(
+                parameters: ["phoneNumber": phoneNumber],
+                encoding: JSONEncoding.default
+            )
+        case .verifyCode(let phoneNumber, let code):
+            return .requestParameters(
+                parameters: ["phoneNumber": phoneNumber, "code": code],
+                encoding: JSONEncoding.default
+            )
         case .getMyPosts(let memberId, let page), .getProfileImage(let memberId, let page):
             return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
         case .getBookmarks(_, let page):

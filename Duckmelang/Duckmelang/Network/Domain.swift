@@ -12,6 +12,7 @@ public struct API {
     public static let reviewURL = "\(baseURL)/reviews"
     public static let requestURL = "\(baseURL)/requests"
     public static let postURL = "\(baseURL)/posts"
+    public static let smsURL = "\(baseURL)/sms"
     public static let memberURL = "\(baseURL)/members"
     public static let mypageURL = "\(baseURL)/mypage"
     public static let profileURL = "\(baseURL)/profile"

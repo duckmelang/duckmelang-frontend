@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import Moya
 
 class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
+    private let provider = MoyaProvider<AllEndpoint>()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -83,31 +85,53 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     }
     
     @objc private func didTapVerifyBtn() {
-        if phoneSigninView.verifyButton.isEnabled {
-            print("인증번호 요청 버튼 눌림")
-            
-            // 인증번호 입력 필드 표시
-            phoneSigninView.verifyCodeContainer.alpha = 0
-            phoneSigninView.verifyCodeContainer.isHidden = false
-            
-            // 휴대폰 번호 입력창 비활성화 및 색상 변경
-            phoneSigninView.phoneTextField.isUserInteractionEnabled = false
-            phoneSigninView.phoneTextField.textColor = .grey300
-            phoneSigninView.phoneTextField.layer.borderColor = UIColor.grey300!.cgColor
-            
-            // 인증 버튼 비활성화 및 색상 변경
-            phoneSigninView.verifyButton.isEnabled = false
-            phoneSigninView.verifyButton.setTitleColor(.grey100, for: .normal)
-            phoneSigninView.verifyButton.backgroundColor = .grey300
-            
-            UIView.animate(withDuration: 0.3, animations: {
-                self.phoneSigninView.verifyCodeContainer.alpha = 1
-            }) { _ in
-                // 애니메이션 완료 후 키보드 활성화
-                self.phoneSigninView.certificationNumberField
-                    .becomeFirstResponder()
-            }
+        guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11 else { return }
+        print(phoneNumber)
+        print("인증요청 버튼 눌림")
+        
+        // 타임아웃 처리 DispatchWorkItem
+        let timeoutWorkItem = DispatchWorkItem {
+            self.showErrorPopup(
+                message: "요청 시간이 초과되었습니다. 네트워크 상태를 확인하고 다시 시도해주세요."
+            )
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: timeoutWorkItem) // 5초 뒤 실행
+        provider.request(.sendVerificationCode(phoneNumber: phoneNumber)) { result in
+            timeoutWorkItem.cancel()
+            switch result {
+            case .success(let response):
+                print("인증번호 전송 성공: \(response)")
+                    
+                // 인증번호 입력 필드 표시
+                DispatchQueue.main.async {
+                    self.phoneSigninView.verifyCodeContainer.alpha = 0
+                    self.phoneSigninView.verifyCodeContainer.isHidden = false
+
+                    self.phoneSigninView.phoneTextField.isUserInteractionEnabled = false
+                    self.phoneSigninView.phoneTextField.textColor = .grey300
+                    self.phoneSigninView.phoneTextField.layer.borderColor = UIColor.grey300!.cgColor
+
+                    self.phoneSigninView.verifyButton.isEnabled = false
+                    self.phoneSigninView.verifyButton
+                        .setTitleColor(.grey100, for: .normal)
+                    self.phoneSigninView.verifyButton.backgroundColor = .grey300
+
+                    UIView.animate(withDuration: 0.3) {
+                        self.phoneSigninView.verifyCodeContainer.alpha = 1
+                    } completion: { _ in
+                        self.phoneSigninView.certificationNumberField
+                            .becomeFirstResponder()
+                    }
+                }
+            case .failure(let error):
+                print("인증번호 전송 실패: \(error)")
+                DispatchQueue.main.async {
+                    self.showErrorPopup(
+                        message: "인증번호 전송에 실패.\n다시 시도해주세요"
+                    )
+                }
+            }
+            }
     }
     
     @objc private func putCertificationNumber() {
@@ -137,10 +161,26 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     }
     
     @objc private func didTapVerifyCodeBtn() {
-        if phoneSigninView.verifyCodeButton.isEnabled {
-            print("인증번호 확인")
-            navigateToIDPWView()
+        guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11,
+              let code = phoneSigninView.certificationNumberField.text, code.count == 6 else {
+            return
         }
+
+        provider
+            .request(
+                .verifyCode(phoneNumber: phoneNumber, code: code)
+            ) { result in
+                switch result {
+                case .success(let response):
+                    print(phoneNumber)
+                    print("인증 성공: \(response)")
+                    DispatchQueue.main.async {
+                        self.navigateToIDPWView()
+                    }
+                case .failure(let error):
+                    print("인증 실패: \(error)")
+                }
+            }
     }
     
     private func navigateToIDPWView() {
@@ -159,5 +199,14 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         
         // 숫자가 아닌 문자는 입력 불가
         return allowedCharacters.isSuperset(of: characterSet)
+    }
+    
+    private func showErrorPopup(message: String) {
+        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
+        self.present(alert, animated: true) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                alert.dismiss(animated: true, completion: nil)
+            }
+        }
     }
 }
