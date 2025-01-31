@@ -11,6 +11,9 @@ import Moya
 class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     private let provider = MoyaProvider<AllEndpoint>()
 
+    private var countdownTimer: Timer?
+    private var remainingSeconds = 180
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.isNavigationBarHidden = false
@@ -22,25 +25,23 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     private lazy var phoneSigninView: PhoneSigninView = {
         let view = PhoneSigninView()
         view.phoneTextField.delegate = self
-        view.phoneTextField.addTarget(self, action: #selector(writePhoneNumber),for: .editingChanged)
-        view.verifyButton.addTarget(self, action: #selector(didTapVerifyBtn),for: .touchUpInside)
-        view.verifyButton.isEnabled = false // 초기 상태에서 비활성화
-        view.verifyButton.alpha = 0.5 // 비활성화 시 투명도 50%
+        view.phoneTextField.addTarget(self, action: #selector(writePhoneNumber), for: .editingChanged)
+        view.verifyButton.addTarget(self, action: #selector(didTapVerifyBtn), for: .touchUpInside)
+        view.verifyButton.isEnabled = false
+        view.verifyButton.alpha = 0.5
         
-        view.certificationNumberField.addTarget(self, action: #selector(putCertificationNumber),for: .editingChanged)
-        view.verifyCodeButton.addTarget(self, action: #selector(didTapVerifyCodeBtn),for: .touchUpInside)
-        view.verifyCodeButton.isEnabled = false // 초기 상태에서 비활성화
-        view.verifyCodeButton.alpha = 0.5 // 비활성화 시 투명도 50%
+        view.certificationNumberField.addTarget(self, action: #selector(putCertificationNumber), for: .editingChanged)
+        view.verifyCodeButton.addTarget(self, action: #selector(didTapVerifyCodeBtn), for: .touchUpInside)
+        view.verifyCodeButton.isEnabled = false
+        view.verifyCodeButton.alpha = 0.5
+        
         return view
     }()
     
     private func setupNavigationBar() {
         self.navigationController?.navigationBar.backgroundColor = .white
-        
         self.navigationItem.title = "회원가입"
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(
-            ofSize: 18
-        )]
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
         
         let leftBarButton = UIBarButtonItem(
             image: UIImage(named: "back"),
@@ -59,26 +60,20 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     @objc private func writePhoneNumber() {
         guard let text = phoneSigninView.phoneTextField.text else { return }
 
-        // 숫자만 입력하도록 필터링
         let filteredText = text.filter { $0.isNumber }
-            
-        // 최대 11자리까지만 입력 가능하도록 설정
         let limitedText = String(filteredText.prefix(11))
         phoneSigninView.phoneTextField.text = limitedText
 
-        // 11자리 입력되었을 때 색상 변경
         if limitedText.count == 11 {
             phoneSigninView.phoneTextField.textColor = UIColor.dmrBlue
             phoneSigninView.phoneTextField.layer.borderColor = UIColor.dmrBlue!.cgColor
             
-            // 인증 버튼 활성화
             phoneSigninView.verifyButton.isEnabled = true
             phoneSigninView.verifyButton.alpha = 1.0
         } else {
             phoneSigninView.phoneTextField.textColor = UIColor.black
             phoneSigninView.phoneTextField.layer.borderColor = UIColor.grey400!.cgColor
             
-            // 인증 버튼 비활성화
             phoneSigninView.verifyButton.isEnabled = false
             phoneSigninView.verifyButton.alpha = 0.5
         }
@@ -86,23 +81,29 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     
     @objc private func didTapVerifyBtn() {
         guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11 else { return }
-        print(phoneNumber)
-        print("인증요청 버튼 눌림")
+        print("인증 요청 버튼 눌림: \(phoneNumber)")
+
+        resetCountdown()
         
-        // 타임아웃 처리 DispatchWorkItem
+        // 5초 후 타임아웃 팝업을 띄우기 위한 DispatchWorkItem 설정
         let timeoutWorkItem = DispatchWorkItem {
-            self.showErrorPopup(
-                message: "요청 시간이 초과되었습니다. 네트워크 상태를 확인하고 다시 시도해주세요."
-            )
+            DispatchQueue.main.async {
+                self.showErrorPopup(message: "요청 시간이 초과되었습니다. 다시 시도해주세요.")
+            }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: timeoutWorkItem) // 5초 뒤 실행
+
+        // 5초 후 실행 (만약 응답이 오면 취소됨)
+        DispatchQueue.main
+            .asyncAfter(deadline: .now() + 5, execute: timeoutWorkItem)
+
+
         provider.request(.sendVerificationCode(phoneNumber: phoneNumber)) { result in
             timeoutWorkItem.cancel()
             switch result {
             case .success(let response):
                 print("인증번호 전송 성공: \(response)")
-                    
-                // 인증번호 입력 필드 표시
+                self.startCountdown()
+                
                 DispatchQueue.main.async {
                     self.phoneSigninView.verifyCodeContainer.alpha = 0
                     self.phoneSigninView.verifyCodeContainer.isHidden = false
@@ -112,101 +113,119 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
                     self.phoneSigninView.phoneTextField.layer.borderColor = UIColor.grey300!.cgColor
 
                     self.phoneSigninView.verifyButton.isEnabled = false
-                    self.phoneSigninView.verifyButton
-                        .setTitleColor(.grey100, for: .normal)
+                    self.phoneSigninView.verifyButton.setTitleColor(.grey100, for: .normal)
                     self.phoneSigninView.verifyButton.backgroundColor = .grey300
 
                     UIView.animate(withDuration: 0.3) {
                         self.phoneSigninView.verifyCodeContainer.alpha = 1
                     } completion: { _ in
-                        self.phoneSigninView.certificationNumberField
-                            .becomeFirstResponder()
+                        self.phoneSigninView.certificationNumberField.becomeFirstResponder()
                     }
                 }
             case .failure(let error):
                 print("인증번호 전송 실패: \(error)")
                 DispatchQueue.main.async {
-                    self.showErrorPopup(
-                        message: "인증번호 전송에 실패.\n다시 시도해주세요"
-                    )
+                    self.showErrorPopup(message: "인증번호 전송에 실패했습니다. 다시 시도해주세요.")
                 }
             }
-            }
-    }
-    
-    @objc private func putCertificationNumber() {
-        guard let text = phoneSigninView.certificationNumberField.text else { return }
-
-        // 숫자만 입력하도록 필터링
-        let filteredText = text.filter { $0.isNumber }
-        
-        // 최대 6자리까지만 입력 가능하도록 설정
-        let limitedText = String(filteredText.prefix(6))
-        phoneSigninView.certificationNumberField.text = limitedText
-
-        // 6자리 입력되었을 때 색상 변경
-        if limitedText.count == 6 {
-            phoneSigninView.certificationNumberField.textColor = UIColor.dmrBlue
-            phoneSigninView.certificationNumberField.layer.borderColor = UIColor.dmrBlue!.cgColor
-            // 인증 확인 버튼 활성화
-            phoneSigninView.verifyCodeButton.isEnabled = true
-            phoneSigninView.verifyCodeButton.alpha = 1.0
-        } else {
-            phoneSigninView.certificationNumberField.textColor = UIColor.black
-            phoneSigninView.certificationNumberField.layer.borderColor = UIColor.grey400!.cgColor
-            // 인증 확인 버튼 비활성화
-            phoneSigninView.verifyCodeButton.isEnabled = false
-            phoneSigninView.verifyCodeButton.alpha = 0.5
         }
     }
     
     @objc private func didTapVerifyCodeBtn() {
         guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11,
               let code = phoneSigninView.certificationNumberField.text, code.count == 6 else {
+            showErrorPopup(message: "올바른 인증번호를 입력하세요.")
             return
         }
 
-        provider
-            .request(
-                .verifyCode(phoneNumber: phoneNumber, code: code)
-            ) { result in
-                switch result {
-                case .success(let response):
-                    print(phoneNumber)
-                    print("인증 성공: \(response)")
-                    DispatchQueue.main.async {
-                        self.navigateToIDPWView()
-                    }
-                case .failure(let error):
-                    print("인증 실패: \(error)")
+        provider.request(.verifyCode(phoneNumber: phoneNumber, code: code)) { result in
+            switch result {
+            case .success(let response):
+                print("인증 성공: \(response)")
+                DispatchQueue.main.async {
+                    self.navigateToIDPWView()
+                }
+            case .failure(let error):
+                print("인증 실패: \(error)")
+                DispatchQueue.main.async {
+                    self.showErrorPopup(message: "인증번호가 올바르지 않습니다. 다시 입력해주세요.")
                 }
             }
+        }
     }
     
     private func navigateToIDPWView() {
-        let view = SinginViewController()
+        let view = SigninViewController()
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         self.navigationController?.navigationBar.tintColor = UIColor.grey600
         self.navigationController?.pushViewController(view, animated: true)
+    }
 
-    }
-    
-    //FIXME: - 전화번호, 인증번호 설정 변경 필요 시 코드 수정
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        // 숫자만 입력 가능하도록 제한
-        let allowedCharacters = CharacterSet.decimalDigits
-        let characterSet = CharacterSet(charactersIn: string)
+    private func startCountdown() {
+        remainingSeconds = 180
+        phoneSigninView.certificationNumberField.placeholder = "03:00"
         
-        // 숫자가 아닌 문자는 입력 불가
-        return allowedCharacters.isSuperset(of: characterSet)
+        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            self.updateCountdownUI()
+        }
+    }
+
+    private func updateCountdownUI() {
+        if remainingSeconds > 0 {
+            remainingSeconds -= 1
+            let minutes = remainingSeconds / 60
+            let seconds = remainingSeconds % 60
+            phoneSigninView.certificationNumberField.placeholder = String(format: "%02d:%02d", minutes, seconds)
+        } else {
+            resetCountdown()
+        }
+    }
+
+    private func resetCountdown() {
+        countdownTimer?.invalidate()
+        countdownTimer = nil
+        phoneSigninView.certificationNumberField.placeholder = "(인증시간 초과)"
+
+        DispatchQueue.main.async {
+            self.phoneSigninView.verifyButton.isEnabled = true
+            self.phoneSigninView.verifyButton.alpha = 1.0
+            self.phoneSigninView.verifyButton.setTitleColor(.white, for: .normal)
+            self.phoneSigninView.verifyButton.backgroundColor = UIColor.dmrBlue
+
+            self.phoneSigninView.phoneTextField.isUserInteractionEnabled = true
+            self.phoneSigninView.phoneTextField.textColor = .black
+            self.phoneSigninView.phoneTextField.layer.borderColor = UIColor.grey400!.cgColor
+        }
     }
     
+    @objc private func putCertificationNumber() {
+        guard let text = phoneSigninView.certificationNumberField.text else { return }
+        let filteredText = text.filter { $0.isNumber }
+        let limitedText = String(filteredText.prefix(6))
+        phoneSigninView.certificationNumberField.text = limitedText
+
+        if limitedText.count == 6 {
+            phoneSigninView.certificationNumberField.textColor = UIColor.dmrBlue
+            phoneSigninView.certificationNumberField.layer.borderColor = UIColor.dmrBlue!.cgColor
+            phoneSigninView.verifyCodeButton.isEnabled = true
+            phoneSigninView.verifyCodeButton.alpha = 1.0
+        } else {
+            phoneSigninView.certificationNumberField.textColor = UIColor.black
+            phoneSigninView.certificationNumberField.layer.borderColor = UIColor.grey400!.cgColor
+            phoneSigninView.verifyCodeButton.isEnabled = false
+            phoneSigninView.verifyCodeButton.alpha = 0.5
+        }
+    }
+
     private func showErrorPopup(message: String) {
         let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
-        self.present(alert, animated: true) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                alert.dismiss(animated: true, completion: nil)
-            }
+        let confirmAction = UIAlertAction(title: "확인", style: .default, handler: nil)
+        
+        alert.addAction(confirmAction)
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true, completion: nil)
         }
     }
 }
