@@ -6,8 +6,12 @@
 //
 
 import UIKit
+import Moya
 
 class ProfileModifyViewController: UIViewController {
+    
+    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -113,4 +117,67 @@ class ProfileModifyViewController: UIViewController {
             profileModifyView.blurBackgroundView.isHidden = true
         }
     }
+    
+    // ✅ 프로필 수정 요청
+    func editProfile(profileData: EditProfileRequest, completion: @escaping (Bool) -> Void) {
+        provider.request(.EditProfile(profileData: profileData)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<Bool>.self)
+                    if decodedResponse.isSuccess {
+                        print("프로필 수정 성공")
+                        completion(true)
+                    } else {
+                        print("프로필 수정 실패: \(decodedResponse.message)")
+                        completion(false)
+                    }
+                } catch {
+                    print("JSON 디코딩 오류: \(error.localizedDescription)")
+                    completion(false)
+                }
+            case .failure(let error):
+                print("API 요청 실패: \(error.localizedDescription)")
+                completion(false)
+            }
+        }
+    }
+    
+    //완료버튼 누르면 저장됨
+    @objc private func saveProfile() {
+        guard let nickname = profileModifyView.nicknameTextField.text, !nickname.isEmpty,
+              let introduction = profileModifyView.selfPRTextField.text, !introduction.isEmpty else {
+            print("입력값을 확인하세요")
+            return
+        }
+        
+        let profileData = EditProfileRequest(
+            memberProfileImageURL: "https://your-image-url.com", //실제 이미지 업로드 후 URL 적용해야 함
+            nickname: nickname,
+            introduction: introduction
+        )
+        
+        //`MoyaProvider`를 직접 호출하여 API 요청
+        provider.request(.EditProfile(profileData: profileData)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<Bool>.self)
+                    if decodedResponse.isSuccess {
+                        print("✅ 프로필 업데이트 성공")
+                        DispatchQueue.main.async {
+                            self.dismiss(animated: true)
+                        }
+                    } else {
+                        print("❌ 프로필 업데이트 실패: \(decodedResponse.message)")
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ API 요청 실패: \(error.localizedDescription)")
+            }
+        }
+    }
 }
+

@@ -206,6 +206,8 @@ class ProfileTopView: UIView {
             )
         }
     }
+    
+    
 }
 
 //세그먼트 컨트롤부터 아래부분

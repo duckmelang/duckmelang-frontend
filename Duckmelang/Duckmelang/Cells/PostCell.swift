@@ -131,4 +131,30 @@ class PostCell: UITableViewCell {
         self.userName.text = model.userName
         self.postTime.text = model.postTime
     }
+    
+    public func configure(model: PostDTO) {
+        if let postImageUrl = URL(string: model.postImageUrl) {
+            self.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage(named: "defaultPostImage"))
+        }
+        
+        self.postTitle.text = model.title
+        self.EventTypeDate.text = "\(model.category) | \(model.date)"
+        
+        if let userImageUrl = URL(string: model.latestPublicMemberProfileImage) {
+            self.userImage.kf.setImage(with: userImageUrl, placeholder: UIImage(named: "defaultUserImage"))
+        }
+        
+        self.userName.text = model.nickname
+        self.postTime.text = formatDate(model.createdAt) //날짜 포맷 변환
+    }
+    
+    private func formatDate(_ isoDateString: String) -> String {
+        let dateFormatter = ISO8601DateFormatter()
+        guard let date = dateFormatter.date(from: isoDateString) else { return "날짜 없음" }
+        
+        let displayFormatter = DateFormatter()
+        displayFormatter.dateFormat = "yyyy.MM.dd HH:mm" //원하는 포맷 설정
+        
+        return displayFormatter.string(from: date)
+    }
 }

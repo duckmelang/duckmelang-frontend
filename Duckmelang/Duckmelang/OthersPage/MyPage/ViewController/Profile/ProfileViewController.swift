@@ -6,11 +6,16 @@
 //
 
 import UIKit
+import Moya
 
 class ProfileViewController: UIViewController{
     var selectedTag: Int = 0
     var profileData: ProfileData? //MyPage에서 전달받을 변수
-       
+    
+    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+
+    private var posts: [PostDTO] = []
+    
     let data1 = PostModel.dummy1()
 
     let data2 = ReviewModel.dummy()
@@ -27,6 +32,7 @@ class ProfileViewController: UIViewController{
         setupAction()
         setupDelegate()
         updateUI()
+        fetchMyPosts()
     }
 
     private lazy var profileView = ProfileView()
@@ -36,6 +42,31 @@ class ProfileViewController: UIViewController{
             profileView.profileTopView.profileData = profile
         }
     }
+    
+    // 내 게시글 가져오기
+    private func fetchMyPosts() {
+        provider.request(AllEndpoint.getMyPosts(memberId: 1, page: 0)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
+                    
+                    // `postList`가 `nil`이면 빈 배열을 할당하여 오류 방지
+                    let postList = decodedResponse.result?.postList ?? []
+                    
+                    DispatchQueue.main.async {
+                        self.posts = postList
+                        self.profileView.profileBottomView.uploadPostView.reloadData() // 테이블뷰 갱신
+                    }
+                } catch {
+                    print("JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("게시글 불러오기 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+
     
     @objc
     private func backBtnDidTap() {
@@ -126,7 +157,7 @@ class ProfileViewController: UIViewController{
 extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (tableView == profileView.profileBottomView.uploadPostView) {
-            return data1.count
+            return posts.isEmpty ? 0 : posts.count
         } else if (tableView == profileView.profileBottomView.reviewTableView) {
             return data2.count
         }
@@ -138,7 +169,10 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
                 guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
                     return UITableViewCell()
                 }
-                cell.configure(model: data1[indexPath.row])
+                
+                //posts 배열에서 해당 인덱스의 데이터를 가져와 전달
+                let post = posts[indexPath.row]
+                cell.configure(model: post)
                 return cell
                 
             } else if (tableView == profileView.profileBottomView.reviewTableView) {

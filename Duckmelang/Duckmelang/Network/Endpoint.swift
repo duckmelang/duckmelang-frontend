@@ -13,6 +13,7 @@ public enum AllEndpoint {
     case getBookmarks(memberId: Int, page: Int)
     case getProfileImage(memberId: Int, page: Int)
     case getProfile(memberId: Int) // 프로필 조회 API 추가
+    case EditProfile(profileData: EditProfileRequest)
 }
 
 extension AllEndpoint: TargetType {
@@ -33,6 +34,11 @@ extension AllEndpoint: TargetType {
                 fatalError("baseURL 오류")
             }
             return url
+        case .EditProfile(profileData: let profileData):
+            guard let url = URL(string: API.baseURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
         }
     }
     
@@ -46,13 +52,23 @@ extension AllEndpoint: TargetType {
             return "/mypage/profile/image/"
         case .getProfile(memberId: _):
             return "/mypage/profile"
+        case .EditProfile(profileData: let profileData):
+            return "/mypage/profile/edit"
         }
     }
     
     public var method: Moya.Method {
         switch self {
-        default:
+        case .getMyPosts(memberId: let memberId, page: let page):
             return .get
+        case .getBookmarks(memberId: let memberId, page: let page):
+            return .get
+        case .getProfileImage(memberId: let memberId, page: let page):
+            return .get
+        case .getProfile(memberId: let memberId):
+            return .get
+        case .EditProfile(profileData: let profileData):
+            return .patch
         }
     }
     
@@ -64,6 +80,8 @@ extension AllEndpoint: TargetType {
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .getProfile(memberId: let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
+        case .EditProfile(profileData: let profileData):
+            return .requestJSONEncodable(profileData)
         }
     }
     

@@ -15,6 +15,8 @@ public struct PostDTO: Codable {
     public let date: String
     public let nickname: String
     public let createdAt: String
+    public let postImageUrl: String
+    public let latestPublicMemberProfileImage: String
 }
 
 public struct PostResponse: Codable {
@@ -36,4 +38,11 @@ public struct ProfileData: Codable {
     let introduction: String
     let postCount: Int
     let succeedApplicationCount: Int
+}
+
+//네 프로필 수정
+public struct EditProfileRequest: Codable {
+    let memberProfileImageURL: String
+    let nickname: String
+    let introduction: String
 }
