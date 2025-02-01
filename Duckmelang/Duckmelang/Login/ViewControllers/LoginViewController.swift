@@ -12,15 +12,9 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = loginView
-        self.title = "로그인"
         
-        // 네비게이션 바 타이틀 폰트 설정
-        if let navigationController = self.navigationController {
-            navigationController.navigationBar.titleTextAttributes = [
-                NSAttributedString.Key.font: UIFont
-                    .aritaSemiBoldFont(ofSize: 18)
-            ]
-        }
+        self.navigationController?.isNavigationBarHidden = false
+        setupNavigationBar()
     }
     
     // MARK: - Properties
@@ -35,8 +29,27 @@ class LoginViewController: UIViewController {
             )
         return view
     }()
-
     
+    private func setupNavigationBar() {
+        self.navigationController?.navigationBar.backgroundColor = .white!
+            
+        self.navigationItem.title = "로그인"
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(
+            ofSize: 18
+        )]
+            
+        let leftBarButton = UIBarButtonItem(
+            image: UIImage(named: "back"),
+            style: .plain,
+            target: self,
+            action: #selector(goBack)
+        )
+        leftBarButton.tintColor = .grey600
+        self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
+    }
+    @objc private func goBack() {
+        self.navigationController?.popViewController(animated: true)
+    }
     
     @objc private func didTapLoginButton() {
         navigateToHomeView()
@@ -50,5 +63,4 @@ class LoginViewController: UIViewController {
         mainVC.modalPresentationStyle = .fullScreen
         present(mainVC, animated: true)
     }
-
 }
