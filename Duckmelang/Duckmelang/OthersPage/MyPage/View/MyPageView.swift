@@ -39,7 +39,9 @@ class MyPageView: UIView {
     lazy var logout = myPageBtn(text: "로그아웃")
     
     lazy var out = myPageBtn(text: "계정 탈퇴").then {
-        $0.setTitleColor(.errorPrimary, for: .normal)
+        var config = UIButton.Configuration.plain()
+        config.attributedTitle = AttributedString("계정 탈퇴", attributes: AttributeContainer([.font: UIFont.ptdRegularFont(ofSize: 16), .foregroundColor: UIColor.errorPrimary!]))
+        $0.configuration = config
     }
     
     private lazy var topBtnStack = Stack(axis: .vertical, spacing: 20)
