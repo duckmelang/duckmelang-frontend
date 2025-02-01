@@ -11,18 +11,16 @@ import SnapKit
 
 class SearchView: UIView {
     
-    private let searchTextField = UITextField().then {
+    let searchTextField = UITextField().then {
         $0.placeholder = "텍스트 입력"
         $0.borderStyle = .roundedRect
 
-        // 왼쪽 패딩 추가
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
         $0.leftView = leftPaddingView
         $0.leftViewMode = .always
 
-        // 돋보기 아이콘 추가 (오른쪽)
         let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        searchIcon.tintColor = .grey600
+        searchIcon.tintColor = .gray
         searchIcon.contentMode = .scaleAspectFit
         searchIcon.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
 
@@ -34,30 +32,41 @@ class SearchView: UIView {
         $0.rightViewMode = .always
     }
     
+    let recentSearchTableView = UITableView().then {
+        $0.register(RecentSearchCell.self, forCellReuseIdentifier: "RecentSearchCell")
+        $0.separatorStyle = .none
+        $0.rowHeight = UITableView.automaticDimension
+        $0.estimatedRowHeight = 44
+    }
+
     override init(frame: CGRect) {
-            super.init(frame: frame)
+        super.init(frame: frame)
         self.backgroundColor = UIColor.white
-            setupView()
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        
-        private func setupView() {
-            
-            [
-                searchTextField
-            ].forEach {
-                addSubview($0)
-            }
-            
-            searchTextField.snp.makeConstraints{
-                $0.leading.equalToSuperview().offset(20)
-                $0.trailing.equalToSuperview().offset(-20)
-                $0.top.equalTo(safeAreaLayoutGuide).offset(10)
-                $0.height.equalTo(40)
-            }
-        }
+        setupView()
+    }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupView() {
+        [
+            searchTextField,
+            recentSearchTableView
+        ].forEach {
+            addSubview($0)
+        }
+        
+        searchTextField.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(20)
+            $0.trailing.equalToSuperview().offset(-20)
+            $0.top.equalTo(safeAreaLayoutGuide).offset(10)
+            $0.height.equalTo(40)
+        }
+        
+        recentSearchTableView.snp.makeConstraints {
+            $0.top.equalTo(searchTextField.snp.bottom).offset(10)
+            $0.leading.equalToSuperview()
+        }
+    }
 }
