@@ -24,17 +24,7 @@ extension AllEndpoint: TargetType {
                 fatalError("baseURL 오류")
             }
             return url
-        case .getBookmarks(_, _), .getProfileImage(_, _):
-            guard let url = URL(string: API.baseURL) else {
-                fatalError("baseURL 오류")
-            }
-            return url
-        case .getProfile(memberId: _):
-            guard let url = URL(string: API.baseURL) else {
-                fatalError("baseURL 오류")
-            }
-            return url
-        case .EditProfile(profileData: let profileData):
+        default:
             guard let url = URL(string: API.baseURL) else {
                 fatalError("baseURL 오류")
             }
@@ -52,23 +42,17 @@ extension AllEndpoint: TargetType {
             return "/mypage/profile/image/"
         case .getProfile(memberId: _):
             return "/mypage/profile"
-        case .EditProfile(profileData: let profileData):
+        case .EditProfile(profileData: _):
             return "/mypage/profile/edit"
         }
     }
     
     public var method: Moya.Method {
         switch self {
-        case .getMyPosts(memberId: let memberId, page: let page):
-            return .get
-        case .getBookmarks(memberId: let memberId, page: let page):
-            return .get
-        case .getProfileImage(memberId: let memberId, page: let page):
-            return .get
-        case .getProfile(memberId: let memberId):
-            return .get
-        case .EditProfile(profileData: let profileData):
+        case .EditProfile(profileData: _):
             return .patch
+        default:
+            return .get
         }
     }
     
@@ -92,3 +76,4 @@ extension AllEndpoint: TargetType {
         }
     }
 }
+
