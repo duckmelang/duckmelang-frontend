@@ -7,6 +7,7 @@
 
 import UIKit
 import Moya
+import SafariServices
 
 class OnBoardingViewController: UIViewController {
     private let provider = MoyaProvider<AllEndpoint>()
@@ -49,12 +50,16 @@ class OnBoardingViewController: UIViewController {
     
     @objc private func didTapKakaoLoginButton() {
         print("Kakao login button tapped")
-        loginWithKakao()
+//        loginWithKakao()
+        //FIXME: - 삭제필요
+        openOAuthLogin(urlString: "https://rladusdn02.notion.site/kakaooath?pvs=4")
     }
     
     @objc private func didTapGoogleLoginButton() {
         print("Google login button tapped")
-        loginWithGoogle()
+//        loginWithGoogle()
+        //FIXME: - 삭제필요
+        openOAuthLogin(urlString: "https://rladusdn02.notion.site/googleoath?pvs=4")
     }
     
     @objc private func didTapPhoneLoginButton() {
@@ -63,44 +68,54 @@ class OnBoardingViewController: UIViewController {
     }
     
     // MARK: - OAuth 로그인 처리
+        private func openOAuthLogin(urlString: String) {
+            guard let url = URL(string: urlString) else {
+                print("❌ OAuth 로그인 URL이 잘못되었습니다.")
+                return
+            }
+            
+            let safariVC = SFSafariViewController(url: url)
+            safariVC.modalPresentationStyle = .pageSheet  // ✅ 모달을 아래에서 띄우기
+            present(safariVC, animated: true, completion: nil)
+        }
         
-    private func loginWithKakao() {
-        provider.request(.kakaoLogin) { result in
-            switch result {
-            case .success(let response):
-                if let loginURL = try? response.mapString(), let url = URL(string: loginURL) {
-                    DispatchQueue.main.async {
-                        let oauthVC = OAuthLoginViewController(url: url)
-                        oauthVC.modalPresentationStyle = .fullScreen
-                        self.present(oauthVC, animated: true)
-                    }
-                } else {
-                    print("Kakao 로그인 URL을 가져오지 못했습니다.")
-                }
-            case .failure(let error):
-                print("Kakao 로그인 요청 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    private func loginWithGoogle() {
-        provider.request(.googleLogin) { result in
-            switch result {
-            case .success(let response):
-                if let loginURL = try? response.mapString(), let url = URL(string: loginURL) {
-                    DispatchQueue.main.async {
-                        let oauthVC = OAuthLoginViewController(url: url)
-                        oauthVC.modalPresentationStyle = .fullScreen
-                        self.present(oauthVC, animated: true)
-                    }
-                } else {
-                    print("Google 로그인 URL을 가져오지 못했습니다.")
-                }
-            case .failure(let error):
-                print("Google 로그인 요청 실패: \(error.localizedDescription)")
-            }
-        }
-    }
+//    private func loginWithKakao() {
+//        provider.request(.kakaoLogin) { result in
+//            switch result {
+//            case .success(let response):
+//                if let loginURL = try? response.mapString(), let url = URL(string: loginURL) {
+//                    DispatchQueue.main.async {
+//                        let oauthVC = OAuthLoginViewController(url: url)
+//                        oauthVC.modalPresentationStyle = .fullScreen
+//                        self.present(oauthVC, animated: true)
+//                    }
+//                } else {
+//                    print("Kakao 로그인 URL을 가져오지 못했습니다.")
+//                }
+//            case .failure(let error):
+//                print("Kakao 로그인 요청 실패: \(error.localizedDescription)")
+//            }
+//        }
+//    }
+//
+//    private func loginWithGoogle() {
+//        provider.request(.googleLogin) { result in
+//            switch result {
+//            case .success(let response):
+//                if let loginURL = try? response.mapString(), let url = URL(string: loginURL) {
+//                    DispatchQueue.main.async {
+//                        let oauthVC = OAuthLoginViewController(url: url)
+//                        oauthVC.modalPresentationStyle = .fullScreen
+//                        self.present(oauthVC, animated: true)
+//                    }
+//                } else {
+//                    print("Google 로그인 URL을 가져오지 못했습니다.")
+//                }
+//            case .failure(let error):
+//                print("Google 로그인 요청 실패: \(error.localizedDescription)")
+//            }
+//        }
+//    }
 
     
     // MARK: - Navigation

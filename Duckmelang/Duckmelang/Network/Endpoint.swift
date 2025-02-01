@@ -30,11 +30,6 @@ extension AllEndpoint: TargetType {
                 fatalError("baseURL 오류")
             }
             return url
-        default:
-            guard let url = URL(string: API.baseURL) else {
-                fatalError("baseURL 오류")
-            }
-            return url
         case .sendVerificationCode(phoneNumber: _):
             guard let url = URL(string: API.smsURL) else {
                 fatalError("baseURL 오류")
@@ -62,6 +57,11 @@ extension AllEndpoint: TargetType {
             return url
         case .googleLogin:
             guard let url = URL(string: API.oauthURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
+        default:
+            guard let url = URL(string: API.baseURL) else {
                 fatalError("baseURL 오류")
             }
             return url
