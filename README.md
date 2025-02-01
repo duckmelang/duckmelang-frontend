@@ -13,6 +13,46 @@
 
 <br/>
 
+## 🎥 주요 기능 시연 영상
+![글쓰기 시연영상](https://github.com/user-attachments/assets/68936b35-b777-435e-8968-ff83fe7cecdd)
+
+<table>
+  <tr>
+    <td align="center">👋 온보딩 / 회원가입</td>
+    <td align="center">🏠 홈</td>
+    <td align="center">📋 글쓰기</td>
+    <td align="center">💬 채팅</td>
+    <td align="center">🔅 나의동행</td>
+    <td align="center">✍️ 마이페이지-프로필수정</td>
+    <td align="center">⚙️ 마이페이지-설정</td>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://github.com/user-attachments/assets/e6c8cc28-1590-4e3b-8102-d86bdae28979" width="200">
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/4714710d-ac2c-4e88-83d4-5012019bf628" width="200">
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/ccd84820-c15f-4b1f-ada0-74712794538b" width="200">
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/1decfd3e-82db-4572-af2c-2b4a0d67f7b1" width="200">
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/9316a592-a17e-4326-9cf3-caef0fcb5365" width="200">
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/b1a7fefa-40fa-4a42-8691-66c38ebb9fd0" width="200">
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/d56b59c3-232a-44f1-9ca9-f827e56e3eeb" width="200">
+    </td>
+  </tr>
+</table>
+
+<br/>
+
 <div align=left>
   <h2>📚 Tech Stacks </h2>
   

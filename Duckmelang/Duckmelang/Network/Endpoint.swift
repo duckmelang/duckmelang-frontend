@@ -18,6 +18,8 @@ public enum AllEndpoint {
     case getProfileImage(memberId: Int, page: Int)
     case kakaoLogin
     case googleLogin
+    case getProfile(memberId: Int) // 프로필 조회 API 추가
+    case EditProfile(profileData: EditProfileRequest)
 }
 
 extension AllEndpoint: TargetType {
@@ -28,7 +30,7 @@ extension AllEndpoint: TargetType {
                 fatalError("baseURL 오류")
             }
             return url
-        case .getBookmarks(_, _), .getProfileImage(_, _):
+        default:
             guard let url = URL(string: API.baseURL) else {
                 fatalError("baseURL 오류")
             }
@@ -86,6 +88,10 @@ extension AllEndpoint: TargetType {
             return "/bookmarks/\(memberId)"
         case .getProfileImage(_, _):
             return "/mypage/profile/image/"
+        case .getProfile(memberId: _):
+            return "/mypage/profile"
+        case .EditProfile(profileData: _):
+            return "/mypage/profile/edit"
         }
     }
     
@@ -99,6 +105,8 @@ extension AllEndpoint: TargetType {
             return .post
         case .kakaoLogin, .googleLogin:
             return .get
+        case .EditProfile(profileData: _):
+            return .patch
         default:
             return .get
         }
@@ -132,6 +140,10 @@ extension AllEndpoint: TargetType {
             return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
         case .getBookmarks(_, let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+        case .getProfile(memberId: let memberId):
+            return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
+        case .EditProfile(profileData: let profileData):
+            return .requestJSONEncodable(profileData)
         }
     }
     
@@ -142,3 +154,4 @@ extension AllEndpoint: TargetType {
         }
     }
 }
+

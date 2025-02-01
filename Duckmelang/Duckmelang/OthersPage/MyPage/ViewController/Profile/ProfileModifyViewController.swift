@@ -6,8 +6,12 @@
 //
 
 import UIKit
+import Moya
 
 class ProfileModifyViewController: UIViewController {
+    
+    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -42,32 +46,47 @@ class ProfileModifyViewController: UIViewController {
     
     @objc
     private func finishBtnDidTap() {
-        if (profileModifyView.nicknameTextField.text == "")||(profileModifyView.selfPRTextField.text == ""){
+        let isNicknameEmpty = profileModifyView.nicknameTextField.text?.isEmpty ?? true
+        let isSelfPREmpty = profileModifyView.selfPRTextField.text?.isEmpty ?? true
+
+        if isNicknameEmpty && isSelfPREmpty {
+            //닉네임 & 자기소개 모두 비어있을 때
             profileModifyView.nicknameTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.nicknameTextField.textColor = .errorPrimary
             profileModifyView.nicknameErrorText.isHidden = false
-            
+
             profileModifyView.selfPRTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.selfPRTextField.textColor = .errorPrimary
             profileModifyView.selfPRErrorText.isHidden = false
-        }else if (profileModifyView.selfPRTextField.text == ""){
+
+        } else if isSelfPREmpty {
+            //자기소개만 비어있을 때
             profileModifyView.selfPRTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.selfPRTextField.textColor = .errorPrimary
             profileModifyView.selfPRErrorText.isHidden = false
-        }else if (profileModifyView.nicknameTextField.text == ""){
+
+            //닉네임이 채워져 있다면 닉네임 에러는 숨김
+            profileModifyView.nicknameErrorText.isHidden = true
+
+        } else if isNicknameEmpty {
+            //닉네임만 비어있을 때
             profileModifyView.nicknameTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.nicknameTextField.textColor = .errorPrimary
             profileModifyView.nicknameErrorText.isHidden = false
-        }else {
+
+
+        } else {
+            //모든 입력이 정상일 때 에러 제거
             profileModifyView.nicknameTextField.layer.borderColor = UIColor.grey400?.cgColor
             profileModifyView.nicknameTextField.textColor = .grey600
             profileModifyView.nicknameErrorText.isHidden = true
-            
+
             profileModifyView.selfPRTextField.layer.borderColor = UIColor.grey400?.cgColor
             profileModifyView.selfPRTextField.textColor = .grey600
             profileModifyView.selfPRErrorText.isHidden = true
         }
     }
+
     
     @objc
     private func nicknameTextFieldInput() {
@@ -113,4 +132,67 @@ class ProfileModifyViewController: UIViewController {
             profileModifyView.blurBackgroundView.isHidden = true
         }
     }
+    
+    // ✅ 프로필 수정 요청
+    func editProfile(profileData: EditProfileRequest, completion: @escaping (Bool) -> Void) {
+        provider.request(.EditProfile(profileData: profileData)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<Bool>.self)
+                    if decodedResponse.isSuccess {
+                        print("프로필 수정 성공")
+                        completion(true)
+                    } else {
+                        print("프로필 수정 실패: \(decodedResponse.message)")
+                        completion(false)
+                    }
+                } catch {
+                    print("JSON 디코딩 오류: \(error.localizedDescription)")
+                    completion(false)
+                }
+            case .failure(let error):
+                print("API 요청 실패: \(error.localizedDescription)")
+                completion(false)
+            }
+        }
+    }
+    
+    //완료버튼 누르면 저장됨
+    @objc private func saveProfile() {
+        guard let nickname = profileModifyView.nicknameTextField.text, !nickname.isEmpty,
+              let introduction = profileModifyView.selfPRTextField.text, !introduction.isEmpty else {
+            print("입력값을 확인하세요")
+            return
+        }
+        
+        let profileData = EditProfileRequest(
+            memberProfileImageURL: "https://your-image-url.com", //실제 이미지 업로드 후 URL 적용해야 함
+            nickname: nickname,
+            introduction: introduction
+        )
+        
+        //`MoyaProvider`를 직접 호출하여 API 요청
+        provider.request(.EditProfile(profileData: profileData)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<Bool>.self)
+                    if decodedResponse.isSuccess {
+                        print("✅ 프로필 업데이트 성공")
+                        DispatchQueue.main.async {
+                            self.dismiss(animated: true)
+                        }
+                    } else {
+                        print("❌ 프로필 업데이트 실패: \(decodedResponse.message)")
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ API 요청 실패: \(error.localizedDescription)")
+            }
+        }
+    }
 }
+

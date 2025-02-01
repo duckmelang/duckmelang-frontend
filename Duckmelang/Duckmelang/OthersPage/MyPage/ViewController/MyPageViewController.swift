@@ -6,8 +6,12 @@
 //
 
 import UIKit
+import Moya
 
 class MyPageViewController: UIViewController {
+    
+    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -15,6 +19,8 @@ class MyPageViewController: UIViewController {
         self.view = myPageView
         
         navigationController?.isNavigationBarHidden = true
+        
+        getProfileInfo()
     }
     
     private lazy var myPageView = MyPageView().then {
@@ -26,12 +32,16 @@ class MyPageViewController: UIViewController {
         $0.out.addTarget(self, action: #selector(outDidTap), for: .touchUpInside)
     }
     
-    @objc
-    private func profileSeeBtnDidTap() {
-        let profileVC = UINavigationController(rootViewController: ProfileViewController())
-        profileVC.modalPresentationStyle = .fullScreen
-        present(profileVC, animated: false)
+    @objc private func profileSeeBtnDidTap() {
+        let profileVC = ProfileViewController()
+        profileVC.profileData = myPageView.myPageTopView.profileData // 데이터 전달
+        
+        let navigationVC = UINavigationController(rootViewController: profileVC)
+        navigationVC.modalPresentationStyle = .fullScreen
+        present(navigationVC, animated: true)
     }
+
+
     
     @objc
     private func idolChangeDidTap() {
@@ -66,6 +76,25 @@ class MyPageViewController: UIViewController {
         let outVC = UINavigationController(rootViewController: AccountClosing1ViewController())
         outVC.modalPresentationStyle = .fullScreen
         present(outVC, animated: false)
+    }
+    
+    //내 프로필 가져오기
+    private func getProfileInfo() {
+        provider.request(AllEndpoint.getProfile(memberId: 1)) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<ProfileData>.self)
+                guard let profile = response?.result else { return }
+                
+                //MyPageTopView에 데이터 반영
+                DispatchQueue.main.async {
+                    self.myPageView.myPageTopView.profileData = profile
+                }
+                
+            case .failure(let error):
+                print(" 프로필 불러오기 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

@@ -67,7 +67,7 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
 
     @objc func didTapIdolSelectButton() {
         let selectVC = CelebSelectionViewController(
-            celebs: Celeb.sampleCelebs,
+            celebs: Celeb.dummy1(),
             selectedCeleb: selectedCeleb
         )
         selectVC.delegate = self

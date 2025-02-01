@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AF1C013F2D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291A2D39ECEB0036A9AC /* Then */; };
+		AF1C01402D4DDF6E008AF4DE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291D2D39ECF20036A9AC /* SnapKit */; };
+		AF1C01412D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291F2D39EDBF0036A9AC /* Then */; };
+		AF1C01422D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29222D39EDD60036A9AC /* Then */; };
+		AF1C01432D4DDF6E008AF4DE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29252D39EDE30036A9AC /* SnapKit */; };
+		AF1C01442D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29282D39EE040036A9AC /* Then */; };
+		AF1C01452D4DDF6E008AF4DE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292B2D39EE120036A9AC /* SnapKit */; };
+		AF1C01462D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292D2D39EE460036A9AC /* Then */; };
+		AF1C01472D4DDF6E008AF4DE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34982D3F8FF1000D9697 /* SnapKit */; };
 		AF65D89B2D429167006AD2F6 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29302D39EF990036A9AC /* Then */; };
 		AF65D89C2D429167006AD2F6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29332D39EFA40036A9AC /* SnapKit */; };
 		AF65D99D2D429654006AD2F6 /* Cosmos in Frameworks */ = {isa = PBXBuildFile; productRef = AF65D99C2D429654006AD2F6 /* Cosmos */; };
@@ -18,7 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		FA4FE4072D2FA23D007423E3 /* Duckmelang.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Duckmelang.app; path = "/Users/nauvy__/Documents/GitHub/duckmelang-frontend/Duckmelang/build/Debug-iphoneos/Duckmelang.app"; sourceTree = "<absolute>"; };
+		AF1C01482D4DDF6E008AF4DE /* Duckmelang.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Duckmelang.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -47,6 +56,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF1C01472D4DDF6E008AF4DE /* SnapKit in Frameworks */,
+				AF1C01462D4DDF6E008AF4DE /* Then in Frameworks */,
+				AF1C01452D4DDF6E008AF4DE /* SnapKit in Frameworks */,
+				AF1C01442D4DDF6E008AF4DE /* Then in Frameworks */,
+				AF1C01432D4DDF6E008AF4DE /* SnapKit in Frameworks */,
+				AF1C01422D4DDF6E008AF4DE /* Then in Frameworks */,
+				AF1C01412D4DDF6E008AF4DE /* Then in Frameworks */,
+				AF1C01402D4DDF6E008AF4DE /* SnapKit in Frameworks */,
+				AF1C013F2D4DDF6E008AF4DE /* Then in Frameworks */,
 				AF65D89C2D429167006AD2F6 /* SnapKit in Frameworks */,
 				AF65D89B2D429167006AD2F6 /* Then in Frameworks */,
 				FA6B34A62D3F900E000D9697 /* ReactiveMoya in Frameworks */,
@@ -65,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				FA4FE4092D2FA23D007423E3 /* Duckmelang */,
+				AF1C01482D4DDF6E008AF4DE /* Duckmelang.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -107,7 +126,7 @@
 				AF65D99C2D429654006AD2F6 /* Cosmos */,
 			);
 			productName = Duckmelang;
-			productReference = FA4FE4072D2FA23D007423E3 /* Duckmelang.app */;
+			productReference = AF1C01482D4DDF6E008AF4DE /* Duckmelang.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
