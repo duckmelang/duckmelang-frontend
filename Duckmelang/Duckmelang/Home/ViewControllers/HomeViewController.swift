@@ -9,8 +9,12 @@ import UIKit
 
 class HomeViewController: UIViewController {
     
-    //FIXME: - api로 수정 필요
-    let postsData = PostModel.dummy1()
+    //FIXME: - 동적 모델로 수정 필요
+    let celebData1 = PostModel.dummyBlackPink()
+    let celebData2 = PostModel.dummyRiize()
+    let celebData3 = PostModel.dummyNewJeans()
+    
+    private var currentPostsData: [PostModel] = []
 
     private lazy var homeView: HomeView = {
         let view = HomeView()
@@ -25,6 +29,12 @@ class HomeViewController: UIViewController {
         self.view = homeView
         setupDelegate()
         setupActions()
+        
+        //FIXME: - 기본 아이돌 설정 (현재:블랙핑크)
+        selectedCeleb = Celeb.sampleCelebs.first
+        homeView.celebNameLabel.text = selectedCeleb?.name
+                
+        updatePostsData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -35,6 +45,8 @@ class HomeViewController: UIViewController {
         self.navigationController?.isNavigationBarHidden = true
         homeView.postsTableView.isHidden = false
         homeView.postsTableView.reloadData() // 데이터를 다시 불러오기
+        
+        updatePostsData()
     }
     
     private func setupDelegate() {
@@ -65,14 +77,6 @@ class HomeViewController: UIViewController {
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
         }
         
-        isSelectionOpen = true
-        homeView.updateChevronIcon(isExpanded: true)
-        
-        selectionVC.dismissCompletion = { [weak self] in
-            self?.isSelectionOpen = false
-            self?.homeView.updateChevronIcon(isExpanded: false)
-        }
-
         present(selectionVC, animated: true)
     }
     
@@ -90,6 +94,23 @@ class HomeViewController: UIViewController {
         writeVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(writeVC, animated: true)
     }
+    
+    //FIXME: - post data 동적 수정 필요
+    private func updatePostsData() {
+        guard let selectedCeleb = selectedCeleb else { return }
+
+        if selectedCeleb.name == "블랙핑크" {
+            currentPostsData = celebData1
+        } else if selectedCeleb.name == "라이즈" {
+            currentPostsData = celebData2
+        } else if selectedCeleb.name == "뉴진스" {
+            currentPostsData = celebData3
+        } else {
+            currentPostsData = [] // 다른 아이돌 선택 시 빈 배열
+        }
+        
+        homeView.postsTableView.reloadData()
+    }
 }
 
 // MARK: - Delegate
@@ -97,19 +118,20 @@ extension HomeViewController: CelebSelectionDelegate {
     func didSelectCeleb(_ celeb: Celeb) {
         selectedCeleb = celeb
         homeView.celebNameLabel.text = celeb.name
+        updatePostsData()
     }
 }
 
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return postsData.count
+        return currentPostsData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
             return UITableViewCell()
         }
-        cell.configure(model: postsData[indexPath.row])
+        cell.configure(model: currentPostsData[indexPath.row])
         return cell
     }
 }
@@ -120,6 +142,7 @@ extension HomeViewController: WriteViewControllerDelegate {
         if let celeb = celeb {
             selectedCeleb = celeb
             homeView.celebNameLabel.text = celeb.name
+            updatePostsData()
         }
     }
 }
