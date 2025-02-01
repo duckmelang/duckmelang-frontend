@@ -58,10 +58,12 @@ class ProfileModifyViewController: UIViewController {
             profileModifyView.selfPRTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.selfPRTextField.textColor = .errorPrimary
             profileModifyView.selfPRErrorText.isHidden = false
+            profileModifyView.nicknameErrorText.isHidden = true
         }else if (profileModifyView.nicknameTextField.text == ""){
             profileModifyView.nicknameTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.nicknameTextField.textColor = .errorPrimary
             profileModifyView.nicknameErrorText.isHidden = false
+            profileModifyView.selfPRTextField.isHidden = true
         }else {
             profileModifyView.nicknameTextField.layer.borderColor = UIColor.grey400?.cgColor
             profileModifyView.nicknameTextField.textColor = .grey600

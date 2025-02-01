@@ -95,7 +95,8 @@ class ProfileModifyView: UIView {
     }
     
     private func setupView(){
-        [blurBackgroundView,topStack, profileImage, profileAddBtn, textFieldStack, alert, nicknameErrorText, selfPRErrorText].forEach{addSubview($0)}
+        [topStack, profileImage, profileAddBtn, textFieldStack, nicknameErrorText, selfPRErrorText, blurBackgroundView, alert].forEach{addSubview($0)}
+        
         
         blurBackgroundView.snp.makeConstraints {
             $0.edges.equalToSuperview() // 화면 전체를 덮음
