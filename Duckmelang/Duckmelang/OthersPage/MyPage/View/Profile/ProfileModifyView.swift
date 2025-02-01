@@ -79,7 +79,7 @@ class ProfileModifyView: UIView {
     
     lazy var blurBackgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .dark)).then {
         $0.isHidden = true // 기본적으로 숨김
-        $0.alpha = 0.8
+        $0.alpha = 0.5
     }
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
@@ -95,7 +95,8 @@ class ProfileModifyView: UIView {
     }
     
     private func setupView(){
-        [blurBackgroundView,topStack, profileImage, profileAddBtn, textFieldStack, alert, nicknameErrorText, selfPRErrorText].forEach{addSubview($0)}
+        [topStack, profileImage, profileAddBtn, textFieldStack, nicknameErrorText, selfPRErrorText, blurBackgroundView, alert].forEach{addSubview($0)}
+        
         
         blurBackgroundView.snp.makeConstraints {
             $0.edges.equalToSuperview() // 화면 전체를 덮음

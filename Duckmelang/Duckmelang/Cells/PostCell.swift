@@ -131,4 +131,35 @@ class PostCell: UITableViewCell {
         self.userName.text = model.userName
         self.postTime.text = model.postTime
     }
+    
+    public func configure(model: PostDTO) {
+        if let postImageUrl = URL(string: model.postImageUrl) {
+            self.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage(named: "defaultPostImage"))
+        }
+        
+        self.postTitle.text = model.title
+        self.EventTypeDate.text = "\(model.category) | \(model.date)"
+        
+        if let userImageUrl = URL(string: model.latestPublicMemberProfileImage) {
+            self.userImage.kf.setImage(with: userImageUrl, placeholder: UIImage(named: "defaultUserImage"))
+        }
+        
+        self.userName.text = model.nickname
+        self.postTime.text = formatDate(model.createdAt) //날짜 포맷 변환
+        
+        print("📌 [DEBUG] PostCell configure() 호출됨")
+        print("📌 postId: \(model.postId), title: \(model.title)")
+    }
+    
+    private func formatDate(_ isoDateString: String) -> String {
+        let dateFormatter = ISO8601DateFormatter()
+        guard let date = dateFormatter.date(from: isoDateString) else { return "날짜 없음" }
+        
+        let displayFormatter = DateFormatter()
+        displayFormatter.locale = Locale(identifier: "ko_KR") //한국어 설정
+        displayFormatter.dateFormat = "M월 d일" //"몇월 몇일" 형식
+        
+        return displayFormatter.string(from: date)
+    }
+
 }
