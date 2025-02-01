@@ -46,34 +46,47 @@ class ProfileModifyViewController: UIViewController {
     
     @objc
     private func finishBtnDidTap() {
-        if (profileModifyView.nicknameTextField.text == "")||(profileModifyView.selfPRTextField.text == ""){
+        let isNicknameEmpty = profileModifyView.nicknameTextField.text?.isEmpty ?? true
+        let isSelfPREmpty = profileModifyView.selfPRTextField.text?.isEmpty ?? true
+
+        if isNicknameEmpty && isSelfPREmpty {
+            //닉네임 & 자기소개 모두 비어있을 때
             profileModifyView.nicknameTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.nicknameTextField.textColor = .errorPrimary
             profileModifyView.nicknameErrorText.isHidden = false
-            
+
             profileModifyView.selfPRTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.selfPRTextField.textColor = .errorPrimary
             profileModifyView.selfPRErrorText.isHidden = false
-        }else if (profileModifyView.selfPRTextField.text == ""){
+
+        } else if isSelfPREmpty {
+            //자기소개만 비어있을 때
             profileModifyView.selfPRTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.selfPRTextField.textColor = .errorPrimary
             profileModifyView.selfPRErrorText.isHidden = false
+
+            //닉네임이 채워져 있다면 닉네임 에러는 숨김
             profileModifyView.nicknameErrorText.isHidden = true
-        }else if (profileModifyView.nicknameTextField.text == ""){
+
+        } else if isNicknameEmpty {
+            //닉네임만 비어있을 때
             profileModifyView.nicknameTextField.layer.borderColor = UIColor.errorPrimary?.cgColor
             profileModifyView.nicknameTextField.textColor = .errorPrimary
             profileModifyView.nicknameErrorText.isHidden = false
-            profileModifyView.selfPRTextField.isHidden = true
-        }else {
+
+
+        } else {
+            //모든 입력이 정상일 때 에러 제거
             profileModifyView.nicknameTextField.layer.borderColor = UIColor.grey400?.cgColor
             profileModifyView.nicknameTextField.textColor = .grey600
             profileModifyView.nicknameErrorText.isHidden = true
-            
+
             profileModifyView.selfPRTextField.layer.borderColor = UIColor.grey400?.cgColor
             profileModifyView.selfPRTextField.textColor = .grey600
             profileModifyView.selfPRErrorText.isHidden = true
         }
     }
+
     
     @objc
     private func nicknameTextFieldInput() {
