@@ -146,6 +146,9 @@ class PostCell: UITableViewCell {
         
         self.userName.text = model.nickname
         self.postTime.text = formatDate(model.createdAt) //날짜 포맷 변환
+        
+        print("📌 [DEBUG] PostCell configure() 호출됨")
+        print("📌 postId: \(model.postId), title: \(model.title)")
     }
     
     private func formatDate(_ isoDateString: String) -> String {
@@ -153,8 +156,10 @@ class PostCell: UITableViewCell {
         guard let date = dateFormatter.date(from: isoDateString) else { return "날짜 없음" }
         
         let displayFormatter = DateFormatter()
-        displayFormatter.dateFormat = "yyyy.MM.dd HH:mm" //원하는 포맷 설정
+        displayFormatter.locale = Locale(identifier: "ko_KR") //한국어 설정
+        displayFormatter.dateFormat = "M월 d일" //"몇월 몇일" 형식
         
         return displayFormatter.string(from: date)
     }
+
 }

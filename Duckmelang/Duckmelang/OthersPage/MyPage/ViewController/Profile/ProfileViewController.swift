@@ -50,7 +50,9 @@ class ProfileViewController: UIViewController{
             case .success(let response):
                 do {
                     let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
-                    
+                    //디버깅용 데이터 출력 (서버 응답 확인)
+                    print("📌 [DEBUG] 서버 응답 데이터:")
+                    print(decodedResponse)
                     // `postList`가 `nil`이면 빈 배열을 할당하여 오류 방지
                     let postList = decodedResponse.result?.postList ?? []
                     
@@ -166,6 +168,8 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             if (tableView == profileView.profileBottomView.uploadPostView) {
+                guard !posts.isEmpty else { return UITableViewCell() } //데이터 없을 때 기본 셀 반환
+                        
                 guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
                     return UITableViewCell()
                 }
@@ -173,6 +177,13 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
                 //posts 배열에서 해당 인덱스의 데이터를 가져와 전달
                 let post = posts[indexPath.row]
                 cell.configure(model: post)
+                
+                //디버깅용 데이터 출력
+                print("📌 [DEBUG] configure()에 전달되는 Post 데이터:")
+                print("📌 postId: \(post.postId), title: \(post.title), category: \(post.category)")
+                print("📌 date: \(post.date), nickname: \(post.nickname), createdAt: \(post.createdAt)")
+                print("📌 postImageUrl: \(post.postImageUrl), latestProfileImage: \(post.latestPublicMemberProfileImage)")
+                      
                 return cell
                 
             } else if (tableView == profileView.profileBottomView.reviewTableView) {
