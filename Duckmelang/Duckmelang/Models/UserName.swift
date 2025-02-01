@@ -17,7 +17,8 @@ extension UserNameModel {
             UserNameModel(username: "유저1"),
             UserNameModel(username: "유저2"),
             UserNameModel(username: "유저3"),
-            UserNameModel(username: "유저4")
+            UserNameModel(username: "유저4"),
+            UserNameModel(username: "유저5")
         ]
     }
 }
