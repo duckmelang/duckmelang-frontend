@@ -11,118 +11,106 @@ import SnapKit
 
 class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
-    private let searchTextField = UITextField().then {
-        $0.placeholder = "텍스트 입력"
-        $0.borderStyle = .roundedRect
-
-        let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
-        $0.leftView = leftPaddingView
-        $0.leftViewMode = .always
-
-        let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        searchIcon.tintColor = .gray
-        searchIcon.contentMode = .scaleAspectFit
-        searchIcon.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-
-        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 44))
-        searchIcon.center = CGPoint(x: rightPaddingView.frame.width / 2, y: rightPaddingView.frame.height / 2)
-        rightPaddingView.addSubview(searchIcon)
-
-        $0.rightView = rightPaddingView
-        $0.rightViewMode = .always
-    }
-    
-    private let recentSearchTableView = UITableView().then {
-        $0.register(RecentSearchCell.self, forCellReuseIdentifier: "RecentSearchCell")
-        $0.separatorStyle = .none
-        $0.rowHeight = UITableView.automaticDimension
-        $0.estimatedRowHeight = 44
-    }
+    private let searchView = SearchView()
 
     private var recentSearches: [String] = SearchKeyword.dummy1().map { $0.keyword }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .white
+        self.view = searchView
         self.navigationController?.isNavigationBarHidden = false
         setupNavigationBar()
-        setupView()
+        setupActions()
+        setupTableView()
+        updateSearchResults()
     }
-    
+
     // MARK: - 네비게이션 바 설정
     private func setupNavigationBar() {
         self.navigationController?.navigationBar.backgroundColor = .white
         self.navigationItem.title = "검색"
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .semibold)]
-        
+
         let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
         leftBarButton.tintColor = .gray
         self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
     }
-    
+
     @objc private func goBack() {
         self.navigationController?.popViewController(animated: true)
     }
 
-    // MARK: - 뷰 설정
-    private func setupView() {
-        recentSearchTableView.delegate = self
-        recentSearchTableView.dataSource = self
+    // MARK: - 검색어 입력 이벤트 추가
+    private func setupActions() {
+        searchView.searchTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+    }
 
-        [
-            searchTextField,
-            recentSearchTableView
-        ].forEach {
-            view.addSubview($0)
+    @objc private func textFieldDidChange(_ textField: UITextField) {
+        print("입력된 검색어: \(textField.text ?? "")")
+    }
+
+    // MARK: - UITableView 설정
+    private func setupTableView() {
+        searchView.recentSearchTableView.delegate = self
+        searchView.recentSearchTableView.dataSource = self
+    }
+
+    // MARK: - 검색어 UI 업데이트
+    private func updateSearchResults() {
+        searchView.recentSearchView0.subviews.forEach { $0.removeFromSuperview() }
+
+        if let firstKeyword = recentSearches.first {
+            let keywordLabel = UILabel().then {
+                $0.text = firstKeyword
+                $0.font = UIFont.systemFont(ofSize: 16)
+                $0.textColor = .black
+            }
+
+            searchView.recentSearchView0.addSubview(keywordLabel)
+            keywordLabel.snp.makeConstraints {
+                $0.edges.equalToSuperview().inset(8)
+            }
         }
-        
-        searchTextField.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(20)
-            $0.trailing.equalToSuperview().offset(-20)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(10)
-            $0.height.equalTo(40)
-        }
-        
-        recentSearchTableView.snp.makeConstraints {
-            $0.top.equalTo(searchTextField.snp.bottom).offset(10)
-            $0.leading.trailing.bottom.equalToSuperview()
-        }
+
+        searchView.recentSearchTableView.reloadData() // 최근 검색어 리스트 업데이트
     }
 
     // MARK: - UITableView Delegate & DataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return recentSearches.count
+        return max(recentSearches.count - 1, 0) // 첫 번째 검색어 제외
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "RecentSearchCell", for: indexPath) as? RecentSearchCell else {
             return UITableViewCell()
         }
-        
-        cell.configure(with: recentSearches[indexPath.row], deleteAction: { [weak self] in
+
+        let keywordIndex = indexPath.row + 1 // 첫 번째 검색어 제외
+        cell.configure(with: recentSearches[keywordIndex], at: keywordIndex, deleteAction: { [weak self] in
             self?.deleteRecentSearch(at: indexPath)
         })
-        
+
         return cell
     }
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
-    
+
     // MARK: - 최근 검색어 삭제 기능
     private func deleteRecentSearch(at indexPath: IndexPath) {
-        guard indexPath.row < recentSearches.count else { return }
-        
-        recentSearches.remove(at: indexPath.row)
+        let keywordIndex = indexPath.row + 1 // 첫 번째 검색어 제외
+        guard keywordIndex < recentSearches.count else { return }
+
+        recentSearches.remove(at: keywordIndex)
 
         DispatchQueue.main.async {
-            self.recentSearchTableView.beginUpdates()
-            self.recentSearchTableView.deleteRows(at: [indexPath], with: .fade)
-            self.recentSearchTableView.endUpdates()
-            
+            self.searchView.recentSearchTableView.beginUpdates()
+            self.searchView.recentSearchTableView.deleteRows(at: [indexPath], with: .fade)
+            self.searchView.recentSearchTableView.endUpdates()
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                self.recentSearchTableView.reloadData()
+                self.searchView.recentSearchTableView.reloadData()
             }
         }
     }

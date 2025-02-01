@@ -57,7 +57,7 @@ class RecentSearchCell: UITableViewCell {
         }
         
         deleteButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().offset(-16)
+            $0.trailing.equalToSuperview()
             $0.centerY.equalToSuperview()
             $0.width.height.equalTo(20)
         }
@@ -71,8 +71,20 @@ class RecentSearchCell: UITableViewCell {
         deleteAction?()
     }
     
-    func configure(with keyword: String, deleteAction: @escaping () -> Void) {
+    func configure(with keyword: String, at index: Int, deleteAction: @escaping () -> Void) {
         keywordLabel.text = keyword
         self.deleteAction = deleteAction
+
+        containerView.snp.remakeConstraints {
+            $0.width.equalTo(180)
+            if index == 0 {
+                $0.left.equalToSuperview().offset(20) // 첫 번째 검색어 왼쪽 정렬
+                deleteButton.isHidden = true // X 버튼 숨김
+            } else {
+                $0.right.equalToSuperview().offset(-20) // 나머지는 오른쪽 정렬
+                deleteButton.isHidden = false
+            }
+            $0.top.bottom.equalToSuperview().inset(4)
+        }
     }
 }
