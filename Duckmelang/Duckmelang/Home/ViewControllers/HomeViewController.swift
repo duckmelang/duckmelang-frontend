@@ -31,7 +31,7 @@ class HomeViewController: UIViewController {
         setupActions()
         
         //FIXME: - 기본 아이돌 설정 (현재:블랙핑크)
-        selectedCeleb = Celeb.sampleCelebs.first
+        selectedCeleb = Celeb.dummy1().first
         homeView.celebNameLabel.text = selectedCeleb?.name
                 
         updatePostsData()

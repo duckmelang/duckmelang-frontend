@@ -12,11 +12,11 @@ import SnapKit
 class HomeView: UIView {
 
     //FIXME: - 동적 데이터 바인딩으로 바꿔야됨
-    let celebs = Celeb.sampleCelebs
+    let celebs = Celeb.dummy1()
 
     // 아이돌 이름 Label
     let celebNameLabel = UILabel().then {
-        $0.text = Celeb.sampleCelebs.first?.name ?? "아이돌 이름"
+        $0.text = Celeb.dummy1().first?.name ?? "아이돌 이름"
         $0.font = .aritaSemiBoldFont(ofSize: 18)
         $0.isUserInteractionEnabled = true // 터치 가능하도록 설정
     }
