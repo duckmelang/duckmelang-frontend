@@ -25,3 +25,15 @@ public struct PostResponse: Codable {
     let isFirst: Bool
     let isLast: Bool
 }
+
+//프로필 정보 담는 구조체
+public struct ProfileData: Codable {
+    let memberId: Int
+    let nickname: String
+    let gender: String
+    let age: Int
+    let latestPublicMemberProfileImage: String
+    let introduction: String
+    let postCount: Int
+    let succeedApplicationCount: Int
+}

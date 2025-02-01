@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class MyPageTopView: UIView {
     override init(frame: CGRect) {
@@ -14,6 +15,15 @@ class MyPageTopView: UIView {
         
         addStack()
         setupView()
+    }
+    
+    var profileData: ProfileData? {
+        didSet {
+            if let profile = profileData { //profileData가 nil이 아닐 때만 실행
+                print("profileData 변경됨: \(profile)") // 확인용로그
+                updateProfile(with: profile) //인스턴스를 전달
+            }
+        }
     }
         
     required init?(coder: NSCoder) {
@@ -28,8 +38,8 @@ class MyPageTopView: UIView {
     
     private lazy var profileImage = UIImageView().then {
         $0.image = .profile
-        $0.frame = CGRect(x: 0, y: 0, width: 48, height: 48)
-        $0.layer.cornerRadius = $0.frame.height/2
+        $0.contentMode = .scaleAspectFill
+        $0.layer.cornerRadius = 24
         $0.clipsToBounds = true
     }
     
@@ -71,6 +81,10 @@ class MyPageTopView: UIView {
             $0.height.equalTo(88)
         }
         
+        profileImage.snp.makeConstraints{
+            $0.height.width.equalTo(48)
+        }
+        
         profileInfo.snp.makeConstraints{
             $0.left.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
@@ -79,6 +93,21 @@ class MyPageTopView: UIView {
         profileSeeBtn.snp.makeConstraints{
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview().inset(16)
+        }
+    }
+    
+    //UI 업데이트 함수 추가
+    func updateProfile(with data: ProfileData) {
+        nickname.text = data.nickname
+        gender.text = data.gender
+        age.text = "\(data.age)세"
+        
+        //Kingfisher로 이미지 로딩 (URL이 유효한 경우만)
+        if let url = URL(string: data.latestPublicMemberProfileImage) {
+            profileImage.kf.setImage(
+                with: url,
+                placeholder: UIImage(resource: .profile) // 로딩 전 기본 이미지
+            )
         }
     }
 }
