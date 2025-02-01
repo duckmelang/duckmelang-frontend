@@ -22,7 +22,7 @@ class NoticeCell: UITableViewCell {
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
-        $0.backgroundColor = .lightGray // FIXME: - 실제 이미지 로드 필요
+        $0.backgroundColor = .grey300 // FIXME: - 실제 이미지 로드 필요
     }
     
     private let noticeLabel = UILabel().then {
@@ -44,6 +44,7 @@ class NoticeCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        self.selectionStyle = .none
         setupView()
     }
     
@@ -98,5 +99,12 @@ class NoticeCell: UITableViewCell {
         timeLabel.text = notice.noticeTime
         newBadge.isHidden = !isNew
         profileImageView.image = notice.profile
+        
+        let alphaValue: CGFloat = isNew ? 1.0 : 0.6
+            
+        noticeLabel.alpha = alphaValue
+        timeLabel.alpha = alphaValue
+        profileImageView.alpha = alphaValue
+        newBadge.alpha = alphaValue
     }
 }
