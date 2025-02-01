@@ -81,11 +81,13 @@ class HomeViewController: UIViewController {
     }
     
     @objc private func bellIconTapped() {
-        print("🔔 Bell icon tapped!")
+        navigateToNotice()
+        print("🔔 notice icon tapped!")
     }
 
     @objc private func findIconTapped() {
-        print("🔍 Find icon tapped!")
+        navigateToSearch()
+        print("🔍 search icon tapped!")
     }
 
     @objc private func writeButtonTapped() {
@@ -93,6 +95,19 @@ class HomeViewController: UIViewController {
         let writeVC = WriteViewController()
         writeVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(writeVC, animated: true)
+    }
+    
+    //MARK: - navigate
+    private func navigateToNotice(){
+        let noticeVC = NoticeViewController()
+        noticeVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(noticeVC, animated: true)
+    }
+    
+    private func navigateToSearch(){
+        let searchVC = SearchViewController()
+        searchVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(searchVC, animated: true)
     }
     
     //FIXME: - post data 동적 수정 필요
