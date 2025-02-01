@@ -9,11 +9,11 @@ import UIKit
 
 class ProfileViewController: UIViewController{
     var selectedTag: Int = 0
+    var profileData: ProfileData? //MyPage에서 전달받을 변수
        
     let data1 = PostModel.dummy1()
 
     let data2 = ReviewModel.dummy()
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,9 +26,16 @@ class ProfileViewController: UIViewController{
         
         setupAction()
         setupDelegate()
+        updateUI()
     }
 
     private lazy var profileView = ProfileView()
+    
+    private func updateUI() {
+        if let profile = profileData { //MyPage에서 전달받은 데이터 적용
+            profileView.profileTopView.profileData = profile
+        }
+    }
     
     @objc
     private func backBtnDidTap() {

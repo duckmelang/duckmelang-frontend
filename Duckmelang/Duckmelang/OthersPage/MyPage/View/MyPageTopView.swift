@@ -36,14 +36,14 @@ class MyPageTopView: UIView {
         $0.layer.cornerRadius = 7
     }
     
-    private lazy var profileImage = UIImageView().then {
+    lazy var profileImage = UIImageView().then {
         $0.image = .profile
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 24
         $0.clipsToBounds = true
     }
     
-    private lazy var nickname = Label(text: "닉네임", font: .ptdMediumFont(ofSize: 16), color: .black)
+    lazy var nickname = Label(text: "닉네임", font: .ptdMediumFont(ofSize: 16), color: .black)
     
     private lazy var gender = Label(text: "여성", font: .ptdMediumFont(ofSize: 13), color: .grey600)
     
@@ -61,7 +61,7 @@ class MyPageTopView: UIView {
     }
 
     lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1)
-    private lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
+    lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var profileInfo = Stack(axis: .horizontal, spacing: 12, alignment: .center)
     
     private func addStack() {

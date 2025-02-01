@@ -32,12 +32,16 @@ class MyPageViewController: UIViewController {
         $0.out.addTarget(self, action: #selector(outDidTap), for: .touchUpInside)
     }
     
-    @objc
-    private func profileSeeBtnDidTap() {
-        let profileVC = UINavigationController(rootViewController: ProfileViewController())
-        profileVC.modalPresentationStyle = .fullScreen
-        present(profileVC, animated: false)
+    @objc private func profileSeeBtnDidTap() {
+        let profileVC = ProfileViewController()
+        profileVC.profileData = myPageView.myPageTopView.profileData // 데이터 전달
+        
+        let navigationVC = UINavigationController(rootViewController: profileVC)
+        navigationVC.modalPresentationStyle = .fullScreen
+        present(navigationVC, animated: true)
     }
+
+
     
     @objc
     private func idolChangeDidTap() {
