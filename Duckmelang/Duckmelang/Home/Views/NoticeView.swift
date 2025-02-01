@@ -11,6 +11,13 @@ import SnapKit
 
 class NoticeView: UIView {
     
+    let noticeTableView = UITableView().then {
+        $0.register(NoticeCell.self, forCellReuseIdentifier: NoticeCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 106
+        $0.isHidden = false
+        }
+    
     override init(frame: CGRect) {
             super.init(frame: frame)
             self.backgroundColor = UIColor.white
@@ -24,8 +31,14 @@ class NoticeView: UIView {
         private func setupView() {
             
             [
+                noticeTableView
             ].forEach {
                 addSubview($0)
+            }
+            
+            noticeTableView.snp.makeConstraints {
+                $0.top.equalTo(safeAreaLayoutGuide)
+                $0.leading.trailing.bottom.equalToSuperview()
             }
         }
     
