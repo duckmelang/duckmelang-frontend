@@ -8,10 +8,12 @@
 import UIKit
 
 class HomeViewController: UIViewController {
+    
+    //FIXME: - api로 수정 필요
+    let postsData = PostModel.dummy1()
 
     private lazy var homeView: HomeView = {
         let view = HomeView()
-        self.navigationController?.isNavigationBarHidden = true
         return view
     }()
     
@@ -21,31 +23,8 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = homeView
-
-        let tapGesture = UITapGestureRecognizer(
-            target: self,
-            action: #selector(showCelebSelection)
-        )
-        homeView.celebNameLabel.addGestureRecognizer(tapGesture)
-        
-        homeView.bellIcon
-            .addTarget(
-                self,
-                action: #selector(bellIconTapped),
-                for: .touchUpInside
-            )
-        homeView.findIcon
-            .addTarget(
-                self,
-                action: #selector(findIconTapped),
-                for: .touchUpInside
-            )
-        homeView.writeButton
-            .addTarget(
-                self,
-                action: #selector(writeButtonTapped),
-                for: .touchUpInside
-            )
+        setupDelegate()
+        setupActions()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -54,7 +33,23 @@ class HomeViewController: UIViewController {
             homeView.celebNameLabel.text = selectedCeleb.name
         }
         self.navigationController?.isNavigationBarHidden = true
+        homeView.postsTableView.isHidden = false
+        homeView.postsTableView.reloadData() // 데이터를 다시 불러오기
     }
+    
+    private func setupDelegate() {
+        homeView.postsTableView.dataSource = self
+        homeView.postsTableView.delegate = self
+    }
+    
+    private func setupActions() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showCelebSelection))
+        homeView.celebNameLabel.addGestureRecognizer(tapGesture)
+        
+        homeView.bellIcon.addTarget(self, action: #selector(bellIconTapped), for: .touchUpInside)
+        homeView.findIcon.addTarget(self, action: #selector(findIconTapped), for: .touchUpInside)
+        homeView.writeButton.addTarget(self, action: #selector(writeButtonTapped), for: .touchUpInside)
+        }
 
     @objc private func showCelebSelection() {
         let selectionVC = CelebSelectionViewController(
@@ -93,12 +88,11 @@ class HomeViewController: UIViewController {
         print("📝 Write button tapped!")
         let writeVC = WriteViewController()
         writeVC.hidesBottomBarWhenPushed = true
-        writeVC.delegate = self // WriteViewController에 delegate 연결
         navigationController?.pushViewController(writeVC, animated: true)
     }
 }
 
-// MARK: - CelebSelectionDelegate
+// MARK: - Delegate
 extension HomeViewController: CelebSelectionDelegate {
     func didSelectCeleb(_ celeb: Celeb) {
         selectedCeleb = celeb
@@ -106,7 +100,21 @@ extension HomeViewController: CelebSelectionDelegate {
     }
 }
 
-// MARK: - WriteViewControllerDelegate
+extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return postsData.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
+            return UITableViewCell()
+        }
+        cell.configure(model: postsData[indexPath.row])
+        return cell
+    }
+}
+
+
 extension HomeViewController: WriteViewControllerDelegate {
     func didUpdateSelectedCeleb(_ celeb: Celeb?) {
         if let celeb = celeb {

@@ -16,7 +16,7 @@ class HomeView: UIView {
 
     // 아이돌 이름 Label
     let celebNameLabel = UILabel().then {
-        $0.text = "아이돌 이름"
+        $0.text = Celeb.sampleCelebs.first?.name ?? "아이돌 이름"
         $0.font = .aritaSemiBoldFont(ofSize: 18)
         $0.isUserInteractionEnabled = true // 터치 가능하도록 설정
     }
@@ -42,6 +42,13 @@ class HomeView: UIView {
         button.tintColor = .black
         return button
     }()
+    
+    lazy var postsTableView = UITableView().then {
+        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 106
+        $0.isHidden = true
+    }
 
     // 글쓰기 버튼
     let writeButton = smallFilledCustomBtn(title: "글쓰기")
@@ -57,11 +64,17 @@ class HomeView: UIView {
     }
 
     private func setupView() {
-        addSubview(chevronIcon)
-        addSubview(celebNameLabel)
-        addSubview(bellIcon)
-        addSubview(findIcon)
-        addSubview(writeButton)
+        
+        [
+            chevronIcon,
+            celebNameLabel,
+            bellIcon,
+            findIcon,
+            postsTableView,
+            writeButton
+        ].forEach {
+            addSubview($0)
+        }
 
         chevronIcon.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(20)
@@ -90,6 +103,11 @@ class HomeView: UIView {
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).offset(-20)
             $0.height.equalTo(44)
+        }
+        
+        postsTableView.snp.makeConstraints {
+            $0.top.equalTo(celebNameLabel.snp.bottom).offset(12)
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
     }
     //Chevron 아이콘 업데이트 함수
