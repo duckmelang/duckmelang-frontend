@@ -46,3 +46,19 @@ public struct EditProfileRequest: Codable {
     let nickname: String
     let introduction: String
 }
+
+// 리뷰 데이터 구조체
+public struct ReviewDTO: Codable {
+    let reviewID: Int
+    let nickname: String
+    let gender: String
+    let age: Int
+    let content: String
+    let score: Int
+}
+
+// API 응답 구조체 (리뷰 리스트 포함)
+public struct ReviewResponse: Codable {
+    let average: Double
+    let reviewList: [ReviewDTO] //리뷰 목록
+}

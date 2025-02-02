@@ -14,6 +14,7 @@ public enum AllEndpoint {
     case getProfileImage(memberId: Int, page: Int)
     case getProfile(memberId: Int) // 프로필 조회 API 추가
     case EditProfile(profileData: EditProfileRequest)
+    case getReviews(memberId: Int)
 }
 
 extension AllEndpoint: TargetType {
@@ -44,6 +45,8 @@ extension AllEndpoint: TargetType {
             return "/mypage/profile"
         case .EditProfile(profileData: _):
             return "/mypage/profile/edit"
+        case .getReviews(memberId: let memberId):
+            return "/mypage/reviews"
         }
     }
     
@@ -66,6 +69,8 @@ extension AllEndpoint: TargetType {
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
         case .EditProfile(profileData: let profileData):
             return .requestJSONEncodable(profileData)
+        case .getReviews(memberId: let memberId):
+            return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
         }
     }
     
