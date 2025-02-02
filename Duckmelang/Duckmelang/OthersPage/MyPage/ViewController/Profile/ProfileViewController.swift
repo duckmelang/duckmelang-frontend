@@ -82,10 +82,15 @@ class ProfileViewController: UIViewController{
                     
                     // 리뷰 리스트가 `nil`이면 빈 배열을 할당하여 오류 방지
                     let reviewList = decodedResponse.result?.reviewList ?? []
+                    let averageRating = decodedResponse.result?.average ?? 0.0 //API에서 받은 평균 평점
+
                     
                     DispatchQueue.main.async {
                         self.reviews = reviewList
                         self.profileView.profileBottomView.reviewTableView.reloadData() // 테이블뷰 갱신
+                        
+                        //평점 업데이트
+                        self.profileView.profileBottomView.cosmosView.rating = averageRating
                     }
                 } catch {
                     print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
