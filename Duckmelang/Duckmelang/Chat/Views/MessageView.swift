@@ -18,7 +18,7 @@ class MessageView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    let topMessageView = TopMessageView(isReview: false, isMyFirstMessage: true)
+    let topMessageView = TopMessageView(isReview: true, isMyFirstMessage: false)
     
     let messageCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
         $0.estimatedItemSize = .init(width: 375, height: 58)

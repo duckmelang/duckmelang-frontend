@@ -79,6 +79,7 @@ class MyAccompanyCell: UITableViewCell {
         $0.font = .ptdSemiBoldFont(ofSize: 14)
         $0.textColor = .dmrBlue
         $0.textAlignment = .center
+        $0.isHidden = false
     }
     
     let acceptBtn = UIButton().then {
@@ -114,6 +115,7 @@ class MyAccompanyCell: UITableViewCell {
         $0.alignment = .center
         $0.distribution = .equalSpacing
         $0.spacing = 8
+        $0.isHidden = true
     }
     
     private func setView() {
@@ -180,38 +182,58 @@ class MyAccompanyCell: UITableViewCell {
         }
     }
     
-    public func configure(model: MyAccompanyModel) {
-        self.userImage.image = model.userImage
-        self.postImage.image = model.postImage
-        self.userName.text = model.userName
-        self.sentTime.text = model.sentTime
+    public func configure(status: String, model: RequestDTO) {
+        if let userImageUrl = URL(string: model.oppositeProfileImage) {
+            self.userImage.kf.setImage(with: userImageUrl, placeholder: UIImage())
+        }
+        if let postImageUrl = URL(string: model.postImage) {
+            self.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage())
+        }
+        
+        self.userName.text = model.oppositeNickname
+        self.sentTime.text = formatDate(model.applicationCreatedAt)
         self.postTitle.text = model.postTitle
         
-        updateStatus(model: model)
-        updateViewVisibility(model: model)
+        updateStatus(status: status, applicationStatus: model.applicationStatus)
     }
-
-    private func updateStatus(model: MyAccompanyModel) {
+    
+    private func formatDate(_ isoDateString: String) -> String {
+        let dateFormatter = ISO8601DateFormatter()
+        guard let date = dateFormatter.date(from: isoDateString) else { return "시간 없음" }
+        
+        let displayFormatter = DateFormatter()
+        displayFormatter.locale = Locale(identifier: "ko_KR")
+        displayFormatter.dateFormat = "hh:mm"
+        
+        return displayFormatter.string(from: date)
+    }
+    
+    private func updateStatus(status: String, applicationStatus: String) {
         var statusText = ""
-
-        switch model.responseState {
-        case .accepted:
+        
+        switch applicationStatus {
+        case "SUCCEED":
             statusText = "수락"
             self.status.textColor = .dmrBlue
-        case .awaiting:
+        case "PENDING":
             statusText = "수락 대기중"
             self.status.textColor = .grey600
             self.status.text = statusText
             return
-        case .rejected:
+        case "FAILED":
             statusText = "거절"
             self.status.textColor = .errorPrimary
+        default:
+            break
         }
-
-        switch model.requestType {
-        case .sent:
+        
+        switch status {
+        case "PENDING":
+            self.btnStackView.isHidden = false
+            self.status.isHidden = true
+        case "SENT":
             statusText += "됨"
-        case .received:
+        case "RECEIVED":
             statusText += "함"
         default:
             break
@@ -219,19 +241,4 @@ class MyAccompanyCell: UITableViewCell {
 
         self.status.text = statusText
     }
-
-    private func updateViewVisibility(model: MyAccompanyModel) {
-        switch (model.responseState, model.requestType) {
-        case (.awaiting, _):
-            self.btnStackView.isHidden = true
-            self.status.isHidden = false
-        case (_, .awaiting):
-            self.btnStackView.isHidden = false
-            self.status.isHidden = true
-        default:
-            self.btnStackView.isHidden = true
-            self.status.isHidden = false
-        }
-    }
-
 }
