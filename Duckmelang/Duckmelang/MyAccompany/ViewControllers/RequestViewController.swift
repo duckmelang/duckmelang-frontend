@@ -6,11 +6,16 @@
 //
 
 import UIKit
+import Moya
 
-class RequestViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private var requestData = MyAccompanyModel.dummy()
+class RequestViewController: UIViewController {
+    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    
+//    private var requestData = MyAccompanyModel.dummy()
+    private var requestData: [RequestDTO] = []
     
     var selectedTag: Int = 0
+    var status: String = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,6 +23,7 @@ class RequestViewController: UIViewController, UITableViewDelegate, UITableViewD
         setupDelegate()
         setupAction()
         updateBtnSelected()
+        updateData()
     }
     
     private lazy var requestView: RequestView = {
@@ -39,6 +45,7 @@ class RequestViewController: UIViewController, UITableViewDelegate, UITableViewD
     @objc private func clickBtn(_ sender: UIButton) {
         selectedTag = sender.tag
         updateBtnSelected()
+        updateData()
     }
     
     private func updateBtnSelected() {
@@ -51,6 +58,76 @@ class RequestViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
 
+    private func updateData() {
+        switch selectedTag {
+        case 0:
+            status = "PENDING"
+            getPendingAPI()
+        case 1:
+            status = "SENT"
+            getSentAPI()
+        case 2:
+            status = "RECEIVED"
+            getReceivedAPI()
+        default:
+            break
+        }
+    }
+    
+    private func getPendingAPI() {
+        provider.request(.getPendingRequests(memberId: 1, page: 0)) { result in
+            switch result {
+            case .success(let response):
+                self.requestData.removeAll()
+                let response = try? response.map(ApiResponse<RequestResponse>.self)
+                guard let result = response?.result?.requestApplicationList else { return }
+                self.requestData = result
+                print("대기 중: \(self.requestData)")
+                DispatchQueue.main.async {
+                    self.requestView.requestTableView.reloadData()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    private func getSentAPI() {
+        provider.request(.getSentRequests(memberId: 1, page: 0)) { result in
+            switch result {
+            case .success(let response):
+                self.requestData.removeAll()
+                let response = try? response.map(ApiResponse<RequestResponse>.self)
+                guard let result = response?.result?.requestApplicationList else { return }
+                self.requestData = result
+                print("보낸 요청: \(self.requestData)")
+                DispatchQueue.main.async {
+                    self.requestView.requestTableView.reloadData()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    private func getReceivedAPI() {
+        provider.request(.getReceivedRequests(memberId: 1, page: 0)) { result in
+            switch result {
+            case .success(let response):
+                self.requestData.removeAll()
+                let response = try? response.map(ApiResponse<RequestResponse>.self)
+                guard let result = response?.result?.requestApplicationList else { return }
+                self.requestData = result
+                print("받은 요청: \(self.requestData)")
+                DispatchQueue.main.async {
+                    self.requestView.requestTableView.reloadData()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+}
+
+extension RequestViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return requestData.count
     }
@@ -59,7 +136,7 @@ class RequestViewController: UIViewController, UITableViewDelegate, UITableViewD
         guard let cell = tableView.dequeueReusableCell(withIdentifier: MyAccompanyCell.identifier, for: indexPath) as? MyAccompanyCell else {
             return UITableViewCell()
         }
-        cell.configure(model: requestData[indexPath.row])
+        cell.configure(status: self.status, model: requestData[indexPath.row])
         return cell
     }
 }

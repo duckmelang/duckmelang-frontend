@@ -14,6 +14,10 @@ public enum AllEndpoint {
     case getMyPosts(memberId: Int, page: Int)
     case getBookmarks(memberId: Int, page: Int)
     
+    case getPendingRequests(memberId: Int, page: Int)
+    case getSentRequests(memberId: Int, page: Int)
+    case getReceivedRequests(memberId: Int, page: Int)
+    
     case getProfileImage(memberId: Int, page: Int)
     case getProfile(memberId: Int) // 프로필 조회 API 추가
     case EditProfile(profileData: EditProfileRequest)
@@ -24,12 +28,17 @@ extension AllEndpoint: TargetType {
         switch self {
         case .postReviews(_, _), .getReviewsInformation(_, _):
             guard let url = URL(string: API.reviewURL) else {
-                fatalError("baseURL 오류")
+                fatalError("reviewURL 오류")
+            }
+            return url
+        case .getPendingRequests(_, _), .getSentRequests(_, _), .getReceivedRequests(_, _):
+            guard let url = URL(string: API.requestURL) else {
+                fatalError("requestURL 오류")
             }
             return url
         case .getMyPosts(_, _):
             guard let url = URL(string: API.postURL) else {
-                fatalError("baseURL 오류")
+                fatalError("postURL 오류")
             }
             return url
         default:
@@ -50,6 +59,12 @@ extension AllEndpoint: TargetType {
             return "/my"
         case .getBookmarks(let memberId, _):
             return "/bookmarks/\(memberId)"
+        case .getPendingRequests(_, _):
+            return "/received/pending"
+        case .getSentRequests(_, _):
+            return "/sent"
+        case .getReceivedRequests(_, _):
+            return "/received"
         case .getProfileImage(_, _):
             return "/mypage/profile/image/"
         case .getProfile(memberId: _):
@@ -79,7 +94,7 @@ extension AllEndpoint: TargetType {
             return .requestCompositeData(bodyData: jsonData, urlParameters: ["memberId": memberId])
         case .getReviewsInformation(let memberId, let myId):
             return .requestParameters(parameters: ["memberId": memberId, "myId": myId], encoding: URLEncoding.queryString)
-        case .getMyPosts(let memberId, let page), .getProfileImage(let memberId, let page):
+        case .getMyPosts(let memberId, let page), .getPendingRequests(let memberId, let page), .getSentRequests(let memberId, let page), .getReceivedRequests(let memberId, let page), .getProfileImage(let memberId, let page):
             return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
         case .getBookmarks(_, let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)

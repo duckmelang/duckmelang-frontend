@@ -64,11 +64,9 @@ class AfterReviewViewController: UIViewController {
         provider.request(.getReviewsInformation(memberId: 11, myId: 1)) { result in
             switch result {
             case .success(let response):
-                // TODO: 구현에 대해 백엔드와 논의중
+                // TODO: 백엔드 수정 후 API 수정해야함
                 let response = try? response.map(ApiResponse<[ReviewInformation]>.self)
-                guard let infos = response?.result else { return }
-                
-                for info in infos {
+                if let info = response?.result?.first {
                     print("리뷰 정보: \(info)")
                     self.applicationId = info.applicationId
                     DispatchQueue.main.async {
