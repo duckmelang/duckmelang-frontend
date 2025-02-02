@@ -41,8 +41,6 @@ class MyPageViewController: UIViewController {
         present(navigationVC, animated: true)
     }
 
-
-    
     @objc
     private func idolChangeDidTap() {
         let idolChangeVC = UINavigationController(rootViewController: IdolChangeViewController())

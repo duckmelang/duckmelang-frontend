@@ -40,7 +40,7 @@ public struct ProfileData: Codable {
     let succeedApplicationCount: Int
 }
 
-//네 프로필 수정
+//내 프로필 수정
 public struct EditProfileRequest: Codable {
     let memberProfileImageURL: String
     let nickname: String

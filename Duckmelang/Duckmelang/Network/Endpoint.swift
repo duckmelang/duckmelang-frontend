@@ -13,7 +13,7 @@ public enum AllEndpoint {
     case getBookmarks(memberId: Int, page: Int)
     case getProfileImage(memberId: Int, page: Int)
     case getProfile(memberId: Int) // 프로필 조회 API 추가
-    case EditProfile(profileData: EditProfileRequest)
+    case EditProfile(memberId: Int, profileData: EditProfileRequest)
     case getReviews(memberId: Int)
 }
 
@@ -45,7 +45,7 @@ extension AllEndpoint: TargetType {
             return "/mypage/profile"
         case .EditProfile(profileData: _):
             return "/mypage/profile/edit"
-        case .getReviews(memberId: let memberId):
+        case .getReviews(memberId: _):
             return "/mypage/reviews"
         }
     }
@@ -67,8 +67,16 @@ extension AllEndpoint: TargetType {
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .getProfile(memberId: let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
-        case .EditProfile(profileData: let profileData):
-            return .requestJSONEncodable(profileData)
+        case .EditProfile(let memberId, let profileData):
+            return .requestCompositeParameters(
+                bodyParameters: [
+                    "memberProfileImageURL": profileData.memberProfileImageURL,
+                    "nickname": profileData.nickname,
+                    "introduction": profileData.introduction
+                ],
+                bodyEncoding: JSONEncoding.default,
+                urlParameters: ["memberId": memberId] // Query Parameter로 전송
+            )
         case .getReviews(memberId: let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
         }
