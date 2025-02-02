@@ -1,5 +1,5 @@
 //
-//  SignupViewController.swift
+//  MakeProfilesViewController.swift
 //  Duckmelang
 //
 //  Created by 김연우 on 1/25/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SignupViewController: UIViewController {
+class MakeProfilesViewController: UIViewController {
     
     private let progressBarView = ProgressBarView()
     private let containerView = UIView()
