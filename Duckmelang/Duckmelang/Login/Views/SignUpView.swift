@@ -9,7 +9,7 @@ import UIKit
 import Then
 import SnapKit
 
-class SinginView: UIView {
+class SignUpView: UIView {
     
     // Title Label
     private let titleLabel = UILabel().then {
@@ -27,22 +27,22 @@ class SinginView: UIView {
         $0.attributedText = attributedString
     }
     
-    // ID Label
-    private let idLabel = UILabel().then {
-        $0.text = "ID"
+    // EMAIL Label
+    private let emailLabel = UILabel().then {
+        $0.text = "EMAIL"
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
         $0.textColor = UIColor.grey700
     }
     
-    // ID TextField
-    private let idTextField = UITextField().then {
-        $0.placeholder = "아이디를 입력해주세요"
+    // EMAIL TextField
+    public let emailTextField = UITextField().then {
+        $0.placeholder = "이메일을 입력해주세요"
         $0.borderStyle = .roundedRect
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
     }
     
-    // ID Container
-    private let idContainer = UIStackView().then {
+    // EMAIL Container
+    private let emailContainer = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 8
         $0.alignment = .fill
@@ -56,7 +56,7 @@ class SinginView: UIView {
     }
     
     // PW TextField
-    private let pwTextField = UITextField().then {
+    public let pwTextField = UITextField().then {
         $0.placeholder = "비밀번호를 입력해주세요"
         $0.borderStyle = .roundedRect
         $0.isSecureTextEntry = false
@@ -84,8 +84,8 @@ class SinginView: UIView {
     
     private func setupView() {
         // ID Container 내부 요소 추가
-        idContainer.addArrangedSubview(idLabel)
-        idContainer.addArrangedSubview(idTextField)
+        emailContainer.addArrangedSubview(emailLabel)
+        emailContainer.addArrangedSubview(emailTextField)
         
         // PW Container 내부 요소 추가
         pwContainer.addArrangedSubview(pwLabel)
@@ -93,7 +93,7 @@ class SinginView: UIView {
         
         [
             titleLabel,
-            idContainer,
+            emailContainer,
             pwContainer,
             signUpButton
         ].forEach {
@@ -106,17 +106,19 @@ class SinginView: UIView {
             $0.left.equalToSuperview().offset(16)
         }
         
-        idContainer.snp.makeConstraints {
+        emailContainer.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(28)
             $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(emailTextField.snp.bottom)
         }
         
         pwContainer.snp.makeConstraints {
-            $0.top.equalTo(idContainer.snp.bottom).offset(20)
+            $0.top.equalTo(emailContainer.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(pwTextField.snp.bottom)
         }
         
-        idTextField.snp.makeConstraints{
+        emailTextField.snp.makeConstraints{
             $0.height.equalTo(40)
         }
         
