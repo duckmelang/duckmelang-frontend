@@ -18,6 +18,19 @@ class MiddleReviewView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    public func updateView(info: ReviewInformation) {
+        if let userImageUrl = URL(string: info.latestPublicMemberProfileImage) {
+            self.userImage.kf.setImage(with: userImageUrl, placeholder: UIImage())
+        }
+        if let postImageUrl = URL(string: info.postImageUrl) {
+            self.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage())
+        }
+        self.userName.text = info.name
+        self.postTitle.text = info.title
+        self.category.text = info.eventCategory
+        self.date.text = info.date
+    }
+    
     let userImage = UIImageView().then {
         $0.image = UIImage()
         $0.clipsToBounds = true
