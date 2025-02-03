@@ -82,9 +82,25 @@ public struct ProfileData: Codable {
     let succeedApplicationCount: Int
 }
 
-//네 프로필 수정
+//내 프로필 수정
 public struct EditProfileRequest: Codable {
     let memberProfileImageURL: String
     let nickname: String
     let introduction: String
+}
+
+// 리뷰 데이터 구조체
+public struct myReviewDTO: Codable {
+    let reviewID: Int
+    let nickname: String
+    let gender: String
+    let age: Int
+    let content: String
+    let score: Int
+}
+
+// API 응답 구조체 (리뷰 리스트 포함)
+public struct ReviewResponse: Codable {
+    let average: Double
+    let myReviewList: [myReviewDTO] //리뷰 목록
 }
