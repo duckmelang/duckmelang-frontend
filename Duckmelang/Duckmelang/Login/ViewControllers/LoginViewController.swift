@@ -65,45 +65,40 @@ class LoginViewController: UIViewController {
     @objc private func didTapLoginButton() {
         guard let email = loginView.emailTextField.text, !email.isEmpty,
               let password = loginView.pwdTextField.text, !password.isEmpty else {
-            showErrorPopup(message: "이메일과 비밀번호를 입력하세요.")
+            showErrorAlert(message: "이메일과 비밀번호를 입력하세요.")
             return
         }
 
-        print("로그인 시도: \(email), \(password)")
+        print("📡 로그인 시도: \(email), \(password)")
 
-        var requestFailed = false  // 타임아웃이 발생했는지 체크
+        var requestFailed = false
 
-        // 5초 후 타임아웃 팝업을 띄우고 `case .failure` 실행
+        // 5초 후 타임아웃 처리 (응답이 오면 취소됨)
         let timeoutWorkItem = DispatchWorkItem {
             DispatchQueue.main.async {
                 requestFailed = true
-                self.showErrorPopup(message: "로그인 실패하였습니다.\n다시 시도해주세요.")
+                self.showErrorAlert(message: "서버 응답이 지연되고 있습니다.\n잠시 후 다시 시도해주세요.")
             }
         }
 
-        // 5초 후 실행 (만약 응답이 오면 취소됨)
         DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: timeoutWorkItem)
 
         provider.request(.login(email: email, password: password)) { result in
-            timeoutWorkItem.cancel() // 응답이 오면 타임아웃 작업 취소
-
-            // 타임아웃이 발생한 경우, 실패 처리로 바로 이동
-            if requestFailed {
-                print("⏳ 타임아웃 발생 → 로그인 실패 처리")
-                return
-            }
+            timeoutWorkItem.cancel()  // 응답이 오면 타임아웃 취소
+            print("⌛️ timeout canceled")
+            
+            if requestFailed { return } // 타임아웃이 이미 실행된 경우 무시
 
             switch result {
-            case .success(let response):
-                print("로그인 성공: \(response)")
+            case .success:
+                // 성공한 경우에만 홈 화면 이동 (오류는 MoyaLoggerPlugin에서 처리)
                 DispatchQueue.main.async {
                     self.navigateToHomeView()
                 }
-            case .failure(let error):
-                print("로그인 실패: \(error)")
-                DispatchQueue.main.async {
-                    self.showErrorPopup(message: "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.")
-                }
+
+            case .failure:
+                // ❗️ MoyaLoggerPlugin이 자동으로 오류 핸들링하므로 여기서는 처리하지 않음
+                break
             }
         }
     }
@@ -120,14 +115,20 @@ class LoginViewController: UIViewController {
         loginView.loginButton.alpha = isUsernameValid && isPasswordValid ? 1.0 : 0.5
     }
     
-    private func showErrorPopup(message: String) {
-        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
-        let confirmAction = UIAlertAction(title: "확인", style: .default, handler: nil)
-        
-        alert.addAction(confirmAction)
-        
+    func showErrorAlert(message: String) {
         DispatchQueue.main.async {
-            self.present(alert, animated: true, completion: nil)
+            let alert = UIAlertController(
+                title: "오류 발생",
+                message: message,
+                preferredStyle: .alert
+            )
+            let confirmAction = UIAlertAction(title: "확인", style: .default)
+            alert.addAction(confirmAction)
+
+            // 중복 팝업 방지
+            if self.presentedViewController == nil {
+                self.present(alert, animated: true)
+            }
         }
     }
 }
