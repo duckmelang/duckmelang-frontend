@@ -125,9 +125,40 @@ class RequestViewController: UIViewController {
             }
         }
     }
+    
+    private func postSucceedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
+        provider.request(.postRequestSucceed(applicationId: applicationId, memberId: 1)) { result in
+            switch result {
+            case .success(let response):
+                print("요청 수락 성공: \(response)")
+                
+                DispatchQueue.main.async {
+                    cell.updateForRequest()
+                    self.updateData()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    private func postFailedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
+        provider.request(.postRequestFailed(applicationId: applicationId, memberId: 1)) { result in
+            switch result {
+            case .success(let response):
+                print("요청 거절 성공: \(response)")
+                
+                DispatchQueue.main.async {
+                    cell.updateForRequest()
+                    self.updateData()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
 }
 
-extension RequestViewController: UITableViewDelegate, UITableViewDataSource {
+extension RequestViewController: UITableViewDelegate, UITableViewDataSource, MyAccompanyCellDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return requestData.count
     }
@@ -137,6 +168,19 @@ extension RequestViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         cell.configure(status: self.status, model: requestData[indexPath.row])
+        cell.delegate = self
         return cell
+    }
+    
+    func acceptBtnTapped(cell: MyAccompanyCell) {
+        guard let indexPath = requestView.requestTableView.indexPath(for: cell) else { return }
+        let selectedItem = requestData[indexPath.row]
+        postSucceedAPI(selectedItem.applicationId, cell)
+    }
+    
+    func rejectBtnTapped(cell: MyAccompanyCell) {
+        guard let indexPath = requestView.requestTableView.indexPath(for: cell) else { return }
+        let selectedItem = requestData[indexPath.row]
+        postFailedAPI(selectedItem.applicationId, cell)
     }
 }
