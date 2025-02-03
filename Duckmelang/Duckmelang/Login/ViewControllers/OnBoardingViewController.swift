@@ -8,9 +8,13 @@
 import UIKit
 import Moya
 import SafariServices
+import Alamofire
 
-class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate {
-    private let provider = MoyaProvider<AllEndpoint>()
+class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate, MoyaErrorHandlerDelegate {
+    private lazy var provider: MoyaProvider<AllEndpoint> = {
+        let loggerPlugin = MoyaLoggerPlugin(delegate: self)
+        return MoyaProvider<AllEndpoint>(plugins: [loggerPlugin])
+    }()
 
     // MARK: - Properties
     
@@ -50,16 +54,16 @@ class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate
     
     @objc private func didTapKakaoLoginButton() {
         print("Kakao login button tapped")
-//        loginWithKakao()
+        requestOAuthURL(endpoint: .kakaoLogin)
         //FIXME: - 테스트용 : 삭제필요
-        openOAuthLogin(urlString: "https://rladusdn02.notion.site/kakaooath?pvs=4")
+        //openOAuthLogin(urlString: "https://rladusdn02.notion.site/kakaooath?pvs=4")
     }
     
     @objc private func didTapGoogleLoginButton() {
         print("Google login button tapped")
-//        loginWithGoogle()
+        requestOAuthURL(endpoint: .googleLogin)
         //FIXME: - 테스트용 : 삭제필요
-        openOAuthLogin(urlString: "https://rladusdn02.notion.site/googleoath?pvs=4")
+        //openOAuthLogin(urlString: "https://rladusdn02.notion.site/googleoath?pvs=4")
     }
     
     @objc private func didTapPhoneLoginButton() {
@@ -68,62 +72,52 @@ class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate
     }
     
     // MARK: - OAuth 로그인 처리
-    private func openOAuthLogin(urlString: String) {
-        guard let url = URL(string: urlString) else {
-            print("❌ OAuth 로그인 URL이 잘못되었습니다.")
-            return
+    private func requestOAuthURL(endpoint: AllEndpoint) {
+        provider.request(endpoint) { _ in
+            // 오류는 MoyaLoggerPlugin에서 처리
         }
+    }
 
+    // MARK: - MoyaErrorHandlerDelegate 구현
+    func showErrorAlert(message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(
+                title: "오류 발생",
+                message: message,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
+
+    // Safari를 사용한 OAuth 로그인 진행
+    private func openOAuthLogin(url: URL) {
         let safariVC = SFSafariViewController(url: url)
         safariVC.modalPresentationStyle = .pageSheet
         safariVC.delegate = self
 
         present(safariVC, animated: true, completion: nil)
     }
+    
+//    //FIXME: - safari open Test
+//    private func openOAuthLogin(urlString: String) {
+//        guard let url = URL(string: urlString) else {
+//            print("OAuth 로그인 URL이 잘못되었습니다.")
+//            return
+//        }
+//
+//        let safariVC = SFSafariViewController(url: url)
+//        safariVC.modalPresentationStyle = .pageSheet
+//        safariVC.delegate = self
+//
+//        present(safariVC, animated: true, completion: nil)
+//    }
 
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-        print("✅ Safari 창 닫힘")
+        print("Safari 창 닫힘")
         dismiss(animated: true, completion: nil)
     }
-
-        
-//    private func loginWithKakao() {
-//        provider.request(.kakaoLogin) { result in
-//            switch result {
-//            case .success(let response):
-//                if let loginURL = try? response.mapString(), let url = URL(string: loginURL) {
-//                    DispatchQueue.main.async {
-//                        let oauthVC = OAuthLoginViewController(url: url)
-//                        oauthVC.modalPresentationStyle = .fullScreen
-//                        self.present(oauthVC, animated: true)
-//                    }
-//                } else {
-//                    print("Kakao 로그인 URL을 가져오지 못했습니다.")
-//                }
-//            case .failure(let error):
-//                print("Kakao 로그인 요청 실패: \(error.localizedDescription)")
-//            }
-//        }
-//    }
-//
-//    private func loginWithGoogle() {
-//        provider.request(.googleLogin) { result in
-//            switch result {
-//            case .success(let response):
-//                if let loginURL = try? response.mapString(), let url = URL(string: loginURL) {
-//                    DispatchQueue.main.async {
-//                        let oauthVC = OAuthLoginViewController(url: url)
-//                        oauthVC.modalPresentationStyle = .fullScreen
-//                        self.present(oauthVC, animated: true)
-//                    }
-//                } else {
-//                    print("Google 로그인 URL을 가져오지 못했습니다.")
-//                }
-//            case .failure(let error):
-//                print("Google 로그인 요청 실패: \(error.localizedDescription)")
-//            }
-//        }
-//    }
 
     
     // MARK: - Navigation

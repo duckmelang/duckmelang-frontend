@@ -9,12 +9,16 @@ import UIKit
 import Moya
 
 public enum AllEndpoint {
-    case postReviews(memberId: Int, reviewData: ReviewDTO)
-    case getReviewsInformation(memberId: Int, myId: Int)
-    case sendVerificationCode(phoneNumber: String)
-    case verifyCode(phoneNumber: String, code: String)
+    //MARK: - login
     case login(email: String, password: String)
     case signUp(email: String, password: String)
+    case sendVerificationCode(phoneNumber: String) //인증번호 전송
+    case verifyCode(phoneNumber: String, code: String) //인증번호 인증
+    case kakaoLogin
+    case googleLogin
+    
+    case postReviews(memberId: Int, reviewData: ReviewDTO)
+    case getReviewsInformation(memberId: Int, myId: Int)
     case getMyPosts(memberId: Int, page: Int)
     case getBookmarks(memberId: Int, page: Int)
     
@@ -23,8 +27,6 @@ public enum AllEndpoint {
     case getReceivedRequests(memberId: Int, page: Int)
     
     case getProfileImage(memberId: Int, page: Int)
-    case kakaoLogin
-    case googleLogin
     case getProfile(memberId: Int) // 프로필 조회 API 추가
     case EditProfile(profileData: EditProfileRequest)
 }
@@ -32,6 +34,38 @@ public enum AllEndpoint {
 extension AllEndpoint: TargetType {
     public var baseURL: URL {
         switch self {
+        //MARK: - login
+        case .sendVerificationCode(phoneNumber: _):
+            guard let url = URL(string: API.smsURL) else {
+                fatalError("smsURL 오류")
+            }
+            return url
+        case .verifyCode(phoneNumber: _, code: _):
+            guard let url = URL(string: API.smsURL) else {
+                fatalError("smsURL 오류")
+            }
+            return url
+        case .login(email: _, password: _):
+            guard let url = URL(string: API.postURL) else {
+                fatalError("postURL 오류")
+            }
+            return url
+        case .signUp(email: _, password: _):
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
+        case .kakaoLogin:
+            guard let url = URL(string: API.oauthURL) else {
+                fatalError("oauthURL 오류")
+            }
+            return url
+        case .googleLogin:
+            guard let url = URL(string: API.oauthURL) else {
+                fatalError("oauthURL 오류")
+            }
+            return url
+        
         case .postReviews(_, _), .getReviewsInformation(_, _):
             guard let url = URL(string: API.reviewURL) else {
                 fatalError("reviewURL 오류")
@@ -47,36 +81,6 @@ extension AllEndpoint: TargetType {
                 fatalError("postURL 오류")
             }
             return url
-        case .sendVerificationCode(phoneNumber: _):
-            guard let url = URL(string: API.smsURL) else {
-                fatalError("baseURL 오류")
-            }
-            return url
-        case .verifyCode(phoneNumber: _, code: _):
-            guard let url = URL(string: API.smsURL) else {
-                fatalError("baseURL 오류")
-            }
-            return url
-        case .login(email: _, password: _):
-            guard let url = URL(string: API.postURL) else {
-                fatalError("baseURL 오류")
-            }
-            return url
-        case .signUp(email: _, password: _):
-            guard let url = URL(string: API.memberURL) else {
-                fatalError("baseURL 오류")
-            }
-            return url
-        case .kakaoLogin:
-            guard let url = URL(string: API.oauthURL) else {
-                fatalError("baseURL 오류")
-            }
-            return url
-        case .googleLogin:
-            guard let url = URL(string: API.oauthURL) else {
-                fatalError("baseURL 오류")
-            }
-            return url
         default:
             guard let url = URL(string: API.baseURL) else {
                 fatalError("baseURL 오류")
@@ -87,10 +91,7 @@ extension AllEndpoint: TargetType {
     
     public var path: String {
         switch self {
-        case .postReviews(_, _):
-            return ""
-        case .getReviewsInformation(_, _):
-            return "/information"
+        //MARK: - login
         case .sendVerificationCode:
             return "/send"
         case .verifyCode:
@@ -103,6 +104,11 @@ extension AllEndpoint: TargetType {
             return "/google"
         case .signUp:
             return "/signup"
+        
+        case .postReviews(_, _):
+            return ""
+        case .getReviewsInformation(_, _):
+            return "/information"
         case .getMyPosts(_, _):
             return "/my"
         case .getBookmarks(let memberId, _):
@@ -124,8 +130,7 @@ extension AllEndpoint: TargetType {
     
     public var method: Moya.Method {
         switch self {
-        case .postReviews(_, _):
-            return .post
+        //MARK: - login
         case .login:
             return .post
         case .sendVerificationCode, .verifyCode:
@@ -134,6 +139,9 @@ extension AllEndpoint: TargetType {
             return .post
         case .kakaoLogin, .googleLogin:
             return .get
+        
+        case .postReviews(_, _):
+            return .post
         case .EditProfile(profileData: _):
             return .patch
         default:
@@ -143,15 +151,7 @@ extension AllEndpoint: TargetType {
     
     public var task: Moya.Task {
         switch self {
-        case .postReviews(let memberId, let reviewData):
-            guard let jsonData = try? JSONEncoder().encode(reviewData) else {
-                return .requestPlain
-            }
-            return .requestCompositeData(bodyData: jsonData, urlParameters: ["memberId": memberId])
-        case .getReviewsInformation(let memberId, let myId):
-            return .requestParameters(parameters: ["memberId": memberId, "myId": myId], encoding: URLEncoding.queryString)
-        case .getMyPosts(let memberId, let page), .getPendingRequests(let memberId, let page), .getSentRequests(let memberId, let page), .getReceivedRequests(let memberId, let page), .getProfileImage(let memberId, let page):
-            return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
+        //MARK: - login
         case .sendVerificationCode(let phoneNumber):
             return .requestParameters(
                 parameters: ["phoneNumber": phoneNumber],
@@ -174,6 +174,16 @@ extension AllEndpoint: TargetType {
                 parameters: [email: email, password: password],
                 encoding: JSONEncoding.default
             )
+        
+        case .postReviews(let memberId, let reviewData):
+            guard let jsonData = try? JSONEncoder().encode(reviewData) else {
+                return .requestPlain
+            }
+            return .requestCompositeData(bodyData: jsonData, urlParameters: ["memberId": memberId])
+        case .getReviewsInformation(let memberId, let myId):
+            return .requestParameters(parameters: ["memberId": memberId, "myId": myId], encoding: URLEncoding.queryString)
+        case .getMyPosts(let memberId, let page), .getPendingRequests(let memberId, let page), .getSentRequests(let memberId, let page), .getReceivedRequests(let memberId, let page), .getProfileImage(let memberId, let page):
+            return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
         case .getBookmarks(_, let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .getProfile(memberId: let memberId):
