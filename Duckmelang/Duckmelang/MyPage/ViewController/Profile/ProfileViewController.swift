@@ -12,7 +12,7 @@ class ProfileViewController: UIViewController{
     var selectedTag: Int = 0
     var profileData: ProfileData? //MyPage에서 전달받을 변수
     
-    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
 
     private var posts: [PostDTO] = []
   
@@ -49,7 +49,7 @@ class ProfileViewController: UIViewController{
     
     // 내 게시글 가져오기
     private func fetchMyPosts() {
-        provider.request(AllEndpoint.getMyPosts(memberId: 1, page: 0)) { result in
+        provider.request(.getMyPosts(memberId: 1)) { result in
             switch result {
             case .success(let response):
                 do {
@@ -74,7 +74,7 @@ class ProfileViewController: UIViewController{
     }
     
     private func fetchReviews() {
-        provider.request(AllEndpoint.getReviews(memberId: 1)) { result in
+        provider.request(.getReviews(memberId: 1)) { result in
             switch result {
             case .success(let response):
                 do {

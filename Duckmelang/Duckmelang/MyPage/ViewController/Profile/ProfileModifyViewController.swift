@@ -10,7 +10,7 @@ import Moya
 
 class ProfileModifyViewController: UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     
-    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -168,7 +168,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
     
     //프로필 수정 요청
     func editProfile(profileData: EditProfileRequest, completion: @escaping (Bool) -> Void) {
-        provider.request(.EditProfile(memberId: 1, profileData: profileData)) { result in
+        provider.request(.patchProfile(memberId: 1, profileData: profileData)) { result in
             switch result {
             case .success(let response):
                 do {
@@ -206,7 +206,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
         )
         
         //`MoyaProvider`를 직접 호출하여 API 요청
-        provider.request(.EditProfile(memberId: 1, profileData: profileData)) { result in
+        provider.request(.patchProfile(memberId: 1, profileData: profileData)) { result in
             switch result {
             case .success(let response):
                 do {
