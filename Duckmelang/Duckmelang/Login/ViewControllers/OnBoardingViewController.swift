@@ -36,6 +36,8 @@ class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        checkInitialNetworkStatus()
+        setupNetworkObserver()
     }
     
     // MARK: - Setup
@@ -44,12 +46,46 @@ class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate
         self.view = onboardingView
         self.view.backgroundColor = .white
     }
+    // MARK: - 네트워크 상태 확인
+    private func checkInitialNetworkStatus() {
+        // 네트워크 상태가 처음 변경될 때까지 대기
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNetworkStatusChange), name: .networkStatusChanged, object: nil)
+    }
+
+    // 네트워크 상태 변경 시 호출되는 메서드
+    @objc private func handleNetworkStatusChange(notification: Notification) {
+        // 네트워크 상태가 연결되지 않은 경우에만 경고 메시지 출력
+        if let isConnected = notification.object as? Bool, !isConnected {
+            showErrorAlert(message: "인터넷 연결이 없습니다.\n네트워크 상태를 확인하세요.")
+        }
+        
+        // 첫 번째 네트워크 상태 변경 후 옵저버 제거
+        NotificationCenter.default.removeObserver(self, name: .networkStatusChanged, object: nil)
+    }
+
+       private func setupNetworkObserver() {
+           NotificationCenter.default.addObserver(self, selector: #selector(networkStatusChanged(_:)), name: .networkStatusChanged, object: nil)
+       }
+
+       @objc private func networkStatusChanged(_ notification: Notification) {
+           if let isConnected = notification.object as? Bool {
+               if isConnected {
+                   print("✅ 네트워크 연결됨")
+               } else {
+                   showErrorAlert(message: "네트워크 연결이 끊어졌습니다.\n다시 확인해주세요.")
+               }
+           }
+       }
+
+       deinit {
+           NotificationCenter.default.removeObserver(self)
+       }
 
     // MARK: - Actions
     
     @objc private func didTapLoginButton() {
         navigateToLoginView()
-        print("Login button tapped")
+        print("GoTo Login")
     }
     
     @objc private func didTapKakaoLoginButton() {
