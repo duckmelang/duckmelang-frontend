@@ -20,25 +20,28 @@ final class MoyaLoggerPlugin: PluginType {
         self.delegate = delegate
     }
 
-    // 🔥 Request 전송 전 로그 출력
-    func willSend(_ request: Cancellable, target: TargetType) {
+    func willSend(_ request: RequestType, target: TargetType) {
         print("🚀 Request 시작: \(target)")
     }
 
-    // 🔥 Response 수신 후 처리
     func didReceive(_ result: Result<Response, MoyaError>, target: TargetType) {
+        print("📡 MoyaLoggerPlugin - didReceive 실행됨: \(result)")
+
         switch result {
         case .success(let response):
-            handleSuccess(response, target: target)
+            if response.statusCode >= 400 {  // ✅ 500 서버 오류 감지
+                handleFailure(MoyaError.statusCode(response), target: target)
+                return
+            } else {
+                handleSuccess(response, target: target) }
         case .failure(let error):
             handleFailure(error, target: target)
         }
     }
 
-    // 🔥 성공 응답 처리
     private func handleSuccess(_ response: Response, target: TargetType) {
-        let url = response.request?.url?.absoluteString ?? "nil"
         let statusCode = response.statusCode
+        let url = response.request?.url?.absoluteString ?? "nil"
 
         var log = """
         ------------------- 네트워크 통신 성공 -------------------
@@ -47,42 +50,37 @@ final class MoyaLoggerPlugin: PluginType {
         API: \(target)
         """
 
-        response.response?.allHeaderFields.forEach {
-            log.append("\n\($0): \($1)")
-        }
-
         do {
-            if let jsonResponse = try? response.mapJSON() as? [String: Any] {
-                if let errorMessage = jsonResponse["title"] as? String,
-                   let status = jsonResponse["status"] as? Int, status < 0 {
-                    log.append("\n⚠️ 서버 오류 응답: \(errorMessage) (Status: \(status))")
-                    print("🔥 DEBUG LOG START (Server Error) 🔥")
-                    print(log)
-                    print("🔥 DEBUG LOG END 🔥")
-                    delegate?.showErrorAlert(message: errorMessage)
-                    return
-                }
-            }
+            let jsonResponse = try response.mapJSON() as? [String: Any]
+            print("📡 서버 응답 JSON: \(String(describing: jsonResponse))")
 
-            let loginURL = try response.mapString().trimmingCharacters(in: .whitespacesAndNewlines)
-            log.append("\n✅ 서버 응답 받음: \(loginURL)")
+            // 🔥 `isSuccess` 값이 false면 실패로 처리
+            if let isSuccess = jsonResponse?["isSuccess"] as? Bool, !isSuccess {
+                let errorMessage = jsonResponse?["message"] as? String ?? "서버 오류가 발생했습니다."
+                log.append("\n⚠️ 서버 응답 오류: \(errorMessage)")
 
-            guard !loginURL.isEmpty, let _ = URL(string: loginURL) else {
-                log.append("\n⚠️ 유효하지 않은 로그인 URL: \(loginURL)")
-                print("🔥 DEBUG LOG START (Invalid URL) 🔥")
+                print("🔥 DEBUG LOG START (Server Error) 🔥")
                 print(log)
                 print("🔥 DEBUG LOG END 🔥")
-                delegate?.showErrorAlert(message: "유효하지 않은 로그인 URL입니다.")
+
+                DispatchQueue.main.async {
+                    self.delegate?.showErrorAlert(message: errorMessage)
+                }
                 return
             }
 
-            log.append("\n🌐 Safari에서 OAuth 로그인 시작")
+            // ✅ 200 응답이면서 `isSuccess: true`인 경우 정상 처리
+            log.append("\n✅ 서버 응답 성공")
+
         } catch {
             log.append("\n❌ JSON 파싱 오류: \(error.localizedDescription)")
             print("🔥 DEBUG LOG START (JSON Parsing Error) 🔥")
             print(log)
             print("🔥 DEBUG LOG END 🔥")
-            delegate?.showErrorAlert(message: "서버 응답을 처리할 수 없습니다.")
+
+            DispatchQueue.main.async {
+                self.delegate?.showErrorAlert(message: "서버 응답을 처리할 수 없습니다.")
+            }
         }
 
         print("🔥 DEBUG LOG START (Success) 🔥")
@@ -90,34 +88,22 @@ final class MoyaLoggerPlugin: PluginType {
         print("🔥 DEBUG LOG END 🔥")
     }
 
-    // 🔥 실패 응답 처리 (네트워크 오류 포함)
     private func handleFailure(_ error: MoyaError, target: TargetType) {
-        let log = """
-        ❌ 네트워크 오류 발생
-        <-- \(error.errorCode) \(target)
-        \(error.failureReason ?? error.errorDescription ?? "unknown error")
-        """
+            print("❌ 네트워크 오류 발생: \(error.localizedDescription)")
 
-        if let response = error.response {
-            handleSuccess(response, target: target)
-            return
+            var message = "네트워크 오류가 발생했습니다.\n다시 시도해 주세요."
+
+            // ✅ Alamofire AFError 내부에서 NSError 추출
+            if case let .underlying(underlyingError, _) = error,
+               let nsError = underlyingError as NSError? {
+                message = getErrorMessage(for: nsError.code)
+            }
+
+            DispatchQueue.main.async {
+                self.delegate?.showErrorAlert(message: message)
+            }
         }
-
-        print("🔥 DEBUG LOG START (Network Failure) 🔥")
-        print(log)
-        print("🔥 DEBUG LOG END 🔥")
-
-        let message: String
-        if let underlyingError = error.errorUserInfo[NSUnderlyingErrorKey] as? NSError {
-            message = getErrorMessage(for: underlyingError.code)
-        } else {
-            message = "네트워크 오류가 발생했습니다.\n다시 시도해 주세요."
-        }
-
-        delegate?.showErrorAlert(message: message)
-    }
-
-    // 🔥 에러 코드에 따른 메시지 반환
+    
     private func getErrorMessage(for code: Int) -> String {
         switch code {
         case NSURLErrorTimedOut:
@@ -135,7 +121,7 @@ final class MoyaLoggerPlugin: PluginType {
         case 404:
             return "요청한 페이지를 찾을 수 없습니다."
         case 500:
-            return "서버 오류가 발생했습니다.\n잠시 후 다시 시도해 주세요."
+            return "서버 오류가 발생했습니다.\n관리자에게 문의 바랍니다."
         default:
             return "네트워크 오류가 발생했습니다.\n다시 시도해 주세요."
         }
