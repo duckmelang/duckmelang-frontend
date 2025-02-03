@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol MyAccompanyCellDelegate: AnyObject {
+    func acceptBtnTapped(cell: MyAccompanyCell)
+    func rejectBtnTapped(cell: MyAccompanyCell)
+}
+
 class MyAccompanyCell: UITableViewCell {
+    weak var delegate: MyAccompanyCellDelegate?
+    
     static let identifier = "MyAccompanyCell"
 
     override func awakeFromNib() {
@@ -94,6 +101,7 @@ class MyAccompanyCell: UITableViewCell {
     // TODO: delegate로 구현
     @objc private func acceptBtnTapped() {
         print("수락")
+        delegate?.acceptBtnTapped(cell: self)
     }
     
     let rejectBtn = UIButton().then {
@@ -108,6 +116,7 @@ class MyAccompanyCell: UITableViewCell {
     // TODO: delegate로 구현
     @objc private func rejectBtnTapped() {
         print("거절")
+        delegate?.rejectBtnTapped(cell: self)
     }
     
     let btnStackView = UIStackView().then {
@@ -240,5 +249,10 @@ class MyAccompanyCell: UITableViewCell {
         }
 
         self.status.text = statusText
+    }
+    
+    public func updateForRequest() {
+        self.btnStackView.isHidden = true
+        self.status.isHidden = false
     }
 }

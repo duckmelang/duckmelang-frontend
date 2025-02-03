@@ -10,7 +10,7 @@ import Moya
 
 class MyPageViewController: UIViewController {
     
-    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
 
     
     override func viewDidLoad() {
@@ -41,8 +41,6 @@ class MyPageViewController: UIViewController {
         present(navigationVC, animated: true)
     }
 
-
-    
     @objc
     private func idolChangeDidTap() {
         let idolChangeVC = UINavigationController(rootViewController: IdolChangeViewController())
@@ -80,7 +78,7 @@ class MyPageViewController: UIViewController {
     
     //내 프로필 가져오기
     private func getProfileInfo() {
-        provider.request(AllEndpoint.getProfile(memberId: 1)) { result in
+        provider.request(.getProfile(memberId: 1)) { result in
             switch result {
             case .success(let response):
                 let response = try? response.map(ApiResponse<ProfileData>.self)
