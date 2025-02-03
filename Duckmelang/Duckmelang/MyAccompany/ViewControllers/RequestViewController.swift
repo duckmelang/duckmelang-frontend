@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class RequestViewController: UIViewController {
-    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
 //    private var requestData = MyAccompanyModel.dummy()
     private var requestData: [RequestDTO] = []

@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class AfterReviewViewController: UIViewController {
-    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<ReviewAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     private var applicationId: Int? = nil
     
@@ -91,7 +91,7 @@ class AfterReviewViewController: UIViewController {
             return
         }
         
-        let review = ReviewDTO(
+        let review = ReviewRequest(
             score: afterReviewView.cosmosView.rating,
             content: afterReviewView.reviewTextView.text,
             receiverId: 11, // 임시 데이터

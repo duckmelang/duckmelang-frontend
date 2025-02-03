@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class BookmarksViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private var bookmarksData: [PostDTO] = []
     
     override func viewDidLoad() {
