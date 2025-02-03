@@ -10,7 +10,7 @@ import Moya
 
 class SignUpViewController: UIViewController {
     
-    private let provider = MoyaProvider<AllEndpoint>()
+    private let provider = MoyaProvider<LoginAPI>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -72,7 +72,7 @@ class SignUpViewController: UIViewController {
         DispatchQueue.main
             .asyncAfter(deadline: .now() + 5, execute: timeoutWorkItem)
         
-        provider.request(.signUp(email: email, password: password)) { result in
+        provider.request(.postSignUp(email: email, password: password)) { result in
             timeoutWorkItem.cancel()
             switch result {
             case .success(let response):

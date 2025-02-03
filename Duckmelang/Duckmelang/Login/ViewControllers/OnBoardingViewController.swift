@@ -11,10 +11,7 @@ import SafariServices
 import Alamofire
 
 class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate, MoyaErrorHandlerDelegate {
-    private lazy var provider: MoyaProvider<AllEndpoint> = {
-        let loggerPlugin = MoyaLoggerPlugin(delegate: self)
-        return MoyaProvider<AllEndpoint>(plugins: [loggerPlugin])
-    }()
+    private lazy var provider = MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
 
     // MARK: - Properties
     
@@ -108,7 +105,7 @@ class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate
     }
     
     // MARK: - OAuth 로그인 처리
-    private func requestOAuthURL(endpoint: AllEndpoint) {
+    private func requestOAuthURL(endpoint: LoginAPI) {
         provider.request(endpoint) { _ in
             // 오류는 MoyaLoggerPlugin에서 처리
         }

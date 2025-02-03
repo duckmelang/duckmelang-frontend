@@ -12,9 +12,9 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
     
     // MARK: - Properties
     
-    private lazy var provider: MoyaProvider<AllEndpoint> = {
+    private lazy var provider: MoyaProvider<LoginAPI> = {
         let loggerPlugin = MoyaLoggerPlugin(delegate: self)
-        return MoyaProvider<AllEndpoint>(plugins: [loggerPlugin])
+        return MoyaProvider<LoginAPI>(plugins: [loggerPlugin])
     }()
 
     private var countdownTimer: Timer?
@@ -80,7 +80,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
         // 5초 후 실행 (만약 응답이 오면 취소됨)
         DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: timeoutWorkItem)
 
-        provider.request(.sendVerificationCode(phoneNumber: phoneNumber)) { result in
+        provider.request(.postSendVerificationCode(phoneNumber: phoneNumber)) { result in
             timeoutWorkItem.cancel()
 
             switch result {
@@ -112,7 +112,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
             return
         }
 
-        provider.request(.verifyCode(phoneNumber: phoneNumber, code: code)) { _ in
+        provider.request(.postVerifyCode(phoneNumber: phoneNumber, code: code)) { _ in
             // 🔥 모든 응답 처리는 MoyaLoggerPlugin에서 진행
         }
     }

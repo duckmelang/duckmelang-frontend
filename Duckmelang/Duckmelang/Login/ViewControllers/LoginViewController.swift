@@ -10,10 +10,10 @@ import Moya
 
 class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
     
-    private lazy var provider: MoyaProvider<AllEndpoint> = {
+    private lazy var provider: MoyaProvider<LoginAPI> = {
         let loggerPlugin = MoyaLoggerPlugin(delegate: self)
         print("✅ MoyaLoggerPlugin 추가됨!")
-        let provider = MoyaProvider<AllEndpoint>(plugins: [loggerPlugin])
+        let provider = MoyaProvider<LoginAPI>(plugins: [loggerPlugin])
         print("🛠 provider.plugins: \(provider.plugins)")
         return provider
     }()
@@ -84,12 +84,12 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
         print("📡 로그인 시도: \(email), \(password)")
 
         // ✅ 타임아웃 감지 시작
-        NetworkMonitor.shared.startRequestTimeout(target: AllEndpoint.login(email: email, password: password)) {
+        NetworkMonitor.shared.startRequestTimeout(target: LoginAPI.postLogin(email: email, password: password)) {
             self.showErrorAlert(message: "서버 응답이 없습니다.\n네트워크 상태를 확인하세요.")
         }
 
-        provider.request(.login(email: email, password: password)) { result in
-            NetworkMonitor.shared.cancelRequestTimeout(target: AllEndpoint.login(email: email, password: password))
+        provider.request(.postLogin(email: email, password: password)) { result in
+            NetworkMonitor.shared.cancelRequestTimeout(target: LoginAPI.postLogin(email: email, password: password))
 
             switch result {
             case .success:
