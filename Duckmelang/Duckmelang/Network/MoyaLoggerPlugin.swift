@@ -27,13 +27,17 @@ final class MoyaLoggerPlugin: PluginType {
     func didReceive(_ result: Result<Response, MoyaError>, target: TargetType) {
         print("📡 MoyaLoggerPlugin - didReceive 실행됨: \(result)")
 
-        switch result {
-        case .success(let response):
-            if response.statusCode >= 400 {  // ✅ 500 서버 오류 감지
-                handleFailure(MoyaError.statusCode(response), target: target)
-                return
+        let transformedResult: Result<Response, MoyaError> = result.flatMap { response in
+            if (400...599).contains(response.statusCode) {
+                return .failure(MoyaError.statusCode(response))  // ✅ 실패로 변환
             } else {
-                handleSuccess(response, target: target) }
+                return .success(response)
+            }
+        }
+
+        switch transformedResult {
+        case .success(let response):
+            handleSuccess(response, target: target)
         case .failure(let error):
             handleFailure(error, target: target)
         }
@@ -50,59 +54,47 @@ final class MoyaLoggerPlugin: PluginType {
         API: \(target)
         """
 
-        do {
-            let jsonResponse = try response.mapJSON() as? [String: Any]
-            print("📡 서버 응답 JSON: \(String(describing: jsonResponse))")
+        let (status, errorMessage) = extractStatusAndMessage(from: response, defaultStatus: statusCode)
 
-            // 🔥 `isSuccess` 또는 `status`가 오류 상태면 실패로 처리
-            if let isSuccess = jsonResponse?["isSuccess"] as? Bool, !isSuccess {
-                let errorMessage = jsonResponse?["message"] as? String ?? "서버 오류가 발생했습니다."
-                log.append("\n⚠️ 서버 응답 오류: \(errorMessage)")
-                
-                print("🔥 DEBUG LOG START (Server Error) 🔥")
-                print(log)
-                print("🔥 DEBUG LOG END 🔥")
+        if (400...599).contains(status) {  // ✅ 모든 400~599 오류 처리
+            log.append("\n⚠️ 서버 오류: \(errorMessage)")
 
-                DispatchQueue.main.async {
-                    self.delegate?.showErrorAlert(message: errorMessage)
-                }
-                return
-            }
-
-            if let serverStatus = jsonResponse?["status"] as? Int, serverStatus < 0 {
-                // ❗️ `status` 값이 음수라면 오류 처리
-                let errorMessage = jsonResponse?["title"] as? String ?? "알 수 없는 서버 오류입니다."
-                log.append("\n⚠️ 서버 오류: \(errorMessage)")
-
-                print("🔥 DEBUG LOG START (Server Error) 🔥")
-                print(log)
-                print("🔥 DEBUG LOG END 🔥")
-
-                DispatchQueue.main.async {
-                    self.delegate?.showErrorAlert(message: errorMessage)
-                }
-                return
-            }
-
-            // ✅ 정상 응답 처리
-            log.append("\n✅ 서버 응답 성공")
-
-        } catch {
-            log.append("\n❌ JSON 파싱 오류: \(error.localizedDescription)")
-            print("🔥 DEBUG LOG START (JSON Parsing Error) 🔥")
+            print("🔥 DEBUG LOG START (Server Error) 🔥")
             print(log)
             print("🔥 DEBUG LOG END 🔥")
 
-            DispatchQueue.main.async {
-                self.delegate?.showErrorAlert(message: "서버 응답을 처리할 수 없습니다.")
-            }
+            // 🔥 400~599 오류일 경우 handleFailure() 호출하고 return!
+            handleFailure(MoyaError.statusCode(response), target: target)
+            return  // 🚨 여기가 중요! return이 없으면 아래 코드 실행됨!
         }
+
+        // ✅ 정상 응답 처리
+        log.append("\n✅ 서버 응답 성공")
 
         print("🔥 DEBUG LOG START (Success) 🔥")
         print(log)
         print("🔥 DEBUG LOG END 🔥")
     }
+    
 
+    // ✅ JSON에서 status와 오류 메시지를 추출하는 함수 (별도 분리)
+    private func extractStatusAndMessage(from response: Response, defaultStatus: Int) -> (Int, String) {
+        do {
+            let jsonResponse = try response.mapJSON() as? [String: Any]
+            print("📡 서버 응답 JSON: \(String(describing: jsonResponse))")
+
+            let status = jsonResponse?["status"] as? Int ?? defaultStatus
+            let errorMessage = jsonResponse?["detail"] as? String ??
+                               jsonResponse?["title"] as? String ??
+                               "알 수 없는 서버 오류입니다."
+
+            return (status, errorMessage)
+
+        } catch {
+            print("❌ JSON 파싱 오류: \(error.localizedDescription)")
+            return (defaultStatus, "서버 응답을 처리할 수 없습니다.")
+        }
+    }
     private func handleFailure(_ error: MoyaError, target: TargetType) {
             print("❌ 네트워크 오류 발생: \(error.localizedDescription)")
 
