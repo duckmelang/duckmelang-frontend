@@ -17,6 +17,8 @@ public enum AllEndpoint {
     case getPendingRequests(memberId: Int, page: Int)
     case getSentRequests(memberId: Int, page: Int)
     case getReceivedRequests(memberId: Int, page: Int)
+    case postRequestSucceed(applicationId: Int, memberId: Int)
+    case postRequestFailed(applicationId: Int, memberId: Int)
     
     case getProfileImage(memberId: Int, page: Int)
     case getProfile(memberId: Int) // 프로필 조회 API 추가
@@ -32,7 +34,7 @@ extension AllEndpoint: TargetType {
                 fatalError("reviewURL 오류")
             }
             return url
-        case .getPendingRequests(_, _), .getSentRequests(_, _), .getReceivedRequests(_, _):
+        case .getPendingRequests(_, _), .getSentRequests(_, _), .getReceivedRequests(_, _), .postRequestSucceed(_, _), .postRequestFailed(_, _):
             guard let url = URL(string: API.requestURL) else {
                 fatalError("requestURL 오류")
             }
@@ -66,6 +68,10 @@ extension AllEndpoint: TargetType {
             return "/sent"
         case .getReceivedRequests(_, _):
             return "/received"
+        case .postRequestSucceed(let applicationId, _):
+            return "/received/succeed/\(applicationId)"
+        case .postRequestFailed(let applicationId, _):
+            return "/received/failed/\(applicationId)"
         case .getProfileImage(_, _):
             return "/mypage/profile/image/"
         case .getProfile(memberId: _):
@@ -79,7 +85,7 @@ extension AllEndpoint: TargetType {
     
     public var method: Moya.Method {
         switch self {
-        case .postReviews(_, _):
+        case .postReviews(_, _), .postRequestSucceed(_, _), .postRequestFailed(_, _):
             return .post
         case .EditProfile(profileData: _):
             return .patch
@@ -101,7 +107,7 @@ extension AllEndpoint: TargetType {
             return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
         case .getBookmarks(_, let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile(memberId: let memberId):
+        case .getProfile(memberId: let memberId), .postRequestSucceed(_, let memberId), .postRequestFailed(_, let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
         case .EditProfile(let memberId, let profileData):
             return .requestCompositeParameters(
