@@ -8,7 +8,7 @@
 import UIKit
 import Moya
 
-class ProfileModifyViewController: UIViewController {
+class ProfileModifyViewController: UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     
     private let provider = MoyaProvider<AllEndpoint>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
@@ -110,11 +110,51 @@ class ProfileModifyViewController: UIViewController {
         // 이미지를 절반으로 나누기
         let halfHeight = tappedView.bounds.height / 2
         
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = true
+        
         if touchPoint.y <= halfHeight {
             // 윗부분 터치시 갤러리 접근
+            if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+                imagePicker.sourceType = .photoLibrary
+                self.present(imagePicker, animated: true)
+            } else {
+                print("갤러리 접근 불가능")
+            }
         } else {
             // 아랫부분 터치시 카메라 접근
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                imagePicker.sourceType = .camera
+                self.present(imagePicker, animated: true)
+            } else {
+                print("카메라 접근 불가능 (시뮬레이터에서는 지원되지 않습니다)")
+            }
         }
+    }
+    
+    // 선택한 이미지 처리
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let editedImage = info[.editedImage] as? UIImage {
+            print("편집된 이미지 선택됨")
+            // 선택한 이미지를 원하는 UIImageView에 설정 가능
+            // 예: profileModifyView.profileImageView.image = editedImage
+            profileModifyView.alert.isHidden = true
+            profileModifyView.blurBackgroundView.isHidden = true
+        } else if let originalImage = info[.originalImage] as? UIImage {
+            print("원본 이미지 선택됨")
+            // profileModifyView.profileImageView.image = originalImage
+            profileModifyView.alert.isHidden = true
+            profileModifyView.blurBackgroundView.isHidden = true
+        }
+        
+        picker.dismiss(animated: true)
+    }
+    
+    // 취소 처리
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        print("❌ 이미지 선택 취소됨")
+        picker.dismiss(animated: true)
     }
     
     // alert 창 떠 있는 상태에서 다른 뷰를 누를때
@@ -170,7 +210,7 @@ class ProfileModifyViewController: UIViewController {
             switch result {
             case .success(let response):
                 do {
-                    let decodedResponse = try response.map(ApiResponse<Bool>.self)
+                    let decodedResponse = try response.map(ApiResponse<EditProfileRequest>.self)
                     if decodedResponse.isSuccess {
                         print("프로필 업데이트 성공")
                         DispatchQueue.main.async {
