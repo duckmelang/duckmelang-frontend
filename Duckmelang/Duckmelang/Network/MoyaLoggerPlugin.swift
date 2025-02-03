@@ -54,10 +54,25 @@ final class MoyaLoggerPlugin: PluginType {
             let jsonResponse = try response.mapJSON() as? [String: Any]
             print("📡 서버 응답 JSON: \(String(describing: jsonResponse))")
 
-            // 🔥 `isSuccess` 값이 false면 실패로 처리
+            // 🔥 `isSuccess` 또는 `status`가 오류 상태면 실패로 처리
             if let isSuccess = jsonResponse?["isSuccess"] as? Bool, !isSuccess {
                 let errorMessage = jsonResponse?["message"] as? String ?? "서버 오류가 발생했습니다."
                 log.append("\n⚠️ 서버 응답 오류: \(errorMessage)")
+                
+                print("🔥 DEBUG LOG START (Server Error) 🔥")
+                print(log)
+                print("🔥 DEBUG LOG END 🔥")
+
+                DispatchQueue.main.async {
+                    self.delegate?.showErrorAlert(message: errorMessage)
+                }
+                return
+            }
+
+            if let serverStatus = jsonResponse?["status"] as? Int, serverStatus < 0 {
+                // ❗️ `status` 값이 음수라면 오류 처리
+                let errorMessage = jsonResponse?["title"] as? String ?? "알 수 없는 서버 오류입니다."
+                log.append("\n⚠️ 서버 오류: \(errorMessage)")
 
                 print("🔥 DEBUG LOG START (Server Error) 🔥")
                 print(log)
@@ -69,7 +84,7 @@ final class MoyaLoggerPlugin: PluginType {
                 return
             }
 
-            // ✅ 200 응답이면서 `isSuccess: true`인 경우 정상 처리
+            // ✅ 정상 응답 처리
             log.append("\n✅ 서버 응답 성공")
 
         } catch {
