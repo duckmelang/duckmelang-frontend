@@ -17,7 +17,7 @@ class ProfileViewController: UIViewController{
     private var posts: [PostDTO] = []
   
     //리뷰 데이터를 저장할 배열
-    private var reviews: [ReviewDTO] = []
+    private var reviews: [myReviewDTO] = []
     
     let data1 = PostModel.dummy1()
 
@@ -81,14 +81,13 @@ class ProfileViewController: UIViewController{
                     let decodedResponse = try response.map(ApiResponse<ReviewResponse>.self)
                     
                     // 리뷰 리스트가 `nil`이면 빈 배열을 할당하여 오류 방지
-                    let reviewList = decodedResponse.result?.reviewList ?? []
+                    let myReviewList = decodedResponse.result?.myReviewList ?? []
                     let averageRating = decodedResponse.result?.average ?? 0.0 //API에서 받은 평균 평점
 
                     
                     DispatchQueue.main.async {
-                        self.reviews = reviewList
+                        self.reviews = myReviewList
                         self.profileView.profileBottomView.reviewTableView.reloadData() // 테이블뷰 갱신
-                        
                         //평점 업데이트
                         self.profileView.profileBottomView.cosmosView.rating = averageRating
                     }

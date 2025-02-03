@@ -90,7 +90,7 @@ public struct EditProfileRequest: Codable {
 }
 
 // 리뷰 데이터 구조체
-public struct ReviewDTO: Codable {
+public struct myReviewDTO: Codable {
     let reviewID: Int
     let nickname: String
     let gender: String
@@ -102,5 +102,5 @@ public struct ReviewDTO: Codable {
 // API 응답 구조체 (리뷰 리스트 포함)
 public struct ReviewResponse: Codable {
     let average: Double
-    let reviewList: [ReviewDTO] //리뷰 목록
+    let myReviewList: [myReviewDTO] //리뷰 목록
 }
