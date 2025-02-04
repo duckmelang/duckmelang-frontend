@@ -94,6 +94,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
                             // ✅ 인증 성공 시 verifyCodeContainer 활성화
                             DispatchQueue.main.async {
                                 self.phoneSigninView.verifyCodeContainer.isHidden = false
+                                self.startCountdown()
                             }
                         }
                     } else {
@@ -138,12 +139,13 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
                     
                     if decodedResponse.isSuccess {
                         if let resultMessage = decodedResponse.result {
-                            // ✅ 인증 성공 시 팝업 표시
-                            self.showPopup(message: resultMessage)
-
-                            // ✅ 0.5초 후 다음 화면으로 이동
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                self.navigateToIDPWView()
+                            DispatchQueue.main.async {
+                                let alert = UIAlertController(title: "알림", message: resultMessage, preferredStyle: .alert)
+                                let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+                                    self.navigateToIDPWView()
+                                }
+                                alert.addAction(confirmAction)
+                                self.present(alert, animated: true)
                             }
                         }
                     } else {
@@ -161,6 +163,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
 
     // MARK: - 인증번호 타이머 관리
     private func startCountdown() {
+        print("⏳ 인증 타이머 시작!")
         remainingSeconds = 180
         phoneSigninView.certificationNumberField.placeholder = "03:00"
         
@@ -210,9 +213,8 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
     }
 
     func navigateToIDPWView() {
+        print("⏭️ Go SignUPViewController")
         let view = SignUpViewController()
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        self.navigationController?.navigationBar.tintColor = UIColor.grey600
         self.navigationController?.pushViewController(view, animated: true)
     }
 
