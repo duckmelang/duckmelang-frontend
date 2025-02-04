@@ -11,11 +11,9 @@ import Moya
 class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErrorHandlerDelegate {
     
     // MARK: - Properties
-    
-    private lazy var provider: MoyaProvider<LoginAPI> = {
-        let loggerPlugin = MoyaLoggerPlugin(delegate: self)
-        return MoyaProvider<LoginAPI>(plugins: [loggerPlugin])
-    }()
+    lazy var provider: MoyaProvider<LoginAPI> = {
+            return MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
+        }()
 
     private var countdownTimer: Timer?
     private var remainingSeconds = 180
@@ -32,7 +30,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
         let view = PhoneSigninView()
         view.phoneTextField.delegate = self
         view.phoneTextField.addTarget(self, action: #selector(writePhoneNumber), for: .editingChanged)
-        view.verifyButton.addTarget(self, action: #selector(didTapVerifyBtn), for: .touchUpInside)
+        view.verifyButton.addTarget(self, action: #selector(didTapSendBtn), for: .touchUpInside)
         view.verifyButton.isEnabled = false
         view.verifyButton.alpha = 0.5
         
@@ -64,7 +62,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
     }
 
     // MARK: - 인증번호 요청
-    @objc private func didTapVerifyBtn() {
+    @objc private func didTapSendBtn() {
         guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11 else { return }
         print("📡 인증 요청 버튼 눌림: \(phoneNumber)")
 
@@ -80,26 +78,46 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
         // 5초 후 실행 (만약 응답이 오면 취소됨)
         DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: timeoutWorkItem)
 
-        provider.request(.postSendVerificationCode(phoneNumber: phoneNumber)) { result in
+        // 🔥 인증번호 요청 API 호출
+        provider.request(.postSendVerificationCode(phoneNum: phoneNumber)) { result in
             timeoutWorkItem.cancel()
 
             switch result {
             case .success(let response):
-                if response.statusCode != 200 {  // ❗️ 200이 아니면 오류 처리
-                    self.showErrorAlert(message: "인증번호 전송에 실패했습니다. 다시 시도해주세요.")
-                    return
+                do {
+                    let decodedResponse = try response.map(VerifyCodeResponse.self)
+                    
+                    if decodedResponse.isSuccess {
+                        if let resultMessage = decodedResponse.result {
+                            self.showPopup(message: resultMessage)
+                            
+                            // ✅ 인증 성공 시 verifyCodeContainer 활성화
+                            DispatchQueue.main.async {
+                                self.phoneSigninView.verifyCodeContainer.isHidden = false
+                            }
+                        }
+                    } else {
+                        self.showErrorAlert(message: decodedResponse.message)
+                    }
+                } catch {
+                    self.showErrorAlert(message: "응답을 해석하는 데 실패했습니다.")
                 }
-                
-                print("✅ 인증번호 전송 성공: \(response)")
-                self.startCountdown()
-                DispatchQueue.main.async {
-                    self.phoneSigninView.verifyCodeContainer.isHidden = false
-                    self.phoneSigninView.phoneTextField.isUserInteractionEnabled = false
-                }
-                
+
             case .failure(let error):
-                print("❌ 인증번호 전송 실패: \(error)")
-                self.showErrorAlert(message: "인증번호 전송에 실패했습니다. 다시 시도해주세요.")
+                self.showErrorAlert(message: error.localizedDescription)
+            }
+        }
+    }
+
+    // MARK: - 성공 팝업 표시
+    func showPopup(message: String) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
+            self.present(alert, animated: true)
+
+            // 일정 시간 후 자동으로 닫히도록 설정 (예: 0.5초 후)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                alert.dismiss(animated: true)
             }
         }
     }
@@ -112,8 +130,32 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
             return
         }
 
-        provider.request(.postVerifyCode(phoneNumber: phoneNumber, code: code)) { _ in
-            // 🔥 모든 응답 처리는 MoyaLoggerPlugin에서 진행
+        provider.request(.postVerifyCode(phoneNumber: phoneNumber, code: code)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(VerifyCodeResponse.self)
+                    
+                    if decodedResponse.isSuccess {
+                        if let resultMessage = decodedResponse.result {
+                            // ✅ 인증 성공 시 팝업 표시
+                            self.showPopup(message: resultMessage)
+
+                            // ✅ 0.5초 후 다음 화면으로 이동
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                self.navigateToIDPWView()
+                            }
+                        }
+                    } else {
+                        self.showErrorAlert(message: decodedResponse.message)
+                    }
+                } catch {
+                    self.showErrorAlert(message: "응답을 해석하는 데 실패했습니다.")
+                }
+
+            case .failure(let error):
+                self.showErrorAlert(message: error.localizedDescription)
+            }
         }
     }
 

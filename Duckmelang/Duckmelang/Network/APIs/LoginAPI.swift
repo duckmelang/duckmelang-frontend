@@ -17,7 +17,7 @@ import Moya
 public enum LoginAPI {
     case postLogin(email: String, password: String)
     case postSignUp(email: String, password: String)
-    case postSendVerificationCode(phoneNumber: String) //인증번호 전송
+    case postSendVerificationCode(phoneNum: String) //인증번호 전송
     case postVerifyCode(phoneNumber: String, code: String) //인증번호 인증
     case kakaoLogin
     case googleLogin
@@ -38,7 +38,7 @@ extension LoginAPI: TargetType {
                 fatalError("memberURL 오류")
             }
             return url
-        case .postSendVerificationCode(phoneNumber: _):
+        case .postSendVerificationCode(phoneNum: _):
             guard let url = URL(string: API.smsURL) else {
                 fatalError("smsURL 오류")
             }
@@ -99,15 +99,14 @@ extension LoginAPI: TargetType {
                 parameters: ["email": email, "password": password],
                 encoding: JSONEncoding.default
             )
-        case .postSendVerificationCode(let phoneNumber):
-            return .requestParameters(
-                parameters: ["phoneNumber": phoneNumber],
-                encoding: JSONEncoding.default
+        case .postSendVerificationCode(let phoneNum):
+            return .requestJSONEncodable(
+                VerificationCodeRequest(phoneNum: phoneNum)
             )
-        case .postVerifyCode(let phoneNumber, let code):
-            return .requestParameters(
-                parameters: ["phoneNumber": phoneNumber, "code": code],
-                encoding: JSONEncoding.default
+
+        case .postVerifyCode(let phoneNum, let code):
+            return .requestJSONEncodable(
+                VerifyCode(phoneNum: phoneNum, certificationCode: code)
             )
         case .kakaoLogin, .googleLogin:
             return .requestPlain

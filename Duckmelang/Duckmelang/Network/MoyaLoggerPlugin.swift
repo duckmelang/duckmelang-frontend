@@ -20,35 +20,14 @@ final class MoyaLoggerPlugin: PluginType {
         self.delegate = delegate
     }
     
-    // ✅ 요청 시작 감지 (`willSend`)
     func willSend(_ request: RequestType, target: TargetType) {
         print("🚀 요청 보냄: \(target) - willSend 실행됨 ✅")
-
-        // ✅ 타임아웃 관리는 NetworkMonitor에서 처리
-        NetworkMonitor.shared.startRequestTimeout(target: target) {
-            self.handleRequestFailure(target)
-        }
     }
     
-    // ✅ 응답 수신 (`didReceive`)
     func didReceive(_ result: Result<Response, MoyaError>, target: TargetType) {
         print("📡 MoyaLoggerPlugin - didReceive 실행됨: \(result)")
-        
-        // ✅ 응답이 오면 타임아웃 타이머 취소
-        NetworkMonitor.shared.cancelRequestTimeout(target: target)
 
-        let transformedResult: Result<Response, MoyaError> = result.flatMap { response in
-            let (status, isSuccess, errorMessage) = extractStatusAndMessage(from: response, defaultStatus: response.statusCode)
-            
-            if (400...599).contains(status) || !isSuccess {
-                print("❌ 서버 응답 오류: \(errorMessage)")
-                return .failure(MoyaError.statusCode(response))
-            }
-            
-            return .success(response)
-        }
-        
-        switch transformedResult {
+        switch result {
         case .success(let response):
             handleSuccess(response, target: target)
         case .failure(let error):
@@ -56,7 +35,6 @@ final class MoyaLoggerPlugin: PluginType {
         }
     }
     
-    // ✅ 서버 응답 없음 (`handleRequestFailure`)
     private func handleRequestFailure(_ target: TargetType) {
         print("⚠️ 요청 실패 감지 (타임아웃 발생) - \(target)")
         DispatchQueue.main.async {
@@ -64,57 +42,35 @@ final class MoyaLoggerPlugin: PluginType {
         }
     }
     
-    // ✅ 성공 응답 처리 (`handleSuccess`)
     private func handleSuccess(_ response: Response, target: TargetType) {
-        let statusCode = response.statusCode
-        let url = response.request?.url?.absoluteString ?? "nil"
-        
-        var log = """
-        ------------------- 네트워크 통신 성공 -------------------
-        [\(statusCode)] \(url)
-        ----------------------------------------------------
-        API: \(target)
-        """
-        
-        let (status, isSuccess, errorMessage) = extractStatusAndMessage(from: response, defaultStatus: statusCode)
-        
-        if (400...599).contains(status) || !isSuccess {
-            log.append("\n⚠️ 서버 오류: \(errorMessage)")
-            print("🔥 DEBUG LOG START (Server Error) 🔥\n\(log)\n🔥 DEBUG LOG END 🔥")
-            handleFailure(MoyaError.statusCode(response), target: target)
-            return
-        }
-        
-        log.append("\n✅ 서버 응답 성공")
-        print("🔥 DEBUG LOG START (Success) 🔥\n\(log)\n🔥 DEBUG LOG END 🔥")
-    }
-    
-    // ✅ JSON 응답 분석 (`extractStatusAndMessage`)
-    private func extractStatusAndMessage(from response: Response, defaultStatus: Int) -> (Int, Bool, String) {
         do {
-            let jsonResponse = try response.mapJSON() as? [String: Any]
-            print("📡 서버 응답 JSON: \(String(describing: jsonResponse))")
-            
-            let status = jsonResponse?["status"] as? Int ?? defaultStatus
-            let isSuccess = jsonResponse?["isSuccess"] as? Bool ?? true
-            let errorMessage = jsonResponse?["message"] as? String ??
-            jsonResponse?["detail"] as? String ??
-            jsonResponse?["title"] as? String ??
-            "알 수 없는 서버 오류입니다."
-            
-            if !isSuccess {
-                print("❌ 서버 응답 오류 (isSuccess: false) - \(errorMessage)")
-                return (400, false, errorMessage)
+            let decodedResponse = try response.map(VerifyCodeResponse.self)
+            let statusCode = response.statusCode
+            let url = response.request?.url?.absoluteString ?? "nil"
+
+            var log = """
+            ------------------- 네트워크 통신 성공 -------------------
+            [\(statusCode)] \(url)
+            ----------------------------------------------------
+            API: \(target)
+            """
+
+            if !decodedResponse.isSuccess {
+                log.append("\n⚠️ 서버 오류: \(decodedResponse.message)")
+                print("🔥 DEBUG LOG START (Server Error) 🔥\n\(log)\n🔥 DEBUG LOG END 🔥")
+                handleFailure(MoyaError.statusCode(response), target: target)
+                return
             }
-            
-            return (status, true, errorMessage)
+
+            log.append("\n✅ 서버 응답 성공")
+            print("🔥 DEBUG LOG START (Success) 🔥\n\(log)\n🔥 DEBUG LOG END 🔥")
+
         } catch {
             print("❌ JSON 파싱 오류: \(error.localizedDescription)")
-            return (defaultStatus, false, "서버 응답을 처리할 수 없습니다.")
+            handleFailure(MoyaError.jsonMapping(response), target: target)
         }
     }
     
-    // ✅ 네트워크 오류 처리 (`handleFailure`)
     public func handleFailure(_ error: MoyaError, target: TargetType) {
         print("❌ 네트워크 오류 발생: \(error.localizedDescription)")
         
@@ -122,12 +78,9 @@ final class MoyaLoggerPlugin: PluginType {
         
         if case let .underlying(underlyingError, _) = error,
            let nsError = underlyingError as NSError? {
-            print("🛠 NSError 정보: \(nsError)")
-            
-            // ✅ `getErrorMessage(for:)` 함수로 통합하여 메시지 가져오기
             message = getErrorMessage(for: nsError.code)
         }
-        
+
         DispatchQueue.main.async {
             self.delegate?.showErrorAlert(message: message)
         }
