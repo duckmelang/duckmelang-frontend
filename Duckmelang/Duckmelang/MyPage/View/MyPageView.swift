@@ -28,7 +28,7 @@ class MyPageView: UIView {
     
     lazy var idolChange = myPageBtn(text: "아이들 변경")
     
-    lazy var postRecommendChange = myPageBtn(text: "게시글 추천 필터 변경")
+    lazy var xKeywordChange = myPageBtn(text: "지뢰 키워드 변경")
     
     private lazy var setup = Label(text: "설정", font: .ptdSemiBoldFont(ofSize: 16), color: .black)
     
@@ -55,7 +55,7 @@ class MyPageView: UIView {
     private lazy var bottomStack = Stack(axis: .vertical, spacing: 22)
     
     private func addStack() {
-        [idolChange, postRecommendChange].forEach{topBtnStack.addArrangedSubview($0)}
+        [idolChange, xKeywordChange].forEach{topBtnStack.addArrangedSubview($0)}
         [login, push, logout, out].forEach{bottomBtnStack.addArrangedSubview($0)}
         [myInfoChange, topBtnStack].forEach{topStack.addArrangedSubview($0)}
         [setup, bottomBtnStack].forEach{bottomStack.addArrangedSubview($0)}

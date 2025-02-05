@@ -7,21 +7,21 @@
 
 import UIKit
 
-class PostRecommendedFilterViewController: UIViewController, UICollectionViewDelegate {
+class XKeywordChangeViewController: UIViewController {
 
-    private var filters: [PostRecommendedFilterModel] = PostRecommendedFilterModel.dummy() // 추천 필터 데이터 저장
+    private var filters: [XKeywordChangeModel] = XKeywordChangeModel.dummy() // 추천 필터 데이터 저장
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.view = postRecommendedFilterView
+        self.view = xKeywordChangeView
         
         navigationController?.isNavigationBarHidden = true
         
         setupDelegate()
     }
     
-    private lazy var postRecommendedFilterView = PostRecommendedFilterChangeView().then {
+    private lazy var xKeywordChangeView = XKeywordChangeView().then {
         $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         $0.searchIcon.addTarget(self, action: #selector(addFilter), for: .touchUpInside)
     }
@@ -32,24 +32,24 @@ class PostRecommendedFilterViewController: UIViewController, UICollectionViewDel
     }
     
     @objc private func addFilter() {
-        guard let filterText = postRecommendedFilterView.searchBar.text, !filterText.isEmpty else {
+        guard let filterText = xKeywordChangeView.searchBar.text, !filterText.isEmpty else {
             // 텍스트가 비어있으면 추가하지 않음
             return
         }
         
         // 새로운 필터 추가
-        filters.append(PostRecommendedFilterModel(filter: filterText))
+        filters.append(XKeywordChangeModel(filter: filterText))
         
         // 새로 추가된 셀의 인덱스 계산
         let newIndexPath = IndexPath(item: filters.count - 1, section: 0)
         
         // 컬렉션 뷰에 애니메이션과 함께 추가
-        postRecommendedFilterView.recommendFilterCollectionView.performBatchUpdates {
-            postRecommendedFilterView.recommendFilterCollectionView.insertItems(at: [newIndexPath])
+        xKeywordChangeView.xKeywordCollectionView.performBatchUpdates {
+            xKeywordChangeView.xKeywordCollectionView.insertItems(at: [newIndexPath])
         }
         
         // 검색 바 초기화
-        postRecommendedFilterView.searchBar.text = ""
+        xKeywordChangeView.searchBar.text = ""
     }
     
     @objc private func deleteButtonTapped(_ sender: UIButton) {
@@ -60,19 +60,19 @@ class PostRecommendedFilterViewController: UIViewController, UICollectionViewDel
         
         // 컬렉션 뷰 업데이트
         let indexPath = IndexPath(item: index, section: 0)
-        postRecommendedFilterView.recommendFilterCollectionView.performBatchUpdates {
-            postRecommendedFilterView.recommendFilterCollectionView.deleteItems(at: [indexPath])
+        xKeywordChangeView.xKeywordCollectionView.performBatchUpdates {
+            xKeywordChangeView.xKeywordCollectionView.deleteItems(at: [indexPath])
         }
     }
     
     private func setupDelegate() {
-        postRecommendedFilterView.recommendFilterCollectionView.dataSource = self
-        postRecommendedFilterView.recommendFilterCollectionView.delegate = self
+        xKeywordChangeView.xKeywordCollectionView.dataSource = self
+        xKeywordChangeView.xKeywordCollectionView.delegate = self
     }
     
 }
 
-extension PostRecommendedFilterViewController: UICollectionViewDataSource {
+extension XKeywordChangeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { return filters.count }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -94,17 +94,17 @@ extension PostRecommendedFilterViewController: UICollectionViewDataSource {
     }
 }
 
-extension PostRecommendedFilterViewController: PostRecommendedFilterCellDelegate {
+extension XKeywordChangeViewController: UICollectionViewDelegate {
     func didTapDeleteButton(cell: PostRecommendedFilterCell) {
         // 클릭된 셀의 IndexPath를 가져옴
-        guard let indexPath = postRecommendedFilterView.recommendFilterCollectionView.indexPath(for: cell) else { return }
+        guard let indexPath = xKeywordChangeView.xKeywordCollectionView.indexPath(for: cell) else { return }
         
         // 데이터 삭제
         filters.remove(at: indexPath.item)
         
         // 셀 삭제 애니메이션
-        postRecommendedFilterView.recommendFilterCollectionView.performBatchUpdates {
-            postRecommendedFilterView.recommendFilterCollectionView.deleteItems(at: [indexPath])
+        xKeywordChangeView.xKeywordCollectionView.performBatchUpdates {
+            xKeywordChangeView.xKeywordCollectionView.deleteItems(at: [indexPath])
         }
     }
 }

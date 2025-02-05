@@ -45,7 +45,7 @@ class PostRecommendedFilterCell: UICollectionViewCell {
         }
     }
     
-    public func configure(model: PostRecommendedFilterModel) {
+    public func configure(model: XKeywordChangeModel) {
         self.filter.text = model.filter
     }
 }
