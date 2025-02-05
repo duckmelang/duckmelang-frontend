@@ -58,6 +58,34 @@ class OtherProfileTopView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    var profileData: OtherProfileData? {
+        didSet {
+            if let profile = profileData { //profileData가 nil이 아닐 때만 실행
+                print("profileData 변경됨: \(profile)") // 확인용로그
+                updateProfile(with: profile) //인스턴스를 전달
+            }
+        }
+    }
+    
+    func updateProfile(with data: OtherProfileData) {
+        myProfileTitle.text = "\(data.nickname) 님의 프로필"
+        
+        nickname.text = data.nickname
+        gender.text = data.gender == "FEMALE" ? "여성" : "남성"
+        age.text = "만 \(data.age)세"
+        postCount.text = "\(data.postCnt)"
+        matchingCount.text = "\(data.matchCnt)"
+        selfPR.text = data.introduction
+        
+        //Kingfisher로 이미지 로딩 (URL이 유효한 경우만)
+        if let url = URL(string: data.profileImageUrl) {
+            profileImage.kf.setImage(
+                with: url,
+                placeholder: UIImage() // 로딩 전 기본 이미지
+            )
+        }
+    }
+    
     lazy var backBtn = UIButton().then {
         $0.setImage(.back, for: .normal)
     }
@@ -245,7 +273,7 @@ class OtherProfileBottomView: UIView {
         $0.settings.emptyImage = UIImage(resource: .emptyStar)
     }
     
-    private lazy var cosmosCount = Label(text: String(cosmosView.rating), font: .ptdSemiBoldFont(ofSize: 17), color: .mainColor)
+    lazy var cosmosCount = Label(text: String(cosmosView.rating), font: .ptdSemiBoldFont(ofSize: 17), color: .mainColor)
     
     private lazy var cosmosFive = Label(text: "/ 5", font: .ptdRegularFont(ofSize: 17), color: .grey600)
     

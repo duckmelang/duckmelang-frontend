@@ -7,16 +7,33 @@
 
 import UIKit
 
+protocol OtherMessageCellDelegate: AnyObject {
+    func didTapUserImage(in cell: OtherMessageCell)
+}
+
 class OtherMessageCell: UICollectionViewCell {
     static let identifier = "OtherMessageCell"
+
+    weak var delegate: OtherMessageCellDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
+        setupGesture()
     }
         
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(userImageTapped))
+        userImage.isUserInteractionEnabled = true
+        userImage.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func userImageTapped() {
+        delegate?.didTapUserImage(in: self)
     }
     
     private lazy var userImage = UIImageView().then {

@@ -114,7 +114,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     }
 }
 
-extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataSource, OtherMessageCellDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return data.count
     }
@@ -150,6 +150,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
             }
             
             cell.configure(userImage: UIImage(), text: messageDate.text, date: dateFormatter.string(from: messageDate.date))
+            cell.delegate = self
             return cell
         }
         
@@ -159,6 +160,11 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
     private func isSameDay(date1: Date, date2: Date) -> Bool {
         let calendar = Calendar.current
         return calendar.isDate(date1, inSameDayAs: date2)
+    }
+    
+    func didTapUserImage(in cell: OtherMessageCell) {
+        let otherProfileVC = OtherProfileViewController()
+        navigationController?.pushViewController(otherProfileVC, animated: true)
     }
 }
 
