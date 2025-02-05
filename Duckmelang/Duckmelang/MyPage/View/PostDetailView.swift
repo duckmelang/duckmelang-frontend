@@ -27,9 +27,9 @@ class PostDetailView: UIView {
     private lazy var contentView = UIView()
     
     //이미지뷰, 프로필info, 진행중btn
-    private lazy var postDetailTopView = PostDetailTopView()
+    lazy var postDetailTopView = PostDetailTopView()
     
-    private lazy var postDetailBottomView = PostDetailBottomView()
+    lazy var postDetailBottomView = PostDetailBottomView()
     
     lazy var backBtn = UIButton().then {
         $0.setImage(.back, for: .normal)
@@ -119,7 +119,7 @@ class PostDetailTopView: UIView {
     
     lazy var progressBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
-        config.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 12, bottom: 14, trailing: 19)
+        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 19)
         $0.backgroundColor = .clear
         config.attributedTitle = AttributedString("진행 중", attributes: AttributeContainer([.font: UIFont.ptdSemiBoldFont(ofSize: 13), .foregroundColor: UIColor.grey800!]))
         config.image = .progress
@@ -203,23 +203,43 @@ class PostDetailBottomView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var title = Label(text: "게시글 제목", font: .ptdSemiBoldFont(ofSize: 17), color: .grey900)
+    private lazy var title1 = Label(text: "게시글 제목", font: .ptdSemiBoldFont(ofSize: 17), color: .grey900)
     
     private lazy var body = Label(text: "본문 \n", font: .ptdRegularFont(ofSize: 15), color: .grey900)
     
-    private lazy var info = Label(text: "스크랩 0   | 채팅 0   | 조회 0 ", font: .ptdRegularFont(ofSize: 12), color: .grey500)
+    private lazy var info = Label(text: "스크랩 0      | 채팅 0      | 조회 0 ", font: .ptdRegularFont(ofSize: 12), color: .grey500)
     private lazy var textStack = Stack(axis: .vertical, spacing: 8)
     
+    private lazy var title2 = Label(text: "동행 정보", font: .ptdSemiBoldFont(ofSize: 17), color: .grey900)
+    
+    let tableView = UITableView().then {
+        $0.register(PostDetailAccompanyCell.self, forCellReuseIdentifier: PostDetailAccompanyCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 36
+    }
+    
     private func addStack(){
-        [title, body, info].forEach{textStack.addArrangedSubview($0)}
+        [title1, body, info].forEach{textStack.addArrangedSubview($0)}
     }
     
     private func setupView(){
-        [textStack].forEach{addSubview($0)}
+        [textStack, title2, tableView].forEach{addSubview($0)}
         
         textStack.snp.makeConstraints{
             $0.top.equalToSuperview().inset(16)
             $0.horizontalEdges.equalToSuperview().inset(24)
+        }
+        
+        title2.snp.makeConstraints{
+            $0.top.equalTo(textStack.snp.bottom).offset(60)
+            $0.leading.equalToSuperview().inset(16)
+        }
+        
+        tableView.snp.makeConstraints{
+            $0.top.equalTo(title2.snp.bottom).offset(22)
+            $0.width.equalTo(UIScreen.main.bounds.width - 32)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(500)//수정예정
         }
     }
 }
