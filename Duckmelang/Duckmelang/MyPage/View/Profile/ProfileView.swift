@@ -88,23 +88,23 @@ class ProfileTopView: UIView {
         $0.clipsToBounds = true
     }
     
-    private lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 16), color: .grey800)
+    private lazy var nickname = Label(text: "", font: .ptdSemiBoldFont(ofSize: 16), color: .grey800)
     
-    private lazy var gender = Label(text: "여성", font: .ptdMediumFont(ofSize: 13), color: .grey600)
+    private lazy var gender = Label(text: "", font: .ptdMediumFont(ofSize: 13), color: .grey600)
     
-    private lazy var line = Label(text: "ㅣ", font: .ptdMediumFont(ofSize: 13), color: .grey400)
+    private lazy var line = Label(text: "|", font: .ptdMediumFont(ofSize: 13), color: .grey400)
     
-    private lazy var age = Label(text: "나이", font: .ptdMediumFont(ofSize: 13), color: .grey600)
+    private lazy var age = Label(text: "", font: .ptdMediumFont(ofSize: 13), color: .grey600)
     
     private lazy var post = Label(text: "게시글", font: .ptdRegularFont(ofSize: 12), color: .grey700)
     
     private lazy var matching = Label(text: "매칭횟수", font: .ptdRegularFont(ofSize: 12), color: .grey700)
     
-    private lazy var postCount = Label(text: "80", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
+    private lazy var postCount = Label(text: "", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
     
-    private lazy var matchingCount = Label(text: "80", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
+    private lazy var matchingCount = Label(text: "", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
     
-    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1)
+    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -15, distribution: .fillProportionally)
     private lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var postStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
     private lazy var matchingStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
@@ -194,7 +194,7 @@ class ProfileTopView: UIView {
     func updateProfile(with data: ProfileData) {
         nickname.text = data.nickname
         gender.text = data.gender
-        age.text = "\(data.age)세"
+        age.text = "\(data.age)"
         
         postCount.text = "\(data.postCount)"
         matchingCount.text = "\(data.succeedApplicationCount)"

@@ -129,6 +129,37 @@ class PostDetailTopView: UIView {
         $0.layer.borderColor = UIColor.grey400?.cgColor
         $0.layer.borderWidth = 1
         $0.configuration = config
+        $0.isHidden = false
+    }
+    
+    lazy var progressTapBtn = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
+        $0.backgroundColor = .clear
+        config.attributedTitle = AttributedString("진행 중", attributes: AttributeContainer([.font: UIFont.ptdSemiBoldFont(ofSize: 13), .foregroundColor: UIColor.grey800!]))
+        config.attributedSubtitle = AttributedString("완료", attributes: AttributeContainer([.font: UIFont.ptdSemiBoldFont(ofSize: 13), .foregroundColor: UIColor.grey500!]))
+        config.titleAlignment = .center
+        config.titlePadding = 12
+        $0.layer.cornerRadius = 5
+        $0.layer.borderColor = UIColor.grey400?.cgColor
+        $0.layer.borderWidth = 1
+        $0.configuration = config
+        $0.isHidden = true
+    }
+    
+    lazy var endBtn = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 19)
+        $0.backgroundColor = .clear
+        config.attributedTitle = AttributedString("완료", attributes: AttributeContainer([.font: UIFont.ptdSemiBoldFont(ofSize: 13), .foregroundColor: UIColor.grey800!]))
+        config.image = .progress
+        config.imagePlacement = .trailing
+        config.imagePadding = 10
+        $0.layer.cornerRadius = 5
+        $0.layer.borderColor = UIColor.grey400?.cgColor
+        $0.layer.borderWidth = 1
+        $0.configuration = config
+        $0.isHidden = true
     }
     
     lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1)
@@ -160,12 +191,12 @@ class PostDetailTopView: UIView {
     }
     
     private func setupView(){
-        [imageView, profileInfo, progressBtn].forEach{addSubview($0)}
+        [imageView, profileInfo, progressBtn, progressTapBtn, endBtn].forEach{addSubview($0)}
     
         imageView.snp.makeConstraints{
             $0.top.equalToSuperview().offset(-(UIApplication.shared.windows.first?.safeAreaInsets.top)!) //Safe Area 고려하여 확장\
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(UIScreen.main.bounds.height * 0.5)
+            $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
         }
         
         //그라데이션 추가
@@ -186,6 +217,19 @@ class PostDetailTopView: UIView {
         progressBtn.snp.makeConstraints{
             $0.top.equalTo(imageView.snp.bottom).offset(12)
             $0.trailing.equalToSuperview().inset(16)
+            $0.width.equalTo(92)
+        }
+        
+        progressTapBtn.snp.makeConstraints{
+            $0.top.equalTo(imageView.snp.bottom).offset(12)
+            $0.trailing.equalToSuperview().inset(16)
+            $0.width.equalTo(92)
+        }
+        
+        endBtn.snp.makeConstraints{
+            $0.top.equalTo(imageView.snp.bottom).offset(12)
+            $0.trailing.equalToSuperview().inset(16)
+            $0.width.equalTo(92)
         }
     }
 }
@@ -236,9 +280,9 @@ class PostDetailBottomView: UIView {
         }
         
         tableView.snp.makeConstraints{
-            $0.top.equalTo(title2.snp.bottom).offset(22)
+            $0.top.equalTo(title2.snp.bottom).offset(12)
             $0.width.equalTo(UIScreen.main.bounds.width - 32)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(500)//수정예정
         }
     }
