@@ -26,9 +26,9 @@ public struct OtherImageResponse: Codable {
     let isLast: Bool
 }
 
-public struct OtherImageData:Codable {
-    let imageId: Int
-    let publicStatus: Bool
+public struct OtherImageData: Codable {
+    let memberProfileImageUrl: String
+    let createdAt: String
 }
 
 // 리뷰 데이터 구조체

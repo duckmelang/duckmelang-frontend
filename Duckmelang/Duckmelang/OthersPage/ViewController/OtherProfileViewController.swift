@@ -13,12 +13,28 @@ class OtherProfileViewController: UIViewController {
     
     var selectedTag: Int = 0
        
+    var profileData: OtherProfileData?
     var otherPostsData: [PostDTO] = []
     var otherReviewsData: [OtherReviewDTO] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.view = otherProfileView
+        
+        navigationController?.isNavigationBarHidden = true
+        otherProfileView.otherProfileBottomView.cosmosView.isHidden = true
+        otherProfileView.otherProfileBottomView.cosmosStack.isHidden = true
+        
+        setupAction()
+        setupDelegate()
+        getProfileInfo()
+        getOtherPosts()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
         self.view = otherProfileView
         
         navigationController?.isNavigationBarHidden = true
@@ -64,6 +80,12 @@ class OtherProfileViewController: UIViewController {
         otherProfileView.otherProfileTopView.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         // segmentedControl
         otherProfileView.otherProfileBottomView.segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(segment:)), for: .valueChanged)
+        
+        // 유저 이미지 누르면 이미지 화면으로 이동되게
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(userImageTapped))
+        otherProfileView.otherProfileTopView.profileImage.isUserInteractionEnabled = true
+        otherProfileView.otherProfileTopView.profileImage.addGestureRecognizer(tapGesture)
+        
         /*otherProfileView. otherProfileTopView.setBtn.addTarget(self, action: #selector(setBtnDidTap), for: .touchUpInside)
         
         let setBtnDidTap = UITapGestureRecognizer(target: self, action: #selector(viewDidTap))
@@ -121,12 +143,20 @@ class OtherProfileViewController: UIViewController {
         }
     }
     
+    @objc private func userImageTapped() {
+        let otherImageVC = OtherImageViewController()
+        otherImageVC.profileData = self.profileData
+        navigationController?.pushViewController(otherImageVC, animated: true)
+    }
+    
     private func getProfileInfo() {
         provider.request(.getOtherProfile(memberId: 1, page: 0)) { result in
             switch result {
             case .success(let response):
                 let response = try? response.map(ApiResponse<OtherProfileData>.self)
                 guard let profile = response?.result else { return }
+                self.profileData = profile
+                print("다른 사람 정보 : \(profile)")
                 
                 // OtherPageTopView에 데이터 반영
                 DispatchQueue.main.async {

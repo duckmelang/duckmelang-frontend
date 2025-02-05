@@ -98,9 +98,11 @@ class OtherProfileTopView: UIView {
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
-    private lazy var profileImage = UIImageView().then {
+    lazy var profileImage = UIImageView().then {
         $0.image = .profile
-        $0.layer.cornerRadius = $0.frame.height/2
+        $0.contentMode = .scaleAspectFill
+        $0.layer.cornerRadius = 64/2
+        $0.clipsToBounds = true
     }
     
     private lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 17), color: .black)
