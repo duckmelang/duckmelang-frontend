@@ -12,11 +12,11 @@ import SnapKit
 class HomeView: UIView {
 
     //FIXME: - 동적 데이터 바인딩으로 바꿔야됨
-    let celebs = Celeb.sampleCelebs
+    let celebs = Celeb.dummy1()
 
     // 아이돌 이름 Label
     let celebNameLabel = UILabel().then {
-        $0.text = "아이돌 이름"
+        $0.text = Celeb.dummy1().first?.name ?? "아이돌 이름"
         $0.font = .aritaSemiBoldFont(ofSize: 18)
         $0.isUserInteractionEnabled = true // 터치 가능하도록 설정
     }
@@ -42,6 +42,13 @@ class HomeView: UIView {
         button.tintColor = .black
         return button
     }()
+    
+    lazy var postsTableView = UITableView().then {
+        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 106
+        $0.isHidden = true
+    }
 
     // 글쓰기 버튼
     let writeButton = smallFilledCustomBtn(title: "글쓰기")
@@ -57,11 +64,17 @@ class HomeView: UIView {
     }
 
     private func setupView() {
-        addSubview(chevronIcon)
-        addSubview(celebNameLabel)
-        addSubview(bellIcon)
-        addSubview(findIcon)
-        addSubview(writeButton)
+        
+        [
+            chevronIcon,
+            celebNameLabel,
+            bellIcon,
+            findIcon,
+            postsTableView,
+            writeButton
+        ].forEach {
+            addSubview($0)
+        }
 
         chevronIcon.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(20)
@@ -71,11 +84,11 @@ class HomeView: UIView {
         
         celebNameLabel.snp.makeConstraints {
             $0.leading.equalTo(chevronIcon.snp.trailing).offset(8)
-            $0.top.equalTo(safeAreaLayoutGuide.snp.top)
+            $0.top.equalToSuperview().offset(65)
         }
         
         // 아이콘 컨테이너 뷰 생성
-        let iconStackView = UIStackView(arrangedSubviews: [findIcon, bellIcon])
+        let iconStackView = UIStackView(arrangedSubviews: [bellIcon, findIcon])
         iconStackView.axis = .horizontal
         iconStackView.spacing = 16 // 아이콘 간 간격 조절
 
@@ -90,6 +103,11 @@ class HomeView: UIView {
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).offset(-20)
             $0.height.equalTo(44)
+        }
+        
+        postsTableView.snp.makeConstraints {
+            $0.top.equalTo(celebNameLabel.snp.bottom).offset(12)
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
     }
     //Chevron 아이콘 업데이트 함수

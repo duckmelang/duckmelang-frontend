@@ -1,5 +1,7 @@
 # Xcode user-specific files
-/*.xcuserstate
+*.xcuserstate
+**/*.xcuserstate
+xcuserdata/**/*.xcuserstate
 xcschemes/xcschememanagement.plist
 
 # macOS system files

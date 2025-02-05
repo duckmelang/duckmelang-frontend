@@ -18,7 +18,7 @@ class MessageView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var topView = TopMessageView(isMyFirstMessage: true)
+    let topMessageView = TopMessageView(isReview: true, isMyFirstMessage: false)
     
     let messageCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
         $0.estimatedItemSize = .init(width: 375, height: 58)
@@ -37,30 +37,30 @@ class MessageView: UIView {
         )
     }
     
-    let bottomView = BottomMessageView()
+    let bottomMessageView = BottomMessageView()
     
     private func setupView() {
         [
-            topView,
+            topMessageView,
             messageCollectionView,
-            bottomView,
+            bottomMessageView,
         ].forEach {
             addSubview($0)
         }
         
-        topView.snp.makeConstraints {
+        topMessageView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(-5)
             $0.leading.equalToSuperview().offset(16)
             $0.trailing.equalToSuperview().offset(-16)
         }
         
         messageCollectionView.snp.makeConstraints {
-            $0.top.equalTo(topView.snp.bottom).offset(5)
+            $0.top.equalTo(topMessageView.snp.bottom).offset(5)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(bottomView.snp.top)
+            $0.bottom.equalTo(bottomMessageView.snp.top)
         }
         
-        bottomView.snp.makeConstraints {
+        bottomMessageView.snp.makeConstraints {
             $0.bottom.equalTo(safeAreaLayoutGuide)
             $0.leading.equalToSuperview().offset(-5)
             $0.trailing.equalToSuperview().offset(5)

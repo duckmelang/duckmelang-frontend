@@ -7,97 +7,139 @@
 
 import UIKit
 
+protocol WriteViewControllerDelegate: AnyObject {
+    func didUpdateSelectedCeleb(_ celeb: Celeb?)
+}
+
 class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDelegate, EventSelectionDelegate {
 
-    private var selectedCeleb: Celeb? // 선택된 아이돌 정보
-    private var selectedEvent: Event? // 선택된 이벤트 정보
+    weak var delegate: WriteViewControllerDelegate?
+    
+    private var selectedCeleb: Celeb?
+    private var selectedEvent: Event?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = writeView
-        self.title = "글쓰기"
-        
-        writeView.delegate = self
-        configureNavigationBar()
+        self.navigationController?.isNavigationBarHidden = false
+        setupNavigationBar()
     }
     
     private lazy var writeView: WriteView = {
         let view = WriteView()
+        
         view.delegate = self
+        view.idolSelectButton.addTarget(self, action: #selector(didTapIdolSelectButton), for: .touchUpInside)
+        view.eventTypeSelectButton.addTarget(self, action: #selector(didTapEventTypeSelectButton), for: .touchUpInside)
+        view.eventDateSelectButton.addTarget(self, action: #selector(didTapEventDateSelectButton), for: .touchUpInside)
+        
         return view
     }()
     
+    private func setupNavigationBar() {
+        self.navigationController?.navigationBar.backgroundColor = .white
+        self.navigationItem.title = "글쓰기"
+        self.navigationController?.navigationBar.titleTextAttributes = [
+            NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)
+        ]
+        
+        let leftBarButton = UIBarButtonItem(
+            image: UIImage(named: "back"),
+            style: .plain,
+            target: self,
+            action: #selector(goBack)
+        )
+        leftBarButton.tintColor = .grey600
+        self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
+    }
+    
+    @objc private func goBack() {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    // HomeViewController에 selectedCeleb 값 전달
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        let appearance = UINavigationBarAppearance()
-        appearance.backgroundColor = .white // 원래 HomeViewController의 네비게이션 바 색상
-        appearance.shadowColor = .clear
-        appearance.titleTextAttributes = [
-            NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)
-        ]
-        
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        navigationController?.navigationBar.compactAppearance = appearance
+        if self.isMovingFromParent {
+            delegate?.didUpdateSelectedCeleb(selectedCeleb)
+        }
     }
-    
-    private func configureNavigationBar() {
-        let appearance = UINavigationBarAppearance()
-        appearance.backgroundColor = .grey200
-        appearance.shadowColor = .clear
-        appearance.titleTextAttributes = [
-            NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)
-        ]
-        
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        navigationController?.navigationBar.compactAppearance = appearance
-    }
-    
-    // MARK: - WriteViewDelegate (선택 버튼 클릭)
-    func didTapIdolSelectButton() {
+
+    @objc func didTapIdolSelectButton() {
         let selectVC = CelebSelectionViewController(
-            celebs: Celeb.sampleCelebs, // 샘플 아이돌 목록 사용
+            celebs: Celeb.dummy1(),
             selectedCeleb: selectedCeleb
         )
         selectVC.delegate = self
-        selectVC.modalPresentationStyle = .pageSheet
-        
-        if let sheet = selectVC.sheetPresentationController {
-            sheet.prefersGrabberVisible = true
-            sheet.detents = [.medium(), .large()]
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-        }
-        
-        present(selectVC, animated: true)
+        presentBottomSheet(selectVC)
     }
     
-    func didTapeventTypeSelectButton() {
+    @objc func didTapEventTypeSelectButton() {
         let selectVC = EventSelectionViewController(
-            selectedEvent: selectedEvent // 선택된 이벤트 전달
+            selectedEvent: selectedEvent
         )
         selectVC.delegate = self
-        selectVC.modalPresentationStyle = .pageSheet
-        
-        if let sheet = selectVC.sheetPresentationController {
+        presentBottomSheet(selectVC)
+    }
+    
+    @objc func didTapEventDateSelectButton() {
+        showDatePicker()
+    }
+    
+    private func presentBottomSheet(_ viewController: UIViewController) {
+        viewController.modalPresentationStyle = .pageSheet
+        if let sheet = viewController.sheetPresentationController {
             sheet.prefersGrabberVisible = true
             sheet.detents = [.medium(), .large()]
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
         }
+        present(viewController, animated: true)
+    }
+    
+    private func showDatePicker() {
+        let alertController = UIAlertController(title: "날짜 선택", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .alert)
         
-        present(selectVC, animated: true)
-    }
-    
-    // MARK: - CelebSelectionDelegate (아이돌 선택 완료)
-    func didSelectCeleb(_ celeb: Celeb) {
-        selectedCeleb = celeb // 선택된 아이돌 정보 업데이트
-        writeView.updateSelectedCeleb(celeb) // WriteView에 반영
-    }
-    
-    // MARK: - EventSelectionDelegate (이벤트 선택 완료)
-        func didSelectEvent(_ event: Event) {
-            selectedEvent = event // 선택된 이벤트 정보 업데이트
-            writeView.updateSelectedEvent(event) // WriteView에 반영하는 함수 추가
+        let datePicker = UIDatePicker()
+        datePicker.datePickerMode = .date
+        datePicker.preferredDatePickerStyle = .wheels
+        datePicker.locale = Locale(identifier: "ko_KR")
+        datePicker.frame = CGRect(x: 10, y: 50, width: 260, height: 150)
+
+        alertController.view.addSubview(datePicker)
+
+        let selectAction = UIAlertAction(title: "확인", style: .default) { _ in
+            self.updateSelectedDate(datePicker.date)
         }
+
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+
+        alertController.addAction(selectAction)
+        alertController.addAction(cancelAction)
+
+        present(alertController, animated: true)
+    }
+
+    private func updateSelectedDate(_ date: Date) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy년 MM월 dd일"
+        let selectedDate = dateFormatter.string(from: date)
+
+        writeView.eventDateSelectButton.setTitle(selectedDate, for: .normal)
+        writeView.eventDateSelectButton.setTitleColor(.black, for: .normal)
+        writeView.eventDateSelectButton.layer.borderColor = UIColor.black!.cgColor
+    }
+
+    func didSelectCeleb(_ celeb: Celeb) {
+        selectedCeleb = celeb
+        writeView.idolSelectButton.setTitle(celeb.name, for: .normal)
+        writeView.idolSelectButton.setTitleColor(.black, for: .normal)
+        writeView.idolSelectButton.layer.borderColor = UIColor.black!.cgColor
+    }
+    
+    func didSelectEvent(_ event: Event) {
+        selectedEvent = event
+        writeView.eventTypeSelectButton.setTitle(event.tag.rawValue, for: .normal)
+        writeView.eventTypeSelectButton.setTitleColor(.black, for: .normal)
+        writeView.eventTypeSelectButton.layer.borderColor = UIColor.black!.cgColor
+    }
 }

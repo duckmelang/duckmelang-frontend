@@ -29,4 +29,25 @@ extension PostModel {
             PostModel(postImage: UIImage(), postTitle: "게시글 제목", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "내 닉네임", postTime: "몇분 전"),
         ]
     }
+    static func dummyBlackPink() -> [PostModel] {
+        return [
+            PostModel(postImage: UIImage(), postTitle: "블랙핑크", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "유저네임", postTime: "몇분 전"),
+            PostModel(postImage: UIImage(), postTitle: "블랙핑크", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "유저네임", postTime: "몇분 전"),
+            PostModel(postImage: UIImage(), postTitle: "블랙핑크", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "유저네임", postTime: "몇분 전")
+        ]
+    }
+    static func dummyRiize() -> [PostModel] {
+        return [
+            PostModel(postImage: UIImage(), postTitle: "라이즈", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "유저네임", postTime: "몇분 전"),
+            PostModel(postImage: UIImage(), postTitle: "라이즈", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "유저네임", postTime: "몇분 전"),
+        ]
+    }
+    static func dummyNewJeans() -> [PostModel] {
+        return [
+            PostModel(postImage: UIImage(), postTitle: "뉴진스", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "유저네임", postTime: "몇분 전"),
+            PostModel(postImage: UIImage(), postTitle: "뉴진스", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "유저네임", postTime: "몇분 전"),
+            PostModel(postImage: UIImage(), postTitle: "뉴진스", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "유저네임", postTime: "몇분 전"),
+            PostModel(postImage: UIImage(), postTitle: "뉴진스", EventType: "행사 종류", EventDate: "행사 날짜", userImage: UIImage(), userName: "유저네임", postTime: "몇분 전")
+        ]
+    }
 }

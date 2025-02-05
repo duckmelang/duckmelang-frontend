@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Then
 
 class OnBoardingView: UIView {
 
@@ -40,15 +41,21 @@ class OnBoardingView: UIView {
         return label
     }()
     
-    //FIXME: - 개발 종료 후 원상복구
-//    private lazy var logoImageView: UIImageView = {
-//        return createImageView(named: "logo_yellow")
-//    }()
     
-    public lazy var logoImageView: UIImageView = {
-        let imageView = createImageView(named: "logo_yellow")
-        imageView.isUserInteractionEnabled = true
-        return imageView
+    private lazy var logoImageView: UIImageView = {
+        return createImageView(named: "logo_yellow")
+    }()
+    
+    //FIXME: - 개발 종료 후 gohome 지우기 1
+    public lazy var goHome: UIButton = {
+        let button = createButton(
+            title: " 홈화면 연결통로",
+            titleColor: .black!,
+            backgroundColor: .mainColor!,
+            iconName: nil,
+            borderColor: .grey300!
+        )
+        return button
     }()
     
     public lazy var kakaoLoginButton: UIButton = {
@@ -56,13 +63,36 @@ class OnBoardingView: UIView {
             title: "카카오톡으로 시작하기",
             titleColor: .black!,
             backgroundColor: .kakaoYellow!,
-            iconName: "kakaoLogo"
+            iconName: "kakaoLogo",
+            borderColor: .clear
         )
         
         return button
     }()
     
-    //TODO: 구글로 시작하기, 휴대폰번호로 시작하기 버튼 만들기
+    public lazy var googleLoginButton: UIButton = {
+        let button = createButton(
+            title: "구글로 시작하기",
+            titleColor: .black!,
+            backgroundColor: .white!,
+            iconName: "googleLogo",
+            borderColor: .grey300!
+        )
+        
+        return button
+    }()
+    
+    public lazy var phoneLoginButton: UIButton = {
+        let button = createButton(
+            title: "휴대폰 번호로 시작하기",
+            titleColor: .grey0!,
+            backgroundColor: .dmrBlue!,
+            iconName: nil,
+            borderColor: .clear
+        )
+        
+        return button
+    }()
     
     private lazy var signinLabel: UILabel = {
         let label = createLabel(
@@ -74,16 +104,20 @@ class OnBoardingView: UIView {
         return label
     }()
     
-    public lazy var loginButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("로그인", for: .normal)
-        button.setTitleColor(.dmrBlue!, for: .normal)
-        button.titleLabel?.font = UIFont.ptdBoldFont(ofSize: 14)
-        button.backgroundColor = .white
-        button.clipsToBounds = true
+    public lazy var loginButton = UIButton().then {
+        let title = "로그인"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .underlineStyle: NSUnderlineStyle.single.rawValue, // 밑줄 추가
+            .foregroundColor: UIColor.dmrBlue!, // 텍스트 색상
+            .font: UIFont.ptdSemiBoldFont(ofSize: 14) // 폰트 설정
+        ]
         
-        return button
-    }()
+        let attributedTitle = NSAttributedString(string: title, attributes: attributes)
+        $0.setAttributedTitle(attributedTitle, for: .normal)
+        
+        $0.backgroundColor = .white
+        $0.clipsToBounds = true
+    }
     
     
     //MARK: - Containers
@@ -113,10 +147,23 @@ class OnBoardingView: UIView {
     
     private lazy var loginBtnsContainer: UIView = {
         let view = UIView()
-        view.addSubviews(kakaoLoginButton, signinLabel)
-        //TODO: 구글로 시작하기, 휴대폰번호로 시작하기 붙이기
+        view.addSubviews(kakaoLoginButton, googleLoginButton, phoneLoginButton)
         kakaoLoginButton.snp.makeConstraints {
             $0.top.equalToSuperview()
+            $0.width.equalToSuperview()
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(40)
+        }
+        
+        googleLoginButton.snp.makeConstraints {
+            $0.top.equalTo(kakaoLoginButton.snp.bottom).offset(12)
+            $0.width.equalToSuperview()
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(40)
+        }
+        
+        phoneLoginButton.snp.makeConstraints {
+            $0.top.equalTo(googleLoginButton.snp.bottom).offset(12)
             $0.width.equalToSuperview()
             $0.centerX.equalToSuperview()
             $0.height.equalTo(40)
@@ -145,6 +192,8 @@ class OnBoardingView: UIView {
         self.backgroundColor = .white
         addSubviews(
             headerContainer,
+            //FIXME: - 개발 종료 후 gohome 지우기 2
+            goHome,
             loginBtnsContainer,
             signinContainer
         )
@@ -156,7 +205,16 @@ class OnBoardingView: UIView {
         headerContainer.snp.makeConstraints {
             $0.top.equalToSuperview().offset(236)
             $0.centerX.equalToSuperview()
-            $0.height.equalTo(165)
+            $0.width.equalToSuperview().inset(16)
+            $0.bottom.equalTo(logoImageView.snp.bottom)
+        }
+        
+        //FIXME: - 개발 종료 후 gohome 지우기 3
+        goHome.snp.makeConstraints{
+            $0.top.equalTo(headerContainer.snp.bottom).offset(15)
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(200)
+            $0.height.equalTo(40)
         }
         
         loginBtnsContainer.snp.makeConstraints {
@@ -191,41 +249,43 @@ class OnBoardingView: UIView {
         return label
     }
     
-    private func createButton(title: String, titleColor: UIColor, backgroundColor: UIColor, iconName: String? = nil) -> UIButton {
-        let button = UIButton()
-        button.backgroundColor = backgroundColor
-        button.layer.cornerRadius = 20
-        button.clipsToBounds = true
-        
-        // Create StackView for icon and title
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.spacing = 8 // 간격 설정
-        stackView.distribution = .equalCentering
-        
-        // Add Icon if available
-        if let iconName = iconName {
-            let imageView = createImageView(named: iconName)
-            imageView.contentMode = .scaleAspectFit
-            imageView.snp.makeConstraints { $0.size.equalTo(16) } // Icon 크기 설정
-            stackView.addArrangedSubview(imageView)
+    private func createButton(title: String, titleColor: UIColor, backgroundColor: UIColor, iconName: String? = nil, borderColor: UIColor = .clear) -> UIButton {
+            let button = UIButton()
+            button.backgroundColor = backgroundColor
+            button.layer.cornerRadius = 20
+            button.clipsToBounds = true
+
+            if borderColor != .clear {
+                button.layer.borderColor = borderColor.cgColor
+                button.layer.borderWidth = 1
+            }
+
+            let stackView = UIStackView()
+            stackView.axis = .horizontal
+            stackView.alignment = .center
+            stackView.spacing = 8
+            stackView.distribution = .fill
+            stackView.isUserInteractionEnabled = false
+
+            if let iconName = iconName {
+                let imageView = createImageView(named: iconName)
+                imageView.contentMode = .scaleAspectFit
+                imageView.snp.makeConstraints { $0.size.equalTo(16) }
+                stackView.addArrangedSubview(imageView)
+            }
+
+            let titleLabel = UILabel()
+            titleLabel.text = title
+            titleLabel.font = UIFont.ptdSemiBoldFont(ofSize: 14)
+            titleLabel.textColor = titleColor
+            titleLabel.textAlignment = .center
+            stackView.addArrangedSubview(titleLabel)
+
+            button.addSubview(stackView)
+            stackView.snp.makeConstraints { $0.center.equalToSuperview() }
+
+            return button
         }
-        
-        // Add Title
-        let titleLabel = UILabel()
-        titleLabel.text = title
-        titleLabel.font = UIFont.ptdBoldFont(ofSize: 14)
-        titleLabel.textColor = titleColor
-        titleLabel.textAlignment = .center
-        stackView.addArrangedSubview(titleLabel)
-        
-        // Add StackView to Button
-        button.addSubview(stackView)
-        stackView.snp.makeConstraints { $0.center.equalToSuperview() } // StackView 버튼 중앙 배치
-        
-        return button
-    }
     
 }
 

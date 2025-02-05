@@ -7,6 +7,7 @@
 
 import UIKit
 import Cosmos
+import Kingfisher
 
 class ProfileView: UIView {
     override init(frame: CGRect) {
@@ -23,6 +24,7 @@ class ProfileView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     
     private func addStack(){
         
@@ -58,6 +60,16 @@ class ProfileTopView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    var profileData: ProfileData? {
+        didSet {
+            if let profile = profileData {
+                updateProfile(with: profile)
+            }
+        }
+    }
+    
+    private lazy var myPageTopView = MyPageTopView()
+    
     lazy var backBtn = UIButton().then {
         $0.setImage(.back, for: .normal)
     }
@@ -72,12 +84,17 @@ class ProfileTopView: UIView {
     
     private lazy var profileImage = UIImageView().then {
         $0.image = .profile
-        $0.layer.cornerRadius = $0.frame.height/2
+        $0.layer.cornerRadius = 32
+        $0.clipsToBounds = true
     }
     
-    private lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 17), color: .black)
+    private lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 16), color: .grey800)
     
-    private let genderAndAgeStack = MyPageTopView().genderAndAgeStack
+    private lazy var gender = Label(text: "여성", font: .ptdMediumFont(ofSize: 13), color: .grey600)
+    
+    private lazy var line = Label(text: "ㅣ", font: .ptdMediumFont(ofSize: 13), color: .grey400)
+    
+    private lazy var age = Label(text: "나이", font: .ptdMediumFont(ofSize: 13), color: .grey600)
     
     private lazy var post = Label(text: "게시글", font: .ptdRegularFont(ofSize: 12), color: .grey700)
     
@@ -87,6 +104,7 @@ class ProfileTopView: UIView {
     
     private lazy var matchingCount = Label(text: "80", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
     
+    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1)
     private lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var postStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
     private lazy var matchingStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
@@ -109,6 +127,7 @@ class ProfileTopView: UIView {
     
     private func addStack(){
         [backBtn, myProfileTitle, setBtn].forEach{topStack.addArrangedSubview($0)}
+        [gender, line, age].forEach{genderAndAgeStack.addArrangedSubview($0)}
         [nickname, genderAndAgeStack].forEach{nicknameAndInfo.addArrangedSubview($0)}
         [post, postCount].forEach{postStack.addArrangedSubview($0)}
         [matching, matchingCount].forEach{matchingStack.addArrangedSubview($0)}
@@ -138,7 +157,7 @@ class ProfileTopView: UIView {
             $0.height.width.equalTo(68)
         }
         
-        nicknameAndInfo.snp.makeConstraints{
+       nicknameAndInfo.snp.makeConstraints{
             $0.centerY.equalToSuperview()
             $0.left.equalTo(profileImage.snp.right).offset(16)
         }
@@ -171,6 +190,24 @@ class ProfileTopView: UIView {
             $0.width.equalTo(96)
         }
     }
+    
+    func updateProfile(with data: ProfileData) {
+        nickname.text = data.nickname
+        gender.text = data.gender
+        age.text = "\(data.age)세"
+        
+        postCount.text = "\(data.postCount)"
+        matchingCount.text = "\(data.succeedApplicationCount)"
+        
+        if let url = URL(string: data.latestPublicMemberProfileImage) {
+            profileImage.kf.setImage(
+                with: url,
+                placeholder: UIImage(resource: .profile)
+            )
+        }
+    }
+    
+    
 }
 
 //세그먼트 컨트롤부터 아래부분
@@ -225,7 +262,7 @@ class ProfileBottomView: UIView {
     }
     
     lazy var cosmosView = CosmosView().then {
-        $0.rating = 4.8 // 평점
+        $0.rating = 0 // 평점
         $0.settings.updateOnTouch = false // 터치 비활성화 옵션
         $0.settings.fillMode = .precise // 별 채우기 모드 full(완전히), half(절반), precise(터치 및 입력한 곳까지 소수점으로)
         $0.settings.starSize = 25 // 별 크기

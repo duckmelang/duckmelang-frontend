@@ -8,6 +8,12 @@
 import UIKit
 
 class ConfirmPopupViewController: UIViewController {
+    weak var delegate: ModalDelegate?
+    
+    protocol ModalDelegate: AnyObject {
+        func hideConfirmBtn()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = confirmPopupViewController
@@ -29,13 +35,14 @@ class ConfirmPopupViewController: UIViewController {
     
     @objc private func leftBtnTap() {
         // TODO: 동행 취소시키기
-        print("취소")
+        print("동행 취소")
         closeModal()
     }
     
     @objc private func rightBtnTap() {
         // TODO: 동행 확정시키기
-        print("확정")
+        print("동행 확정")
+        delegate?.hideConfirmBtn()
         
         // 두 번째 팝업 생성 및 표시
         if let presentingVC = self.presentingViewController {

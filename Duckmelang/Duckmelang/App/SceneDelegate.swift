@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
         //MARK: - 초기 화면 연결
-        window?.rootViewController = SplashViewController()
+        window?.rootViewController = YellowSplashViewController()
         window?.makeKeyAndVisible()
     }
 
