@@ -27,6 +27,7 @@ class MyPageViewController: UIViewController {
         $0.myPageTopView.profileSeeBtn.addTarget(self, action: #selector(profileSeeBtnDidTap), for: .touchUpInside)
         $0.idolChange.addTarget(self, action: #selector(idolChangeDidTap), for: .touchUpInside)
         $0.xKeywordChange.addTarget(self, action: #selector(xKeywordDidTap), for: .touchUpInside)
+        $0.postFilterChange.addTarget(self, action: #selector(postFilterChangeDidTap), for: .touchUpInside)
         $0.login.addTarget(self, action: #selector(loginInfoDidTap), for: .touchUpInside)
         $0.push.addTarget(self, action: #selector(pushDidTap), for: .touchUpInside)
         $0.out.addTarget(self, action: #selector(outDidTap), for: .touchUpInside)
@@ -61,6 +62,13 @@ class MyPageViewController: UIViewController {
         let xKeywordChangeVC = UINavigationController(rootViewController: XKeywordChangeViewController())
         xKeywordChangeVC.modalPresentationStyle = .fullScreen
         present(xKeywordChangeVC, animated: false)
+    }
+    
+    @objc
+    private func postFilterChangeDidTap() {
+        let postFilterVC = UINavigationController(rootViewController: PostFilterViewController())
+        postFilterVC.modalPresentationStyle = .fullScreen
+        present(postFilterVC, animated: false)
     }
     
     @objc

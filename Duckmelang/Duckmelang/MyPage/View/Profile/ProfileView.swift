@@ -88,13 +88,13 @@ class ProfileTopView: UIView {
         $0.clipsToBounds = true
     }
     
-    private lazy var nickname = Label(text: "", font: .ptdSemiBoldFont(ofSize: 16), color: .grey800)
+    private lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 16), color: .grey800)
     
-    private lazy var gender = Label(text: "", font: .ptdMediumFont(ofSize: 13), color: .grey600)
+    private lazy var gender = Label(text: "여성", font: .ptdMediumFont(ofSize: 13), color: .grey600)
     
     private lazy var line = Label(text: "|", font: .ptdMediumFont(ofSize: 13), color: .grey400)
     
-    private lazy var age = Label(text: "", font: .ptdMediumFont(ofSize: 13), color: .grey600)
+    private lazy var age = Label(text: "나이", font: .ptdMediumFont(ofSize: 13), color: .grey600)
     
     private lazy var post = Label(text: "게시글", font: .ptdRegularFont(ofSize: 12), color: .grey700)
     

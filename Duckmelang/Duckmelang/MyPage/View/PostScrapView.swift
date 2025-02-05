@@ -8,4 +8,5 @@
 import UIKit
 
 class PostScrapView: UIView {
+    
 }
