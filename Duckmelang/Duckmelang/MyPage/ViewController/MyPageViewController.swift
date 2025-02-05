@@ -30,7 +30,15 @@ class MyPageViewController: UIViewController {
         $0.login.addTarget(self, action: #selector(loginInfoDidTap), for: .touchUpInside)
         $0.push.addTarget(self, action: #selector(pushDidTap), for: .touchUpInside)
         $0.out.addTarget(self, action: #selector(outDidTap), for: .touchUpInside)
+        $0.goBtn.addTarget(self, action: #selector(goBtnDidTap), for: .touchUpInside)
     }
+    
+    @objc private func goBtnDidTap() {
+        let postDetailVC = UINavigationController(rootViewController: PostDetailViewController())
+        postDetailVC.modalPresentationStyle = .fullScreen
+        present(postDetailVC, animated: true)
+    }
+    
     
     @objc private func profileSeeBtnDidTap() {
         let profileVC = ProfileViewController()

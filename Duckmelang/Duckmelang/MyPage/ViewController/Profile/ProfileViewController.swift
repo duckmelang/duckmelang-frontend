@@ -40,6 +40,7 @@ class ProfileViewController: UIViewController{
     }
 
     private lazy var profileView = ProfileView()
+    private lazy var postDetailView = PostDetailView()
     
     private func updateUI() {
         if let profile = profileData { //MyPage에서 전달받은 데이터 적용
