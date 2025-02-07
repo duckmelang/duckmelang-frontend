@@ -7,9 +7,9 @@
 
 import UIKit
 
-class PostRecommendedFilterCell: UICollectionViewCell {
+class XKeywordChangeCell: UICollectionViewCell {
     
-    static let identifier = "PostRecommendedFilterCell"
+    static let identifier = "XKeywordChangeCell"
     
     override init(frame: CGRect) {
         super.init(frame: frame)

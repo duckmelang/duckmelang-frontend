@@ -77,9 +77,9 @@ extension XKeywordChangeViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier:
-            PostRecommendedFilterCell.identifier,
+            XKeywordChangeCell.identifier,
             for: indexPath //행 식별위해 파라미터로 받음
-        ) as? PostRecommendedFilterCell else {
+        ) as? XKeywordChangeCell else {
                 return UICollectionViewCell()
         }
         
@@ -95,7 +95,7 @@ extension XKeywordChangeViewController: UICollectionViewDataSource {
 }
 
 extension XKeywordChangeViewController: UICollectionViewDelegate {
-    func didTapDeleteButton(cell: PostRecommendedFilterCell) {
+    func didTapDeleteButton(cell: XKeywordChangeCell) {
         // 클릭된 셀의 IndexPath를 가져옴
         guard let indexPath = xKeywordChangeView.xKeywordCollectionView.indexPath(for: cell) else { return }
         
@@ -110,7 +110,7 @@ extension XKeywordChangeViewController: UICollectionViewDelegate {
 }
 
 protocol PostRecommendedFilterCellDelegate: AnyObject {
-    func didTapDeleteButton(cell: PostRecommendedFilterCell)
+    func didTapDeleteButton(cell: XKeywordChangeCell)
 }
 
 

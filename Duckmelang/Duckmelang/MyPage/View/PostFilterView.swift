@@ -35,6 +35,17 @@ class PostFilterView: UIView {
         $0.backgroundColor = .clear
     }
     
+    var postFilterTableView = UITableView(frame: .zero, style: .plain).then {
+        $0.register(PostFilterCell.self, forCellReuseIdentifier: "PostFilterCell")
+        $0.register(GenderSelectionCell.self, forCellReuseIdentifier: "GenderSelectionCell")
+        $0.register(AgeSelectionCell.self, forCellReuseIdentifier: "AgeSelectionCell")
+        $0.backgroundColor = .white
+        $0.separatorStyle = .none
+        $0.allowsSelection = false
+        $0.estimatedRowHeight = 50
+        $0.sectionHeaderHeight = 44
+    }
+    
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
     private func addStack(){
@@ -42,12 +53,18 @@ class PostFilterView: UIView {
     }
     
     private func setupView(){
-        [topStack].forEach{addSubview($0)}
+        [topStack, postFilterTableView].forEach{addSubview($0)}
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(42)
+        }
+        
+        postFilterTableView.snp.makeConstraints{
+            $0.top.equalTo(topStack.snp.bottom).offset(24)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(400)
         }
     }
 }

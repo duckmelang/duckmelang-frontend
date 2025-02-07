@@ -51,7 +51,7 @@ class XKeywordChangeView: UIView {
         $0.itemSize = CGSize(width: 67, height: 38)
     }).then {
         $0.backgroundColor = .clear
-        $0.register(PostRecommendedFilterCell.self, forCellWithReuseIdentifier: PostRecommendedFilterCell.identifier)
+        $0.register(XKeywordChangeCell.self, forCellWithReuseIdentifier: XKeywordChangeCell.identifier)
     }
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)

@@ -15,6 +15,10 @@ public struct ProfileData: Codable {
     let introduction: String
     let postCount: Int
     let succeedApplicationCount: Int
+    
+    /*var localizedGender: String {
+        return gender.lowercased() == "male" ? "남성" : "여성"
+    }*/
 }
 
 // 리뷰 데이터 구조체
@@ -25,6 +29,10 @@ public struct myReviewDTO: Codable {
     let age: Int
     let content: String
     let score: Int
+    
+    /*var localizedGender: String {
+        return gender.lowercased() == "male" ? "남성" : "여성"
+    }*/
 }
 
 // API 응답 구조체 (리뷰 리스트 포함)
