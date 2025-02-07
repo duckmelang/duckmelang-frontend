@@ -108,7 +108,7 @@ extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
             }
             cell.contentView.addSubview(separator)
             separator.snp.makeConstraints {
-                $0.leading.trailing.equalToSuperview().inset(16)
+                $0.leading.trailing.equalToSuperview()
                 $0.bottom.equalToSuperview()
                 $0.height.equalTo(1)
             }
@@ -151,22 +151,20 @@ extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
             $0.tag = 100  //태그를 지정하여 구분선 숨김 처리 가능하게
         }
 
-        headerView.addSubview(label)
-        headerView.addSubview(toggleButton)
-        headerView.addSubview(separator)
-
+        [label, toggleButton, separator].forEach({headerView.addSubview($0)})
+        
         label.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(16)
+            $0.leading.equalToSuperview()
             $0.centerY.equalToSuperview()
         }
 
         toggleButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(16)
+            $0.trailing.equalToSuperview()
             $0.centerY.equalToSuperview()
         }
 
         separator.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.leading.trailing.equalToSuperview()
             $0.bottom.equalToSuperview()
             $0.height.equalTo(1)
         }
