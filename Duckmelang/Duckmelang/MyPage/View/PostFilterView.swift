@@ -62,7 +62,7 @@ class PostFilterView: UIView {
         }
         
         postFilterTableView.snp.makeConstraints{
-            $0.top.equalTo(topStack.snp.bottom).offset(24)
+            $0.top.equalTo(topStack.snp.bottom)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(400)
         }
