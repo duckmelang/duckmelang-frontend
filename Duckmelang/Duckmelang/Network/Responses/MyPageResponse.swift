@@ -40,3 +40,22 @@ public struct ReviewResponse: Codable {
     let average: Double
     let myReviewList: [myReviewDTO] //리뷰 목록
 }
+
+struct MyPostDetailResponse: Codable {
+    let nickname: String
+    let age: Int
+    let gender: String
+    let averageScore: Double
+    let bookmarkCount: Int
+    let viewCount: Int
+    let title: String
+    let content: String
+    let wanted: Int
+    let idol: [String]
+    let category: String
+    let date: String
+    let createdAt: String
+    let postImageURL: [String]
+    let latestPublicMemberProfileImage: String
+}
+

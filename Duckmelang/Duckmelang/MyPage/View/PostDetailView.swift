@@ -76,7 +76,43 @@ class PostDetailView: UIView {
         postDetailBottomView.snp.makeConstraints{
             $0.top.equalTo(postDetailTopView.profileInfo.snp.bottom).offset(16)
         }
+    }
+    
+    // **UI 업데이트 함수**
+    private func updateUI(with data: MyPostDetailResponse) {
+        // 이미지 로드 (첫 번째 이미지)
+        if let firstImageUrlString = data.postImageURL.first,
+           let imageUrl = URL(string: firstImageUrlString) {
+            loadImage(from: imageUrl, into: postDetailTopView.imageView)
+        }
         
+        // 상단 프로필 정보 업데이트
+        postDetailTopView.nickname.text = data.nickname
+        postDetailTopView.gender.text = (data.gender == "MALE") ? "남성" : "여성"
+        postDetailTopView.age.text = "\(data.age)세"
+        
+        // 하단 게시글 정보 업데이트
+        postDetailBottomView.title1.text = data.title
+        postDetailBottomView.body.text = data.content
+        postDetailBottomView.info.text = "스크랩 \(data.bookmarkCount) | 채팅 \(data.viewCount) | 조회 \(data.viewCount)"
+        
+        // 동행 정보 TableView에 데이터 리로드 (예시)
+        // postDetailBottomView.tableView.reloadData()
+    }
+    
+    // **이미지 로드 함수 (비동기)**
+    private func loadImage(from url: URL, into scrollView: UIScrollView) {
+        DispatchQueue.global().async {
+            if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    let imageView = UIImageView(image: image)
+                    imageView.contentMode = .scaleAspectFill
+                    imageView.clipsToBounds = true
+                    imageView.frame = scrollView.bounds
+                    scrollView.addSubview(imageView)
+                }
+            }
+        }
     }
 }
 
@@ -95,7 +131,7 @@ class PostDetailTopView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private lazy var imageView = UIScrollView().then {
+    lazy var imageView = UIScrollView().then {
         $0.backgroundColor = .grey200
         $0.isPagingEnabled = true
     }
@@ -111,11 +147,11 @@ class PostDetailTopView: UIView {
     
     lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 14), color: .black)
     
-    private lazy var gender = Label(text: "여성", font: .ptdRegularFont(ofSize: 13), color: .grey600)
+    lazy var gender = Label(text: "여성", font: .ptdRegularFont(ofSize: 13), color: .grey600)
     
     private lazy var line = Label(text: "ㅣ", font: .ptdRegularFont(ofSize: 13), color: .grey400)
     
-    private lazy var age = Label(text: "나이", font: .ptdRegularFont(ofSize: 13), color: .grey600)
+    lazy var age = Label(text: "나이", font: .ptdRegularFont(ofSize: 13), color: .grey600)
     
     lazy var progressBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
@@ -247,11 +283,11 @@ class PostDetailBottomView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var title1 = Label(text: "게시글 제목", font: .ptdSemiBoldFont(ofSize: 17), color: .grey900)
+    lazy var title1 = Label(text: "게시글 제목", font: .ptdSemiBoldFont(ofSize: 17), color: .grey900)
     
-    private lazy var body = Label(text: "본문 \n", font: .ptdRegularFont(ofSize: 15), color: .grey900)
+    lazy var body = Label(text: "본문 \n", font: .ptdRegularFont(ofSize: 15), color: .grey900)
     
-    private lazy var info = Label(text: "스크랩 0      | 채팅 0      | 조회 0 ", font: .ptdRegularFont(ofSize: 12), color: .grey500)
+    lazy var info = Label(text: "스크랩 0      | 채팅 0      | 조회 0 ", font: .ptdRegularFont(ofSize: 12), color: .grey500)
     private lazy var textStack = Stack(axis: .vertical, spacing: 8)
     
     private lazy var title2 = Label(text: "동행 정보", font: .ptdSemiBoldFont(ofSize: 17), color: .grey900)
@@ -286,4 +322,6 @@ class PostDetailBottomView: UIView {
             $0.height.equalTo(500)//수정예정
         }
     }
+    
+    
 }

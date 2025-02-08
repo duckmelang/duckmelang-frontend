@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Moya
 
 //버튼 상태
 enum PostProgressState {
@@ -21,6 +22,8 @@ class PostDetailViewController: UIViewController {
     
     private var currentState: PostProgressState = .inProgress
     
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -31,6 +34,8 @@ class PostDetailViewController: UIViewController {
         setupDelegate()
         
         updateButtonVisibility(state: .inProgress) // 초기 상태 설정
+        
+        fetchPostDetail(postId: 0)
     }
     
     private lazy var postDetailView = PostDetailView().then {
@@ -128,6 +133,27 @@ class PostDetailViewController: UIViewController {
     private func setupDelegate() {
         postDetailView.postDetailBottomView.tableView.delegate = self
         postDetailView.postDetailBottomView.tableView.dataSource = self
+    }
+    
+    private func fetchPostDetail(postId: Int) {
+        provider.request(.getMyPostDetail(postId: postId)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<MyPostDetailResponse>.self)
+                    if decodedResponse.isSuccess {
+                        // ✅ 성공 시 데이터 출력
+                        print("Post Detail: \(String(describing: decodedResponse.result))")
+                    } else {
+                        print("❌ 서버 에러: \(decodedResponse.message)")
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 실패: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ 요청 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

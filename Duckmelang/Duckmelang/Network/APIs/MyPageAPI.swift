@@ -20,6 +20,7 @@ public enum MyPageAPI {
     case patchProfile(memberId: Int, profileData: EditProfileRequest)
     case getMyPosts(memberId: Int)
     case getReviews(memberId: Int)
+    case getMyPostDetail(postId: Int)
 }
 
 extension MyPageAPI: TargetType {
@@ -27,6 +28,11 @@ extension MyPageAPI: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
+        case.getMyPostDetail:
+            guard let url = URL(string: API.postURL) else {
+                fatalError("mypageURL 오류")
+            }
+            return url
         default:
             guard let url = URL(string: API.mypageURL) else {
                 fatalError("mypageURL 오류")
@@ -48,6 +54,8 @@ extension MyPageAPI: TargetType {
             return "/posts"
         case .getReviews:
             return "/reviews"
+        case .getMyPostDetail(postId: let postId):
+            return "/\(postId)"
         }
     }
     
@@ -81,6 +89,8 @@ extension MyPageAPI: TargetType {
             )
         case .getReviews(memberId: let memberId), .getMyPosts(memberId: let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
+        case .getMyPostDetail(postId: _):
+            return .requestPlain
         }
     }
     
