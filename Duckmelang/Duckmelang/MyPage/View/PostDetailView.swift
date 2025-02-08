@@ -79,7 +79,7 @@ class PostDetailView: UIView {
     }
     
     // **UI 업데이트 함수**
-    private func updateUI(with data: MyPostDetailResponse) {
+    func updateUI(with data: MyPostDetailResponse) {
         // 이미지 로드 (첫 번째 이미지)
         if let firstImageUrlString = data.postImageURL.first,
            let imageUrl = URL(string: firstImageUrlString) {
@@ -101,7 +101,7 @@ class PostDetailView: UIView {
     }
     
     // **이미지 로드 함수 (비동기)**
-    private func loadImage(from url: URL, into scrollView: UIScrollView) {
+    func loadImage(from url: URL, into scrollView: UIScrollView) {
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
                 DispatchQueue.main.async {
