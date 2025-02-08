@@ -28,7 +28,9 @@ class MyPageView: UIView {
     
     lazy var idolChange = myPageBtn(text: "아이들 변경")
     
-    lazy var postRecommendChange = myPageBtn(text: "게시글 추천 필터 변경")
+    lazy var xKeywordChange = myPageBtn(text: "지뢰 키워드 변경")
+    
+    lazy var postFilterChange = myPageBtn(text: "게시글 필터링 변경")
     
     private lazy var setup = Label(text: "설정", font: .ptdSemiBoldFont(ofSize: 16), color: .black)
     
@@ -43,6 +45,11 @@ class MyPageView: UIView {
         config.attributedTitle = AttributedString("계정 탈퇴", attributes: AttributeContainer([.font: UIFont.ptdRegularFont(ofSize: 16), .foregroundColor: UIColor.errorPrimary!]))
         $0.configuration = config
     }
+    //아직 더미데이터가 없어서 내 게시글 보려면 이거 클릭해서 들어가야함
+    lazy var goBtn = UIButton().then {
+        $0.setTitle("go", for: .normal)
+        $0.setTitleColor(.black, for: .normal)
+    }
     
     private lazy var topBtnStack = Stack(axis: .vertical, spacing: 20)
     private lazy var bottomBtnStack = Stack(axis: .vertical, spacing: 20)
@@ -50,14 +57,14 @@ class MyPageView: UIView {
     private lazy var bottomStack = Stack(axis: .vertical, spacing: 22)
     
     private func addStack() {
-        [idolChange, postRecommendChange].forEach{topBtnStack.addArrangedSubview($0)}
+        [idolChange, xKeywordChange, postFilterChange].forEach{topBtnStack.addArrangedSubview($0)}
         [login, push, logout, out].forEach{bottomBtnStack.addArrangedSubview($0)}
         [myInfoChange, topBtnStack].forEach{topStack.addArrangedSubview($0)}
         [setup, bottomBtnStack].forEach{bottomStack.addArrangedSubview($0)}
     }
     
     private func setupView() {
-        [myPageTopView, topStack, bottomStack].forEach{addSubview($0)}
+        [myPageTopView, topStack, bottomStack, goBtn].forEach{addSubview($0)}
         
         myPageTopView.snp.makeConstraints{
             $0.height.equalTo(200)
@@ -81,6 +88,12 @@ class MyPageView: UIView {
         
         bottomBtnStack.snp.makeConstraints{
             $0.leading.equalToSuperview().inset(8)
+        }
+        
+        goBtn.snp.makeConstraints{
+            $0.top.equalTo(bottomStack.snp.bottom).offset(20)
+            $0.left.equalToSuperview()
+            $0.height.equalTo(24)
         }
     }
 }

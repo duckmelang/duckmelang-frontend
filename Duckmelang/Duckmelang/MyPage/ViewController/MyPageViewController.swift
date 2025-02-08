@@ -26,11 +26,20 @@ class MyPageViewController: UIViewController {
     private lazy var myPageView = MyPageView().then {
         $0.myPageTopView.profileSeeBtn.addTarget(self, action: #selector(profileSeeBtnDidTap), for: .touchUpInside)
         $0.idolChange.addTarget(self, action: #selector(idolChangeDidTap), for: .touchUpInside)
-        $0.postRecommendChange.addTarget(self, action: #selector(postRecommendDidTap), for: .touchUpInside)
+        $0.xKeywordChange.addTarget(self, action: #selector(xKeywordDidTap), for: .touchUpInside)
+        $0.postFilterChange.addTarget(self, action: #selector(postFilterChangeDidTap), for: .touchUpInside)
         $0.login.addTarget(self, action: #selector(loginInfoDidTap), for: .touchUpInside)
         $0.push.addTarget(self, action: #selector(pushDidTap), for: .touchUpInside)
         $0.out.addTarget(self, action: #selector(outDidTap), for: .touchUpInside)
+        $0.goBtn.addTarget(self, action: #selector(goBtnDidTap), for: .touchUpInside)
     }
+    
+    @objc private func goBtnDidTap() {
+        let postDetailVC = UINavigationController(rootViewController: PostDetailViewController())
+        postDetailVC.modalPresentationStyle = .fullScreen
+        present(postDetailVC, animated: true)
+    }
+    
     
     @objc private func profileSeeBtnDidTap() {
         let profileVC = ProfileViewController()
@@ -49,10 +58,17 @@ class MyPageViewController: UIViewController {
     }
     
     @objc
-    private func postRecommendDidTap() {
-        let PostRecommendedFilterVC = UINavigationController(rootViewController: PostRecommendedFilterViewController())
-        PostRecommendedFilterVC.modalPresentationStyle = .fullScreen
-        present(PostRecommendedFilterVC, animated: false)
+    private func xKeywordDidTap() {
+        let xKeywordChangeVC = UINavigationController(rootViewController: XKeywordChangeViewController())
+        xKeywordChangeVC.modalPresentationStyle = .fullScreen
+        present(xKeywordChangeVC, animated: false)
+    }
+    
+    @objc
+    private func postFilterChangeDidTap() {
+        let postFilterVC = UINavigationController(rootViewController: PostFilterViewController())
+        postFilterVC.modalPresentationStyle = .fullScreen
+        present(postFilterVC, animated: false)
     }
     
     @objc

@@ -7,9 +7,9 @@
 
 import UIKit
 
-class PostRecommendedFilterCell: UICollectionViewCell {
+class XKeywordChangeCell: UICollectionViewCell {
     
-    static let identifier = "PostRecommendedFilterCell"
+    static let identifier = "XKeywordChangeCell"
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -45,7 +45,7 @@ class PostRecommendedFilterCell: UICollectionViewCell {
         }
     }
     
-    public func configure(model: PostRecommendedFilterModel) {
+    public func configure(model: XKeywordChangeModel) {
         self.filter.text = model.filter
     }
 }

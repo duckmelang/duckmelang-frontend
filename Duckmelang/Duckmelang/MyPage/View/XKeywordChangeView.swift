@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PostRecommendedFilterChangeView: UIView {
+class XKeywordChangeView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
@@ -24,7 +24,7 @@ class PostRecommendedFilterChangeView: UIView {
         $0.setImage(.back, for: .normal)
     }
     
-    private lazy var postRecommendedFilterTitle = Label(text: "게시글 추천 필터 변경", font: .aritaSemiBoldFont(ofSize: 18), color: .black)
+    private lazy var xKeywordChangeTitle = Label(text: "지뢰 키워드 변경", font: .aritaSemiBoldFont(ofSize: 18), color: .black)
     
     lazy var finishBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
@@ -44,24 +44,24 @@ class PostRecommendedFilterChangeView: UIView {
         $0.setImage(.addBtn2, for: .normal)
     }
     
-    let recommendFilterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
+    let xKeywordCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
         $0.minimumLineSpacing = 16
         $0.minimumInteritemSpacing = 16
         $0.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         $0.itemSize = CGSize(width: 67, height: 38)
     }).then {
         $0.backgroundColor = .clear
-        $0.register(PostRecommendedFilterCell.self, forCellWithReuseIdentifier: PostRecommendedFilterCell.identifier)
+        $0.register(XKeywordChangeCell.self, forCellWithReuseIdentifier: XKeywordChangeCell.identifier)
     }
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
     private func addStack(){
-        [backBtn, postRecommendedFilterTitle, finishBtn].forEach{topStack.addArrangedSubview($0)}
+        [backBtn, xKeywordChangeTitle, finishBtn].forEach{topStack.addArrangedSubview($0)}
     }
     
     private func setupView(){
-        [topStack, searchBar, searchIcon, recommendFilterCollectionView].forEach{addSubview($0)}
+        [topStack, searchBar, searchIcon, xKeywordCollectionView].forEach{addSubview($0)}
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
@@ -81,7 +81,7 @@ class PostRecommendedFilterChangeView: UIView {
             $0.trailing.equalTo(searchBar.snp.trailing).inset(16)
         }
         
-        recommendFilterCollectionView.snp.makeConstraints{
+        xKeywordCollectionView.snp.makeConstraints{
             $0.top.equalTo(searchBar.snp.bottom).offset(22)
             $0.leading.equalToSuperview().inset(16)
             $0.trailing.greaterThanOrEqualToSuperview().inset(16)

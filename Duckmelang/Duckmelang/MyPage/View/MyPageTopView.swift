@@ -46,8 +46,8 @@ class MyPageTopView: UIView {
     lazy var nickname = Label(text: "닉네임", font: .ptdMediumFont(ofSize: 16), color: .black)
     
     private lazy var gender = Label(text: "여성", font: .ptdRegularFont(ofSize: 13), color: .grey600)
-    
-    private lazy var line = Label(text: "ㅣ", font: .ptdRegularFont(ofSize: 13), color: .grey400)
+
+    private lazy var line = Label(text: "|", font: .ptdMediumFont(ofSize: 13), color: .grey400)
     
     private lazy var age = Label(text: "나이", font: .ptdRegularFont(ofSize: 13), color: .grey600)
     
@@ -60,7 +60,7 @@ class MyPageTopView: UIView {
         $0.configuration = config
     }
 
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1)
+    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 2)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var profileInfo = Stack(axis: .horizontal, spacing: 12, alignment: .center)
     
@@ -100,7 +100,7 @@ class MyPageTopView: UIView {
     func updateProfile(with data: ProfileData) {
         nickname.text = data.nickname
         gender.text = data.gender
-        age.text = "\(data.age)세"
+        age.text = "\(data.age)"
         
         //Kingfisher로 이미지 로딩 (URL이 유효한 경우만)
         if let url = URL(string: data.latestPublicMemberProfileImage) {
