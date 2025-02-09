@@ -89,26 +89,42 @@ class FeedManagementViewController: UIViewController {
     
     // 내 게시글 가져오기
     private func fetchMyPosts() {
-        provider.request(.getMyPosts(memberId: 1)) { result in
+        provider.request(.getMyPosts(memberId: 1, page: 1)) { result in
             switch result {
             case .success(let response):
+                print("📌 [DEBUG] HTTP 상태 코드: \(response.statusCode)")  // 상태 코드 출력
+                print("📌 [DEBUG] 응답 헤더: \(response.response?.allHeaderFields ?? [:])")  // 응답 헤더 출력
+                
                 do {
                     let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
-                    //디버깅용 데이터 출력 (서버 응답 확인)
-                    print("📌 [DEBUG] 서버 응답 데이터:")
-                    print(decodedResponse)
+                    
+                    // 📌 성공 시 응답 데이터 출력
+                    print("✅ [DEBUG] 성공적으로 디코딩됨: \(decodedResponse)")
+
                     // `postList`가 `nil`이면 빈 배열을 할당하여 오류 방지
                     let postList = decodedResponse.result?.postList ?? []
-                    
+
                     DispatchQueue.main.async {
                         self.posts = postList
-                        self.feedManagementView.postView.reloadData() // 테이블뷰 갱신
+                        self.feedManagementView.postView.reloadData()  // 테이블뷰 갱신
                     }
                 } catch {
-                    print("JSON 디코딩 오류: \(error.localizedDescription)")
+                    // ❌ JSON 디코딩 오류 세부 정보 출력
+                    print("❌ [DEBUG] JSON 디코딩 오류: \(error.localizedDescription)")
+                    if let responseString = String(data: response.data, encoding: .utf8) {
+                        print("📌 [DEBUG] 응답 바디: \(responseString)")  // 응답 바디 확인
+                    }
                 }
+
             case .failure(let error):
-                print("게시글 불러오기 실패: \(error.localizedDescription)")
+                // ❌ 요청 실패 시 오류 메시지와 기타 정보 출력
+                print("❌ [DEBUG] 요청 실패: \(error.localizedDescription)")
+                if let response = error.response {
+                    print("📌 [DEBUG] 상태 코드: \(response.statusCode)")
+                    if let responseString = String(data: response.data, encoding: .utf8) {
+                        print("📌 [DEBUG] 응답 바디: \(responseString)")
+                    }
+                }
             }
         }
     }

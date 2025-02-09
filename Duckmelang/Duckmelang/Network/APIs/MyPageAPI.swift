@@ -18,7 +18,7 @@ public enum MyPageAPI {
     case getProfileImage(memberId: Int, page: Int)
     case getProfile(memberId: Int)
     case patchProfile(memberId: Int, profileData: EditProfileRequest)
-    case getMyPosts(memberId: Int)
+    case getMyPosts(memberId: Int, page: Int)
     case getReviews(memberId: Int)
     case getMyPostDetail(postId: Int)
 }
@@ -87,8 +87,10 @@ extension MyPageAPI: TargetType {
                 bodyEncoding: JSONEncoding.default,
                 urlParameters: ["memberId": memberId] // Query Parameter로 전송
             )
-        case .getReviews(memberId: let memberId), .getMyPosts(memberId: let memberId):
+        case .getReviews(memberId: let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
+        case .getMyPosts(let memberId, let page):
+            return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
         case .getMyPostDetail(postId: _):
             return .requestPlain
         }
