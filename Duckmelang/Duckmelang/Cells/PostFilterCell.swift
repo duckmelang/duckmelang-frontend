@@ -90,7 +90,9 @@ class AgeSelectionCell: UITableViewCell {
         $0.upperValue = 28
     }
     
-    private let ageLabel = Label(text: "만 18 ~ 28세", font: .ptdSemiBoldFont(ofSize: 22), color: .grey800)
+    private let ageLabel = Label(text: "만 18 ~ 28세", font: .ptdSemiBoldFont(ofSize: 22), color: .grey800).then {
+        $0.textAlignment = .left
+    }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -100,6 +102,7 @@ class AgeSelectionCell: UITableViewCell {
         
         ageLabel.snp.makeConstraints {
             $0.top.leading.equalToSuperview().inset(16)
+            $0.width.greaterThanOrEqualTo(200)
         }
         
         rangeSlider.snp.makeConstraints {

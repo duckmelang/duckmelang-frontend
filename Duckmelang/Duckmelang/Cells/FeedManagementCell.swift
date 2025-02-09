@@ -135,4 +135,22 @@ class FeedManagementCell: UITableViewCell {
             for: .normal
         )
     }
+    
+    public func configure(model: PostDTO) {
+        if let postImageUrl = URL(string: model.postImageUrl) {
+            self.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage(named: "defaultPostImage"))
+        }
+        
+        self.postTitle.text = model.title
+        self.EventTypeDate.text = "\(model.category) | \(model.date)"
+        
+        if let userImageUrl = URL(string: model.latestPublicMemberProfileImage) {
+            self.userImage.kf.setImage(with: userImageUrl, placeholder: UIImage(named: "defaultUserImage"))
+        }
+        
+        self.userName.text = model.nickname
+        
+        print("📌 [DEBUG] PostCell configure() 호출됨")
+        print("📌 postId: \(model.postId), title: \(model.title)")
+    }
 }

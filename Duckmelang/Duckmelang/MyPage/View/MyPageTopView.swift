@@ -99,7 +99,7 @@ class MyPageTopView: UIView {
     //UI 업데이트 함수 추가
     func updateProfile(with data: ProfileData) {
         nickname.text = data.nickname
-        gender.text = data.gender
+        gender.text = data.localizedGender
         age.text = "\(data.age)"
         
         //Kingfisher로 이미지 로딩 (URL이 유효한 경우만)

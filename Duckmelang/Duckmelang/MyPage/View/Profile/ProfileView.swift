@@ -193,7 +193,7 @@ class ProfileTopView: UIView {
     
     func updateProfile(with data: ProfileData) {
         nickname.text = data.nickname
-        gender.text = data.gender
+        gender.text = data.localizedGender
         age.text = "\(data.age)"
         
         postCount.text = "\(data.postCount)"
