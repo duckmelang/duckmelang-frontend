@@ -85,40 +85,7 @@ class OtherProfileViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(userImageTapped))
         otherProfileView.otherProfileTopView.profileImage.isUserInteractionEnabled = true
         otherProfileView.otherProfileTopView.profileImage.addGestureRecognizer(tapGesture)
-        
-        /*otherProfileView. otherProfileTopView.setBtn.addTarget(self, action: #selector(setBtnDidTap), for: .touchUpInside)
-        
-        let setBtnDidTap = UITapGestureRecognizer(target: self, action: #selector(viewDidTap))
-        setBtnDidTap.numberOfTapsRequired = 1 // 단일 탭, 횟수 설정
-        profileView.addGestureRecognizer(setBtnDidTap)
-        
-        let feedManagementDidTap = UITapGestureRecognizer(target: self, action: #selector(handleImageTap(_:)))
-        profileView.profileTopView.setBtnImage.addGestureRecognizer(feedManagementDidTap)*/
     }
-    
-    /*@objc private func handleImageTap(_ sender: UITapGestureRecognizer) {
-        guard let tappedView = sender.view else { return }
-        
-        // 터치한 위치 가져오기
-        let touchPoint = sender.location(in: tappedView)
-        
-        // 이미지를 절반으로 나누기
-        let halfHeight = tappedView.bounds.height / 2
-        
-        if touchPoint.y <= halfHeight {
-            // 윗부분 터치
-            let profileModifyVC = UINavigationController(rootViewController: ProfileModifyViewController())
-            profileModifyVC.modalPresentationStyle = .fullScreen
-            present(profileModifyVC, animated: false)
-            profileView.profileTopView.setBtnImage.isHidden = true
-        } else {
-            // 아랫부분 터치
-            let feedVC = UINavigationController(rootViewController: FeedManagementViewController())
-            feedVC.modalPresentationStyle = .fullScreen
-            present(feedVC, animated: false)
-            profileView.profileTopView.setBtnImage.isHidden = true
-        }
-    }*/
     
     @objc private func segmentedControlValueChanged(segment: UISegmentedControl) {
         if segment.selectedSegmentIndex == 0 {
@@ -126,13 +93,11 @@ class OtherProfileViewController: UIViewController {
             otherProfileView.otherProfileBottomView.reviewTableView.isHidden = true
             otherProfileView.otherProfileBottomView.cosmosView.isHidden = true
             otherProfileView.otherProfileBottomView.cosmosStack.isHidden = true
-            getOtherPosts()
         } else {
             otherProfileView.otherProfileBottomView.uploadPostView.isHidden = true
             otherProfileView.otherProfileBottomView.reviewTableView.isHidden = false
             otherProfileView.otherProfileBottomView.cosmosView.isHidden = false
             otherProfileView.otherProfileBottomView.cosmosStack.isHidden = false
-            getOtherReviews()
         }
         
         let width = otherProfileView.otherProfileBottomView.segmentedControl.frame.width / CGFloat(otherProfileView.otherProfileBottomView.segmentedControl.numberOfSegments)
@@ -154,6 +119,7 @@ class OtherProfileViewController: UIViewController {
             switch result {
             case .success(let response):
                 let response = try? response.map(ApiResponse<OtherProfileData>.self)
+                print(response)
                 guard let profile = response?.result else { return }
                 self.profileData = profile
                 print("다른 사람 정보 : \(profile)")
@@ -163,7 +129,7 @@ class OtherProfileViewController: UIViewController {
                     self.updateUI(profile)
                 }
             case .failure(let error):
-                print(" 프로필 불러오기 실패: \(error.localizedDescription)")
+                print("프로필 불러오기 실패: \(error.localizedDescription)")
             }
         }
     }
