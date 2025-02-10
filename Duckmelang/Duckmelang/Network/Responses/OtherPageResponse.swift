@@ -7,13 +7,14 @@
 
 //프로필 정보 담는 구조체
 public struct OtherProfileData: Codable {
+    let memberId: Int
     let nickname: String
     let gender: String
     let age: Int
+    let latestPublicMemberProfileImage: String
     let introduction: String
-    let profileImageUrl: String
-    let postCnt: Int
-    let matchCnt: Int
+    let postCount: Int
+    let matchCount: Int
 }
 
 // 전체 프로필 이미지 받아오는 구조체

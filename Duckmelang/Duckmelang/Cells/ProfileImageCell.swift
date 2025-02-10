@@ -120,12 +120,18 @@ class ProfileImageCell: UITableViewCell {
     }
     
     public func configure(profileData: OtherProfileData, model: OtherImageData) {
-        if let lastestUserImageUrl = URL(string: profileData.profileImageUrl) {
-            self.userImage.kf.setImage(with: lastestUserImageUrl, placeholder: UIImage())
+        if let lastestUserImageUrl = URL(string: profileData.latestPublicMemberProfileImage) {
+            self.userImage.kf.setImage(
+                with: lastestUserImageUrl,
+                placeholder: UIImage()
+            )
         }
         
         if let userImageUrl = URL(string: model.memberProfileImageUrl) {
-            self.largeUserImage.kf.setImage(with: userImageUrl, placeholder: UIImage())
+            self.largeUserImage.kf.setImage(
+                with: userImageUrl,
+                placeholder: UIImage()
+            )
         }
         
         self.userName.text = "\(profileData.nickname) 님의 프로필 사진"
