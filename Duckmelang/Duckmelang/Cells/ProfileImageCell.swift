@@ -133,8 +133,10 @@ class ProfileImageCell: UITableViewCell {
     }
     
     private func formatDate(_ isoDateString: String) -> String {
+        var formattedDate: String = ""
+        
         let inputFormatter = DateFormatter()
-        inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        inputFormatter.dateFormat = "yyyy-MM-dd HH:mm"
         inputFormatter.locale = Locale(identifier: "ko_KR")
         inputFormatter.timeZone = TimeZone.current
 
@@ -143,26 +145,11 @@ class ProfileImageCell: UITableViewCell {
             outputFormatter.locale = Locale(identifier: "ko_KR")
             outputFormatter.dateFormat = "yyyy년 MM월 dd일"
 
-            let formattedDate = outputFormatter.string(from: date)
-            print(formattedDate)
-            return formattedDate
+            formattedDate = outputFormatter.string(from: date)
         } else {
-            let inputFormatter = DateFormatter()
-            inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            inputFormatter.locale = Locale(identifier: "ko_KR")
-            inputFormatter.timeZone = TimeZone.current
-            
-            if let date = inputFormatter.date(from: isoDateString) {
-                let outputFormatter = DateFormatter()
-                outputFormatter.locale = Locale(identifier: "ko_KR")
-                outputFormatter.dateFormat = "yyyy년 MM월 dd일"
-                
-                let formattedDate = outputFormatter.string(from: date)
-                print(formattedDate)
-                return formattedDate
-            }
+            formattedDate = "날짜 없음"
         }
         
-        return "날짜 없음"
+        return formattedDate
     }
 }
