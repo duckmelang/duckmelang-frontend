@@ -114,22 +114,51 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     }
 }
 
-extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         return data.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        // TODO: 메세지의 날짜가 달라지면 상단에 날짜가 표시되게
-        let messageDate = data[indexPath.item]
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        viewForSupplementaryElementOfKind kind: String,
+                        at indexPath: IndexPath) -> UICollectionReusableView {
+        guard kind == UICollectionView.elementKindSectionHeader else {
+            return UICollectionReusableView()
+        }
+
+        let header = collectionView.dequeueReusableSupplementaryView(
+            ofKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: MessageHeaderCell.identifier,
+            for: indexPath
+        ) as! MessageHeaderCell
+        
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")
-        
-        if indexPath.item == 0 || !isSameDay(date1: data[indexPath.item].date, date2: data[indexPath.item - 1].date) {
-            dateFormatter.dateFormat = "MM월 dd일 a hh:mm"
+        dateFormatter.dateFormat = "yyyy년 MM월 dd일"
+
+        header.configure(date: dateFormatter.string(from: data[indexPath.section].date))
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        referenceSizeForHeaderInSection section: Int) -> CGSize {
+        if section == 0 || !isSameDay(date1: data[section].date, date2: data[section - 1].date) {
+            return CGSize(width: collectionView.bounds.width, height: 24)
         } else {
-            dateFormatter.dateFormat = "a hh:mm"
+            return CGSize(width: collectionView.bounds.width, height: 0)
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let messageDate = data[indexPath.section]
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        dateFormatter.dateFormat = "a hh:mm"
         
         if (messageDate.chatType == .send) {
             guard let cell = collectionView.dequeueReusableCell(
@@ -139,7 +168,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
                 return UICollectionViewCell()
             }
             
-            cell.configure(text: messageDate.text, date: dateFormatter.string(from: data[indexPath.row].date))
+            cell.configure(text: messageDate.text, date: dateFormatter.string(from: messageDate.date))
             return cell
         } else if (messageDate.chatType == .receive) {
             guard let cell = collectionView.dequeueReusableCell(
