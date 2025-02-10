@@ -143,16 +143,15 @@ class OtherProfileTopView: UIView {
         [selfPR].forEach{backView.addSubview($0)}
         [backBtn, myProfileTitle, middleView, backView].forEach{addSubview($0)}
         
-        backBtn.snp.makeConstraints{
-            $0.top.equalTo(safeAreaLayoutGuide).offset(8)
-            $0.leading.equalToSuperview().offset(16)
-            $0.width.height.equalTo(24)
-        }
-        
         myProfileTitle.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide).offset(8)
-            $0.leading.equalTo(backBtn.snp.trailing)
-            $0.trailing.equalToSuperview().offset(16)
+            $0.centerX.equalToSuperview()
+        }
+        
+        backBtn.snp.makeConstraints{
+            $0.centerY.equalTo(myProfileTitle.snp.centerY)
+            $0.leading.equalToSuperview()
+            $0.width.height.equalTo(24)
         }
         
         middleView.snp.makeConstraints{
