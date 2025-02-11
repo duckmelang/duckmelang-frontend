@@ -134,7 +134,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
     }
     
     // 선택한 이미지 처리
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    /*func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[.editedImage] as? UIImage {
             print("편집된 이미지 선택됨")
             // 선택한 이미지를 원하는 UIImageView에 설정 가능
@@ -149,6 +149,57 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
         }
         
         picker.dismiss(animated: true)
+    }*/
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let editedImage = info[.editedImage] as? UIImage, let imageData = editedImage.jpegData(compressionQuality: 0.8) {
+            print("편집된 이미지 선택됨")
+            
+            // 선택된 이미지를 프로필 이미지로 표시
+            profileModifyView.profileImage.image = editedImage
+            profileModifyView.profileImage.clipsToBounds = true
+            profileModifyView.profileImage.layer.cornerRadius = profileModifyView.profileImage.frame.height / 2
+            profileModifyView.profileAddBtn.isHidden = true
+            
+            // ✅ 프로필 이미지 업로드 요청
+            uploadProfileImage(imageData)
+        } else if let originalImage = info[.originalImage] as? UIImage {
+            print("원본 이미지 선택됨")
+            profileModifyView.profileImage.image = originalImage
+        }
+        
+        // 알림창 닫기
+        profileModifyView.alert.isHidden = true
+        profileModifyView.blurBackgroundView.isHidden = true
+        
+        picker.dismiss(animated: true)
+    }
+
+
+    // 프로필 이미지 업로드 함수
+    func uploadProfileImage(_ imageData: Data) {
+        let formData = MultipartFormData(provider: .data(imageData),
+                                         name: "profileImage",
+                                         fileName: "profile.jpg",
+                                         mimeType: "image/jpeg")
+
+        provider.request(.postProfileImage(profileImage: [formData])) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<ProfileImageResponse>.self)
+                    if decodedResponse.isSuccess {
+                        print("✅ 이미지 업로드 성공: \(String(describing: decodedResponse.result))")
+                    } else {
+                        print("❌ 업로드 실패: \(decodedResponse.message)")
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ 요청 실패: \(error.localizedDescription)")
+            }
+        }
     }
     
     // 취소 처리

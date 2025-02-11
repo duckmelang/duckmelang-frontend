@@ -59,3 +59,7 @@ struct MyPostDetailResponse: Codable {
     let latestPublicMemberProfileImage: String
 }
 
+struct ProfileImageResponse: Codable {
+    let memberProfileImageUrl: String
+    let createdAt: String
+}
