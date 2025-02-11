@@ -14,6 +14,8 @@ class FeedManagementViewController: UIViewController {
     
     var selectedIndices: Set<IndexPath> = [] // 선택된 셀의 indexPath를 저장
     
+    private var pendingDeletes: [(postId: Int, indexPath: IndexPath)] = [] // 삭제 대기 중인 게시물 저장
+    
     private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
 
     private var posts: [PostDTO] = []
@@ -48,32 +50,30 @@ class FeedManagementViewController: UIViewController {
         // 선택된 indexPath들을 정렬하여 처리 (역순으로 삭제하면 index 문제가 발생하지 않음)
         let sortedIndices = selectedIndices.sorted { $0.row > $1.row }
         
-        // 데이터 모델에서 제거
         for indexPath in sortedIndices {
-            data.remove(at: indexPath.row)
+            let postId = posts[indexPath.row].postId
+            pendingDeletes.append((postId: postId, indexPath: indexPath)) // 삭제 대기 상태로 저장
+            feedManagementView.postView.deleteRows(at: [indexPath], with: .automatic) // UI에서 제거
         }
         
-        // 테이블 뷰에서 제거
-        feedManagementView.postView.deleteRows(at: sortedIndices, with: .automatic)
-        
-        // 선택 상태 초기화
         selectedIndices.removeAll()
+        feedManagementView.deleteBtn.isHidden = true
+        print("🕒 삭제 대기 상태: \(pendingDeletes.map { $0.postId })")
     }
     
     @objc
     private func finishBtnDidTap() {
-        // 선택된 IndexPath에 해당하는 데이터를 삭제
-        selectedIndices.sorted(by: { $0.row > $1.row }).forEach { indexPath in
-            data.remove(at: indexPath.row)
+        guard !pendingDeletes.isEmpty else {
+            print("삭제할 게시물이 없습니다.")
+            return
         }
         
-        // 테이블 뷰 갱신
-        feedManagementView.postView.reloadData()
+        for pendingDelete in pendingDeletes {
+            deletePost(postId: pendingDelete.postId, indexPath: pendingDelete.indexPath)
+        }
         
-        // 선택된 IndexPath 초기화
-        selectedIndices.removeAll()
-        
-        feedManagementView.deleteBtn.isHidden = true
+        // 삭제 요청 후 대기 상태 초기화
+        pendingDeletes.removeAll()
     }
     
     private func setupDelegate() {
@@ -125,6 +125,26 @@ class FeedManagementViewController: UIViewController {
                         print("📌 [DEBUG] 응답 바디: \(responseString)")
                     }
                 }
+            }
+        }
+    }
+    
+    private func deletePost(postId: Int, indexPath: IndexPath) {
+        provider.request(.deletePost(postId: postId)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<String>.self)
+                    if decodedResponse.isSuccess {
+                        print("✅ 게시물 삭제 성공: \(decodedResponse.message)")
+                    } else {
+                        print("❌ 삭제 실패: \(decodedResponse.message)")
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ 요청 실패: \(error.localizedDescription)")
             }
         }
     }

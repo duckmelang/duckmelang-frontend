@@ -23,6 +23,7 @@ public enum MyPageAPI {
     case getMyPostDetail(postId: Int)
     case postProfileImage(profileImage: [MultipartFormData])
     case getProfileEdit
+    case deletePost(postId: Int)
 }
 
 extension MyPageAPI: TargetType {
@@ -30,7 +31,7 @@ extension MyPageAPI: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
-        case.getMyPostDetail:
+        case.getMyPostDetail, .deletePost:
             guard let url = URL(string: API.postURL) else {
                 fatalError("mypageURL 오류")
             }
@@ -56,7 +57,7 @@ extension MyPageAPI: TargetType {
             return "/posts"
         case .getReviews:
             return "/reviews"
-        case .getMyPostDetail(postId: let postId):
+        case .getMyPostDetail(postId: let postId), .deletePost(postId: let postId):
             return "/\(postId)"
         case .postProfileImage:
             return "/profile/image/edit"
@@ -71,6 +72,8 @@ extension MyPageAPI: TargetType {
             return .patch
         case .postProfileImage:
             return .post
+        case .deletePost:
+            return .delete
         default:
             return .get
         }
@@ -97,12 +100,10 @@ extension MyPageAPI: TargetType {
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
         case .getMyPosts(let memberId, let page):
             return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
-        case .getMyPostDetail(postId: _):
+        case .getMyPostDetail, .getProfileEdit, .deletePost:
             return .requestPlain
         case .postProfileImage(let profileImage):
                 return .uploadMultipart(profileImage)
-        case .getProfileEdit:
-            return .requestPlain
         }
     }
     
