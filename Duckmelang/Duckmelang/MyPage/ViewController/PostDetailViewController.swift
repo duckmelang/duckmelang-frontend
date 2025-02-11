@@ -17,7 +17,8 @@ enum PostProgressState {
 
 
 class PostDetailViewController: UIViewController {
-
+    var postId: Int?  // 전달받을 게시물 ID
+    
     var data = PostDetailAccompanyModel.dummy()
     
     private var accompanyData: [PostDetailAccompanyModel] = [] // 동행 정보 데이터

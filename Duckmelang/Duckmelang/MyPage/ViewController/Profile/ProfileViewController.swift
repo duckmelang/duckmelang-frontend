@@ -198,46 +198,61 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            if (tableView == profileView.profileBottomView.uploadPostView) {
-                guard !posts.isEmpty else { return UITableViewCell() } //데이터 없을 때 기본 셀 반환
-                        
-                guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
-                    return UITableViewCell()
-                }
-                
-                //posts 배열에서 해당 인덱스의 데이터를 가져와 전달
-                let post = posts[indexPath.row]
-                cell.configure(model: post)
-                
-                //디버깅용 데이터 출력
-                print("📌 [DEBUG] configure()에 전달되는 Post 데이터:")
-                print("📌 postId: \(post.postId), title: \(post.title), category: \(post.category)")
-                print("📌 date: \(post.date), nickname: \(post.nickname), createdAt: \(post.createdAt)")
-                print("📌 postImageUrl: \(post.postImageUrl), latestProfileImage: \(post.latestPublicMemberProfileImage)")
-                      
-                return cell
-                
-            } else if (tableView == profileView.profileBottomView.reviewTableView) {
-                guard !reviews.isEmpty else { return UITableViewCell() }
-                
-                guard let cell = tableView.dequeueReusableCell(withIdentifier: ReviewCell.identifier, for: indexPath) as? ReviewCell else {
-                    return UITableViewCell()
-                }
-                
-                let review = reviews[indexPath.row]
-                cell.configure(model: review)
-                
-                //데이터 출력
-                print("📝 [ReviewCell] 셀 \(indexPath.row + 1) 데이터 설정:")
-                print("   - 닉네임: \(review.nickname)")
-                print("   - 성별: \(review.gender == "true" ? "남성" : "여성")")
-                print("   - 나이: \(review.age)")
-                print("   - 내용: \(review.content)")
-                print("   - 점수: \(review.score)")
-                
-                return cell
+        if (tableView == profileView.profileBottomView.uploadPostView) {
+            guard !posts.isEmpty else { return UITableViewCell() } //데이터 없을 때 기본 셀 반환
+            
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
+                return UITableViewCell()
             }
             
-            return UITableViewCell()
+            //posts 배열에서 해당 인덱스의 데이터를 가져와 전달
+            let post = posts[indexPath.row]
+            cell.configure(model: post)
+            
+            //디버깅용 데이터 출력
+            print("📌 [DEBUG] configure()에 전달되는 Post 데이터:")
+            print("📌 postId: \(post.postId), title: \(post.title), category: \(post.category)")
+            print("📌 date: \(post.date), nickname: \(post.nickname), createdAt: \(post.createdAt)")
+            print("📌 postImageUrl: \(post.postImageUrl), latestProfileImage: \(post.latestPublicMemberProfileImage)")
+            
+            return cell
+            
+        } else if (tableView == profileView.profileBottomView.reviewTableView) {
+            guard !reviews.isEmpty else { return UITableViewCell() }
+            
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: ReviewCell.identifier, for: indexPath) as? ReviewCell else {
+                return UITableViewCell()
+            }
+            
+            let review = reviews[indexPath.row]
+            cell.configure(model: review)
+            
+            //데이터 출력
+            print("📝 [ReviewCell] 셀 \(indexPath.row + 1) 데이터 설정:")
+            print("   - 닉네임: \(review.nickname)")
+            print("   - 성별: \(review.gender == "true" ? "남성" : "여성")")
+            print("   - 나이: \(review.age)")
+            print("   - 내용: \(review.content)")
+            print("   - 점수: \(review.score)")
+            
+            return cell
         }
+        
+        return UITableViewCell()
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableView == profileView.profileBottomView.uploadPostView {
+            let post = posts[indexPath.row]  // 선택한 게시물 가져오기
+            
+            // PostDetailViewController로 postId 전달
+            let postDetailVC = PostDetailViewController()
+            postDetailVC.postId = post.postId  // PostDetailViewController에 postId 설정
+            postDetailVC.modalPresentationStyle = .fullScreen
+            
+            // 화면 전환
+            present(postDetailVC, animated: true)
+        }
+    }
+
 }
