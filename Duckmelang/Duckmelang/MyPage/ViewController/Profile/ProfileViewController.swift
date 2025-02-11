@@ -101,7 +101,6 @@ class ProfileViewController: UIViewController{
         }
     }
 
-    
     @objc
     private func backBtnDidTap() {
         self.presentingViewController?.dismiss(animated: false)
