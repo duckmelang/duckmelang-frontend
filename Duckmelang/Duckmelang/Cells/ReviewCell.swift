@@ -92,4 +92,11 @@ class ReviewCell: UITableViewCell {
         self.age.text = "\(model.age)세"
         self.review.text = model.content
     }
+    
+    public func configure(model: OtherReviewDTO) {
+        self.nickname.text = model.nickname
+        self.gender.text = model.gender == "true" ? "남성" : "여성"
+        self.age.text = "\(model.age)세"
+        self.review.text = model.content
+    }
 }
