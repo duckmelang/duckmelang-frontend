@@ -35,6 +35,11 @@ class MessageView: UIView {
             OtherMessageCell.self,
             forCellWithReuseIdentifier: OtherMessageCell.identifier
         )
+        $0.register(
+            MessageHeaderCell.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: MessageHeaderCell.identifier
+        )
     }
     
     let bottomMessageView = BottomMessageView()
