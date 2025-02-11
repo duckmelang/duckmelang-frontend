@@ -198,6 +198,7 @@ class ProfileTopView: UIView {
         
         postCount.text = "\(data.postCount)"
         matchingCount.text = "\(data.succeedApplicationCount)"
+        selfPR.text = "\(data.introduction)"
         
         if let url = URL(string: data.latestPublicMemberProfileImage) {
             profileImage.kf.setImage(

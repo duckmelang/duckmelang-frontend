@@ -63,3 +63,8 @@ struct ProfileImageResponse: Codable {
     let memberProfileImageUrl: String
     let createdAt: String
 }
+
+struct ProfileEditInfoResponse: Codable {
+    let nickname: String
+    let latestPublicMemberProfileImage: String?
+}

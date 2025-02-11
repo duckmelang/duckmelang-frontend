@@ -22,6 +22,7 @@ public enum MyPageAPI {
     case getReviews(memberId: Int)
     case getMyPostDetail(postId: Int)
     case postProfileImage(profileImage: [MultipartFormData])
+    case getProfileEdit
 }
 
 extension MyPageAPI: TargetType {
@@ -49,7 +50,7 @@ extension MyPageAPI: TargetType {
             return "/profile/image/"
         case .getProfile:
             return "/profile"
-        case .patchProfile:
+        case .patchProfile, .getProfileEdit:
             return "/profile/edit"
         case .getMyPosts:
             return "/posts"
@@ -100,6 +101,8 @@ extension MyPageAPI: TargetType {
             return .requestPlain
         case .postProfileImage(let profileImage):
                 return .uploadMultipart(profileImage)
+        case .getProfileEdit:
+            return .requestPlain
         }
     }
     
