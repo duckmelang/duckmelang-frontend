@@ -21,7 +21,7 @@ public enum MyAccompanyAPI {
     case postRequestSucceed(applicationId: Int, memberId: Int)
     case postRequestFailed(applicationId: Int, memberId: Int)
     case getBookmarks(memberId: Int, page: Int)
-    case getMyPosts(memberId: Int, page: Int)
+    case getMyPosts(page: Int)
 }
 
 extension MyAccompanyAPI: TargetType {
@@ -81,9 +81,9 @@ extension MyAccompanyAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getPendingRequests(let memberId, let page), .getSentRequests(let memberId, let page), .getReceivedRequests(let memberId, let page), .getMyPosts(let memberId, let page):
+        case .getPendingRequests(let memberId, let page), .getSentRequests(let memberId, let page), .getReceivedRequests(let memberId, let page):
             return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
-        case .getBookmarks(_, let page):
+        case .getBookmarks(_, let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .postRequestSucceed(_, let memberId), .postRequestFailed(_, let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
@@ -93,7 +93,10 @@ extension MyAccompanyAPI: TargetType {
     public var headers: [String : String]? {
         switch self {
         default :
-            return ["Content-Type": "application/json"]
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer Token"
+            ]
         }
     }
 }
