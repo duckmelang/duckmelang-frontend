@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate {
+class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate {
     var data = MessageModel.dummy()
     
     override func viewDidLoad() {
