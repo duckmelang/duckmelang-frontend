@@ -91,3 +91,14 @@ struct ProfileEditInfoResponse: Codable {
     let nickname: String
     let latestPublicMemberProfileImage: String?
 }
+
+//현재 관심 아이돌 목록 조회
+struct idolListResponse: Codable {
+    let idolList: [IdolListDTO]
+}
+
+struct IdolListDTO: Codable {
+    let idolId: Int
+    let idolName: String
+    let idolImage: String
+}

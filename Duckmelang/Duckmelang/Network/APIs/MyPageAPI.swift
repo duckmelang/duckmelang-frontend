@@ -24,6 +24,10 @@ public enum MyPageAPI {
     case postProfileImage(profileImage: [MultipartFormData])
     case getProfileEdit
     case deletePost(postId: Int)
+    case getIdolList
+    case getSearchIdol(keyword: String)
+    case postIdol(idolId: Int)
+    case deleteIdol(idolId: Int)
 }
 
 extension MyPageAPI: TargetType {
@@ -61,6 +65,12 @@ extension MyPageAPI: TargetType {
             return "/\(postId)"
         case .postProfileImage:
             return "/profile/image/edit"
+        case .getIdolList:
+            return "/idols"
+        case .deleteIdol(idolId: let idolId), .postIdol(idolId: let idolId):
+            return "/idols/\(idolId)"
+        case .getSearchIdol:
+            return "/idols/search"
         }
     }
     
@@ -70,9 +80,9 @@ extension MyPageAPI: TargetType {
         switch self {
         case .patchProfile:
             return .patch
-        case .postProfileImage:
+        case .postProfileImage, .postIdol:
             return .post
-        case .deletePost:
+        case .deletePost, .deleteIdol:
             return .delete
         default:
             return .get
@@ -84,14 +94,18 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getProfileImage(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
         case .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .postProfileImage(let profileImage):
-                return .uploadMultipart(profileImage)
+            return .uploadMultipart(profileImage)
+        case .postIdol(idolId: let idolId):
+            return .requestPlain// 나중에 고치기
+        case .getSearchIdol(keyword: let keyword):
+            return .requestParameters(parameters: ["keyword" : keyword], encoding: URLEncoding.queryString)
         }
     }
     
