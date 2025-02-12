@@ -87,14 +87,7 @@ extension MyPageAPI: TargetType {
         case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost:
             return .requestPlain
         case .patchProfile(let profileData):
-            return .requestCompositeParameters(
-                bodyParameters: [
-                    "memberProfileImageURL": profileData.memberProfileImageURL,
-                    "nickname": profileData.nickname,
-                    "introduction": profileData.introduction
-                ],
-                bodyEncoding: JSONEncoding.default, urlParameters: [:]
-            )
+            return .requestJSONEncodable(profileData)
         case .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .postProfileImage(let profileImage):
@@ -106,7 +99,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5MzM2ODY1LCJleHAiOjE3MzkzNDA0NjV9.80z5BQfcpT-k4_YqsIakMiQwlTGQyWN3lKU63dEO01E")"]
+                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5MzQxOTI3LCJleHAiOjE3MzkzNDU1Mjd9.mn_tsgRnNbkaU0tK9iCAUkdGpTArbj0MlOcdn3NZDUo")"]
         }
     }
 }

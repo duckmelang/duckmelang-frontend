@@ -37,6 +37,38 @@ class ProfileViewController: UIViewController{
         updateUI()
         fetchMyPosts()
         fetchReviews()
+        
+        // NotificationCenter 등록
+        NotificationCenter.default.addObserver(self, selector: #selector(updateProfile(_:)), name: NSNotification.Name("ProfileUpdated"), object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func updateProfile(_ notification: Notification) {
+        print("📢 프로필 업데이트 알림 수신 - UI 업데이트")
+        fetchProfileData()
+    }
+    
+    private func fetchProfileData() {
+        provider.request(.getProfile) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<ProfileData>.self)
+                    guard let profile = decodedResponse.result else { return }
+                    DispatchQueue.main.async {
+                        self.profileData = profile
+                        self.updateUI()
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ 프로필 가져오기 실패: \(error.localizedDescription)")
+            }
+        }
     }
 
     private lazy var profileView = ProfileView()
