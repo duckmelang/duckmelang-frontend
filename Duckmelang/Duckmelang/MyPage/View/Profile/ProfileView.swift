@@ -40,7 +40,7 @@ class ProfileView: UIView {
         }
         
         profileBottomView.snp.makeConstraints{
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalToSuperview()
             $0.top.equalTo(profileTopView.snp.bottom)
         }
     }
@@ -292,7 +292,7 @@ class ProfileBottomView: UIView {
         segmentedControl.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(20)
             $0.centerX.equalToSuperview()
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(40)
         }
         

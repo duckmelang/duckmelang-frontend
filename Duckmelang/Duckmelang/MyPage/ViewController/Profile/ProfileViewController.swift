@@ -86,7 +86,7 @@ class ProfileViewController: UIViewController{
     
     // 내 게시글 가져오기
     private func fetchMyPosts() {
-        provider.request(.getMyPosts(page: 1)) { result in
+        provider.request(.getMyPosts(page: 0)) { result in
             switch result {
             case .success(let response):
                 do {
