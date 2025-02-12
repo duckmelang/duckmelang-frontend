@@ -19,6 +19,17 @@ public struct ProfileData: Codable {
     var localizedGender: String {
         return gender.lowercased() == "male" ? "남성" : "여성"
     }
+    
+    enum CodingKeys: String, CodingKey {
+        case memberId
+        case nickname
+        case gender
+        case age
+        case latestPublicMemberProfileImage
+        case introduction
+        case postCount
+        case succeedApplicationCount = "matchCount"  // `matchCount` 키와 매핑
+    }
 }
 
 // 리뷰 데이터 구조체
@@ -59,3 +70,12 @@ struct MyPostDetailResponse: Codable {
     let latestPublicMemberProfileImage: String
 }
 
+struct ProfileImageResponse: Codable {
+    let memberProfileImageUrl: String
+    let createdAt: String
+}
+
+struct ProfileEditInfoResponse: Codable {
+    let nickname: String
+    let latestPublicMemberProfileImage: String?
+}

@@ -82,10 +82,11 @@ class ProfileTopView: UIView {
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
-    private lazy var profileImage = UIImageView().then {
+    lazy var profileImage = UIImageView().then {
         $0.image = .profile
         $0.layer.cornerRadius = 32
         $0.clipsToBounds = true
+        $0.contentMode = .scaleAspectFill
     }
     
     private lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 16), color: .grey800)
@@ -198,6 +199,7 @@ class ProfileTopView: UIView {
         
         postCount.text = "\(data.postCount)"
         matchingCount.text = "\(data.succeedApplicationCount)"
+        selfPR.text = "\(data.introduction)"
         
         if let url = URL(string: data.latestPublicMemberProfileImage) {
             profileImage.kf.setImage(

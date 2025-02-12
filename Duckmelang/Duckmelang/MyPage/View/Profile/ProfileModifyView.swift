@@ -36,7 +36,7 @@ class ProfileModifyView: UIView {
         $0.backgroundColor = .clear
     }
     
-    private lazy var profileImage = UIImageView().then {
+    lazy var profileImage = UIImageView().then {
         $0.image = UIImage(resource: .profileModify)
         $0.clipsToBounds = true
         $0.layer.cornerRadius = $0.frame.height/2

@@ -15,12 +15,15 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum MyPageAPI {
-    case getProfileImage(memberId: Int, page: Int)
-    case getProfile(memberId: Int)
-    case patchProfile(memberId: Int, profileData: EditProfileRequest)
-    case getMyPosts(memberId: Int, page: Int)
-    case getReviews(memberId: Int)
+    case getProfileImage(page: Int)
+    case getProfile
+    case patchProfile(profileData: EditProfileRequest)
+    case getMyPosts(page: Int)
+    case getReviews
     case getMyPostDetail(postId: Int)
+    case postProfileImage(profileImage: [MultipartFormData])
+    case getProfileEdit
+    case deletePost(postId: Int)
 }
 
 extension MyPageAPI: TargetType {
@@ -28,7 +31,7 @@ extension MyPageAPI: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
-        case.getMyPostDetail:
+        case.getMyPostDetail, .deletePost:
             guard let url = URL(string: API.postURL) else {
                 fatalError("mypageURL 오류")
             }
@@ -48,14 +51,16 @@ extension MyPageAPI: TargetType {
             return "/profile/image/"
         case .getProfile:
             return "/profile"
-        case .patchProfile:
+        case .patchProfile, .getProfileEdit:
             return "/profile/edit"
         case .getMyPosts:
             return "/posts"
         case .getReviews:
             return "/reviews"
-        case .getMyPostDetail(postId: let postId):
+        case .getMyPostDetail(postId: let postId), .deletePost(postId: let postId):
             return "/\(postId)"
+        case .postProfileImage:
+            return "/profile/image/edit"
         }
     }
     
@@ -65,6 +70,10 @@ extension MyPageAPI: TargetType {
         switch self {
         case .patchProfile:
             return .patch
+        case .postProfileImage:
+            return .post
+        case .deletePost:
+            return .delete
         default:
             return .get
         }
@@ -73,33 +82,31 @@ extension MyPageAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getProfileImage(let memberId, let page):
-            return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
-        case .getProfile(memberId: let memberId):
-            return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
-        case .patchProfile(let memberId, let profileData):
+        case .getProfileImage(let page):
+            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost:
+            return .requestPlain
+        case .patchProfile(let profileData):
             return .requestCompositeParameters(
                 bodyParameters: [
                     "memberProfileImageURL": profileData.memberProfileImageURL,
                     "nickname": profileData.nickname,
                     "introduction": profileData.introduction
                 ],
-                bodyEncoding: JSONEncoding.default,
-                urlParameters: ["memberId": memberId] // Query Parameter로 전송
+                bodyEncoding: JSONEncoding.default, urlParameters: [:]
             )
-        case .getReviews(memberId: let memberId):
-            return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
-        case .getMyPosts(let memberId, let page):
-            return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
-        case .getMyPostDetail(postId: _):
-            return .requestPlain
+        case .getMyPosts(let page):
+            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+        case .postProfileImage(let profileImage):
+                return .uploadMultipart(profileImage)
         }
     }
     
     public var headers: [String : String]? {
         switch self {
         default :
-            return ["Content-Type": "application/json"]
+            return ["Content-Type": "application/json",
+                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5MzM2ODY1LCJleHAiOjE3MzkzNDA0NjV9.80z5BQfcpT-k4_YqsIakMiQwlTGQyWN3lKU63dEO01E")"]
         }
     }
 }
