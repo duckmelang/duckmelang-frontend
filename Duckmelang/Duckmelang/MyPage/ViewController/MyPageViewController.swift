@@ -94,22 +94,33 @@ class MyPageViewController: UIViewController {
     
     //내 프로필 가져오기
     private func getProfileInfo() {
-        provider.request(.getProfile(memberId: 1)) { result in
+        provider.request(.getProfile) { result in
             switch result {
             case .success(let response):
-                let response = try? response.map(ApiResponse<ProfileData>.self)
-                guard let profile = response?.result else { return }
-                
-                //MyPageTopView에 데이터 반영
-                DispatchQueue.main.async {
-                    self.myPageView.myPageTopView.profileData = profile
+                do {
+                    let decodedResponse = try response.map(ApiResponse<ProfileData>.self)
+                    guard let profile = decodedResponse.result else {
+                        print("❌ ProfileData가 없습니다.")
+                        return
+                    }
+                    
+                    print("✅ 서버에서 받은 ProfileData: \(profile)")
+                    
+                    // UI 업데이트는 반드시 메인 스레드에서 실행
+                    DispatchQueue.main.async {
+                        self.myPageView.myPageTopView.profileData = profile
+                        self.myPageView.myPageTopView.profileImage.contentMode = .scaleAspectFill
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
                 }
                 
             case .failure(let error):
-                print(" 프로필 불러오기 실패: \(error.localizedDescription)")
+                print("❌ 프로필 불러오기 실패: \(error.localizedDescription)")
             }
         }
     }
+
 }
 
 

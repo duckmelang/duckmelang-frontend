@@ -173,7 +173,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
         
         let profileData = EditProfileRequest(memberProfileImageURL: "https://image.url", nickname: nickname, introduction: introduction)
         
-        provider.request(.patchProfile(memberId: 1, profileData: profileData)) { result in
+        provider.request(.patchProfile(profileData: profileData)) { result in
             switch result {
             case .success(let response):
                 self.handleSaveResponse(response)
@@ -199,7 +199,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
     
     // MARK: - Profile API 호출
     private func fetchProfileInfo() {
-        provider.request(.getProfile(memberId: 1)) { result in
+        provider.request(.getProfile) { result in
             switch result {
             case .success(let response):
                 do {
@@ -228,6 +228,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
         // 서버에서 받은 이미지 URL을 Kingfisher로 로드
         if let imageUrlString = profile.latestPublicMemberProfileImage, let imageUrl = URL(string: imageUrlString) {
             profileModifyView.profileImage.kf.setImage(with: imageUrl)
+            profileModifyView.profileImage.contentMode = .scaleAspectFill
         } else {
             profileModifyView.profileImage.image = UIImage(resource: .profileModify) // 기본 이미지 설정
         }

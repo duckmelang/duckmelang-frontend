@@ -45,12 +45,13 @@ class ProfileViewController: UIViewController{
     private func updateUI() {
         if let profile = profileData { //MyPage에서 전달받은 데이터 적용
             profileView.profileTopView.profileData = profile
+            //profileView.profileTopView.profileImage.contentMode = .scaleAspectFill
         }
     }
     
     // 내 게시글 가져오기
     private func fetchMyPosts() {
-        provider.request(.getMyPosts(memberId: 1, page: 1)) { result in
+        provider.request(.getMyPosts(page: 1)) { result in
             switch result {
             case .success(let response):
                 do {
@@ -75,7 +76,7 @@ class ProfileViewController: UIViewController{
     }
     
     private func fetchReviews() {
-        provider.request(.getReviews(memberId: 1)) { result in
+        provider.request(.getReviews) { result in
             switch result {
             case .success(let response):
                 do {

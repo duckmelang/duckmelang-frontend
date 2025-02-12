@@ -89,7 +89,7 @@ class FeedManagementViewController: UIViewController {
     
     // 내 게시글 가져오기
     private func fetchMyPosts() {
-        provider.request(.getMyPosts(memberId: 1, page: 1)) { result in
+        provider.request(.getMyPosts(page: 1)) { result in
             switch result {
             case .success(let response):
                 print("📌 [DEBUG] HTTP 상태 코드: \(response.statusCode)")  // 상태 코드 출력

@@ -15,11 +15,11 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum MyPageAPI {
-    case getProfileImage(memberId: Int, page: Int)
-    case getProfile(memberId: Int)
-    case patchProfile(memberId: Int, profileData: EditProfileRequest)
-    case getMyPosts(memberId: Int, page: Int)
-    case getReviews(memberId: Int)
+    case getProfileImage(page: Int)
+    case getProfile
+    case patchProfile(profileData: EditProfileRequest)
+    case getMyPosts(page: Int)
+    case getReviews
     case getMyPostDetail(postId: Int)
     case postProfileImage(profileImage: [MultipartFormData])
     case getProfileEdit
@@ -82,26 +82,21 @@ extension MyPageAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getProfileImage(let memberId, let page):
-            return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
-        case .getProfile(memberId: let memberId):
-            return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
-        case .patchProfile(let memberId, let profileData):
+        case .getProfileImage(let page):
+            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost:
+            return .requestPlain
+        case .patchProfile(let profileData):
             return .requestCompositeParameters(
                 bodyParameters: [
                     "memberProfileImageURL": profileData.memberProfileImageURL,
                     "nickname": profileData.nickname,
                     "introduction": profileData.introduction
                 ],
-                bodyEncoding: JSONEncoding.default,
-                urlParameters: ["memberId": memberId] // Query Parameter로 전송
+                bodyEncoding: JSONEncoding.default, urlParameters: [:]
             )
-        case .getReviews(memberId: let memberId):
-            return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
-        case .getMyPosts(let memberId, let page):
-            return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
-        case .getMyPostDetail, .getProfileEdit, .deletePost:
-            return .requestPlain
+        case .getMyPosts(let page):
+            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .postProfileImage(let profileImage):
                 return .uploadMultipart(profileImage)
         }
@@ -110,7 +105,8 @@ extension MyPageAPI: TargetType {
     public var headers: [String : String]? {
         switch self {
         default :
-            return ["Content-Type": "application/json"]
+            return ["Content-Type": "application/json",
+                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5MzM2ODY1LCJleHAiOjE3MzkzNDA0NjV9.80z5BQfcpT-k4_YqsIakMiQwlTGQyWN3lKU63dEO01E")"]
         }
     }
 }
