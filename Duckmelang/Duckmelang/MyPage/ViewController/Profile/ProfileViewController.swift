@@ -34,7 +34,7 @@ class ProfileViewController: UIViewController{
         
         setupAction()
         setupDelegate()
-        updateUI()
+        fetchProfileData()
         fetchMyPosts()
         fetchReviews()
         
@@ -75,9 +75,12 @@ class ProfileViewController: UIViewController{
     private lazy var postDetailView = PostDetailView()
     
     private func updateUI() {
-        if let profile = profileData { //MyPage에서 전달받은 데이터 적용
+        if let profile = profileData {
             profileView.profileTopView.profileData = profile
-            //profileView.profileTopView.profileImage.contentMode = .scaleAspectFill
+            
+            if let imageUrl = URL(string: "\(profile.latestPublicMemberProfileImage)?timestamp=\(Date().timeIntervalSince1970)") {
+                profileView.profileTopView.profileImage.kf.setImage(with: imageUrl, options: [.cacheMemoryOnly])
+            }
         }
     }
     
