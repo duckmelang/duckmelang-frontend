@@ -92,18 +92,14 @@ extension MyPageAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getProfileImage(let page):
+        case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
-        case .getMyPosts(let page):
-            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .postProfileImage(let profileImage):
             return .uploadMultipart(profileImage)
-        case .postIdol(idolId: let idolId):
-            return .requestPlain// 나중에 고치기
         case .getSearchIdol(keyword: let keyword):
             return .requestParameters(parameters: ["keyword" : keyword], encoding: URLEncoding.queryString)
         }
@@ -113,7 +109,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5MzQ1NTcyLCJleHAiOjE3MzkzNDkxNzJ9.pnddEQEt4oCjpHx81MQQC9MkPCLtMdMXwbkbSUHmBKU")"]
+                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5NDMxNTgzLCJleHAiOjE3Mzk0MzUxODN9.jIM-vYfg1RNHob3mlY2bswrq_YBg62go0ScUOVUjgx4")"]
         }
     }
 }

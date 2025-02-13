@@ -278,9 +278,13 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("📌 didSelectRowAt 호출됨 - IndexPath: \(indexPath.row)")
+
         if tableView == profileView.profileBottomView.uploadPostView {
+            print("📌 게시물 선택됨 - Post ID: \(posts[indexPath.row].postId)")
+
             let post = posts[indexPath.row]  // 선택한 게시물 가져오기
-            
+           
             // PostDetailViewController로 postId 전달
             let postDetailVC = PostDetailViewController()
             postDetailVC.postId = post.postId  // PostDetailViewController에 postId 설정

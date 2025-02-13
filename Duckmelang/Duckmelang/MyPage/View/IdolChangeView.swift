@@ -40,6 +40,7 @@ class IdolChangeView: UIView {
     }).then {
         $0.backgroundColor = .clear
         $0.register(IdolChangeCell.self, forCellWithReuseIdentifier: IdolChangeCell.identifier)
+        $0.register(IdolAddCell.self, forCellWithReuseIdentifier: IdolAddCell.identifier)
     }
 
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)

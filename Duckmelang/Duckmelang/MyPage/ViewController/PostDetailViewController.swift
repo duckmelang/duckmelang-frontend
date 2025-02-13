@@ -15,7 +15,6 @@ enum PostProgressState {
     case completed
 }
 
-
 class PostDetailViewController: UIViewController {
     var postId: Int?  // 전달받을 게시물 ID
     

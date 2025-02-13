@@ -253,6 +253,7 @@ class ProfileBottomView: UIView {
         $0.separatorStyle = .none
         $0.rowHeight = 106
         $0.isHidden = false
+        $0.isUserInteractionEnabled = true
     }
     
     //변경 예정
@@ -306,7 +307,6 @@ class ProfileBottomView: UIView {
         uploadPostView.snp.makeConstraints {
             $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
-            $0.height.equalTo(400)
         }
         
         cosmosView.snp.makeConstraints{

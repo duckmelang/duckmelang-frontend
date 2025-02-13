@@ -145,21 +145,58 @@ class PostCell: UITableViewCell {
         }
         
         self.userName.text = model.nickname
-        self.postTime.text = formatDate(model.createdAt) //날짜 포맷 변환
+        
+        if let dateString = model.createdAt, let date = dateFromString(dateString) {
+            self.postTime.text = timeAgo(from: date)
+        } else {
+            self.postTime.text = "시간 없음"
+        }
         
         print("📌 [DEBUG] PostCell configure() 호출됨")
         print("📌 postId: \(model.postId), title: \(model.title)")
     }
     
-    private func formatDate(_ isoDateString: String) -> String {
-        let dateFormatter = ISO8601DateFormatter()
-        guard let date = dateFormatter.date(from: isoDateString) else { return "날짜 없음" }
-        
-        let displayFormatter = DateFormatter()
-        displayFormatter.locale = Locale(identifier: "ko_KR") //한국어 설정
-        displayFormatter.dateFormat = "M월 d일" //"몇월 몇일" 형식
-        
-        return displayFormatter.string(from: date)
+    func dateFromString(_ dateString: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        dateFormatter.timeZone = TimeZone.current
+        return dateFormatter.date(from: dateString)
     }
-
+    
+    func timeAgo(from date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        let components = calendar.dateComponents(
+            [.year, .month, .weekOfYear, .day, .hour, .minute],
+            from: date,
+            to: now
+        )
+        if let year = components.year, year > 0 {
+            return "\(year)년 전"
+        }
+        
+        if let month = components.month, month > 0 {
+            return "\(month)달 전"
+        }
+        
+        if let week = components.weekOfYear, week > 0 {
+            return "\(week)주 전"
+        }
+        
+        if let day = components.day, day > 0 {
+            return "\(day)일 전"
+        }
+        
+        if let hour = components.hour, hour > 0 {
+            return "\(hour)시간 전"
+        }
+        
+        if let minute = components.minute, minute > 0 {
+            return "\(minute)분 전"
+        }
+        
+        return "방금 전"
+    }
 }
