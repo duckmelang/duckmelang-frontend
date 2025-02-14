@@ -101,9 +101,13 @@ extension IdolChangeViewController: UICollectionViewDelegate {
         // 마지막 셀인지 확인
         if indexPath.item == idolList.count {
             // 다른 화면으로 전환
-            let idolAddVC = UINavigationController(rootViewController: IdolAddViewController())
-            idolAddVC.modalPresentationStyle = .fullScreen
-            present(idolAddVC, animated: false)
+            let idolAddVC = IdolAddViewController()
+            idolAddVC.onCompletion = { [weak self] in
+                self?.fetchIdolList()
+            }
+            let navigationController = UINavigationController(rootViewController: idolAddVC)
+            navigationController.modalPresentationStyle = .overFullScreen
+            present(navigationController, animated: false)
         }
     }
 }

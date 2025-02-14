@@ -15,6 +15,8 @@ class IdolAddViewController: UIViewController {
     private var searchResults: [IdolListDTO] = []  // 검색 결과
     private var selectedIdols: Set<Int> = []  // 선택된 아이돌의 ID
     
+    var onCompletion: (() -> Void)? // 완료 시 실행할 클로저 추가
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -74,14 +76,15 @@ class IdolAddViewController: UIViewController {
                 switch result {
                 case .success:
                     print("✅ 아이돌 추가 성공: \(idolId)")
-                    NotificationCenter.default.post(name: NSNotification.Name("IdolListUpdated"), object: nil)
                 case .failure(let error):
                     print("❌ 아이돌 추가 실패: \(error.localizedDescription)")
                 }
             }
         }
         
-        self.presentingViewController?.dismiss(animated: true)
+        self.presentingViewController?.dismiss(animated: true) {
+            self.onCompletion?()
+        }
     }
 }
 
