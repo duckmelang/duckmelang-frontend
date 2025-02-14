@@ -7,6 +7,23 @@
 
 import Foundation
 
+//소셜 로그인 응답모델
+struct SocialLoginResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: SocialLoginResult
+}
+
+struct SocialLoginResult: Codable {
+    let memberId: Int
+    let email: String
+    let provider: String
+    let accessToken: String
+    let refreshToken: String
+    let profileComplete: Bool
+}
+
 //로그인 응답 모델
 struct LoginResponse: Codable {
     let isSuccess: Bool

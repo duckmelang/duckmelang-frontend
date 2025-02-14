@@ -10,7 +10,20 @@ import Moya
 import SafariServices
 import Alamofire
 
-class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate, MoyaErrorHandlerDelegate {
+class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
+    // MARK: - MoyaErrorHandlerDelegate 구현
+    func showErrorAlert(message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(
+                title: "오류 발생",
+                message: message,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
+    
     private lazy var provider = MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
     
 
@@ -66,45 +79,52 @@ class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate
     }
     
     // MARK: - OAuth 로그인 처리
-        private func openOAuthLogin(urlString: String) {
-            guard let url = URL(string: urlString) else {
-                print("OAuth 로그인 URL이 잘못되었습니다.")
-                return
+    private func openOAuthLogin(urlString: String) {
+        guard let url = URL(string: urlString) else {
+            print("❌ OAuth 로그인 URL이 잘못되었습니다.")
+            return
+        }
+
+        let oauthWebVC = OAuthWebViewController()
+        oauthWebVC.authURL = url
+        oauthWebVC.modalPresentationStyle = .pageSheet
+        // OAuthWebViewController에서 로그인 후 받은 데이터를 처리할 클로저 설정
+        oauthWebVC.oauthCompletion = { [weak self] memberId, profileComplete in
+            self?.handleOAuthResponse(memberId: memberId, profileComplete: profileComplete)
+        }
+        present(oauthWebVC, animated: true)
+    }
+
+    // OAuthWebViewController에서 로그인 후 받은 데이터를 처리
+    func handleOAuthResponse(memberId: Int, profileComplete: Bool) {
+        print("✅ OAuth 처리 완료 - memberId: \(memberId), profileComplete: \(profileComplete)")
+
+        // 모달을 닫고 처리 후 화면 전환
+        dismiss(animated: true) {
+            if profileComplete {
+                // 프로필이 완료된 경우 BaseViewController로 이동
+                self.navigateToBaseViewController()
+            } else {
+                // 프로필이 완료되지 않은 경우 MakeProfilesViewController로 이동
+                self.navigateToMakeProfilesViewController(memberId: memberId)
             }
-    
-            let safariVC = SFSafariViewController(url: url)
-            safariVC.modalPresentationStyle = .pageSheet
-            safariVC.delegate = self
-    
-            present(safariVC, animated: true, completion: nil)
-        }
-
-        func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-            print("Safari 창 닫힘")
-            dismiss(animated: true, completion: nil)
-        }
-    
-    // Safari를 사용한 OAuth 로그인 진행
-    private func openOAuthLogin(url: URL) {
-        let safariVC = SFSafariViewController(url: url)
-        safariVC.modalPresentationStyle = .pageSheet
-        safariVC.delegate = self
-
-        present(safariVC, animated: true, completion: nil)
-    }
-    
-    // MARK: - MoyaErrorHandlerDelegate 구현
-    func showErrorAlert(message: String) {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(
-                title: "오류 발생",
-                message: message,
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "확인", style: .default))
-            self.present(alert, animated: true)
         }
     }
+
+    private func navigateToBaseViewController() {
+        let baseVC = BaseViewController()
+        baseVC.modalPresentationStyle = .fullScreen
+        present(baseVC, animated: true)
+    }
+
+    private func navigateToMakeProfilesViewController(memberId: Int) {
+        let makeProfilesVC = MakeProfilesViewController(memberId: memberId)
+        let navigationController = UINavigationController(rootViewController: makeProfilesVC)
+        navigationController.modalPresentationStyle = .fullScreen
+        // 모달을 닫고 네비게이션 방식으로 화면을 이동
+        self.present(navigationController, animated: true)
+    }
+
     
     // MARK: - Navigation
     
@@ -123,12 +143,6 @@ class OnBoardingViewController: UIViewController, SFSafariViewControllerDelegate
     //FIXME: - 개발 종료 후 지울것2. Main으로 연결되는 통로
     @objc private func didTapGoHome() {
         print("go home")
-        navigateToHomeView()
-    }
-    
-    private func navigateToHomeView() {
-        let mainVC = BaseViewController()
-        mainVC.modalPresentationStyle = .fullScreen
-        present(mainVC, animated: true)
+        navigateToBaseViewController()
     }
 }
