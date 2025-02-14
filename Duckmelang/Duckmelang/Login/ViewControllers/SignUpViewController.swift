@@ -8,9 +8,22 @@
 import UIKit
 import Moya
 
-class SignUpViewController: UIViewController {
+class SignUpViewController: UIViewController, MoyaErrorHandlerDelegate {
+    // MARK: - 오류 처리 (Alert)
+    func showErrorAlert(message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: "오류 발생", message: message, preferredStyle: .alert)
+            let confirmAction = UIAlertAction(title: "확인", style: .default)
+            alert.addAction(confirmAction)
+            alert.view.tintColor = UIColor.red
+            self.present(alert, animated: true)
+        }
+    }
     
-    private let provider = MoyaProvider<LoginAPI>()
+    
+    lazy var provider: MoyaProvider<LoginAPI> = {
+            return MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
+        }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
