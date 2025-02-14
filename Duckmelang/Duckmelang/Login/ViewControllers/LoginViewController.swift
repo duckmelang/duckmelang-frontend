@@ -10,13 +10,9 @@ import Moya
 
 class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
     
-    private lazy var provider: MoyaProvider<LoginAPI> = {
-        let loggerPlugin = MoyaLoggerPlugin(delegate: self)
-        print("✅ MoyaLoggerPlugin 추가됨!")
-        let provider = MoyaProvider<LoginAPI>(plugins: [loggerPlugin])
-        print("🛠 provider.plugins: \(provider.plugins)")
-        return provider
-    }()
+    lazy var provider: MoyaProvider<LoginAPI> = {
+            return MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
+        }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,12 +27,10 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
     
     private lazy var loginView: LoginView = {
         let view = LoginView()
-        view.loginButton
-            .addTarget(
-                self,
-                action: #selector(didTapLoginButton),
-                for: .touchUpInside
-            )
+        
+        view.loginButton.alpha = 0.5
+        
+        view.loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
         return view
     }()
     
@@ -78,47 +72,50 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
             return
         }
 
-        // ✅ 네트워크 상태 체크: 네트워크 상태가 변경된 후에만 확인하도록 변경
-        NotificationCenter.default.addObserver(self, selector: #selector(handleNetworkStatusChange), name: .networkStatusChanged, object: nil)
-
         print("📡 로그인 시도: \(email), \(password)")
 
-        // ✅ 타임아웃 감지 시작
-        NetworkMonitor.shared.startRequestTimeout(target: LoginAPI.postLogin(email: email, password: password)) {
-            self.showErrorAlert(message: "서버 응답이 없습니다.\n네트워크 상태를 확인하세요.")
-        }
-
         provider.request(.postLogin(email: email, password: password)) { result in
-            NetworkMonitor.shared.cancelRequestTimeout(target: LoginAPI.postLogin(email: email, password: password))
-
             switch result {
-            case .success:
-                DispatchQueue.main.async {
-                    print("✅ 로그인 성공")
-                    self.navigateToHomeView()
+            case .success(let response):
+                do {
+                    let decoder = JSONDecoder()
+                    
+                    // ✅ JSON 디코딩 (오류가 발생하면 catch 블록으로 이동)
+                    let loginResponse = try decoder.decode(LoginResponse.self, from: response.data)
+
+                    // ✅ JSON 디코딩 성공한 경우만 로그 출력
+                    print("📩 서버 응답 JSON (Decoded): \(loginResponse)")
+
+                    if loginResponse.isSuccess {
+                        print("✅ 로그인 성공: \(loginResponse.message)")
+                        print("🔑 Access Token: \(loginResponse.result.accessToken)")
+                        print("🔑 Refresh Token: \(loginResponse.result.refreshToken)")
+
+                        DispatchQueue.main.async {
+                            self.navigateToHomeView()
+                        }
+                    } else {
+                        print("⚠️ 로그인 실패: \(loginResponse.message)")
+                        DispatchQueue.main.async {
+                            self.showErrorAlert(message: loginResponse.message)
+                        }
+                    }
+
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                    DispatchQueue.main.async {
+                        self.showErrorAlert(message: "서버 응답을 처리하는 중 오류가 발생했습니다.")
+                    }
+                    return
                 }
+
             case .failure(let error):
                 print("❌ 로그인 요청 실패: \(error.localizedDescription)")
-                
-                // 네트워크 연결 실패 시 더 간단한 메시지로 사용자에게 안내
-                let errorMessage = error.localizedDescription.contains("Could not connect to the server") ?
-                    "서버에 연결할 수 없습니다. \n네트워크 상태를 확인하세요." :
-                    "로그인 실패: \(error.localizedDescription)"
-                    
-                self.showErrorAlert(message: errorMessage)
+                DispatchQueue.main.async {
+                    self.showErrorAlert(message: "네트워크 오류가 발생했습니다. 다시 시도해 주세요.")
+                }
             }
         }
-    }
-    // 네트워크 상태 변경 시 호출되는 메서드
-    @objc private func handleNetworkStatusChange(notification: Notification) {
-        // 네트워크 상태가 연결되지 않은 경우에만 경고 메시지 출력
-        if let isConnected = notification.object as? Bool, !isConnected {
-            print("🚨 네트워크 연결 없음 - 로그인 요청 중단")
-            showErrorAlert(message: "인터넷 연결이 없습니다.\n네트워크 상태를 확인하세요.")
-        }
-        
-        // 첫 번째 네트워크 상태 변경 후 옵저버 제거
-        NotificationCenter.default.removeObserver(self, name: .networkStatusChanged, object: nil)
     }
     
     @objc private func textFieldsUpdated() {

@@ -21,11 +21,11 @@ final class MoyaLoggerPlugin: PluginType {
     }
     
     func willSend(_ request: RequestType, target: TargetType) {
-        print("🚀 요청 보냄: \(target) - willSend 실행됨 ✅")
+        print("🚀 요청 보냄: \(target)")
     }
     
-    func didReceive(_ result: Result<Response, MoyaError>, target: TargetType) {
-        print("📡 MoyaLoggerPlugin - didReceive 실행됨: \(result)")
+    func didReceive(_ result: Swift.Result<Response, MoyaError>, target: TargetType) {
+        print("📡 MoyaLoggerPlugin : \(result)")
 
         switch result {
         case .success(let response):
@@ -43,32 +43,14 @@ final class MoyaLoggerPlugin: PluginType {
     }
     
     private func handleSuccess(_ response: Response, target: TargetType) {
-        do {
-            let decodedResponse = try response.map(VerifyCodeResponse.self)
-            let statusCode = response.statusCode
-            let url = response.request?.url?.absoluteString ?? "nil"
-
-            var log = """
-            ------------------- 네트워크 통신 성공 -------------------
-            [\(statusCode)] \(url)
-            ----------------------------------------------------
-            API: \(target)
-            """
-
-            if !decodedResponse.isSuccess {
-                log.append("\n⚠️ 서버 오류: \(decodedResponse.message)")
-                print("🔥 DEBUG LOG START (Server Error) 🔥\n\(log)\n🔥 DEBUG LOG END 🔥")
-                handleFailure(MoyaError.statusCode(response), target: target)
-                return
-            }
-
-            log.append("\n✅ 서버 응답 성공")
-            print("🔥 DEBUG LOG START (Success) 🔥\n\(log)\n🔥 DEBUG LOG END 🔥")
-
-        } catch {
-            print("❌ JSON 파싱 오류: \(error.localizedDescription)")
-            handleFailure(MoyaError.jsonMapping(response), target: target)
+        print("✅ 응답 성공: \(response.statusCode) - \(target)")
+        
+        guard (200...299).contains(response.statusCode) else {
+            print("⚠️ 예상치 못한 상태 코드: \(response.statusCode)")
+            return
         }
+        
+        // 필요 시 추가 처리 가능
     }
     
     public func handleFailure(_ error: MoyaError, target: TargetType) {

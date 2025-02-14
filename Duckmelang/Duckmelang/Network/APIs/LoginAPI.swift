@@ -29,8 +29,8 @@ extension LoginAPI: TargetType {
     public var baseURL: URL {
         switch self {
         case .postLogin(email: _, password: _):
-            guard let url = URL(string: API.postURL) else {
-                fatalError("postURL 오류")
+            guard let url = URL(string: API.baseURL) else {
+                fatalError("baseURL 오류")
             }
             return url
         case .postSignUp(email: _, password: _):
@@ -93,11 +93,13 @@ extension LoginAPI: TargetType {
     
     public var task: Moya.Task {
         switch self {
-        case .postLogin(let email, let password),
-                .postSignUp(let email, let password):
-            return .requestParameters(
-                parameters: ["email": email, "password": password],
-                encoding: JSONEncoding.default
+        case .postLogin(let email, let password):
+            return .requestJSONEncodable(
+                LoginRequest(email: email, password: password)
+            )
+        case .postSignUp(let email, let password):
+            return .requestJSONEncodable(
+                SignupRequest(email: email, password: password)
             )
         case .postSendVerificationCode(let phoneNum):
             return .requestJSONEncodable(
