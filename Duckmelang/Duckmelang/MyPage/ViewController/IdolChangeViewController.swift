@@ -14,6 +14,7 @@ class IdolChangeViewController: UIViewController {
     
     private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private var idolList: [IdolListDTO] = []  // 서버에서 가져온 관심 아이돌 목록
+    private var deleteQueue: Set<Int> = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,11 +41,42 @@ class IdolChangeViewController: UIViewController {
     
     private lazy var idolChangeView = IdolChangeView().then {
         $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
+        $0.finishBtn.addTarget(self, action: #selector(finishBtnTapped), for: .touchUpInside)
     }
     
     @objc
     private func backBtnDidTap() {
         self.presentingViewController?.dismiss(animated: false)
+    }
+    
+    @objc private func deleteBtnTapped(_ sender: UIButton) {
+        let index = sender.tag
+        let idolId = idolList[index].idolId
+        
+        // 삭제 대기 목록에 추가하고 목록에서 임시 삭제
+        if !deleteQueue.contains(idolId) {
+            deleteQueue.insert(idolId)
+            idolList.remove(at: index)  // 목록에서 임시 제거
+            idolChangeView.idolChangeCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
+    
+    @objc private func finishBtnTapped() {
+        for idolId in deleteQueue {
+            provider.request(.deleteIdol(idolId: idolId)) { result in
+                switch result {
+                case .success:
+                    print("✅ 아이돌 삭제 성공: \(idolId)")
+                    self.idolChangeView.idolChangeCollectionView.reloadData()
+                case .failure(let error):
+                    print("❌ 아이돌 삭제 실패: \(error.localizedDescription)")
+                }
+            }
+        }
+        
+        // 완료 후 목록을 다시 가져와 새로고침
+        fetchIdolList()
+        deleteQueue.removeAll()  // 삭제 대기 목록 초기화
     }
  
     private func setupDelegate() {
@@ -72,6 +104,12 @@ class IdolChangeViewController: UIViewController {
             }
         }
     }
+    
+    // 삭제 대기 상태인 셀을 시각적으로 표시하기 위한 함수
+    private func updateCellAppearance(_ cell: IdolChangeCell, isInDeleteQueue: Bool) {
+        cell.contentView.backgroundColor = isInDeleteQueue ? .lightGray : .white
+        cell.deleteBtn.isHidden = !isInDeleteQueue  // 아이콘 표시 여부
+    }
 }
 
 extension IdolChangeViewController: UICollectionViewDataSource {
@@ -87,6 +125,12 @@ extension IdolChangeViewController: UICollectionViewDataSource {
             let idol = idolList[indexPath.row]
             let isLastCell = (indexPath.item == idolList.count - 1)
             cell.configure(model: idol, isLastCell: isLastCell)
+            
+            // 삭제 대기 상태인지 확인하여 삭제 버튼 시각적 처리
+            //cell.deleteBtn.isHidden = !deleteQueue.contains(idol.idolId)
+            cell.deleteBtn.tag = indexPath.item
+            cell.deleteBtn.addTarget(self, action: #selector(deleteBtnTapped(_:)), for: .touchUpInside)
+
             
             return cell
         } else {
