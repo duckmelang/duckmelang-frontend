@@ -25,6 +25,17 @@ class IdolChangeViewController: UIViewController {
         setupDelegate()
         
         fetchIdolList()  // 아이돌 목록 조회
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(idolListUpdated), name: NSNotification.Name("idolListUpdated"), object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("idolListUpdated"), object: nil)
+    }
+    
+    @objc
+    private func idolListUpdated() {
+        fetchIdolList()
     }
     
     private lazy var idolChangeView = IdolChangeView().then {
@@ -79,7 +90,7 @@ extension IdolChangeViewController: UICollectionViewDataSource {
             
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: IdolAddCell.identifier, for: indexPath)
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: IdolAddBtnCell.identifier, for: indexPath)
             return cell
         }
     }
