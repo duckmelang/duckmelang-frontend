@@ -48,6 +48,7 @@ class PostCell: UITableViewCell {
         $0.layer.cornerRadius = 5
         $0.clipsToBounds = true
         $0.backgroundColor = .grey200
+        $0.contentMode = .scaleAspectFill
     }
     
     let postTitle = UILabel().then {
@@ -66,6 +67,7 @@ class PostCell: UITableViewCell {
     let userImage = UIImageView().then {
         $0.clipsToBounds = true
         $0.backgroundColor = .grey200
+        $0.contentMode = .scaleAspectFill
     }
     
     let userName = UILabel().then {
@@ -146,14 +148,9 @@ class PostCell: UITableViewCell {
         
         self.userName.text = model.nickname
         
-        if let dateString = model.createdAt, let date = dateFromString(dateString) {
+        if let date = dateFromString(model.createdAt) {
             self.postTime.text = timeAgo(from: date)
-        } else {
-            self.postTime.text = "시간 없음"
         }
-        
-        print("📌 [DEBUG] PostCell configure() 호출됨")
-        print("📌 postId: \(model.postId), title: \(model.title)")
     }
     
     func dateFromString(_ dateString: String) -> Date? {
@@ -173,6 +170,7 @@ class PostCell: UITableViewCell {
             from: date,
             to: now
         )
+
         if let year = components.year, year > 0 {
             return "\(year)년 전"
         }

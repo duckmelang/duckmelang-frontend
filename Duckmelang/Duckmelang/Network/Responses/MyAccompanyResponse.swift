@@ -14,7 +14,7 @@ public struct PostDTO: Codable {
     public let category: String
     public let date: String
     public let nickname: String
-    public let createdAt: String?
+    public let createdAt: String
     public let postImageUrl: String
     public let latestPublicMemberProfileImage: String
 }

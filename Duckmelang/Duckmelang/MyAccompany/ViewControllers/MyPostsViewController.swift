@@ -16,7 +16,7 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidLoad()
         self.view = myPostsView
         setupDelegate()
-        getBookmarksAPI()
+        getMyPostsAPI()
     }
     
     private lazy var myPostsView: MyPostsView = {
@@ -29,8 +29,8 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
         myPostsView.myPostsTableView.dataSource = self
     }
 
-    private func getBookmarksAPI() {
-        provider.request(.getMyPosts(memberId: 1, page: 0)) { result in
+    private func getMyPostsAPI() {
+        provider.request(.getMyPosts(page: 0)) { result in
             switch result {
             case .success(let response):
                 self.myPostsData.removeAll()
