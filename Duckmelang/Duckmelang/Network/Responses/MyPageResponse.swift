@@ -20,6 +20,10 @@ public struct ProfileData: Codable {
         return gender.lowercased() == "male" ? "남성" : "여성"
     }
     
+    var localizedAge: String {
+        return "만 \(age)세"
+    }
+    
     enum CodingKeys: String, CodingKey {
         case memberId
         case nickname
@@ -43,6 +47,10 @@ public struct myReviewDTO: Codable {
     
     var localizedGender: String {
         return gender.lowercased() == "male" ? "남성" : "여성"
+    }
+    
+    var localizedAge: String {
+        return "만 \(age)세"
     }
 }
 
@@ -68,6 +76,10 @@ struct MyPostDetailResponse: Codable {
     let createdAt: String
     let postImageURL: [String]
     let latestPublicMemberProfileImage: String
+    
+    var localizedAge: String {
+        return "만 \(age)세"
+    }
 }
 
 struct ProfileImageResponse: Codable {
@@ -78,4 +90,15 @@ struct ProfileImageResponse: Codable {
 struct ProfileEditInfoResponse: Codable {
     let nickname: String
     let latestPublicMemberProfileImage: String?
+}
+
+//현재 관심 아이돌 목록 조회
+struct idolListResponse: Codable {
+    let idolList: [IdolListDTO]
+}
+
+struct IdolListDTO: Codable {
+    let idolId: Int
+    let idolName: String
+    let idolImage: String
 }

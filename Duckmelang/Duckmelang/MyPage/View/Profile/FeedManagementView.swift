@@ -62,7 +62,7 @@ class FeedManagementView: UIView {
         }
         
         postView.snp.makeConstraints {
-            $0.top.equalTo(topStack.snp.bottom).offset(16)
+            $0.top.equalTo(topStack.snp.bottom).offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
             $0.height.equalTo(400)
         }

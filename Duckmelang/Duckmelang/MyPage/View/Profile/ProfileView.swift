@@ -40,7 +40,7 @@ class ProfileView: UIView {
         }
         
         profileBottomView.snp.makeConstraints{
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalToSuperview()
             $0.top.equalTo(profileTopView.snp.bottom)
         }
     }
@@ -105,7 +105,7 @@ class ProfileTopView: UIView {
     
     private lazy var matchingCount = Label(text: "", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
     
-    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 2)
+    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -13, distribution: .equalSpacing)
     private lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var postStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
     private lazy var matchingStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
@@ -195,7 +195,7 @@ class ProfileTopView: UIView {
     func updateProfile(with data: ProfileData) {
         nickname.text = data.nickname
         gender.text = data.localizedGender
-        age.text = "\(data.age)"
+        age.text = data.localizedAge
         
         postCount.text = "\(data.postCount)"
         matchingCount.text = "\(data.succeedApplicationCount)"
@@ -253,6 +253,7 @@ class ProfileBottomView: UIView {
         $0.separatorStyle = .none
         $0.rowHeight = 106
         $0.isHidden = false
+        $0.isUserInteractionEnabled = true
     }
     
     //변경 예정
@@ -292,7 +293,7 @@ class ProfileBottomView: UIView {
         segmentedControl.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(20)
             $0.centerX.equalToSuperview()
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(40)
         }
         
@@ -306,7 +307,6 @@ class ProfileBottomView: UIView {
         uploadPostView.snp.makeConstraints {
             $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
-            $0.height.equalTo(400)
         }
         
         cosmosView.snp.makeConstraints{

@@ -24,6 +24,10 @@ public enum MyPageAPI {
     case postProfileImage(profileImage: [MultipartFormData])
     case getProfileEdit
     case deletePost(postId: Int)
+    case getIdolList
+    case getSearchIdol(keyword: String)
+    case postIdol(idolId: Int)
+    case deleteIdol(idolId: Int)
 }
 
 extension MyPageAPI: TargetType {
@@ -61,6 +65,12 @@ extension MyPageAPI: TargetType {
             return "/\(postId)"
         case .postProfileImage:
             return "/profile/image/edit"
+        case .getIdolList:
+            return "/idols"
+        case .deleteIdol(idolId: let idolId), .postIdol(idolId: let idolId):
+            return "/idols/\(idolId)"
+        case .getSearchIdol:
+            return "/idols/search"
         }
     }
     
@@ -70,9 +80,9 @@ extension MyPageAPI: TargetType {
         switch self {
         case .patchProfile:
             return .patch
-        case .postProfileImage:
+        case .postProfileImage, .postIdol:
             return .post
-        case .deletePost:
+        case .deletePost, .deleteIdol:
             return .delete
         default:
             return .get
@@ -82,23 +92,16 @@ extension MyPageAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getProfileImage(let page):
+        case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol:
             return .requestPlain
         case .patchProfile(let profileData):
-            return .requestCompositeParameters(
-                bodyParameters: [
-                    "memberProfileImageURL": profileData.memberProfileImageURL,
-                    "nickname": profileData.nickname,
-                    "introduction": profileData.introduction
-                ],
-                bodyEncoding: JSONEncoding.default, urlParameters: [:]
-            )
-        case .getMyPosts(let page):
-            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+            return .requestJSONEncodable(profileData)
         case .postProfileImage(let profileImage):
-                return .uploadMultipart(profileImage)
+            return .uploadMultipart(profileImage)
+        case .getSearchIdol(keyword: let keyword):
+            return .requestParameters(parameters: ["keyword" : keyword], encoding: URLEncoding.queryString)
         }
     }
     
@@ -106,7 +109,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5MzM2ODY1LCJleHAiOjE3MzkzNDA0NjV9.80z5BQfcpT-k4_YqsIakMiQwlTGQyWN3lKU63dEO01E")"]
+                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5NTc1NTkyLCJleHAiOjE3Mzk1NzkxOTJ9.0t8GkMIgpjcQW_DeQ_YAU8tH_5HC3HYqnhbpUCbkYr0")"]
         }
     }
 }

@@ -61,4 +61,95 @@ class IdolChangeCell: UICollectionViewCell {
             self.deleteBtn.isHidden = true
         }
     }
+    
+    func configure(model: IdolListDTO, isLastCell: Bool) {
+        idolName.text = model.idolName
+        idolImage.kf.setImage(with: URL(string: model.idolImage))
+        
+        idolImage.contentMode = .scaleAspectFill
+        idolImage.layer.masksToBounds = true
+        idolImage.layer.cornerRadius = 32
+    }
+}
+
+class IdolAddBtnCell: UICollectionViewCell {
+    
+    static let identifier = "IdolAddBtnCell"
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
+        
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    var idolImage = UIImageView().then {
+        $0.image = UIImage(resource: .idolAdd)
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = $0.frame.width/2
+    }
+    
+    let idolName = Label(text: "추가하기", font: .ptdRegularFont(ofSize: 16), color: .grey600)
+    
+    private func setupView() {
+        [idolImage, idolName].forEach{addSubview($0)}
+        
+        idolImage.snp.makeConstraints{
+            $0.top.equalToSuperview().inset(6)
+            $0.centerX.equalToSuperview()
+            $0.height.width.equalTo(64)
+        }
+        
+        idolName.snp.makeConstraints{
+            $0.top.equalTo(idolImage.snp.bottom).offset(10)
+            $0.centerX.equalToSuperview()
+        }
+    }
+}
+
+class IdolAddCell: UICollectionViewCell {
+    
+    static let identifier = "IdolAddCell"
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
+        
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    var idolImage = UIImageView().then {
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = $0.frame.width/2
+    }
+    
+    let idolName = Label(text: "", font: .ptdRegularFont(ofSize: 16), color: .grey800)
+    
+    private func setupView() {
+        [idolImage, idolName].forEach{addSubview($0)}
+        
+        idolImage.snp.makeConstraints{
+            $0.top.equalToSuperview().inset(6)
+            $0.centerX.equalToSuperview()
+            $0.height.width.equalTo(64)
+        }
+   
+        idolName.snp.makeConstraints{
+            $0.top.equalTo(idolImage.snp.bottom).offset(10)
+            $0.centerX.equalToSuperview()
+        }
+    }
+
+    func configure(model: IdolListDTO) {
+        idolName.text = model.idolName
+        idolImage.kf.setImage(with: URL(string: model.idolImage))
+        
+        idolImage.contentMode = .scaleAspectFill
+        idolImage.layer.masksToBounds = true
+        idolImage.layer.cornerRadius = 32
+    }
 }

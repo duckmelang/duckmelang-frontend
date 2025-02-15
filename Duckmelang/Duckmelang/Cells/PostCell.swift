@@ -151,9 +151,6 @@ class PostCell: UITableViewCell {
         if let date = dateFromString(model.createdAt) {
             self.postTime.text = timeAgo(from: date)
         }
-        
-        print("📌 [DEBUG] PostCell configure() 호출됨")
-        print("📌 postId: \(model.postId), title: \(model.title)")
     }
     
     func dateFromString(_ dateString: String) -> Date? {
@@ -173,7 +170,7 @@ class PostCell: UITableViewCell {
             from: date,
             to: now
         )
-        
+
         if let year = components.year, year > 0 {
             return "\(year)년 전"
         }

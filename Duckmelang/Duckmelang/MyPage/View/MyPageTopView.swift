@@ -60,7 +60,7 @@ class MyPageTopView: UIView {
         $0.configuration = config
     }
 
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 2)
+    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -13, distribution: .equalSpacing)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var profileInfo = Stack(axis: .horizontal, spacing: 12, alignment: .center)
     
@@ -100,7 +100,7 @@ class MyPageTopView: UIView {
     func updateProfile(with data: ProfileData) {
         nickname.text = data.nickname
         gender.text = data.localizedGender
-        age.text = "\(data.age)"
+        age.text = data.localizedAge
         
         //Kingfisher로 이미지 로딩 (URL이 유효한 경우만)
         if let url = URL(string: data.latestPublicMemberProfileImage) {
