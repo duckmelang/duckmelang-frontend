@@ -118,10 +118,14 @@ class IdolChangeViewController: UIViewController {
 }
 
 extension IdolChangeViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { return idolList.count + 1}
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { return idolList.isEmpty ? 1 : idolList.count + 1 }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.item < idolList.count {
+        if idolList.isEmpty || indexPath.item == idolList.count {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: IdolAddBtnCell.identifier, for: indexPath)
+            return cell
+        }
+        else {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: IdolChangeCell.identifier,
                                                                 for: indexPath) as? IdolChangeCell else {
                 return UICollectionViewCell()//행 식별위해 파라미터로 받음
@@ -134,11 +138,7 @@ extension IdolChangeViewController: UICollectionViewDataSource {
             //cell.deleteBtn.isHidden = !deleteQueue.contains(idol.idolId)
             cell.deleteBtn.tag = indexPath.item
             cell.deleteBtn.addTarget(self, action: #selector(deleteBtnTapped(_:)), for: .touchUpInside)
-
-            
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: IdolAddBtnCell.identifier, for: indexPath)
+        
             return cell
         }
     }
