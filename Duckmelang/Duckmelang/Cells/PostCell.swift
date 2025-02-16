@@ -102,6 +102,7 @@ class PostCell: UITableViewCell {
         postTitle.snp.makeConstraints {
             $0.top.equalToSuperview().offset(12)
             $0.leading.equalTo(postImage.snp.trailing).offset(12)
+            $0.width.equalTo(225)
         }
         
         EventTypeDate.snp.makeConstraints {
@@ -142,7 +143,7 @@ class PostCell: UITableViewCell {
         self.postTitle.text = model.title
         self.EventTypeDate.text = "\(model.category) | \(model.date)"
         
-        if let userImageUrl = URL(string: model.latestPublicMemberProfileImage) {
+        if let userImageUrl = URL(string: model.latestPublicMemberProfileImage ?? "") {
             self.userImage.kf.setImage(with: userImageUrl, placeholder: UIImage(named: "defaultUserImage"))
         }
         
@@ -150,6 +151,8 @@ class PostCell: UITableViewCell {
         
         if let date = dateFromString(model.createdAt) {
             self.postTime.text = timeAgo(from: date)
+        } else {
+            self.postTime.text = "날짜 없음"
         }
     }
     

@@ -74,8 +74,8 @@ struct MyPostDetailResponse: Codable {
     let category: String
     let date: String
     let createdAt: String
-    let postImageURL: [String]
-    let latestPublicMemberProfileImage: String
+    let postImageUrl: [String]
+    let latestPublicMemberProfileImage: String?
     
     var localizedAge: String {
         return "만 \(age)세"
