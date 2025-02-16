@@ -4,7 +4,7 @@
 //
 //  Created by 주민영 on 2/3/25.
 //
-
+import Foundation
 //프로필 정보 담는 구조체
 public struct ProfileData: Codable {
     let memberId: Int
@@ -101,4 +101,15 @@ struct IdolListDTO: Codable {
     let idolId: Int
     let idolName: String
     let idolImage: String
+}
+
+//get 응답 모델
+struct LandmineResponse: Codable {
+    let landmineList: [String]
+}
+
+//post 응답 모델
+struct LandmineModel: Codable {
+    let id: Int
+    let content: String
 }
