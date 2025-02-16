@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 class PostDetailView: UIView {
 
@@ -81,23 +82,25 @@ class PostDetailView: UIView {
     // **UI 업데이트 함수**
     func updateUI(with data: MyPostDetailResponse) {
         // 이미지 로드 (첫 번째 이미지)
-        if let firstImageUrlString = data.postImageURL.first,
+        if let firstImageUrlString = data.postImageUrl.first,
            let imageUrl = URL(string: firstImageUrlString) {
             loadImage(from: imageUrl, into: postDetailTopView.imageView)
         }
         
         // 상단 프로필 정보 업데이트
+        if let userImageUrl = URL(string: data.latestPublicMemberProfileImage ?? "") {
+            self.postDetailTopView.profileImage.kf.setImage(with: userImageUrl, placeholder: UIImage())
+        }
         postDetailTopView.nickname.text = data.nickname
         postDetailTopView.gender.text = (data.gender == "MALE") ? "남성" : "여성"
-        postDetailTopView.age.text = "\(data.age)세"
+        postDetailTopView.age.text = "만 \(data.age)세"
         
         // 하단 게시글 정보 업데이트
         postDetailBottomView.title1.text = data.title
         postDetailBottomView.body.text = data.content
         postDetailBottomView.info.text = "스크랩 \(data.bookmarkCount) | 채팅 \(data.viewCount) | 조회 \(data.viewCount)"
         
-        // 동행 정보 TableView에 데이터 리로드 (예시)
-        // postDetailBottomView.tableView.reloadData()
+        postDetailBottomView.tableView.reloadData()
     }
     
     // **이미지 로드 함수 (비동기)**
@@ -198,7 +201,7 @@ class PostDetailTopView: UIView {
         $0.isHidden = true
     }
     
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1)
+    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -10)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     lazy var profileInfo = Stack(axis: .horizontal, spacing: 16, alignment: .center)
     
@@ -285,9 +288,16 @@ class PostDetailBottomView: UIView {
     
     lazy var title1 = Label(text: "게시글 제목", font: .ptdSemiBoldFont(ofSize: 17), color: .grey900)
     
-    lazy var body = Label(text: "본문 \n", font: .ptdRegularFont(ofSize: 15), color: .grey900)
+    lazy var body = UILabel().then {
+        $0.text = "본문 \n"
+        $0.font = .ptdRegularFont(ofSize: 15)
+        $0.textColor = .grey900
+        $0.textAlignment = .left
+        $0.numberOfLines = 0
+    }
     
     lazy var info = Label(text: "스크랩 0      | 채팅 0      | 조회 0 ", font: .ptdRegularFont(ofSize: 12), color: .grey500)
+    
     private lazy var textStack = Stack(axis: .vertical, spacing: 8)
     
     private lazy var title2 = Label(text: "동행 정보", font: .ptdSemiBoldFont(ofSize: 17), color: .grey900)

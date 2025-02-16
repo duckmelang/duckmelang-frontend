@@ -30,7 +30,7 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
     }
 
     private func getBookmarksAPI() {
-        provider.request(.getBookmarks(memberId: 1, page: 0)) { result in
+        provider.request(.getBookmarks(page: 0)) { result in
             switch result {
             case .success(let response):
                 self.bookmarksData.removeAll()
@@ -57,5 +57,14 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
         }
         cell.configure(model: bookmarksData[indexPath.row])
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let postId = bookmarksData[indexPath.row].postId
+        let bookmarkDetailVC = BookmarkDetailViewController()
+        
+        bookmarkDetailVC.postId = postId
+        
+        self.navigationController?.pushViewController(bookmarkDetailVC, animated: true)
     }
 }

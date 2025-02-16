@@ -20,8 +20,9 @@ public enum MyAccompanyAPI {
     case getReceivedRequests(memberId: Int, page: Int)
     case postRequestSucceed(applicationId: Int, memberId: Int)
     case postRequestFailed(applicationId: Int, memberId: Int)
-    case getBookmarks(memberId: Int, page: Int)
+    case getBookmarks(page: Int)
     case getMyPosts(page: Int)
+    case getPostDetail(postId: Int)
 }
 
 extension MyAccompanyAPI: TargetType {
@@ -34,7 +35,7 @@ extension MyAccompanyAPI: TargetType {
                 fatalError("requestURL 오류")
             }
             return url
-        case .getMyPosts:
+        case .getMyPosts, .getPostDetail:
             guard let url = URL(string: API.postURL) else {
                 fatalError("postURL 오류")
             }
@@ -60,10 +61,12 @@ extension MyAccompanyAPI: TargetType {
             return "/received/succeed/\(applicationId)"
         case .postRequestFailed(let applicationId, _):
             return "/received/failed/\(applicationId)"
-        case .getBookmarks(let memberId, _):
-            return "/bookmarks/\(memberId)"
+        case .getBookmarks:
+            return "/bookmarks"
         case .getMyPosts:
             return "/my"
+        case .getPostDetail(let postId):
+            return "/\(postId)"
         }
     }
     
@@ -83,10 +86,12 @@ extension MyAccompanyAPI: TargetType {
         switch self {
         case .getPendingRequests(let memberId, let page), .getSentRequests(let memberId, let page), .getReceivedRequests(let memberId, let page):
             return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
-        case .getBookmarks(_, let page), .getMyPosts(let page):
+        case .getBookmarks(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .postRequestSucceed(_, let memberId), .postRequestFailed(_, let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
+        case .getPostDetail:
+            return .requestPlain
         }
     }
     
@@ -95,7 +100,7 @@ extension MyAccompanyAPI: TargetType {
         default :
             return [
                 "Content-Type": "application/json",
-                "Authorization": "Bearer Token"
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5Njk5ODM1LCJleHAiOjE3Mzk3MDM0MzV9.4kxOtCAPVHAetGEDp85tbRHL8mRzVH6ERE_sniD3wh0"
             ]
         }
     }
