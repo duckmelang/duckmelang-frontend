@@ -132,7 +132,7 @@ class ProfileViewController: UIViewController{
                     print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
                 }
             case .failure(let error):
-                print("❌ API 요청 실패: \(error.localizedDescription)")
+                print("❌ 동행후기 가져오기 요청 실패: \(error.localizedDescription)")
             }
         }
     }
@@ -228,7 +228,7 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
         if (tableView == profileView.profileBottomView.uploadPostView) {
             return posts.isEmpty ? 0 : posts.count
         } else if (tableView == profileView.profileBottomView.reviewTableView) {
-            return data2.count
+            return reviews.count
         }
         return 0
     }

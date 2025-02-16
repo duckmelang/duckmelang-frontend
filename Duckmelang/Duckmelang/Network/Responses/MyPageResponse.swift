@@ -105,11 +105,11 @@ struct IdolListDTO: Codable {
 
 //get 응답 모델
 struct LandmineResponse: Codable {
-    let landmineList: [String]
+    let landmineList: [LandmineModel]
 }
 
 //post 응답 모델
 struct LandmineModel: Codable {
-    let id: Int
+    let landmineId: Int
     let content: String
 }

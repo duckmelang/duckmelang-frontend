@@ -8,15 +8,23 @@
 import UIKit
 import Moya
 
+enum ActionType {
+    case add, delete, none
+}
+
 class XKeywordChangeViewController: UIViewController {
-
+    
     private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
-    private var filters: [LandmineModel] = []  // LandmineModel(id, content)
-    private var deleteQueue: Set<Int> = []  // 삭제 대기 목록(landmineId를 저장)
-
+    
+    private var filters: [LandmineModel] = []  // 서버에서 가져온 키워드 리스트
+    private var pendingAddQueue: Set<String> = []  // 새로 추가할 키워드 큐
+    private var pendingDeleteQueue: Set<Int> = []  // 삭제할 키워드 ID 큐
+    
+    private var lastAction: ActionType = .none
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         self.view = xKeywordChangeView
         navigationController?.isNavigationBarHidden = true
         
@@ -34,70 +42,92 @@ class XKeywordChangeViewController: UIViewController {
         self.presentingViewController?.dismiss(animated: false)
     }
     
+    // MARK: - Add Filter
     @objc private func addFilter() {
         guard let filterText = xKeywordChangeView.searchBar.text, !filterText.isEmpty else { return }
         
-        provider.request(.postLandmines(content: filterText)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<LandmineModel>.self)
-                    guard let newFilter = decodedResponse.result else { return }
-                    
-                    self.filters.append(newFilter)  // content만 추가
-                    DispatchQueue.main.async {
-                        let newIndexPath = IndexPath(item: self.filters.count - 1, section: 0)
-                        self.xKeywordChangeView.xKeywordCollectionView.insertItems(at: [newIndexPath])
-                        self.xKeywordChangeView.searchBar.text = ""
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                }
-            case .failure(let error):
-                print("❌ 필터 추가 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    @objc private func deleteButtonTapped(_ sender: UIButton) {
-        let index = sender.tag
-        let landmineId = filters[index].id
-        
-        if deleteQueue.contains(landmineId) {
-            return // 이미 삭제 대기 목록에 있는 경우 아무 작업도 하지 않음
+        // 중복 방지
+        if filters.contains(where: { $0.content == filterText }) || pendingAddQueue.contains(filterText) {
+            print("⚠️ 중복된 키워드입니다.")
+            return
         }
         
-        deleteQueue.insert(landmineId)  // 삭제 대기 목록에 추가
-        filters.remove(at: index)  // UI에서 임시 삭제
+        pendingAddQueue.insert(filterText)  // Add 대기 큐에 추가
+        filters.append(LandmineModel(landmineId: -1, content: filterText))  // 임시로 id는 -1로 설정
         
         DispatchQueue.main.async {
-            self.xKeywordChangeView.xKeywordCollectionView.performBatchUpdates {
-                self.xKeywordChangeView.xKeywordCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-            }
+            let newIndexPath = IndexPath(item: self.filters.count - 1, section: 0)
+            self.xKeywordChangeView.xKeywordCollectionView.insertItems(at: [newIndexPath])
+            self.xKeywordChangeView.searchBar.text = ""
         }
+        
+        lastAction = .add
     }
     
-    @objc private func finishBtnTapped() {
-        let dispatchGroup = DispatchGroup() // 모든 삭제 작업 후 fetchLandmines 호출하기 위해..
-        
-        for landmineId in deleteQueue {
-            dispatchGroup.enter() // 삭제 작업 시작
-            provider.request(.deleteLandmines(landmineId: landmineId)) { result in
-                switch result {
-                case .success:
-                    print("✅ \(landmineId) 삭제 성공")
-                case .failure(let error):
-                    print("❌ 삭제 실패: \(error.localizedDescription)")
-                }
-                dispatchGroup.leave() // 삭제 작업 종료
-            }
+    // MARK: - Delete Filter
+    @objc private func deleteButtonTapped(_ sender: UIButton) {
+        let point = sender.convert(sender.bounds.origin, to: xKeywordChangeView.xKeywordCollectionView)
+        guard let indexPath = xKeywordChangeView.xKeywordCollectionView.indexPathForItem(at: point) else {
+            print("⚠️ 셀의 indexPath를 가져오지 못했습니다.")
+            return
         }
         
-        dispatchGroup.notify(queue: .main) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
-                self.deleteQueue.removeAll()
-                self.fetchLandmines()
+        let index = indexPath.item
+        let landmine = filters[index]
+        
+        if landmine.landmineId != -1 {
+            pendingDeleteQueue.insert(landmine.landmineId)  // 삭제할 ID를 큐에 추가
+        }
+        filters.remove(at: index)  // filters에서 임시 삭제
+        
+        DispatchQueue.main.async {
+            self.xKeywordChangeView.xKeywordCollectionView.deleteItems(at: [indexPath])
+        }
+        
+        lastAction = .delete
+    }
+    
+    // MARK: - Finish Action
+    @objc private func finishBtnTapped() {
+        let dispatchGroup = DispatchGroup()
+        
+        switch lastAction {
+        case .add:
+            for content in pendingAddQueue {
+                dispatchGroup.enter()
+                provider.request(.postLandmines(content: content)) { result in
+                    switch result {
+                    case .success(let response):
+                        print("✅ \(content) 추가 성공")
+                    case .failure(let error):
+                        print("❌ \(content) 추가 실패: \(error.localizedDescription)")
+                    }
+                    dispatchGroup.leave()
+                }
             }
+        case .delete:
+            for landmineId in pendingDeleteQueue {
+                dispatchGroup.enter()
+                provider.request(.deleteLandmines(landmineId: landmineId)) { result in
+                    switch result {
+                    case .success:
+                        print("✅ \(landmineId) 삭제 성공")
+                    case .failure(let error):
+                        print("❌ \(landmineId) 삭제 실패: \(error.localizedDescription)")
+                    }
+                    dispatchGroup.leave()
+                }
+            }
+        case .none:
+            return
+        }
+     
+        // 모든 작업 완료 후 목록 새로고침
+        dispatchGroup.notify(queue: .main) {
+            self.pendingAddQueue.removeAll()
+            self.pendingDeleteQueue.removeAll()
+            self.lastAction = .none
+            self.fetchLandmines()
         }
     }
     
@@ -111,19 +141,8 @@ class XKeywordChangeViewController: UIViewController {
             switch result {
             case .success(let response):
                 do {
-                    // 응답 디코딩: String 배열을 LandmineModel로 변환
-                    if let responseString = String(data: response.data, encoding: .utf8) {
-                        print("📝 GET 응답: \(responseString)")
-                    }
-
-                    let decodedResponse = try response.map(ApiResponse<LandmineResponse>.self)  // String 배열로 디코딩
-                    let landmineStrings = decodedResponse.result?.landmineList ?? []
-
-                    // String 배열을 LandmineModel 배열로 변환 (id는 임시 UUID 사용)
-                    self.filters = landmineStrings.enumerated().map { index, content in
-                        LandmineModel(id: index, content: content)
-                    }
-
+                    let decodedResponse = try response.map(ApiResponse<LandmineResponse>.self)
+                    self.filters = decodedResponse.result?.landmineList ?? []
                     DispatchQueue.main.async {
                         self.xKeywordChangeView.xKeywordCollectionView.reloadData()
                     }
@@ -135,7 +154,6 @@ class XKeywordChangeViewController: UIViewController {
             }
         }
     }
-
 }
 
 extension XKeywordChangeViewController: UICollectionViewDataSource {
