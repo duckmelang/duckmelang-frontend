@@ -118,7 +118,7 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     }
 
     private func navigateToMakeProfilesViewController(memberId: Int) {
-        let makeProfilesVC = MakeProfilesViewController(memberId: memberId)
+        let makeProfilesVC = MakeProfilesViewController()
         let navigationController = UINavigationController(rootViewController: makeProfilesVC)
         navigationController.modalPresentationStyle = .fullScreen
         // 모달을 닫고 네비게이션 방식으로 화면을 이동
