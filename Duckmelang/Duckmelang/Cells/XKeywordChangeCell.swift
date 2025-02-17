@@ -45,7 +45,6 @@ class XKeywordChangeCell: UICollectionViewCell {
         }
     }
     
-    public func configure(model: XKeywordChangeModel) {
-        self.filter.text = model.filter
-    }
+    public func configure(filterText: String) {
+        self.filter.text = filterText    }
 }

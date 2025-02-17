@@ -28,6 +28,9 @@ public enum MyPageAPI {
     case getSearchIdol(keyword: String)
     case postIdol(idolId: Int)
     case deleteIdol(idolId: Int)
+    case getLandmines
+    case postLandmines(content: String)
+    case deleteLandmines(landmineId: Int)
 }
 
 extension MyPageAPI: TargetType {
@@ -71,6 +74,10 @@ extension MyPageAPI: TargetType {
             return "/idols/\(idolId)"
         case .getSearchIdol:
             return "/idols/search"
+        case .getLandmines, .postLandmines:
+            return "/landmines"
+        case .deleteLandmines(landmineId: let landmineId):
+            return "/landmines/\(landmineId)"
         }
     }
     
@@ -80,9 +87,9 @@ extension MyPageAPI: TargetType {
         switch self {
         case .patchProfile:
             return .patch
-        case .postProfileImage, .postIdol:
+        case .postProfileImage, .postIdol, .postLandmines:
             return .post
-        case .deletePost, .deleteIdol:
+        case .deletePost, .deleteIdol, .deleteLandmines:
             return .delete
         default:
             return .get
@@ -94,7 +101,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
@@ -102,6 +109,8 @@ extension MyPageAPI: TargetType {
             return .uploadMultipart(profileImage)
         case .getSearchIdol(keyword: let keyword):
             return .requestParameters(parameters: ["keyword" : keyword], encoding: URLEncoding.queryString)
+        case .postLandmines(content: let content):
+            return .requestParameters(parameters: ["content" : content], encoding: JSONEncoding.default)
         }
     }
     
@@ -109,7 +118,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5NTc1NTkyLCJleHAiOjE3Mzk1NzkxOTJ9.0t8GkMIgpjcQW_DeQ_YAU8tH_5HC3HYqnhbpUCbkYr0")"]
+                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5NzYwMjI4LCJleHAiOjE3Mzk3NjM4Mjh9.M2_Ax7Ga3e-r22GymxS21UNeeVq1Iu4ZWC3PTNP-t2A")"]
         }
     }
 }

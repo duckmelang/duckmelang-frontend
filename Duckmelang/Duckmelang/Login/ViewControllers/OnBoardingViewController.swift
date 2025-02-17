@@ -106,7 +106,7 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
                 self.navigateToBaseViewController()
             } else {
                 // 프로필이 완료되지 않은 경우 MakeProfilesViewController로 이동
-                self.navigateToMakeProfilesViewController(memberId: memberId)
+                self.navigateToMakeProfilesViewController()
             }
         }
     }
@@ -117,7 +117,7 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
         present(baseVC, animated: true)
     }
 
-    private func navigateToMakeProfilesViewController(memberId: Int) {
+    private func navigateToMakeProfilesViewController() {
         let makeProfilesVC = MakeProfilesViewController()
         let navigationController = UINavigationController(rootViewController: makeProfilesVC)
         navigationController.modalPresentationStyle = .fullScreen

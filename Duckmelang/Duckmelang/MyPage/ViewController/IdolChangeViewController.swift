@@ -57,26 +57,31 @@ class IdolChangeViewController: UIViewController {
         if !deleteQueue.contains(idolId) {
             deleteQueue.insert(idolId)
             idolList.remove(at: index)  // 목록에서 임시 제거
-            idolChangeView.idolChangeCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+            //idolChangeView.idolChangeCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+            idolChangeView.idolChangeCollectionView.reloadData()
         }
     }
     
     @objc private func finishBtnTapped() {
+        let group = DispatchGroup()
+        
         for idolId in deleteQueue {
+            group.enter()
             provider.request(.deleteIdol(idolId: idolId)) { result in
                 switch result {
                 case .success:
                     print("✅ 아이돌 삭제 성공: \(idolId)")
-                    self.idolChangeView.idolChangeCollectionView.reloadData()
                 case .failure(let error):
                     print("❌ 아이돌 삭제 실패: \(error.localizedDescription)")
                 }
+                group.leave()
             }
         }
         
-        // 완료 후 목록을 다시 가져와 새로고침
-        fetchIdolList()
-        deleteQueue.removeAll()  // 삭제 대기 목록 초기화
+        group.notify(queue: .main) {
+            self.deleteQueue.removeAll()  // 삭제 대기 목록 초기화
+            self.fetchIdolList() // 최신 아이돌 목록 다시 가져옴
+        }
     }
  
     private func setupDelegate() {
@@ -113,28 +118,27 @@ class IdolChangeViewController: UIViewController {
 }
 
 extension IdolChangeViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { return idolList.count + 1}
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { return idolList.isEmpty ? 1 : idolList.count + 1 }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.item < idolList.count {
+        if idolList.isEmpty || indexPath.item == idolList.count {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: IdolAddBtnCell.identifier, for: indexPath)
+            return cell
+        }
+        else {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: IdolChangeCell.identifier,
                                                                 for: indexPath) as? IdolChangeCell else {
                 return UICollectionViewCell()//행 식별위해 파라미터로 받음
             }
             
-            let idol = idolList[indexPath.row]
-            let isLastCell = (indexPath.item == idolList.count - 1)
-            cell.configure(model: idol, isLastCell: isLastCell)
+            let idol = idolList[indexPath.item]
+            cell.configure(model: idol, isLastCell: false)
             
             // 삭제 대기 상태인지 확인하여 삭제 버튼 시각적 처리
             //cell.deleteBtn.isHidden = !deleteQueue.contains(idol.idolId)
             cell.deleteBtn.tag = indexPath.item
             cell.deleteBtn.addTarget(self, action: #selector(deleteBtnTapped(_:)), for: .touchUpInside)
-
-            
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: IdolAddBtnCell.identifier, for: indexPath)
+        
             return cell
         }
     }
