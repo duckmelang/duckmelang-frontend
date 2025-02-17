@@ -103,19 +103,15 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
             switch result {
             case .success(let response):
                 do {
-                    let responseData = try response.map(PatchMemberProfileResponse.self) // ✅ 응답 데이터 디코딩
-                    print("✅ 프로필 설정 응답: \(responseData)")
-
-                    if responseData.isSuccess {
-                        print("✅ 서버 응답 성공! 닉네임: \(responseData.result.nickname), 생년월일: \(responseData.result.birth)")
+                    if let successData = try? response.map(PatchMemberProfileSuccessResponse.self), successData.isSuccess {
+                        print("✅ 서버 응답 성공! 닉네임: \(successData.result.nickname), 생년월일: \(successData.result.birth)")
                         completion() // ✅ 요청 성공 시 다음 단계로 이동
+                    } else if let errorData = try? response.map(PatchMemberProfileErrorResponse.self) {
+                        print("❌ 서버 응답 실패! 코드: \(errorData.code), 메시지: \(errorData.message)")
+                        self.showErrorAlert(title: "프로필 설정 실패", message: errorData.message)
                     } else {
-                        print("❌ 서버 응답 실패! 코드: \(responseData.code), 메시지: \(responseData.message)")
-                        self.showErrorAlert(title: "프로필 설정 실패", message: responseData.message)
+                        self.showErrorAlert(title: "오류", message: "응답 데이터를 처리할 수 없습니다.")
                     }
-                } catch {
-                    print("❌ 응답 디코딩 실패: \(error.localizedDescription)")
-                    self.showErrorAlert(title: "오류", message: "응답 데이터를 처리할 수 없습니다.")
                 }
 
             case .failure(let error):
