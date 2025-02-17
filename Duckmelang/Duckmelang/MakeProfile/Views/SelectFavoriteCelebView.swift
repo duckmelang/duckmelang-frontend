@@ -9,7 +9,7 @@ import UIKit
 import Then
 import SnapKit
 
-class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSource {
+class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate {
     
     private let titleLabel = UILabel().then {
         $0.text = "좋아하는 아이돌을 알려주세요!"
@@ -26,6 +26,8 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
     private let celebTextField = UITextField().then {
         $0.placeholder = "텍스트 입력"
         $0.borderStyle = .roundedRect
+        $0.keyboardType = .asciiCapable
+        $0.returnKeyType = .done
 
         // 왼쪽 패딩 추가
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
@@ -142,6 +144,12 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
         dropdownTableView.dataSource = self
         dropdownTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         celebTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        celebTextField.delegate = self
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder() // 키보드 닫기
+        return true
     }
     
     func updateDropdown(with idolCategories: [(id: Int, name: String)]) {
