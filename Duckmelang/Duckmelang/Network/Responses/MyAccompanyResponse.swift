@@ -16,7 +16,7 @@ public struct PostDTO: Codable {
     public let nickname: String
     public let createdAt: String
     public let postImageUrl: String
-    public let latestPublicMemberProfileImage: String
+    public let latestPublicMemberProfileImage: String?
 }
 
 // 게시글 받아오는 구조체
