@@ -24,6 +24,7 @@ public enum LoginAPI {
     case getOAuthTokenKakao(memberId: Int)
     case getOAuthTokenGoogle(memberId: Int)
     case patchMemberProfile(memberId: Int, profile: PatchMemberProfileRequest)
+    case postMemberInterestCeleb(memberId: Int, idolNums: SelectFavoriteIdolRequest)
     
 }
 
@@ -72,6 +73,11 @@ extension LoginAPI: TargetType {
                 fatalError("memberURL 오류")
             }
             return url
+        case .postMemberInterestCeleb(memberId : _):
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
         }
     }
     
@@ -92,6 +98,8 @@ extension LoginAPI: TargetType {
             return "/google"
         case .patchMemberProfile(let memberId, _):
             return "/\(memberId)/profile"
+        case .postMemberInterestCeleb(let memberId, _):
+            return "/\(memberId)/idols"
         }
     }
     
@@ -129,8 +137,13 @@ extension LoginAPI: TargetType {
             )
         case .getOAuthTokenKakao(let memberId), .getOAuthTokenGoogle(let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.default)
+            
         case .patchMemberProfile(_, let PatchMemberProfileRequest):
             return .requestJSONEncodable(PatchMemberProfileRequest)
+            
+        case .postMemberInterestCeleb(_, let SelectFavoriteIdolRequest):
+            return .requestJSONEncodable(SelectFavoriteIdolRequest)
+            
         case .kakaoLogin, .googleLogin:
             return .requestPlain
         }

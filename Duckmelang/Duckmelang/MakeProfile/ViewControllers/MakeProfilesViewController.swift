@@ -22,7 +22,7 @@ class MakeProfilesViewController: UIViewController {
         self.memberId = memberId
         self.stepVCs = [
             SetupNickBirthGenViewController(memberId: memberId),
-            SelectFavoriteCelebViewController(),
+            SelectFavoriteCelebViewController(memberId: memberId),
             SelectEventViewController(),
             FilterKeywordsViewController()
         ]
