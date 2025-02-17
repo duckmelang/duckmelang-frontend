@@ -20,7 +20,7 @@ class XKeywordChangeViewController: UIViewController {
     private var pendingAddQueue: Set<String> = []  // 새로 추가할 키워드 큐
     private var pendingDeleteQueue: Set<Int> = []  // 삭제할 키워드 ID 큐
     
-    private var lastAction: ActionType = .none
+    private var lastAction: [String: ActionType] = [:]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,14 +54,13 @@ class XKeywordChangeViewController: UIViewController {
         
         pendingAddQueue.insert(filterText)  // Add 대기 큐에 추가
         filters.append(LandmineModel(landmineId: -1, content: filterText))  // 임시로 id는 -1로 설정
+        lastAction[filterText] = .add
         
         DispatchQueue.main.async {
             let newIndexPath = IndexPath(item: self.filters.count - 1, section: 0)
             self.xKeywordChangeView.xKeywordCollectionView.insertItems(at: [newIndexPath])
             self.xKeywordChangeView.searchBar.text = ""
         }
-        
-        lastAction = .add
     }
     
     // MARK: - Delete Filter
@@ -75,58 +74,64 @@ class XKeywordChangeViewController: UIViewController {
         let index = indexPath.item
         let landmine = filters[index]
         
+        if pendingAddQueue.contains(landmine.content) {
+            pendingAddQueue.remove(landmine.content)
+            lastAction[landmine.content] = ActionType.none
+        } else {
+            pendingDeleteQueue.insert(landmine.landmineId)
+            lastAction[landmine.content] = .delete
+            
+        }
         if landmine.landmineId != -1 {
             pendingDeleteQueue.insert(landmine.landmineId)  // 삭제할 ID를 큐에 추가
         }
-        filters.remove(at: index)  // filters에서 임시 삭제
         
+        filters.remove(at: index)  // filters에서 임시 삭제
         DispatchQueue.main.async {
             self.xKeywordChangeView.xKeywordCollectionView.deleteItems(at: [indexPath])
         }
-        
-        lastAction = .delete
     }
     
     // MARK: - Finish Action
     @objc private func finishBtnTapped() {
         let dispatchGroup = DispatchGroup()
         
-        switch lastAction {
-        case .add:
-            for content in pendingAddQueue {
-                dispatchGroup.enter()
-                provider.request(.postLandmines(content: content)) { result in
-                    switch result {
-                    case .success(let response):
-                        print("✅ \(content) 추가 성공")
-                    case .failure(let error):
-                        print("❌ \(content) 추가 실패: \(error.localizedDescription)")
-                    }
-                    dispatchGroup.leave()
+        // **Step 1: 실제 추가할 키워드 계산 (삭제되지 않은 추가 키워드)**
+        let finalAddQueue = pendingAddQueue.filter { lastAction[$0] != .delete }
+        
+        // **Step 2: 삭제 요청**
+        for landmineId in pendingDeleteQueue {
+            dispatchGroup.enter()
+            provider.request(.deleteLandmines(landmineId: landmineId)) { result in
+                switch result {
+                case .success:
+                    print("✅ \(landmineId) 삭제 성공")
+                case .failure(let error):
+                    print("❌ \(landmineId) 삭제 실패: \(error.localizedDescription)")
                 }
+                dispatchGroup.leave()
             }
-        case .delete:
-            for landmineId in pendingDeleteQueue {
-                dispatchGroup.enter()
-                provider.request(.deleteLandmines(landmineId: landmineId)) { result in
-                    switch result {
-                    case .success:
-                        print("✅ \(landmineId) 삭제 성공")
-                    case .failure(let error):
-                        print("❌ \(landmineId) 삭제 실패: \(error.localizedDescription)")
-                    }
-                    dispatchGroup.leave()
-                }
-            }
-        case .none:
-            return
         }
-     
-        // 모든 작업 완료 후 목록 새로고침
+        
+        // **Step 3: 추가 요청**
+        for content in finalAddQueue {
+            dispatchGroup.enter()
+            provider.request(.postLandmines(content: content)) { result in
+                switch result {
+                case .success:
+                    print("✅ \(content) 추가 성공")
+                case .failure(let error):
+                    print("❌ \(content) 추가 실패: \(error.localizedDescription)")
+                }
+                dispatchGroup.leave()
+            }
+        }
+        
+        // **Step 4: 모든 요청이 끝난 후 초기화 및 새로고침**
         dispatchGroup.notify(queue: .main) {
             self.pendingAddQueue.removeAll()
             self.pendingDeleteQueue.removeAll()
-            self.lastAction = .none
+            self.lastAction.removeAll()
             self.fetchLandmines()
         }
     }

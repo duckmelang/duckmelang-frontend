@@ -118,7 +118,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5NzI3MjQ1LCJleHAiOjE3Mzk3MzA4NDV9.R-cT9a4ShGqEl4vzwr9l8pw9OMRAMzsvGKFLzyz6WSc")"]
+                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5NzYwMjI4LCJleHAiOjE3Mzk3NjM4Mjh9.M2_Ax7Ga3e-r22GymxS21UNeeVq1Iu4ZWC3PTNP-t2A")"]
         }
     }
 }
