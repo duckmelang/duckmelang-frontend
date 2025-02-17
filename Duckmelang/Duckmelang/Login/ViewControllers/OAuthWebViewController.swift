@@ -9,8 +9,23 @@ import UIKit
 import WebKit
 import SnapKit
 import Then
+import Moya
 
-class OAuthWebViewController: UIViewController, WKNavigationDelegate {
+class OAuthWebViewController: UIViewController, WKNavigationDelegate, MoyaErrorHandlerDelegate {
+    func showErrorAlert(title: String, message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(
+                title: "오류 발생",
+                message: message,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
+    
+    
+    private lazy var provider = MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
     
     // `WKWebView`를 Then을 사용하여 선언
     private let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration()).then {
@@ -71,7 +86,6 @@ class OAuthWebViewController: UIViewController, WKNavigationDelegate {
             if response.isSuccess {
                 let memberId = response.result.memberId
                 let profileComplete = response.result.profileComplete
-                print("✅ OAuth 로그인 완료 - memberId: \(memberId), profileComplete: \(profileComplete)")
                 
                 // 전달된 데이터로 OnboardingViewController로 이동할 수 있게 콜백 호출
                 self.oauthCompletion?(memberId, profileComplete)

@@ -12,7 +12,7 @@ import Alamofire
 
 class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     // MARK: - MoyaErrorHandlerDelegate 구현
-    func showErrorAlert(message: String) {
+    func showErrorAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(
                 title: "오류 발생",
@@ -25,6 +25,8 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     }
     
     private lazy var provider = MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
+    
+    var memberId: Int?
     
 
     // MARK: - Properties
@@ -97,7 +99,7 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
 
     // OAuthWebViewController에서 로그인 후 받은 데이터를 처리
     func handleOAuthResponse(memberId: Int, profileComplete: Bool) {
-        print("✅ OAuth 처리 완료 - memberId: \(memberId), profileComplete: \(profileComplete)")
+        print("✅ OAuth 완료 - memberId: \(memberId), profileComplete: \(profileComplete)")
 
         // 모달을 닫고 처리 후 화면 전환
         dismiss(animated: true) {
@@ -118,7 +120,7 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     }
 
     private func navigateToMakeProfilesViewController(memberId: Int) {
-        let makeProfilesVC = MakeProfilesViewController()
+        let makeProfilesVC = MakeProfilesViewController(memberId: memberId)
         let navigationController = UINavigationController(rootViewController: makeProfilesVC)
         navigationController.modalPresentationStyle = .fullScreen
         // 모달을 닫고 네비게이션 방식으로 화면을 이동

@@ -21,6 +21,9 @@ public enum LoginAPI {
     case postVerifyCode(phoneNumber: String, code: String) //인증번호 인증
     case kakaoLogin
     case googleLogin
+    case getOAuthTokenKakao(memberId: Int)
+    case getOAuthTokenGoogle(memberId: Int)
+    
 }
 
 extension LoginAPI: TargetType {
@@ -29,7 +32,7 @@ extension LoginAPI: TargetType {
     public var baseURL: URL {
         switch self {
         case .postLogin(email: _, password: _):
-            guard let url = URL(string: API.baseURL) else {
+            guard let url = URL(string: API.loginURL) else {
                 fatalError("baseURL 오류")
             }
             return url
@@ -58,6 +61,11 @@ extension LoginAPI: TargetType {
                 fatalError("oauthURL 오류")
             }
             return url
+        case .getOAuthTokenKakao, .getOAuthTokenGoogle:
+            guard let url = URL(string: API.oauthCodeURL) else {
+                fatalError("oauthTokenURL 오류")
+            }
+            return url
         }
     }
     
@@ -65,18 +73,17 @@ extension LoginAPI: TargetType {
         // 기본 URL + path로 URL 구성
         switch self {
         case .postLogin:
-            return "/login"
+            return ""
         case .postSignUp:
             return "/signup"
         case .postSendVerificationCode:
             return "/send"
         case .postVerifyCode:
             return "/verify"
-        case .kakaoLogin:
+        case .kakaoLogin, .getOAuthTokenKakao:
             return "/kakao"
-        case .googleLogin:
+        case .googleLogin, .getOAuthTokenGoogle:
             return "/google"
-        
         }
     }
     
@@ -84,7 +91,7 @@ extension LoginAPI: TargetType {
         // 가장 많이 호출되는 post을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .kakaoLogin, .googleLogin:
+        case .kakaoLogin, .getOAuthTokenKakao, .googleLogin, .getOAuthTokenGoogle:
             return .get
         default:
             return .post
@@ -110,6 +117,8 @@ extension LoginAPI: TargetType {
             return .requestJSONEncodable(
                 VerifyCode(phoneNum: phoneNum, certificationCode: code)
             )
+        case .getOAuthTokenKakao(let memberId), .getOAuthTokenGoogle(let memberId):
+            return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.default)
         case .kakaoLogin, .googleLogin:
             return .requestPlain
         }
