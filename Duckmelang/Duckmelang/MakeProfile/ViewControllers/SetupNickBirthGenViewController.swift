@@ -56,20 +56,12 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
-        setupTextFieldObservers()
+        setupNickBirthGenView.resetBirthdateField()
     }
 
     private func setupUI() {
         view.addSubview(setupNickBirthGenView)
         setupNickBirthGenView.snp.makeConstraints { $0.edges.equalToSuperview() }
-    }
-
-    private func setupTextFieldObservers() {
-        setupNickBirthGenView.nicknameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-    }
-
-    @objc private func textFieldDidChange(_ textField: UITextField) {
-        print("📌 \(textField.placeholder ?? "필드") 변경됨: '\(textField.text ?? "")'")
     }
     
 

@@ -34,6 +34,7 @@ class SetupNickBirthGenView: UIView {
         $0.placeholder = "닉네임 입력"
         $0.borderStyle = .none
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
+        $0.textColor = .grey800
     }
     
     private let nicknameUnderline = UIView().then {
@@ -43,7 +44,7 @@ class SetupNickBirthGenView: UIView {
     private let birthdateLabel = UILabel().then {
         $0.text = "생년월일"
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
-        $0.textColor = .grey700
+        $0.textColor = .grey400
     }
     
     public let birthdateTextField = UITextField().then {
@@ -179,6 +180,12 @@ class SetupNickBirthGenView: UIView {
         }
     }
     
+    //화면 초기 로딩시 초기화
+    public func resetBirthdateField() {
+        birthdateTextField.text = ""
+        birthdateTextField.textColor = .grey500
+    }
+    
     private let datePicker = UIDatePicker().then {
         $0.datePickerMode = .date
         $0.preferredDatePickerStyle = .wheels
@@ -194,6 +201,7 @@ class SetupNickBirthGenView: UIView {
     // 값이 변할 때 마다 동작
     @objc func dateChange(_ sender: UIDatePicker) {
         birthdateTextField.text = dateFormat(date: sender.date)
+        birthdateTextField.textColor = .grey800
     }
 
     // 텍스트 필드에 들어갈 텍스트를 DateFormatter 변환
@@ -218,6 +226,7 @@ class SetupNickBirthGenView: UIView {
     @objc func doneButtonHandeler(_ sender: UIBarButtonItem) {
         
         birthdateTextField.text = dateFormat(date: datePicker.date)
+        birthdateTextField.textColor = .grey800
         birthdateTextField.resignFirstResponder()
     }
 }
