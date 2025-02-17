@@ -23,6 +23,7 @@ public enum LoginAPI {
     case googleLogin
     case getOAuthTokenKakao(memberId: Int)
     case getOAuthTokenGoogle(memberId: Int)
+    case patchMemberProfile(memberId: Int, profile: PatchMemberProfileRequest)
     
 }
 
@@ -66,6 +67,11 @@ extension LoginAPI: TargetType {
                 fatalError("oauthTokenURL 오류")
             }
             return url
+        case .patchMemberProfile(memberId : _):
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
         }
     }
     
@@ -84,6 +90,8 @@ extension LoginAPI: TargetType {
             return "/kakao"
         case .googleLogin, .getOAuthTokenGoogle:
             return "/google"
+        case .patchMemberProfile(let memberId, _):
+            return "/\(memberId)/profile"
         }
     }
     
@@ -93,6 +101,8 @@ extension LoginAPI: TargetType {
         switch self {
         case .kakaoLogin, .getOAuthTokenKakao, .googleLogin, .getOAuthTokenGoogle:
             return .get
+        case .patchMemberProfile:
+            return .patch
         default:
             return .post
         }
@@ -119,6 +129,8 @@ extension LoginAPI: TargetType {
             )
         case .getOAuthTokenKakao(let memberId), .getOAuthTokenGoogle(let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.default)
+        case .patchMemberProfile(_, let PatchMemberProfileRequest):
+            return .requestJSONEncodable(PatchMemberProfileRequest)
         case .kakaoLogin, .googleLogin:
             return .requestPlain
         }

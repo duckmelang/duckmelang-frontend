@@ -47,10 +47,10 @@ class SetupNickBirthGenView: UIView {
     }
     
     public let birthdateTextField = UITextField().then {
-        $0.placeholder = "YYYYMMDD"
+        $0.placeholder = "YYYY-MM-DD"
         $0.borderStyle = .none
-        $0.keyboardType = .numberPad
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
+        $0.tintColor = .clear
     }
     
     private let birthdateUnderline = UIView().then {
@@ -100,6 +100,8 @@ class SetupNickBirthGenView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
+        setupDatePicker()
+        setupToolBar()
     }
     
     required init?(coder: NSCoder) {
@@ -137,7 +139,7 @@ class SetupNickBirthGenView: UIView {
                 
         nicknameTextField.snp.makeConstraints {
             $0.top.equalTo(nicknameLabel.snp.bottom).offset(4)
-            $0.leading.trailing.equalToSuperview().offset(16)
+            $0.leading.trailing.equalToSuperview().inset(16)
             $0.height.equalTo(40)
         }
                 
@@ -154,7 +156,7 @@ class SetupNickBirthGenView: UIView {
                 
         birthdateTextField.snp.makeConstraints {
             $0.top.equalTo(birthdateLabel.snp.bottom).offset(4)
-            $0.leading.trailing.equalToSuperview().offset(16)
+            $0.leading.trailing.equalToSuperview().inset(16)
             $0.height.equalTo(40)
         }
                 
@@ -171,10 +173,51 @@ class SetupNickBirthGenView: UIView {
         }
                         
         genderSegmentedControl.snp.makeConstraints {
-            $0.top.equalToSuperview()
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview()
             $0.height.equalTo(36)
         }
+    }
+    
+    private let datePicker = UIDatePicker().then {
+        $0.datePickerMode = .date
+        $0.preferredDatePickerStyle = .wheels
+        $0.locale = Locale(identifier: "ko-KR")
+    }
+
+    private func setupDatePicker() {
+        datePicker.addTarget(self, action: #selector(dateChange), for: .valueChanged)
+        birthdateTextField.inputView = datePicker
+        birthdateTextField.text = dateFormat(date: Date())
+    }
+
+    // 값이 변할 때 마다 동작
+    @objc func dateChange(_ sender: UIDatePicker) {
+        birthdateTextField.text = dateFormat(date: sender.date)
+    }
+
+    // 텍스트 필드에 들어갈 텍스트를 DateFormatter 변환
+    private func dateFormat(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        
+        return formatter.string(from: date)
+    }
+    
+    private func setupToolBar() {
+        let toolBar = UIToolbar()
+
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonHandeler))
+
+        toolBar.setItems([flexibleSpace, doneButton], animated: false)
+        toolBar.sizeToFit()
+        birthdateTextField.inputAccessoryView = toolBar
+    }
+
+    @objc func doneButtonHandeler(_ sender: UIBarButtonItem) {
+        
+        birthdateTextField.text = dateFormat(date: datePicker.date)
+        birthdateTextField.resignFirstResponder()
     }
 }

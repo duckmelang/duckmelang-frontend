@@ -31,3 +31,10 @@ struct VerifyCode: Codable {
     let phoneNum: String
     let certificationCode: String
 }
+
+//닉네임, 생년월일, 성별 설정 모델
+public struct PatchMemberProfileRequest: Encodable {
+    let nickname: String
+    let birth: String
+    let gender: String
+}

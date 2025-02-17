@@ -45,3 +45,19 @@ public struct VerifyCodeResponse: Codable {
     let message: String
     let result: String?
 }
+
+//닉네임, 생년월일, 성별 응답 모델
+struct PatchMemberProfileResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: MemberProfile
+}
+
+// 회원 프로필 데이터 모델
+struct MemberProfile: Codable {
+    let memberId: Int
+    let nickname: String
+    let birth: String
+    let gender: String
+}

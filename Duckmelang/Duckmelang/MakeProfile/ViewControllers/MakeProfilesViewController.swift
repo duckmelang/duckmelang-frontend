@@ -38,8 +38,12 @@ class MakeProfilesViewController: UIViewController {
         self.navigationController?.isNavigationBarHidden = false
         setupNavigationBar()
         setupUI()
-        showStep(step: 0)
         setupActions()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        showStep(step: 0)
     }
     
     private func setupNavigationBar() {
@@ -87,9 +91,21 @@ class MakeProfilesViewController: UIViewController {
         }
     }
     private func setupActions() {
-        nextButtonView.nextButton.addTarget(self, action: #selector(nextStep), for: .touchUpInside)
+        nextButtonView.nextButton.addTarget(self, action: #selector(handleNextButtonTapped), for: .touchUpInside)
     }
     
+    @objc private func handleNextButtonTapped() {
+        print("📌 nextButton 눌림 - 현재 step: \(currentStep)")
+
+        // 현재 활성화된 VC가 요청 신호 보내도록 설정
+        if let currentVC = stepVCs[currentStep] as? NextStepHandler {
+            currentVC.handleNextStep { [weak self] in
+                self?.nextStep() // 현재 VC가 요청을 완료하면 다음 단계로 이동
+            }
+        } else {
+            print("❌ 현재 VC에서 NextStepHandler 프로토콜을 구현하지 않음")
+        }
+    }
     private func showStep(step: Int) {
         containerView.subviews.forEach { $0.removeFromSuperview() }
         
@@ -129,4 +145,8 @@ class MakeProfilesViewController: UIViewController {
             }
         }
     }
+}
+
+protocol NextStepHandler: AnyObject {
+    func handleNextStep(completion: @escaping () -> Void)
 }
