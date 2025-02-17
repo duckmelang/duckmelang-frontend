@@ -10,7 +10,7 @@ import Moya
 import UIKit
 
 protocol MoyaErrorHandlerDelegate: AnyObject {
-    func showErrorAlert(message: String)
+    func showErrorAlert(title: String, message: String)
 }
 
 final class MoyaLoggerPlugin: PluginType {
@@ -25,7 +25,9 @@ final class MoyaLoggerPlugin: PluginType {
     }
     
     func didReceive(_ result: Swift.Result<Response, MoyaError>, target: TargetType) {
+        let url = target.baseURL.appendingPathComponent(target.path).absoluteString
         print("📡 MoyaLoggerPlugin : \(result)")
+        print("🔗 API URL: \(url)")  // API 주소 출력
 
         switch result {
         case .success(let response):
@@ -38,12 +40,14 @@ final class MoyaLoggerPlugin: PluginType {
     private func handleRequestFailure(_ target: TargetType) {
         print("⚠️ 요청 실패 감지 (타임아웃 발생) - \(target)")
         DispatchQueue.main.async {
-            self.delegate?.showErrorAlert(message: "서버 응답이 없습니다.\n네트워크 상태를 확인하세요.")
+            self.delegate?.showErrorAlert(title: "오류", message: "서버 응답이 없습니다.\n네트워크 상태를 확인하세요.")
         }
     }
     
     private func handleSuccess(_ response: Response, target: TargetType) {
+        let url = target.baseURL.appendingPathComponent(target.path).absoluteString
         print("✅ 응답 성공: \(response.statusCode) - \(target)")
+        print("📍 성공한 API URL: \(url)")
         
         guard (200...299).contains(response.statusCode) else {
             print("⚠️ 예상치 못한 상태 코드: \(response.statusCode)")
@@ -54,7 +58,9 @@ final class MoyaLoggerPlugin: PluginType {
     }
     
     public func handleFailure(_ error: MoyaError, target: TargetType) {
+        let url = target.baseURL.appendingPathComponent(target.path).absoluteString
         print("❌ 네트워크 오류 발생: \(error.localizedDescription)")
+        print("📍 실패한 API URL: \(url)")
         
         var message = "네트워크 오류가 발생했습니다.\n다시 시도해 주세요."
         
@@ -64,7 +70,7 @@ final class MoyaLoggerPlugin: PluginType {
         }
 
         DispatchQueue.main.async {
-            self.delegate?.showErrorAlert(message: message)
+            self.delegate?.showErrorAlert(title: "오류", message: message)
         }
     }
     

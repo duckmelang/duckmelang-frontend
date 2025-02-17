@@ -9,6 +9,16 @@ import UIKit
 import Moya
 
 class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErrorHandlerDelegate {
+    func showErrorAlert(title: String, message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            let confirmAction = UIAlertAction(title: "확인", style: .default)
+            alert.addAction(confirmAction)
+            alert.view.tintColor = UIColor.red
+            self.present(alert, animated: true)
+        }
+    }
+    
     
     // MARK: - Properties
     lazy var provider: MoyaProvider<LoginAPI> = {
@@ -71,7 +81,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
         // 5초 후 타임아웃 팝업을 띄우기 위한 DispatchWorkItem 설정
         let timeoutWorkItem = DispatchWorkItem {
             DispatchQueue.main.async {
-                self.showErrorAlert(message: "요청 시간이 초과되었습니다. 다시 시도해주세요.")
+                self.showErrorAlert(title: "요청시간 초과", message: "요청 시간이 초과되었습니다. 다시 시도해주세요.")
             }
         }
 
@@ -98,14 +108,14 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
                             }
                         }
                     } else {
-                        self.showErrorAlert(message: decodedResponse.message)
+                        self.showErrorAlert(title: "실패", message: decodedResponse.message)
                     }
                 } catch {
-                    self.showErrorAlert(message: "응답을 해석하는 데 실패했습니다.")
+                    self.showErrorAlert(title: "오류", message: "응답을 해석하는 데 실패했습니다.")
                 }
 
             case .failure(let error):
-                self.showErrorAlert(message: error.localizedDescription)
+                self.showErrorAlert(title: "실패", message: error.localizedDescription)
             }
         }
     }
@@ -127,7 +137,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
     @objc private func didTapVerifyCodeBtn() {
         guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11,
               let code = phoneSigninView.certificationNumberField.text, code.count == 6 else {
-            showErrorAlert(message: "올바른 인증번호를 입력하세요.")
+            showErrorAlert(title: "오류", message: "올바른 인증번호를 입력하세요.")
             return
         }
 
@@ -149,14 +159,14 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
                             }
                         }
                     } else {
-                        self.showErrorAlert(message: decodedResponse.message)
+                        self.showErrorAlert(title: "오류", message: decodedResponse.message)
                     }
                 } catch {
-                    self.showErrorAlert(message: "응답을 해석하는 데 실패했습니다.")
+                    self.showErrorAlert(title: "오류", message: "응답을 해석하는 데 실패했습니다.")
                 }
 
             case .failure(let error):
-                self.showErrorAlert(message: error.localizedDescription)
+                self.showErrorAlert(title: "오류", message: error.localizedDescription)
             }
         }
     }
@@ -198,17 +208,6 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
             self.phoneSigninView.phoneTextField.isUserInteractionEnabled = true
             self.phoneSigninView.phoneTextField.textColor = .black
             self.phoneSigninView.phoneTextField.layer.borderColor = UIColor.grey400!.cgColor
-        }
-    }
-
-    // MARK: - 오류 처리 (Alert)
-    func showErrorAlert(message: String) {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(title: "오류 발생", message: message, preferredStyle: .alert)
-            let confirmAction = UIAlertAction(title: "확인", style: .default)
-            alert.addAction(confirmAction)
-            alert.view.tintColor = UIColor.red
-            self.present(alert, animated: true)
         }
     }
 
