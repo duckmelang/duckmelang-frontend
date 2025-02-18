@@ -15,4 +15,5 @@ public struct API {
     public static let memberURL = "\(baseURL)/members"
     public static let mypageURL = "\(baseURL)/mypage"
     public static let profileURL = "\(baseURL)/profile"
+    public static let chatroomURL = "\(baseURL)/chatrooms"
 }
