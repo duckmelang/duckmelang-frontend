@@ -62,6 +62,12 @@ class SetupNickBirthGenView: UIView {
         $0.backgroundColor = .grey300
     }
     
+    public let datePicker = UIDatePicker().then {
+        $0.datePickerMode = .date
+        $0.preferredDatePickerStyle = .wheels
+        $0.locale = Locale(identifier: "ko-KR")
+    }
+    
     private let genderLabel = UILabel().then {
         $0.text = "성별"
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
@@ -109,8 +115,6 @@ class SetupNickBirthGenView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
-        setupDatePicker()
-        setupToolBar()
     }
     
     required init?(coder: NSCoder) {
@@ -208,56 +212,6 @@ class SetupNickBirthGenView: UIView {
             $0.centerY.equalTo(maleButton)
             $0.trailing.equalToSuperview()
         }
-    }
-    
-    //화면 초기 로딩시 초기화
-    public func resetBirthdateField() {
-        birthdateTextField.text = ""
-        birthdateTextField.textColor = .grey500
-    }
-    
-    private let datePicker = UIDatePicker().then {
-        $0.datePickerMode = .date
-        $0.preferredDatePickerStyle = .wheels
-        $0.locale = Locale(identifier: "ko-KR")
-    }
-
-    private func setupDatePicker() {
-        datePicker.addTarget(self, action: #selector(dateChange), for: .valueChanged)
-        birthdateTextField.inputView = datePicker
-        birthdateTextField.text = dateFormat(date: Date())
-    }
-
-    // 값이 변할 때 마다 동작
-    @objc func dateChange(_ sender: UIDatePicker) {
-        birthdateTextField.text = dateFormat(date: sender.date)
-        birthdateTextField.textColor = .grey800
-    }
-
-    // 텍스트 필드에 들어갈 텍스트를 DateFormatter 변환
-    private func dateFormat(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        
-        return formatter.string(from: date)
-    }
-    
-    private func setupToolBar() {
-        let toolBar = UIToolbar()
-
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonHandeler))
-
-        toolBar.setItems([flexibleSpace, doneButton], animated: false)
-        toolBar.sizeToFit()
-        birthdateTextField.inputAccessoryView = toolBar
-    }
-
-    @objc func doneButtonHandeler(_ sender: UIBarButtonItem) {
-        
-        birthdateTextField.text = dateFormat(date: datePicker.date)
-        birthdateTextField.textColor = .grey800
-        birthdateTextField.resignFirstResponder()
     }
 }
 

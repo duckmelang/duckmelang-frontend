@@ -51,6 +51,12 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
     }
     
     var onProfileUpdateSuccess: (() -> Void)? // 프로필 설정 성공 시 호출될 콜백
+    
+    //화면 초기 로딩시 초기화
+    public func resetBirthdateField() {
+        setupNickBirthGenView.birthdateTextField.text = ""
+        setupNickBirthGenView.birthdateTextField.textColor = .grey500
+    }
 
     init(memberId: Int) {
         self.memberId = memberId
@@ -65,10 +71,46 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
-        setupNickBirthGenView.resetBirthdateField()
+        resetBirthdateField()
         setupNickBirthGenView.maleButton.addTarget(self, action: #selector(didTapMale), for: .touchUpInside)
         setupNickBirthGenView.femaleButton.addTarget(self, action: #selector(didTapFemale), for: .touchUpInside)
         setupNickBirthGenView.nickCheckButton.addTarget(self, action: #selector(didTapNickCheck), for: .touchUpInside)
+    }
+    
+    private func setupDatePicker() {
+        setupNickBirthGenView.datePicker.addTarget(self, action: #selector(dateChange), for: .valueChanged)
+        setupNickBirthGenView.birthdateTextField.inputView = setupNickBirthGenView.datePicker
+        setupNickBirthGenView.birthdateTextField.text = dateFormat(date: Date())
+    }
+
+    // 값이 변할 때 마다 동작
+    @objc func dateChange(_ sender: UIDatePicker) {
+        setupNickBirthGenView.birthdateTextField.text = dateFormat(date: sender.date)
+        setupNickBirthGenView.birthdateTextField.textColor = .grey800
+    }
+    
+    private func setupToolBar() {
+        let toolBar = UIToolbar()
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonHandeler))
+        toolBar.items = [flexibleSpace, doneButton]
+        toolBar.sizeToFit()
+        setupNickBirthGenView.birthdateTextField.inputAccessoryView = toolBar
+    }
+    
+    @objc func doneButtonHandeler(_ sender: UIBarButtonItem) {
+        setupNickBirthGenView.birthdateTextField.text = dateFormat(date: setupNickBirthGenView.datePicker.date)
+        setupNickBirthGenView.birthdateTextField.textColor = .grey800
+        setupNickBirthGenView.birthdateTextField.resignFirstResponder()
+        updateNextButtonState()
+    }
+    
+    // 텍스트 필드에 들어갈 텍스트를 DateFormatter 변환
+    private func dateFormat(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        
+        return formatter.string(from: date)
     }
 
     @objc private func didTapMale() {
@@ -95,6 +137,8 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
     
     private func setupUI() {
         view.addSubview(setupNickBirthGenView)
+        setupDatePicker()
+        setupToolBar()
         setupNickBirthGenView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
     
