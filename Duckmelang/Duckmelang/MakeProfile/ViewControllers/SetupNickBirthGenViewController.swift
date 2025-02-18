@@ -8,9 +8,32 @@
 import UIKit
 import Moya
 
-class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaErrorHandlerDelegate{
-    func handleNextStep(completion: @escaping () -> Void) {
+class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextButtonUpdatable, MoyaErrorHandlerDelegate{
+    
+    weak var nextButtonDelegate: NextButtonUpdatable?
+    
+    func updateNextButtonState(isEnabled: Bool) {
+        nextButtonDelegate?.updateNextButtonState(isEnabled: isEnabled)
+    }
+    private func checkNextButtonState() {
+        let nickname = setupNickBirthGenView.nicknameTextField.text ?? ""
+        let birth = setupNickBirthGenView.birthdateTextField.text ?? ""
         
+        let isNicknameEntered = !nickname.isEmpty
+        let isBirthdateFilled = !birth.isEmpty
+        
+        let isEnabled = isNicknameEntered && isNicknameAvailable && isBirthdateFilled
+        
+        print("✅ 버튼 활성화 조건 -> 닉네임 입력: \(isNicknameEntered), 중복 확인: \(isNicknameAvailable), 생년월일 입력: \(isBirthdateFilled), 최종 상태: \(isEnabled)")
+        if isEnabled {
+            nextButtonDelegate?.updateNextButtonState(isEnabled: true)
+        } else {
+            nextButtonDelegate?.updateNextButtonState(isEnabled: false)
+        }
+    }
+    
+    
+    func handleNextStep(completion: @escaping () -> Void) {
         let nickname = setupNickBirthGenView.nicknameTextField.text ?? ""
         let birth = setupNickBirthGenView.birthdateTextField.text ?? ""
         let gender: String
@@ -18,16 +41,6 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
             gender = "MALE"
         } else {
             gender = "FEMALE"
-        }
-
-        if nickname.isEmpty {
-            showErrorAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
-            return
-        }
-
-        if birth.isEmpty {
-            showErrorAlert(title: "입력 오류", message: "생년월일을 입력해주세요.")
-            return
         }
 
         showConfirmationAlert(nickname: nickname, birth: birth, gender: gender, completion: completion)
@@ -43,12 +56,10 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
     private lazy var provider = MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
     
     private let memberId: Int
-    private let nextButtonView = NextButtonView()
     private let setupNickBirthGenView = SetupNickBirthGenView()
     private var isNicknameAvailable: Bool = false
     
-    private func updateNextButtonState() {
-    }
+
     
     var onProfileUpdateSuccess: (() -> Void)? // 프로필 설정 성공 시 호출될 콜백
     
@@ -102,7 +113,7 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
         setupNickBirthGenView.birthdateTextField.text = dateFormat(date: setupNickBirthGenView.datePicker.date)
         setupNickBirthGenView.birthdateTextField.textColor = .grey800
         setupNickBirthGenView.birthdateTextField.resignFirstResponder()
-        updateNextButtonState()
+        checkNextButtonState()
     }
     
     // 텍스트 필드에 들어갈 텍스트를 DateFormatter 변환
@@ -159,11 +170,11 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
                     if nicknameResponse.isSuccess {
                         self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: isNicknameAvailable)
                         
-                        self.updateNextButtonState()
+                        self.checkNextButtonState()
                         self.showErrorAlert(title: "닉네임 확인", message: nicknameResponse.result.message)
                     } else {
                         self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: isNicknameAvailable)
-                        self.updateNextButtonState()
+                        self.checkNextButtonState()
                         // 실패 시 서버에서 전달된 message 사용
                         self.showErrorAlert(title: "닉네임 확인 실패", message: nicknameResponse.message)
                     }

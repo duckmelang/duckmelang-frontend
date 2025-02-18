@@ -8,25 +8,37 @@
 import UIKit
 import Moya
 
-class MakeProfilesViewController: UIViewController {
+class MakeProfilesViewController: UIViewController, NextButtonUpdatable {
+    func updateNextButtonState(isEnabled: Bool) {
+        nextButton.setEnabled(isEnabled)
+    }
+    
     
     private let memberId: Int
     private let progressBarView = ProgressBarView()
     private let containerView = UIView()
-    private let nextButtonView = NextButtonView()
+    public let nextButton = longCustomBtn(title: "다음", isEnabled: false)
 
     private var currentStep = 0
-    private let stepVCs: [UIViewController]
+    private var stepVCs: [UIViewController] = []
 
     init(memberId: Int) {
         self.memberId = memberId
+        super.init(nibName: nil, bundle: nil)
+        
+        setupStepViewControllers()
+    }
+    
+    private func setupStepViewControllers() {
+        let setupNickBirthVC = SetupNickBirthGenViewController(memberId: memberId)
+        setupNickBirthVC.nextButtonDelegate = self
+        
         self.stepVCs = [
-            SetupNickBirthGenViewController(memberId: memberId),
+            setupNickBirthVC,
             SelectFavoriteCelebViewController(memberId: memberId),
             SelectEventViewController(),
             FilterKeywordsViewController()
         ]
-        super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
@@ -38,7 +50,6 @@ class MakeProfilesViewController: UIViewController {
         self.navigationController?.isNavigationBarHidden = false
         setupNavigationBar()
         setupUI()
-        nextButtonView.nextButton.setEnabled(false)
         setupActions()
     }
     
@@ -71,7 +82,7 @@ class MakeProfilesViewController: UIViewController {
         view.backgroundColor = .white
         view.addSubview(progressBarView)
         view.addSubview(containerView)
-        view.addSubview(nextButtonView)
+        view.addSubview(nextButton)
 
         progressBarView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(4)
@@ -82,17 +93,16 @@ class MakeProfilesViewController: UIViewController {
         containerView.snp.makeConstraints {
             $0.top.equalTo(progressBarView.snp.bottom).offset(22)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalTo(nextButtonView.snp.top).offset(-20)
+            $0.bottom.equalTo(nextButton.snp.top).offset(-20)
         }
         
-        nextButtonView.snp.makeConstraints {
+        nextButton.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-16)
-            $0.leading.trailing.equalToSuperview().inset(24)
-            $0.height.equalTo(50)
         }
     }
     private func setupActions() {
-        nextButtonView.nextButton.addTarget(self, action: #selector(handleNextButtonTapped), for: .touchUpInside)
+        nextButton.addTarget(self, action: #selector(handleNextButtonTapped), for: .touchUpInside)
     }
     
     @objc private func handleNextButtonTapped() {
@@ -124,7 +134,7 @@ class MakeProfilesViewController: UIViewController {
             currentStep += 1
             showStep(step: currentStep)
             progressBarView.moveToNextStep()
-            nextButtonView.nextButton.setEnabled(false)
+            nextButton.setEnabled(false)
         } else {
             navigateToNextScreen()
         }
@@ -151,4 +161,7 @@ class MakeProfilesViewController: UIViewController {
 
 protocol NextStepHandler: AnyObject {
     func handleNextStep(completion: @escaping () -> Void)
+}
+protocol NextButtonUpdatable: AnyObject {
+    func updateNextButtonState(isEnabled: Bool)
 }
