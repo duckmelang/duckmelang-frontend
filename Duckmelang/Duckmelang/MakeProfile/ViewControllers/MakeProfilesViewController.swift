@@ -38,6 +38,7 @@ class MakeProfilesViewController: UIViewController {
         self.navigationController?.isNavigationBarHidden = false
         setupNavigationBar()
         setupUI()
+        nextButtonView.nextButton.setEnabled(false)
         setupActions()
     }
     
@@ -123,6 +124,7 @@ class MakeProfilesViewController: UIViewController {
             currentStep += 1
             showStep(step: currentStep)
             progressBarView.moveToNextStep()
+            nextButtonView.nextButton.setEnabled(false)
         } else {
             navigateToNextScreen()
         }

@@ -10,11 +10,7 @@ import SnapKit
 
 class NextButtonView: UIView {
     
-    let nextButton = UIButton().then {
-        $0.setTitle("다음", for: .normal)
-        $0.backgroundColor = .lightGray
-        $0.layer.cornerRadius = 8
-    }
+    let nextButton = longCustomBtn(title: "다음")
     
     init() {
         super.init(frame: .zero)
@@ -29,8 +25,7 @@ class NextButtonView: UIView {
         addSubview(nextButton)
         
         nextButton.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.height.equalTo(50)
+            $0.bottom.equalToSuperview()
         }
     }
 }
