@@ -45,13 +45,9 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
     private let memberId: Int
     private let nextButtonView = NextButtonView()
     private let setupNickBirthGenView = SetupNickBirthGenView()
-    // 닉네임 중복 체크 결과 저장
-    private var isNicknameAvailable = false {
-        didSet {updateNextButtonState()}
-    }
+    private var isNicknameAvailable: Bool = false
     
     private func updateNextButtonState() {
-        nextButtonView.nextButton.isEnabled = isNicknameAvailable
     }
     
     var onProfileUpdateSuccess: (() -> Void)? // 프로필 설정 성공 시 호출될 콜백
@@ -103,8 +99,7 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
     }
     
     @objc private func didTapNickCheck() {
-        let nickname = setupNickBirthGenView.nicknameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-
+        let nickname = setupNickBirthGenView.nicknameTextField.text ?? ""
         if nickname.isEmpty {
             showErrorAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
             return
@@ -116,22 +111,24 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
             case .success(let response):
                 do {
                     let nicknameResponse = try response.map(NicknameCheckResponse.self)
+                    self.isNicknameAvailable = nicknameResponse.result.available
                     if nicknameResponse.isSuccess {
-                        self.isNicknameAvailable = nicknameResponse.result.available
-                        let buttonTitle = "확인"
-                        let isAvailable = nicknameResponse.result.available
+                        self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: isNicknameAvailable)
                         
+                        self.updateNextButtonState()
                         self.showErrorAlert(title: "닉네임 확인", message: nicknameResponse.result.message)
-                        self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: buttonTitle, selectedBool: isAvailable)
                     } else {
-                        self.isNicknameAvailable = false
-                        self.showErrorAlert(title: "닉네임 확인 실패", message: "닉네임 확인에 실패했습니다.")
-                        self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: false)
+                        self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: isNicknameAvailable)
+                        self.updateNextButtonState()
+                        // 실패 시 서버에서 전달된 message 사용
+                        self.showErrorAlert(title: "닉네임 확인 실패", message: nicknameResponse.message)
                     }
                 } catch {
+                    self.isNicknameAvailable = false
                     self.showErrorAlert(title: "오류", message: "닉네임 중복 확인 중 오류가 발생했습니다.")
                 }
             case .failure(let error):
+                self.isNicknameAvailable = false
                 self.showErrorAlert(title: "네트워크 오류", message: error.localizedDescription)
             }
         }
