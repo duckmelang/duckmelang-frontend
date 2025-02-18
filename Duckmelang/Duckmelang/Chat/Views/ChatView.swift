@@ -38,13 +38,7 @@ class ChatView: UIView {
         $0.rowHeight = 75
     }
     
-    lazy var empty = UILabel().then {
-        $0.text = "채팅 목록이 없습니다"
-        $0.font = .ptdMediumFont(ofSize: 14)
-        $0.textColor = .grey600
-        $0.textAlignment = .center
-        $0.isHidden = true
-    }
+    lazy var empty = emptyLabel(text: "채팅 목록이 없습니다")
     
     private func setupView() {
         btnStackView.addArrangedSubview(allBtn)

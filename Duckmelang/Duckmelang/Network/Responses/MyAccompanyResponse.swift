@@ -16,7 +16,7 @@ public struct PostDTO: Codable {
     public let nickname: String
     public let createdAt: String
     public let postImageUrl: String
-    public let latestPublicMemberProfileImage: String
+    public let latestPublicMemberProfileImage: String?
 }
 
 // 게시글 받아오는 구조체
@@ -43,7 +43,7 @@ public struct RequestDTO: Codable {
 
 // 보낸 요청 받아오는 구조체
 public struct RequestResponse: Codable {
-    let requestApplicationList: [RequestDTO]
+    let applicationList: [RequestDTO]
     let listSize: Int
     let totalPage: Int
     let totalElements: Int

@@ -39,6 +39,7 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
                 self.myPostsData = result
                 print("내 게시글: \(self.myPostsData)")
                 DispatchQueue.main.async {
+                    self.myPostsView.empty.isHidden = !result.isEmpty
                     self.myPostsView.myPostsTableView.reloadData()
                 }
             case .failure(let error):

@@ -142,7 +142,7 @@ class PostCell: UITableViewCell {
         self.postTitle.text = model.title
         self.EventTypeDate.text = "\(model.category) | \(model.date)"
         
-        if let userImageUrl = URL(string: model.latestPublicMemberProfileImage) {
+        if let userImageUrl = URL(string: model.latestPublicMemberProfileImage ?? "") {
             self.userImage.kf.setImage(with: userImageUrl, placeholder: UIImage(named: "defaultUserImage"))
         }
         

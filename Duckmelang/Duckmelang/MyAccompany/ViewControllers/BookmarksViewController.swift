@@ -30,7 +30,7 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
     }
 
     private func getBookmarksAPI() {
-        provider.request(.getBookmarks(memberId: 1, page: 0)) { result in
+        provider.request(.getBookmarks(page: 0)) { result in
             switch result {
             case .success(let response):
                 self.bookmarksData.removeAll()
@@ -39,6 +39,7 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
                 self.bookmarksData = result
                 print("스크랩: \(self.bookmarksData)")
                 DispatchQueue.main.async {
+                    self.bookmarksView.empty.isHidden = !result.isEmpty
                     self.bookmarksView.bookmarksTableView.reloadData()
                 }
             case .failure(let error):
