@@ -11,7 +11,7 @@ import Alamofire
 import Moya
 
 class SelectFavoriteCelebViewController: UIViewController, MoyaErrorHandlerDelegate {
-    func showErrorAlert(title: String, message: String) {
+    func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
@@ -106,7 +106,7 @@ class SelectFavoriteCelebViewController: UIViewController, MoyaErrorHandlerDeleg
     // ✅ 서버에 선택한 아이돌 POST 요청 보내기
     private func sendSelectedIdolsRequest(completion: @escaping () -> Void) {
         if selectedIdols.isEmpty {
-            showErrorAlert(title: "선택 오류", message: "최소 한 개 이상의 아이돌을 선택해주세요.")
+            showAlert(title: "선택 오류", message: "최소 한 개 이상의 아이돌을 선택해주세요.")
             return
         }
 
@@ -120,15 +120,15 @@ class SelectFavoriteCelebViewController: UIViewController, MoyaErrorHandlerDeleg
                         print("✅ 성공: \(successData)")
                         completion() // ✅ 요청 성공 시 다음 단계로 이동
                     } else {
-                        self.showErrorAlert(title: "오류", message: "응답 데이터를 처리할 수 없습니다.")
+                        self.showAlert(title: "오류", message: "응답 데이터를 처리할 수 없습니다.")
                     }
                 } catch {
-                    self.showErrorAlert(title: "오류", message: "JSON 변환 실패: \(error.localizedDescription)")
+                    self.showAlert(title: "오류", message: "JSON 변환 실패: \(error.localizedDescription)")
                 }
 
             case .failure(let error):
                 print("❌ 요청 실패: \(error.localizedDescription)")
-                self.showErrorAlert(title: "네트워크 오류", message: "아이돌 선택 저장에 실패했습니다.")
+                self.showAlert(title: "네트워크 오류", message: "아이돌 선택 저장에 실패했습니다.")
             }
         }
     }

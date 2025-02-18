@@ -46,7 +46,7 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
         showConfirmationAlert(nickname: nickname, birth: birth, gender: gender, completion: completion)
     }
     
-    func showErrorAlert(title: String, message: String) {
+    func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
@@ -156,7 +156,7 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
     @objc private func didTapNickCheck() {
         let nickname = setupNickBirthGenView.nicknameTextField.text ?? ""
         if nickname.isEmpty {
-            showErrorAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
+            showAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
             return
         }
 
@@ -171,20 +171,20 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
                         self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: isNicknameAvailable)
                         
                         self.checkNextButtonState()
-                        self.showErrorAlert(title: "닉네임 확인", message: nicknameResponse.result.message)
+                        self.showAlert(title: "닉네임 확인", message: nicknameResponse.result.message)
                     } else {
                         self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: isNicknameAvailable)
                         self.checkNextButtonState()
                         // 실패 시 서버에서 전달된 message 사용
-                        self.showErrorAlert(title: "닉네임 확인 실패", message: nicknameResponse.message)
+                        self.showAlert(title: "닉네임 확인 실패", message: nicknameResponse.message)
                     }
                 } catch {
                     self.isNicknameAvailable = false
-                    self.showErrorAlert(title: "오류", message: "닉네임 중복 확인 중 오류가 발생했습니다.")
+                    self.showAlert(title: "오류", message: "닉네임 중복 확인 중 오류가 발생했습니다.")
                 }
             case .failure(let error):
                 self.isNicknameAvailable = false
-                self.showErrorAlert(title: "네트워크 오류", message: error.localizedDescription)
+                self.showAlert(title: "네트워크 오류", message: error.localizedDescription)
             }
         }
     }
@@ -200,12 +200,12 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
         }
 
         if nickname.isEmpty {
-            showErrorAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
+            showAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
             return
         }
 
         if birth.isEmpty || birth == "YYYY-MM-DD" {
-            showErrorAlert(title: "입력 오류", message: "생년월일을 선택해주세요.")
+            showAlert(title: "입력 오류", message: "생년월일을 선택해주세요.")
             return
         }
 
@@ -243,15 +243,15 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
                         completion() // ✅ 요청 성공 시 다음 단계로 이동
                     } else if let errorData = try? response.map(PatchMemberProfileErrorResponse.self) {
                         print("❌ 서버 응답 실패! 코드: \(errorData.code), 메시지: \(errorData.message)")
-                        self.showErrorAlert(title: "프로필 설정 실패", message: errorData.message)
+                        self.showAlert(title: "프로필 설정 실패", message: errorData.message)
                     } else {
-                        self.showErrorAlert(title: "오류", message: "응답 데이터를 처리할 수 없습니다.")
+                        self.showAlert(title: "오류", message: "응답 데이터를 처리할 수 없습니다.")
                     }
                 }
 
             case .failure(let error):
                 print("❌ 프로필 설정 실패: \(error.localizedDescription)")
-                self.showErrorAlert(title: "오류", message: "프로필 설정 실패: \(error.localizedDescription)")
+                self.showAlert(title: "오류", message: "프로필 설정 실패: \(error.localizedDescription)")
             }
         }
     }

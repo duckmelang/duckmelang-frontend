@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
-    func showErrorAlert(title: String, message: String) {
+    func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(
                 title: title,
@@ -85,7 +85,7 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
         guard let email = loginView.emailTextField.text, !email.isEmpty,
               let password = loginView.pwdTextField.text, !password.isEmpty else {
             print("🚨 입력값 없음 - 로그인 요청 중단")
-            showErrorAlert(title: "확인필요", message: "이메일과 비밀번호를 입력하세요.")
+            showAlert(title: "확인필요", message: "이메일과 비밀번호를 입력하세요.")
             return
         }
 
@@ -114,14 +114,14 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
                     } else {
                         print("⚠️ 로그인 실패: \(loginResponse.message)")
                         DispatchQueue.main.async {
-                            self.showErrorAlert(title: "로그인 실패", message: loginResponse.message)
+                            self.showAlert(title: "로그인 실패", message: loginResponse.message)
                         }
                     }
 
                 } catch {
                     print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
                     DispatchQueue.main.async {
-                        self.showErrorAlert(title: "오류", message: "서버 응답을 처리하는 중 오류가 발생했습니다.")
+                        self.showAlert(title: "오류", message: "서버 응답을 처리하는 중 오류가 발생했습니다.")
                     }
                     return
                 }
@@ -129,7 +129,7 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
             case .failure(let error):
                 print("❌ 로그인 요청 실패: \(error.localizedDescription)")
                 DispatchQueue.main.async {
-                    self.showErrorAlert(title: "오류", message: "네트워크 오류가 발생했습니다. 다시 시도해 주세요.")
+                    self.showAlert(title: "오류", message: "네트워크 오류가 발생했습니다. 다시 시도해 주세요.")
                 }
             }
         }

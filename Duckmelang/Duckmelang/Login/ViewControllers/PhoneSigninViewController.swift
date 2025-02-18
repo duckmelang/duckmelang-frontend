@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErrorHandlerDelegate {
-    func showErrorAlert(title: String, message: String) {
+    func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
             let confirmAction = UIAlertAction(title: "확인", style: .default)
@@ -81,7 +81,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
         // 5초 후 타임아웃 팝업을 띄우기 위한 DispatchWorkItem 설정
         let timeoutWorkItem = DispatchWorkItem {
             DispatchQueue.main.async {
-                self.showErrorAlert(title: "요청시간 초과", message: "요청 시간이 초과되었습니다. 다시 시도해주세요.")
+                self.showAlert(title: "요청시간 초과", message: "요청 시간이 초과되었습니다. 다시 시도해주세요.")
             }
         }
 
@@ -108,14 +108,14 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
                             }
                         }
                     } else {
-                        self.showErrorAlert(title: "실패", message: decodedResponse.message)
+                        self.showAlert(title: "실패", message: decodedResponse.message)
                     }
                 } catch {
-                    self.showErrorAlert(title: "오류", message: "응답을 해석하는 데 실패했습니다.")
+                    self.showAlert(title: "오류", message: "응답을 해석하는 데 실패했습니다.")
                 }
 
             case .failure(let error):
-                self.showErrorAlert(title: "실패", message: error.localizedDescription)
+                self.showAlert(title: "실패", message: error.localizedDescription)
             }
         }
     }
@@ -137,7 +137,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
     @objc private func didTapVerifyCodeBtn() {
         guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11,
               let code = phoneSigninView.certificationNumberField.text, code.count == 6 else {
-            showErrorAlert(title: "오류", message: "올바른 인증번호를 입력하세요.")
+            showAlert(title: "오류", message: "올바른 인증번호를 입력하세요.")
             return
         }
 
@@ -159,14 +159,14 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
                             }
                         }
                     } else {
-                        self.showErrorAlert(title: "오류", message: decodedResponse.message)
+                        self.showAlert(title: "오류", message: decodedResponse.message)
                     }
                 } catch {
-                    self.showErrorAlert(title: "오류", message: "응답을 해석하는 데 실패했습니다.")
+                    self.showAlert(title: "오류", message: "응답을 해석하는 데 실패했습니다.")
                 }
 
             case .failure(let error):
-                self.showErrorAlert(title: "오류", message: error.localizedDescription)
+                self.showAlert(title: "오류", message: error.localizedDescription)
             }
         }
     }

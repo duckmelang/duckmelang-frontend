@@ -10,7 +10,7 @@ import Moya
 import UIKit
 
 protocol MoyaErrorHandlerDelegate: AnyObject {
-    func showErrorAlert(title: String, message: String)
+    func showAlert(title: String, message: String)
 }
 
 final class MoyaLoggerPlugin: PluginType {
@@ -40,7 +40,7 @@ final class MoyaLoggerPlugin: PluginType {
     private func handleRequestFailure(_ target: TargetType) {
         print("⚠️ 요청 실패 감지 (타임아웃 발생) - \(target)")
         DispatchQueue.main.async {
-            self.delegate?.showErrorAlert(title: "오류", message: "서버 응답이 없습니다.\n네트워크 상태를 확인하세요.")
+            self.delegate?.showAlert(title: "오류", message: "서버 응답이 없습니다.\n네트워크 상태를 확인하세요.")
         }
     }
     
@@ -70,7 +70,7 @@ final class MoyaLoggerPlugin: PluginType {
         }
 
         DispatchQueue.main.async {
-            self.delegate?.showErrorAlert(title: "오류", message: message)
+            self.delegate?.showAlert(title: "오류", message: message)
         }
     }
     

@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class SignUpViewController: UIViewController, MoyaErrorHandlerDelegate {
-    func showErrorAlert(title: String, message: String) {
+    func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: "오류 발생", message: message, preferredStyle: .alert)
             let confirmAction = UIAlertAction(title: "확인", style: .default)

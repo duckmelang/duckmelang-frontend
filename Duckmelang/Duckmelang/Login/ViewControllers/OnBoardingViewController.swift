@@ -12,7 +12,7 @@ import Alamofire
 
 class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     // MARK: - MoyaErrorHandlerDelegate 구현
-    func showErrorAlert(title: String, message: String) {
+    func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(
                 title: "오류 발생",

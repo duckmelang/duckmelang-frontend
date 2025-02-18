@@ -12,7 +12,7 @@ import Then
 import Moya
 
 class OAuthWebViewController: UIViewController, WKNavigationDelegate, MoyaErrorHandlerDelegate {
-    func showErrorAlert(title: String, message: String) {
+    func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(
                 title: "오류 발생",
