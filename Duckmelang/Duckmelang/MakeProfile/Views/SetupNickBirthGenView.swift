@@ -37,6 +37,10 @@ class SetupNickBirthGenView: UIView {
         $0.textColor = .grey800
     }
     
+    public let nickCheckButton = UIButton().then {
+        $0.configureGenderButton(title: "확인", selectedBool: false)
+    }
+    
     private let nicknameUnderline = UIView().then {
         $0.backgroundColor = .grey300
     }
@@ -78,6 +82,7 @@ class SetupNickBirthGenView: UIView {
         $0.addSubview(nicknameLabel)
         $0.addSubview(nicknameTextField)
         $0.addSubview(nicknameUnderline)
+        $0.addSubview(nickCheckButton)
     }
         
     private lazy var birthdateContainer = UIView().then {
@@ -147,8 +152,14 @@ class SetupNickBirthGenView: UIView {
                 
         nicknameTextField.snp.makeConstraints {
             $0.top.equalTo(nicknameLabel.snp.bottom).offset(4)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.leading.equalToSuperview().inset(16)
+            $0.trailing.equalTo(nickCheckButton.snp.leading)
             $0.height.equalTo(40)
+        }
+        
+        nickCheckButton.snp.makeConstraints{
+            $0.trailing.equalToSuperview()
+            $0.centerY.equalTo(nicknameTextField)
         }
                 
         nicknameUnderline.snp.makeConstraints {
