@@ -44,7 +44,7 @@ class SetupNickBirthGenView: UIView {
     private let birthdateLabel = UILabel().then {
         $0.text = "생년월일"
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
-        $0.textColor = .grey400
+        $0.textColor = .grey700
     }
     
     public let birthdateTextField = UITextField().then {
@@ -64,12 +64,14 @@ class SetupNickBirthGenView: UIView {
         $0.textColor = .grey700
     }
     
-    public let genderSegmentedControl = UISegmentedControl(items: ["남성", "여성"]).then {
-        $0.selectedSegmentIndex = 1
-        $0.setTitleTextAttributes([.foregroundColor: UIColor.grey700!], for: .normal)
-        $0.setTitleTextAttributes([.foregroundColor: UIColor.white!], for: .selected)
-        $0.selectedSegmentTintColor = .dmrBlue
+    public let maleButton = UIButton().then {
+        $0.configureGenderButton(title: "남성", selectedBool: false)
     }
+
+    public let femaleButton = UIButton().then {
+        $0.configureGenderButton(title: "여성", selectedBool: true)
+    }
+    
     
     // MARK: - Containers
     private lazy var nicknameContainer = UIView().then {
@@ -86,12 +88,13 @@ class SetupNickBirthGenView: UIView {
     
     private lazy var genderContainer = UIView().then {
         $0.addSubview(genderLabel)
-        $0.addSubview(genderSegmentedControl)
+        $0.addSubview(maleButton)
+        $0.addSubview(femaleButton)
     }
     
     private lazy var mainStackView = UIStackView().then {
         $0.axis = .vertical
-        $0.spacing = 24
+        $0.spacing = 26
         $0.alignment = .fill
         $0.addArrangedSubview(nicknameContainer)
         $0.addArrangedSubview(birthdateContainer)
@@ -134,6 +137,10 @@ class SetupNickBirthGenView: UIView {
             $0.leading.trailing.equalToSuperview().inset(16)
         }
         
+        nicknameContainer.snp.makeConstraints{
+            $0.bottom.equalTo(nicknameUnderline)
+        }
+        
         nicknameLabel.snp.makeConstraints {
             $0.top.leading.equalToSuperview()
         }
@@ -149,6 +156,10 @@ class SetupNickBirthGenView: UIView {
             $0.height.equalTo(1)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalToSuperview()
+        }
+        
+        birthdateContainer.snp.makeConstraints{
+            $0.bottom.equalTo(birthdateUnderline)
         }
         
         birthdateLabel.snp.makeConstraints {
@@ -168,15 +179,23 @@ class SetupNickBirthGenView: UIView {
             $0.bottom.equalToSuperview()
         }
         
+        genderContainer.snp.makeConstraints{
+            $0.bottom.equalTo(maleButton)
+        }
+        
         genderLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
+            $0.centerY.equalTo(maleButton)
             $0.leading.equalToSuperview()
         }
                         
-        genderSegmentedControl.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
+        maleButton.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.trailing.equalTo(femaleButton.snp.leading).offset(-8)
+        }
+        
+        femaleButton.snp.makeConstraints {
+            $0.centerY.equalTo(maleButton)
             $0.trailing.equalToSuperview()
-            $0.height.equalTo(36)
         }
     }
     
@@ -228,5 +247,21 @@ class SetupNickBirthGenView: UIView {
         birthdateTextField.text = dateFormat(date: datePicker.date)
         birthdateTextField.textColor = .grey800
         birthdateTextField.resignFirstResponder()
+    }
+}
+
+extension UIButton {
+    func configureGenderButton(title: String, selectedBool: Bool) {
+        self.isSelected = selectedBool
+        self.titleLabel?.font = .ptdSemiBoldFont(ofSize: 14)
+        self.setTitle(title, for: .normal)
+        self.setTitleColor(selectedBool ? .white : .grey400, for: .normal)
+        self.backgroundColor = selectedBool ? .dmrBlue : .white
+        self.layer.borderWidth = 1
+        self.layer.borderColor = selectedBool ? UIColor.dmrBlue!.cgColor : UIColor.grey400!.cgColor
+        self.layer.cornerRadius = 15
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        self.heightAnchor.constraint(equalToConstant: 30).isActive = true
     }
 }

@@ -13,8 +13,12 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
         
         let nickname = setupNickBirthGenView.nicknameTextField.text ?? ""
         let birth = setupNickBirthGenView.birthdateTextField.text ?? ""
-        let genderIndex = setupNickBirthGenView.genderSegmentedControl.selectedSegmentIndex
-        let gender = (genderIndex == 0) ? "MALE" : "FEMALE"
+        let gender: String
+        if setupNickBirthGenView.maleButton.backgroundColor == .dmrBlue {
+            gender = "MALE"
+        } else {
+            gender = "FEMALE"
+        }
 
         if nickname.isEmpty {
             showErrorAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
@@ -57,8 +61,32 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
         view.backgroundColor = .white
         setupUI()
         setupNickBirthGenView.resetBirthdateField()
+        setupNickBirthGenView.maleButton.addTarget(self, action: #selector(didTapMale), for: .touchUpInside)
+        setupNickBirthGenView.femaleButton.addTarget(self, action: #selector(didTapFemale), for: .touchUpInside)
     }
 
+    @objc private func didTapMale() {
+        updateGenderSelection(isMaleSelected: true)
+    }
+
+    @objc private func didTapFemale() {
+        updateGenderSelection(isMaleSelected: false)
+    }
+    
+    private func updateGenderSelection(isMaleSelected: Bool) {
+        setupNickBirthGenView.maleButton.isSelected = isMaleSelected
+        setupNickBirthGenView.femaleButton.isSelected = !isMaleSelected
+        
+        setupNickBirthGenView.maleButton.backgroundColor = isMaleSelected ? .dmrBlue : .white
+        setupNickBirthGenView.femaleButton.backgroundColor = isMaleSelected ? .white : .dmrBlue
+        
+        setupNickBirthGenView.maleButton.setTitleColor(isMaleSelected ? .white : .grey400, for: .normal)
+        setupNickBirthGenView.femaleButton.setTitleColor(isMaleSelected ? .grey400 : .white, for: .normal)
+
+        setupNickBirthGenView.maleButton.layer.borderColor = isMaleSelected ? UIColor.dmrBlue!.cgColor : UIColor.grey400!.cgColor
+        setupNickBirthGenView.femaleButton.layer.borderColor = isMaleSelected ? UIColor.grey400!.cgColor : UIColor.dmrBlue!.cgColor
+    }
+    
     private func setupUI() {
         view.addSubview(setupNickBirthGenView)
         setupNickBirthGenView.snp.makeConstraints { $0.edges.equalToSuperview() }
@@ -68,8 +96,12 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
     private func updateMemberProfile(completion: @escaping () -> Void) {
         let nickname = setupNickBirthGenView.nicknameTextField.text ?? ""
         let birth = setupNickBirthGenView.birthdateTextField.text ?? ""
-        let genderIndex = setupNickBirthGenView.genderSegmentedControl.selectedSegmentIndex
-        let gender = (genderIndex == 0) ? "MALE" : "FEMALE"
+        let gender: String
+        if setupNickBirthGenView.maleButton.backgroundColor == .dmrBlue {
+            gender = "MALE"
+        } else {
+            gender = "FEMALE"
+        }
 
         if nickname.isEmpty {
             showErrorAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
@@ -86,7 +118,14 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
     }
     
     private func showConfirmationAlert(nickname: String, birth: String, gender: String, completion: @escaping () -> Void) {
-        let message = "설정하신 닉네임 : \(nickname)\n생년월일 : \(birth)\n성별 : \(gender)\n\n이대로 진행할까요?"
+        let genderText = (gender == "MALE") ? "남성" : "여성"
+        let message = """
+            설정하신 닉네임 : \(nickname)
+            생년월일 : \(birth)
+            성별 : \(genderText)
+            
+            이대로 진행할까요?
+            """
 
         let alert = UIAlertController(title: "확인", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
