@@ -45,6 +45,15 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
     private let memberId: Int
     private let nextButtonView = NextButtonView()
     private let setupNickBirthGenView = SetupNickBirthGenView()
+    // 닉네임 중복 체크 결과 저장
+    private var isNicknameAvailable = false {
+        didSet {updateNextButtonState()}
+    }
+    
+    private func updateNextButtonState() {
+        nextButtonView.nextButton.isEnabled = isNicknameAvailable
+    }
+    
     var onProfileUpdateSuccess: (() -> Void)? // 프로필 설정 성공 시 호출될 콜백
 
     init(memberId: Int) {
@@ -63,6 +72,7 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
         setupNickBirthGenView.resetBirthdateField()
         setupNickBirthGenView.maleButton.addTarget(self, action: #selector(didTapMale), for: .touchUpInside)
         setupNickBirthGenView.femaleButton.addTarget(self, action: #selector(didTapFemale), for: .touchUpInside)
+        setupNickBirthGenView.nickCheckButton.addTarget(self, action: #selector(didTapNickCheck), for: .touchUpInside)
     }
 
     @objc private func didTapMale() {
@@ -92,7 +102,41 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, MoyaEr
         setupNickBirthGenView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
     
+    @objc private func didTapNickCheck() {
+        let nickname = setupNickBirthGenView.nicknameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
+        if nickname.isEmpty {
+            showErrorAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
+            return
+        }
+
+        provider.request(.getMemberNicknameCheck(nickname: nickname)) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                do {
+                    let nicknameResponse = try response.map(NicknameCheckResponse.self)
+                    if nicknameResponse.isSuccess {
+                        self.isNicknameAvailable = nicknameResponse.result.available
+                        let buttonTitle = "확인"
+                        let isAvailable = nicknameResponse.result.available
+                        
+                        self.showErrorAlert(title: "닉네임 확인", message: nicknameResponse.result.message)
+                        self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: buttonTitle, selectedBool: isAvailable)
+                    } else {
+                        self.isNicknameAvailable = false
+                        self.showErrorAlert(title: "닉네임 확인 실패", message: "닉네임 확인에 실패했습니다.")
+                        self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: false)
+                    }
+                } catch {
+                    self.showErrorAlert(title: "오류", message: "닉네임 중복 확인 중 오류가 발생했습니다.")
+                }
+            case .failure(let error):
+                self.showErrorAlert(title: "네트워크 오류", message: error.localizedDescription)
+            }
+        }
+    }
+    
     private func updateMemberProfile(completion: @escaping () -> Void) {
         let nickname = setupNickBirthGenView.nicknameTextField.text ?? ""
         let birth = setupNickBirthGenView.birthdateTextField.text ?? ""

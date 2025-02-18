@@ -46,6 +46,19 @@ public struct VerifyCodeResponse: Codable {
     let result: String?
 }
 
+//닉네임 중복 확인 응답 모델
+struct NicknameCheckResponse: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: NicknameCheckResult
+}
+
+struct NicknameCheckResult: Decodable {
+    let message: String
+    let available: Bool
+}
+
 //닉네임, 생년월일, 성별 중복 응답 모델
 struct PatchMemberProfileErrorResponse: Codable {
     let isSuccess: Bool

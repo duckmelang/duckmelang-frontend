@@ -24,6 +24,7 @@ public enum LoginAPI {
     case getOAuthTokenKakao(memberId: Int)
     case getOAuthTokenGoogle(memberId: Int)
     case patchMemberProfile(memberId: Int, profile: PatchMemberProfileRequest)
+    case getMemberNicknameCheck(nickname: String)
     case postMemberInterestCeleb(memberId: Int, idolNums: SelectFavoriteIdolRequest)
     
 }
@@ -73,6 +74,11 @@ extension LoginAPI: TargetType {
                 fatalError("memberURL 오류")
             }
             return url
+        case .getMemberNicknameCheck(nickname : _):
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
         case .postMemberInterestCeleb(memberId : _):
             guard let url = URL(string: API.memberURL) else {
                 fatalError("memberURL 오류")
@@ -98,6 +104,8 @@ extension LoginAPI: TargetType {
             return "/google"
         case .patchMemberProfile(let memberId, _):
             return "/\(memberId)/profile"
+        case .getMemberNicknameCheck:
+            return "/check/nickname"
         case .postMemberInterestCeleb(let memberId, _):
             return "/\(memberId)/idols"
         }
@@ -108,6 +116,8 @@ extension LoginAPI: TargetType {
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
         case .kakaoLogin, .getOAuthTokenKakao, .googleLogin, .getOAuthTokenGoogle:
+            return .get
+        case .getMemberNicknameCheck:
             return .get
         case .patchMemberProfile:
             return .patch
@@ -140,6 +150,12 @@ extension LoginAPI: TargetType {
             
         case .patchMemberProfile(_, let PatchMemberProfileRequest):
             return .requestJSONEncodable(PatchMemberProfileRequest)
+            
+        case .getMemberNicknameCheck(let nickname):
+            return .requestParameters(
+                parameters: ["nickname": nickname], // GET 요청은 Query Parameter 사용
+                encoding: URLEncoding.queryString   // URL Encoding 방식 지정
+            )
             
         case .postMemberInterestCeleb(_, let SelectFavoriteIdolRequest):
             return .requestJSONEncodable(SelectFavoriteIdolRequest)

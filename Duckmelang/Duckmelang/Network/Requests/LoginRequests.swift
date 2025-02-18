@@ -39,6 +39,10 @@ public struct PatchMemberProfileRequest: Encodable {
     let gender: String
 }
 
+public struct NicknameCheckRequest: Encodable {
+    let nickname: String
+}
+
 //좋아하는 아이돌 선택 모델
 public struct SelectFavoriteIdolRequest: Encodable {
     let idolCategoryIds: [Int]
