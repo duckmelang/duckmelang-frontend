@@ -15,12 +15,12 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum MyAccompanyAPI {
-    case getPendingRequests(memberId: Int, page: Int)
-    case getSentRequests(memberId: Int, page: Int)
-    case getReceivedRequests(memberId: Int, page: Int)
-    case postRequestSucceed(applicationId: Int, memberId: Int)
-    case postRequestFailed(applicationId: Int, memberId: Int)
-    case getBookmarks(memberId: Int, page: Int)
+    case getPendingRequests(page: Int)
+    case getSentRequests(page: Int)
+    case getReceivedRequests(page: Int)
+    case postRequestSucceed(applicationId: Int)
+    case postRequestFailed(applicationId: Int)
+    case getBookmarks(page: Int)
     case getMyPosts(page: Int)
 }
 
@@ -56,12 +56,12 @@ extension MyAccompanyAPI: TargetType {
             return "/sent"
         case .getReceivedRequests:
             return "/received"
-        case .postRequestSucceed(let applicationId, _):
+        case .postRequestSucceed(let applicationId):
             return "/received/succeed/\(applicationId)"
-        case .postRequestFailed(let applicationId, _):
+        case .postRequestFailed(let applicationId):
             return "/received/failed/\(applicationId)"
-        case .getBookmarks(let memberId, _):
-            return "/bookmarks/\(memberId)"
+        case .getBookmarks:
+            return "/bookmarks"
         case .getMyPosts:
             return "/my"
         }
@@ -81,12 +81,10 @@ extension MyAccompanyAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getPendingRequests(let memberId, let page), .getSentRequests(let memberId, let page), .getReceivedRequests(let memberId, let page):
-            return .requestParameters(parameters: ["memberId": memberId, "page": page], encoding: URLEncoding.queryString)
-        case .getBookmarks(_, let page), .getMyPosts(let page):
+        case .getPendingRequests(let page), .getSentRequests(let page), .getReceivedRequests(let page), .getBookmarks(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .postRequestSucceed(_, let memberId), .postRequestFailed(_, let memberId):
-            return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.queryString)
+        case .postRequestSucceed, .postRequestFailed:
+            return .requestPlain
         }
     }
     
@@ -95,7 +93,7 @@ extension MyAccompanyAPI: TargetType {
         default :
             return [
                 "Content-Type": "application/json",
-                "Authorization": "Bearer Token"
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5ODQ1OTA1LCJleHAiOjE3Mzk4NDk1MDV9.vH_3glOyAQfrcSXUWIHWpyLE19UNy8Y-8BThZCr6C8k"
             ]
         }
     }
