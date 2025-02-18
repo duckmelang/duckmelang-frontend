@@ -8,18 +8,11 @@
 import UIKit
 
 class TopMessageView: UIView {
-    init(isReview: Bool, isMyFirstMessage: Bool) {
+    init() {
         super.init(frame: .zero)
         
         self.backgroundColor = .clear
         setupView()
-        if (isReview) {
-            confirmBtn.isHidden = true
-            reviewBtn.isHidden = false
-        } else if (isMyFirstMessage) {
-            confirmBtn.isHidden = false
-            reviewBtn.isHidden = true
-        }
     }
     
     required init?(coder: NSCoder) {
@@ -40,14 +33,14 @@ class TopMessageView: UIView {
         $0.layer.shadowOpacity = 0.75
     }
     
-    private lazy var postImage = UIImageView().then {
+    lazy var postImage = UIImageView().then {
         $0.backgroundColor = .grey300
         $0.contentMode = .scaleAspectFit
         $0.layer.cornerRadius = 2.4
         $0.clipsToBounds = true
     }
     
-    private lazy var postTitle = UILabel().then {
+    lazy var postTitle = UILabel().then {
         $0.text = "게시글 제목"
         $0.textColor = .grey800
         $0.font = .ptdRegularFont(ofSize: 17)
@@ -61,7 +54,7 @@ class TopMessageView: UIView {
     
     public lazy var confirmBtn = UIButton().then {
         $0.backgroundColor = .dmrBlue
-        $0.setTitle("동행 확정", for: .normal)
+        $0.setTitle("동행 요청", for: .normal)
         $0.setTitleColor(.grey100, for: .normal)
         $0.titleLabel?.font = .ptdSemiBoldFont(ofSize: 13)
         $0.layer.cornerRadius = 5

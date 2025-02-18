@@ -127,4 +127,37 @@ class ChatCell: UITableViewCell {
             contentView.alpha = 1
         }
     }
+    
+    public func configure(model: ChatDTO) {
+        if let oppositeProfileImageUrl = URL(string: model.oppositeProfileImage) {
+            self.userImage.kf.setImage(with: oppositeProfileImageUrl, placeholder: UIImage())
+        }
+        if let postImageUrl = URL(string: model.postImage) {
+            self.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage())
+        }
+        
+        self.userName.text = model.oppositeNickname
+        self.recentMessage.text = model.lastMessage
+
+        // lastMessageTime 변환
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        inputFormatter.locale = Locale(identifier: "ko_KR")
+
+        if let date = inputFormatter.date(from: model.lastMessageTime) {
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateFormat = "a hh:mm"
+            outputFormatter.locale = Locale(identifier: "ko_KR")
+            
+            let formattedString = outputFormatter.string(from: date)
+            self.sentTime.text = formattedString
+        }
+        
+        if (model.status == "TERMINEATED"){
+            contentView.alpha = 0.4
+            self.recentMessage.text = "완료된 채팅"
+        } else {
+            contentView.alpha = 1
+        }
+    }
 }

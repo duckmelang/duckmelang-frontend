@@ -18,7 +18,53 @@ class MessageView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    let topMessageView = TopMessageView(isReview: true, isMyFirstMessage: false)
+    var detailChatroomResponse: DetailChatroomResponse? {
+        didSet {
+            if let detailData = detailChatroomResponse {
+                print("detailData 변경됨: \(detailData)")
+                updateUI(with: detailData)
+            }
+        }
+    }
+    
+    func updateUI(with data: DetailChatroomResponse) {
+        if let postImageUrl = URL(string: data.postImage) {
+            self.topMessageView.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage())
+        }
+        self.topMessageView.postTitle.text = data.postTitle
+        
+        switch data.chatRoomStatus {
+        case "ONGOING":
+            if !data.postOwner {
+                // 진행 중인데 내가 쓴 글이 아님 -> 동행요청 버튼 활성화
+                topMessageView.confirmBtn.isHidden = false
+                topMessageView.reviewBtn.isHidden = true
+            } else {
+                // 진행 중인데 내가 쓴 글임 -> 아무버튼도 띄우지 않음
+                topMessageView.confirmBtn.isHidden = true
+                topMessageView.reviewBtn.isHidden = true
+            }
+        case "TERMINATED":
+            if !data.hasReviewed {
+                // 종료 후 리뷰x -> 리뷰버튼을 띄움
+                topMessageView.confirmBtn.isHidden = true
+                topMessageView.reviewBtn.isHidden = false
+            } else {
+                // 종료 후 리뷰o -> 아무버튼도 띄우지않음
+                topMessageView.confirmBtn.isHidden = true
+                topMessageView.reviewBtn.isHidden = true
+            }
+            topMessageView.isHidden = true
+            bottomMessageView.setupCompleteView()
+        default:
+            topMessageView.confirmBtn.isHidden = true
+            topMessageView.reviewBtn.isHidden = true
+            topMessageView.isHidden = false
+            bottomMessageView.setupIncompleteView()
+        }
+    }
+    
+    let topMessageView = TopMessageView()
     
     let messageCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
         $0.estimatedItemSize = .init(width: 375, height: 58)
