@@ -75,7 +75,14 @@ class MakeProfilesViewController: UIViewController, NextButtonUpdatable {
     }
     
     @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
+        if currentStep > 0 {
+            currentStep -= 1
+            showStep(step: currentStep)
+            progressBarView.moveToPreviousStep()
+            nextButton.setEnabled(false)
+        } else {
+            self.dismiss(animated: true, completion: nil)
+        }
     }
     
     private func setupUI() {
