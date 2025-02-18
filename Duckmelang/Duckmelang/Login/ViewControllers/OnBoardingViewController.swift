@@ -67,12 +67,12 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     
     @objc private func didTapKakaoLoginButton() {
         print("Kakao login button tapped")
-        openOAuthLogin(urlString: "\(API.oauthURL)/kakao")
+        openOAuthLogin(api: .kakaoLogin)
     }
     
     @objc private func didTapGoogleLoginButton() {
         print("Google login button tapped")
-        openOAuthLogin(urlString: "\(API.oauthURL)/google")
+        openOAuthLogin(api: .googleLogin)
     }
     
     @objc private func didTapPhoneLoginButton() {
@@ -81,11 +81,8 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     }
     
     // MARK: - OAuth 로그인 처리
-    private func openOAuthLogin(urlString: String) {
-        guard let url = URL(string: urlString) else {
-            print("❌ OAuth 로그인 URL이 잘못되었습니다.")
-            return
-        }
+    private func openOAuthLogin(api: LoginAPI) {
+        let url = api.baseURL.appendingPathComponent(api.path)
 
         let oauthWebVC = OAuthWebViewController()
         oauthWebVC.authURL = url
