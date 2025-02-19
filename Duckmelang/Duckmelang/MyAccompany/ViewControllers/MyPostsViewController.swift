@@ -15,7 +15,6 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
     var isLoading = false   // 중복 로딩 방지
     var isLastPage = false  // 마지막 페이지인지 여부
     var currentPage = 0     // 현재 페이지 번호
-    let pageSize = 10       // 한 페이지당 데이터 개수
     
     override func viewDidLoad() {
         super.viewDidLoad()

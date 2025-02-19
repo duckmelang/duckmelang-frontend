@@ -22,6 +22,12 @@ class BookmarksView: UIView {
         $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 106
+        $0.tableFooterView = loadingIndicator
+    }
+    
+    let loadingIndicator = UIActivityIndicatorView(style: .medium).then {
+        $0.hidesWhenStopped = true
+        $0.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50)
     }
     
     lazy var empty = emptyLabel(text: "스크랩 목록이 없습니다")

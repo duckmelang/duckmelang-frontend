@@ -12,6 +12,10 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
     private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private var bookmarksData: [PostDTO] = []
     
+    var isLoading = false   // 중복 로딩 방지
+    var isLastPage = false  // 마지막 페이지인지 여부
+    var currentPage = 0     // 현재 페이지 번호
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = bookmarksView
@@ -30,17 +34,31 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
     }
 
     private func getBookmarksAPI() {
+        guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
+        isLoading = true
+        bookmarksView.loadingIndicator.startAnimating()
+        
         provider.request(.getBookmarks(page: 0)) { result in
             switch result {
             case .success(let response):
-                self.bookmarksData.removeAll()
-                let response = try? response.map(ApiResponse<PostResponse>.self)
-                guard let result = response?.result?.postList else { return }
-                self.bookmarksData = result
-                print("스크랩: \(self.bookmarksData)")
-                DispatchQueue.main.async {
-                    self.bookmarksView.empty.isHidden = !result.isEmpty
-                    self.bookmarksView.bookmarksTableView.reloadData()
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+                    let response = try? response.map(ApiResponse<PostResponse>.self)
+                    guard let result = response?.result?.postList else { return }
+                    guard let isLast = response?.result?.isLast else { return }
+                    self.bookmarksData.append(contentsOf: result)
+                    print("내 게시글: \(self.bookmarksData)")
+                    
+                    DispatchQueue.main.async {
+                        self.bookmarksView.empty.isHidden = !result.isEmpty
+                        self.isLastPage = isLast
+                        self.isLoading = false
+                        self.bookmarksView.loadingIndicator.stopAnimating()
+                        self.bookmarksView.bookmarksTableView.reloadData()
+                        
+                        if isLast {
+                            self.bookmarksView.bookmarksTableView.tableFooterView = nil
+                        }
+                    }
                 }
             case .failure(let error):
                 print(error)
@@ -67,5 +85,18 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
         bookmarkDetailVC.postId = postId
         
         self.navigationController?.pushViewController(bookmarkDetailVC, animated: true)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let tableViewHeight = scrollView.frame.size.height
+
+        if offsetY > contentHeight - tableViewHeight * 2 {
+            if !isLoading && !isLastPage {
+                currentPage += 1
+                getBookmarksAPI()
+            }
+        }
     }
 }
