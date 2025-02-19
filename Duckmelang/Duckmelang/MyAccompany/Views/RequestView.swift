@@ -35,6 +35,8 @@ class RequestView: UIView {
         $0.rowHeight = 79
     }
     
+    lazy var empty = emptyLabel(text: "요청 목록이 없습니다")
+    
     private func setupView() {
         btnStackView.addArrangedSubview(awaitingBtn)
         btnStackView.addArrangedSubview(sentBtn)
@@ -43,6 +45,7 @@ class RequestView: UIView {
         [
             btnStackView,
             requestTableView,
+            empty,
         ].forEach {
             addSubview($0)
         }
@@ -56,6 +59,11 @@ class RequestView: UIView {
         requestTableView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(66)
             $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        empty.snp.makeConstraints {
+            $0.top.equalTo(btnStackView.snp.bottom).offset(40)
+            $0.centerX.equalToSuperview()
         }
     }
 }

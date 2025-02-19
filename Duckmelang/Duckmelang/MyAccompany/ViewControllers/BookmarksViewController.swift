@@ -39,6 +39,7 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
                 self.bookmarksData = result
                 print("스크랩: \(self.bookmarksData)")
                 DispatchQueue.main.async {
+                    self.bookmarksView.empty.isHidden = !result.isEmpty
                     self.bookmarksView.bookmarksTableView.reloadData()
                 }
             case .failure(let error):

@@ -30,9 +30,12 @@ class MyPostsView: UIView {
         $0.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50)
     }
     
+    lazy var empty = emptyLabel(text: "내 게시물이 없습니다")
+    
     private func setupView() {
         [
-            myPostsTableView
+            myPostsTableView,
+            empty
         ].forEach {
             addSubview($0)
         }
@@ -40,6 +43,11 @@ class MyPostsView: UIView {
         myPostsTableView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        empty.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(40)
+            $0.centerX.equalToSuperview()
         }
     }
 }

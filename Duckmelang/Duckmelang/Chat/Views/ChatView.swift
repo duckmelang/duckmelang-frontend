@@ -22,7 +22,8 @@ class ChatView: UIView {
     
     lazy var allBtn = ChipButton(title: "전체", width: 47, tag: 0)
     lazy var ongoingBtn = ChipButton(title: "진행 중", width: 62, tag: 1)
-    lazy var doneBtn = ChipButton(title: "완료", width: 47, tag: 2)
+    lazy var confirmBtn = ChipButton(title: "동행확정", width: 62, tag: 2)
+    lazy var doneBtn = ChipButton(title: "종료", width: 47, tag: 3)
     
     lazy var btnStackView = UIStackView().then {
         $0.axis = .horizontal
@@ -37,14 +38,18 @@ class ChatView: UIView {
         $0.rowHeight = 75
     }
     
+    lazy var empty = emptyLabel(text: "채팅 목록이 없습니다")
+    
     private func setupView() {
         btnStackView.addArrangedSubview(allBtn)
         btnStackView.addArrangedSubview(ongoingBtn)
+        btnStackView.addArrangedSubview(confirmBtn)
         btnStackView.addArrangedSubview(doneBtn)
         
         [
             btnStackView,
-            chatTableView
+            chatTableView,
+            empty
         ].forEach {
             addSubview($0)
         }
@@ -52,12 +57,17 @@ class ChatView: UIView {
         btnStackView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(12)
             $0.leading.equalToSuperview().offset(16)
-            $0.width.equalTo(170)
+            $0.width.equalTo(250)
         }
         
         chatTableView.snp.makeConstraints {
             $0.top.equalTo(btnStackView.snp.bottom).offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        empty.snp.makeConstraints {
+            $0.top.equalTo(btnStackView.snp.bottom).offset(40)
+            $0.centerX.equalToSuperview()
         }
     }
 

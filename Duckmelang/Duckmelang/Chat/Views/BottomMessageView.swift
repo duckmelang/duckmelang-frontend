@@ -68,7 +68,7 @@ class BottomMessageView: UIView {
         }
     }
     
-    private func setupIncompleteView() {
+    func setupIncompleteView() {
         main.addSubview(sendBtn)
         
         messageTextField.snp.makeConstraints {
@@ -85,7 +85,7 @@ class BottomMessageView: UIView {
         }
     }
     
-    private func setupCompleteView() {
+    func setupCompleteView() {
         messageTextField.isEnabled = false
         messageTextField.isUserInteractionEnabled = false
         messageTextField.text = "메시지를 보낼 수 없습니다."

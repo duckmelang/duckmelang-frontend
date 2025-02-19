@@ -50,7 +50,7 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
                     print("내 게시글: \(self.myPostsData)")
                     
                     DispatchQueue.main.async {
-//                        self.myPostsView.empty.isHidden = !result.isEmpty
+                        self.myPostsView.empty.isHidden = !result.isEmpty
                         self.isLastPage = isLast
                         self.isLoading = false
                         self.myPostsView.loadingIndicator.stopAnimating()
