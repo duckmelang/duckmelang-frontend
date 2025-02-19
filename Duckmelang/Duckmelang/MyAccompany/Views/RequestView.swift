@@ -33,7 +33,10 @@ class RequestView: UIView {
         $0.register(MyAccompanyCell.self, forCellReuseIdentifier: MyAccompanyCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 79
+        $0.tableFooterView = loadingIndicator
     }
+    
+    let loadingIndicator = LoadingIndicator()
     
     lazy var empty = emptyLabel(text: "요청 목록이 없습니다")
     

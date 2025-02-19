@@ -36,7 +36,7 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
     private func getMyPostsAPI() {
         guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
         isLoading = true
-        myPostsView.loadingIndicator.startAnimating()
+        myPostsView.loadingIndicator.startLoading()
         
         provider.request(.getMyPosts(page: currentPage)) { result in
             switch result {
@@ -52,7 +52,7 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
                         self.myPostsView.empty.isHidden = !result.isEmpty
                         self.isLastPage = isLast
                         self.isLoading = false
-                        self.myPostsView.loadingIndicator.stopAnimating()
+                        self.myPostsView.loadingIndicator.stopLoading()
                         self.myPostsView.myPostsTableView.reloadData()
                         
                         if isLast {
@@ -60,8 +60,12 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
                         }
                     }
                 }
+                print(self.isLoading)
+                print(self.isLastPage)
             case .failure(let error):
                 print(error)
+                self.isLoading = false
+                self.myPostsView.loadingIndicator.stopLoading()
             }
         }
     }

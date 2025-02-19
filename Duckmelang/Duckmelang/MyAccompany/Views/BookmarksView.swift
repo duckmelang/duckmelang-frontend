@@ -25,10 +25,7 @@ class BookmarksView: UIView {
         $0.tableFooterView = loadingIndicator
     }
     
-    let loadingIndicator = UIActivityIndicatorView(style: .medium).then {
-        $0.hidesWhenStopped = true
-        $0.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50)
-    }
+    let loadingIndicator = LoadingIndicator()
     
     lazy var empty = emptyLabel(text: "스크랩 목록이 없습니다")
     

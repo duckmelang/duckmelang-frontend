@@ -36,9 +36,9 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
     private func getBookmarksAPI() {
         guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
         isLoading = true
-        bookmarksView.loadingIndicator.startAnimating()
+        bookmarksView.loadingIndicator.startLoading()
         
-        provider.request(.getBookmarks(page: 0)) { result in
+        provider.request(.getBookmarks(page: currentPage)) { result in
             switch result {
             case .success(let response):
                 DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
@@ -46,13 +46,13 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
                     guard let result = response?.result?.postList else { return }
                     guard let isLast = response?.result?.isLast else { return }
                     self.bookmarksData.append(contentsOf: result)
-                    print("내 게시글: \(self.bookmarksData)")
+                    print("스크랩: \(self.bookmarksData)")
                     
                     DispatchQueue.main.async {
                         self.bookmarksView.empty.isHidden = !result.isEmpty
                         self.isLastPage = isLast
                         self.isLoading = false
-                        self.bookmarksView.loadingIndicator.stopAnimating()
+                        self.bookmarksView.loadingIndicator.stopLoading()
                         self.bookmarksView.bookmarksTableView.reloadData()
                         
                         if isLast {
@@ -62,6 +62,8 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
                 }
             case .failure(let error):
                 print(error)
+                self.isLoading = false
+                self.bookmarksView.loadingIndicator.stopLoading()
             }
         }
     }

@@ -25,10 +25,7 @@ class MyPostsView: UIView {
         $0.tableFooterView = loadingIndicator
     }
     
-    let loadingIndicator = UIActivityIndicatorView(style: .medium).then {
-        $0.hidesWhenStopped = true
-        $0.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50)
-    }
+    let loadingIndicator = LoadingIndicator()
     
     lazy var empty = emptyLabel(text: "내 게시물이 없습니다")
     
