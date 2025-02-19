@@ -86,6 +86,7 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
         setupNickBirthGenView.maleButton.addTarget(self, action: #selector(didTapMale), for: .touchUpInside)
         setupNickBirthGenView.femaleButton.addTarget(self, action: #selector(didTapFemale), for: .touchUpInside)
         setupNickBirthGenView.nickCheckButton.addTarget(self, action: #selector(didTapNickCheck), for: .touchUpInside)
+        setupNickBirthGenView.nicknameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
     }
     
     private func setupDatePicker() {
@@ -153,8 +154,16 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
         setupNickBirthGenView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
     
+    @objc private func textFieldDidChange(_ textField: UITextField) {
+        // 닉네임이 변경되면 중복확인 버튼을 다시 비활성화 상태로 돌림
+        setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: false)
+        // 중복 확인 상태 초기화
+        isNicknameAvailable = false
+    }
+    
     @objc private func didTapNickCheck() {
         let nickname = setupNickBirthGenView.nicknameTextField.text ?? ""
+        setupNickBirthGenView.nicknameTextField.resignFirstResponder()
         if nickname.isEmpty {
             showAlert(title: "입력 오류", message: "닉네임을 입력해주세요.")
             return
@@ -169,8 +178,12 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
                     self.isNicknameAvailable = nicknameResponse.result.available
                     if nicknameResponse.isSuccess {
                         self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: isNicknameAvailable)
-                        
-                        self.checkNextButtonState()
+                        if self.isNicknameAvailable {
+                            self.setupNickBirthGenView.nicknameTextField.resignFirstResponder()
+                            self.checkNextButtonState()
+                        } else {
+                            self.setupNickBirthGenView.nicknameTextField.becomeFirstResponder()
+                        }
                         self.showAlert(title: "닉네임 확인", message: nicknameResponse.result.message)
                     } else {
                         self.setupNickBirthGenView.nickCheckButton.configureGenderButton(title: "확인", selectedBool: isNicknameAvailable)

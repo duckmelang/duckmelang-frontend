@@ -35,6 +35,8 @@ class SetupNickBirthGenView: UIView {
         $0.borderStyle = .none
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
         $0.textColor = .grey800
+        $0.keyboardType = .default
+        $0.returnKeyType = .done
     }
     
     public let nickCheckButton = UIButton().then {
@@ -115,6 +117,7 @@ class SetupNickBirthGenView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
+        nicknameTextField.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -228,5 +231,12 @@ extension UIButton {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.widthAnchor.constraint(equalToConstant: 50).isActive = true
         self.heightAnchor.constraint(equalToConstant: 30).isActive = true
+    }
+}
+
+extension SetupNickBirthGenView: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
