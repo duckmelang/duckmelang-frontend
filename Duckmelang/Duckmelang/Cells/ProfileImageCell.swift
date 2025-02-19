@@ -167,5 +167,4 @@ class ProfileImageCell: UITableViewCell {
         
         return formattedDate
     }
-
 }

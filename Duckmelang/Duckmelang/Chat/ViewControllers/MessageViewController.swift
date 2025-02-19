@@ -210,12 +210,19 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     @objc private func openConfirmPopup() {
         let popupVC = ConfirmPopupViewController()
         popupVC.modalPresentationStyle = .overFullScreen
+        
+        popupVC.postId = chat?.postId
+        popupVC.oppositeNickname = chat?.oppositeNickname
+        popupVC.oppositeProfileImage = chat?.oppositeProfileImage
+        
         popupVC.delegate = self
         present(popupVC, animated: false)
     }
     
     @objc private func openReview() {
         let afterReviewVC = AfterReviewViewController()
+        afterReviewVC.oppositeId = chat?.oppositeId
+        afterReviewVC.postId = chat?.postId
         navigationController?.pushViewController(afterReviewVC, animated: true)
     }
     

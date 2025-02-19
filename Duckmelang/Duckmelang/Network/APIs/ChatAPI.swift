@@ -22,6 +22,8 @@ public enum ChatAPI {
     
     case getDetailChatroom(chatRoomId: Int)
     case getMessages(chatRoomId: Int, size: Int)
+    
+    case postRequest(postId: Int)
 }
 
 extension ChatAPI: TargetType {
@@ -32,6 +34,11 @@ extension ChatAPI: TargetType {
         case .getChatrooms, .getOngoingChatrooms, .getTerminatedChatrooms, .getConfirmedChatrooms,.getDetailChatroom:
             guard let url = URL(string: API.chatroomURL) else {
                 fatalError("chatroomURL 오류")
+            }
+            return url
+        case .postRequest:
+            guard let url = URL(string: API.requestURL) else {
+                fatalError("requestURL 오류")
             }
             return url
         default:
@@ -57,6 +64,8 @@ extension ChatAPI: TargetType {
             return "/{chatRoomId}"
         case .getMessages(let chatRoomId, _):
             return "/chat/\(chatRoomId)/messages"
+        case .postRequest(let postId):
+            return "/send/\(postId)"
         }
     }
     
@@ -64,6 +73,8 @@ extension ChatAPI: TargetType {
         // 가장 많이 호출되는 get을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
+        case .postRequest:
+            return .post
         default:
             return .get
         }
@@ -78,6 +89,8 @@ extension ChatAPI: TargetType {
             return .requestParameters(parameters: ["chatRoomId": chatRoomId], encoding: URLEncoding.queryString)
         case .getMessages(_, let size):
             return .requestParameters(parameters: ["size": size], encoding: URLEncoding.queryString)
+        case .postRequest:
+            return .requestPlain
         }
     }
     
@@ -86,7 +99,7 @@ extension ChatAPI: TargetType {
         default :
             return [
                 "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTY3NjYzLCJleHAiOjE3Mzk5NzEyNjN9.-0PcZnrTYJuo868k1fEqfuaQsP2uHy9Ff8IX9BAUasM"
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTc1NDUyLCJleHAiOjE3Mzk5NzkwNTJ9.BxOx3ezrGxMH7Bd5pbyd5nAFF7MYO1Kehg8GgNff7Ww"
             ]
         }
     }

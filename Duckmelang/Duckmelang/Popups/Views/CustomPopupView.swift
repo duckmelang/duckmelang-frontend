@@ -74,7 +74,7 @@ class CustomPopupView: UIView {
         $0.clipsToBounds = true
     }
     
-    private lazy var userImage = UIImageView().then {
+    let userImage = UIImageView().then {
         $0.backgroundColor = .grey200
         $0.clipsToBounds = true
     }

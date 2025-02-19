@@ -72,7 +72,7 @@ extension OtherPageAPI: TargetType {
         default :
             return [
                 "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTY3NjYzLCJleHAiOjE3Mzk5NzEyNjN9.-0PcZnrTYJuo868k1fEqfuaQsP2uHy9Ff8IX9BAUasM"
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTc1NDUyLCJleHAiOjE3Mzk5NzkwNTJ9.BxOx3ezrGxMH7Bd5pbyd5nAFF7MYO1Kehg8GgNff7Ww"
             ]
         }
     }
