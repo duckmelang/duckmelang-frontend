@@ -47,23 +47,3 @@ public struct NicknameCheckRequest: Encodable {
 public struct SelectFavoriteIdolRequest: Encodable {
     let idolCategoryIds: [Int]
 }
-
-struct IdolList : Encodable{
-    let idolId: Int
-    let idolName: String
-    let idolImage: String // 아이돌 로고
-}
-
-//MARK: - 더미데이터
-extension IdolList {
-    static func dummy1() -> [IdolList] {
-        return [
-            IdolList(idolId: 1, idolName: "New Jeans", idolImage: "logo_yellow"),
-            IdolList(idolId: 2, idolName: "Aespa", idolImage: "logo_yellow"),
-            IdolList(idolId: 3, idolName: "Kiss of Life", idolImage: "logo_yellow"),
-            IdolList(idolId: 4, idolName: "IVE", idolImage: "logo_yellow"),
-            IdolList(idolId: 5, idolName: "Seventeen", idolImage: "logo_yellow"),
-            IdolList(idolId: 6, idolName: "LE SSERAFIM", idolImage: "logo_yellow")
-        ]
-    }
-}

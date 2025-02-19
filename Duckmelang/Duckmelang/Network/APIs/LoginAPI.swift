@@ -25,6 +25,7 @@ public enum LoginAPI {
     case getOAuthTokenGoogle(memberId: Int)
     case patchMemberProfile(memberId: Int, profile: PatchMemberProfileRequest)
     case getMemberNicknameCheck(nickname: String)
+    case getAllIdols
     case postMemberInterestCeleb(memberId: Int, idolNums: SelectFavoriteIdolRequest)
     
 }
@@ -79,6 +80,11 @@ extension LoginAPI: TargetType {
                 fatalError("memberURL 오류")
             }
             return url
+        case .getAllIdols:
+            guard let url = URL(string: API.baseURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
         case .postMemberInterestCeleb(memberId : _):
             guard let url = URL(string: API.memberURL) else {
                 fatalError("memberURL 오류")
@@ -106,6 +112,8 @@ extension LoginAPI: TargetType {
             return "/\(memberId)/profile"
         case .getMemberNicknameCheck:
             return "/check/nickname"
+        case .getAllIdols:
+            return "/idols"
         case .postMemberInterestCeleb(let memberId, _):
             return "/\(memberId)/idols"
         }
@@ -117,7 +125,7 @@ extension LoginAPI: TargetType {
         switch self {
         case .kakaoLogin, .getOAuthTokenKakao, .googleLogin, .getOAuthTokenGoogle:
             return .get
-        case .getMemberNicknameCheck:
+        case .getMemberNicknameCheck, .getAllIdols:
             return .get
         case .patchMemberProfile:
             return .patch
@@ -157,6 +165,9 @@ extension LoginAPI: TargetType {
                 encoding: URLEncoding.queryString   // URL Encoding 방식 지정
             )
             
+        case .getAllIdols:
+            return .requestPlain
+        
         case .postMemberInterestCeleb(_, let SelectFavoriteIdolRequest):
             return .requestJSONEncodable(SelectFavoriteIdolRequest)
             

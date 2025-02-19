@@ -46,9 +46,7 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
         super.viewDidLoad()
         setupUI()
         setupHandlers()
-//        fetchIdolCategories()
-        //FIXME: - 더미데이터, 수정필요
-        loadDummyData()
+        getAllIdol()
     }
     
     private func setupUI() {
@@ -76,17 +74,36 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
             self?.removeSelectedIdol(removedId)
         }
     }
-    
-    //FIXME: - 더미 데이터 불러오기
-    private func loadDummyData() {
-        let dummyData = IdolList.dummy1()
-        self.idolCategories = dummyData.map { ($0.idolId, $0.idolName) }
-        self.selectFavoriteCelebView.updateDropdown(with: self.idolCategories)
-    }
 
-//    // API에서 아이돌 카테고리 가져오기
-//    private func fetchIdolCategories() {
-//    }
+    private func getAllIdol() {
+        provider.request(.getAllIdols) { [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let response):
+                do {
+                    let idolListResponse = try response.map(IdolListResponse.self)
+                    
+                    // 서버에서 받아온 데이터를 idolCategories에 저장
+                    self.idolCategories = idolListResponse.result.idolList.map { ($0.idolId, $0.idolName) }
+
+                    // UI 업데이트
+                    DispatchQueue.main.async {
+                        self.selectFavoriteCelebView.updateDropdown(with: self.idolCategories)
+                    }
+                    print("✅ 서버에서 아이돌 목록 가져오기 성공: \(self.idolCategories)")
+
+                } catch {
+                    self.showAlert(title: "오류", message: "아이돌 목록을 불러오는 중 오류가 발생했습니다.")
+                    print("❌ JSON 디코딩 오류: \(error)")
+                }
+
+            case .failure(let error):
+                self.showAlert(title: "네트워크 오류", message: "아이돌 목록을 불러오는데 실패했습니다.")
+                print("❌ API 요청 실패: \(error.localizedDescription)")
+            }
+        }
+    }
 
     // 입력한 텍스트에 따라 필터링
     private func filterIdols(with query: String) {

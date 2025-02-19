@@ -186,7 +186,6 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
         onIdolSelected?(selected.id)
         
         celebTextField.text = "" // 입력창 초기화
-        celebTextField.resignFirstResponder() //키보드 닫기
         dropdownContainerView.isHidden = true
     }
 

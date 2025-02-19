@@ -81,3 +81,26 @@ struct MemberProfile: Codable {
     let birth: String
     let gender: String
 }
+
+//모든 아이돌 목록 받아오는 모델 : 전체보기 (무한스크롤로 수정 가능성 O)
+    // 최상위 JSON 구조
+struct IdolListResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: IdolListResult
+}
+
+    // result 내부 데이터
+struct IdolListResult: Codable {
+    let idolList: [Idol]
+}
+
+    // 개별 아이돌 정보
+struct Idol: Codable {
+    let idolId: Int
+    let idolName: String
+    let idolImage: String
+}
+
+
