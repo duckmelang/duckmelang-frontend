@@ -82,6 +82,8 @@ class MakeProfilesViewController: UIViewController, NextButtonUpdatable {
             currentStep -= 1
             showStep(step: currentStep)
             progressBarView.moveToPreviousStep()
+            //FIXME: - api수정 후 완료버튼 활성화 수정하기
+//            nextButton.setEnabled(true)
             nextButton.setEnabled(false)
         } else {
             self.dismiss(animated: true, completion: nil)
