@@ -11,11 +11,14 @@ import Moya
 class RequestViewController: UIViewController {
     private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
-//    private var requestData = MyAccompanyModel.dummy()
     private var requestData: [RequestDTO] = []
     
     var selectedTag: Int = 0
     var status: String = ""
+    
+    var isLoading = false   // 중복 로딩 방지
+    var isLastPage = [false, false, false]  // 마지막 페이지인지 여부
+    var currentPage = [0, 0, 0]    // 현재 페이지 번호
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +52,13 @@ class RequestViewController: UIViewController {
     }
     
     private func updateBtnSelected() {
+        requestView.empty.isHidden = true
+        requestView.requestTableView.isHidden = false
+        requestData.removeAll()
+        requestView.requestTableView.reloadData()
+        
+        requestView.loadingIndicator.startLoading()
+        
         for btn in [requestView.awaitingBtn, requestView.sentBtn, requestView.receivedBtn] {
             if btn.tag == selectedTag {
                 btn.isSelected = true
@@ -59,75 +69,66 @@ class RequestViewController: UIViewController {
     }
 
     private func updateData() {
+        currentPage[selectedTag] = 0
+        isLastPage[selectedTag] = false
+        
         switch selectedTag {
         case 0:
             status = "PENDING"
-            getPendingAPI()
+            fetchRequestAPI(api: .getPendingRequests(page: currentPage[selectedTag]))
         case 1:
             status = "SENT"
-            getSentAPI()
+            fetchRequestAPI(api: .getSentRequests(page: currentPage[selectedTag]))
         case 2:
             status = "RECEIVED"
-            getReceivedAPI()
+            fetchRequestAPI(api: .getReceivedRequests(page: currentPage[selectedTag]))
         default:
             break
         }
     }
     
-    private func getPendingAPI() {
-        provider.request(.getPendingRequests(memberId: 1, page: 0)) { result in
+    private func fetchRequestAPI(api: MyAccompanyAPI) {
+        guard !isLoading && !isLastPage[selectedTag] else { return } // 중복 호출 & 마지막 페이지 방지
+        isLoading = true
+        
+        provider.request(api) { result in
             switch result {
             case .success(let response):
-                self.requestData.removeAll()
-                let response = try? response.map(ApiResponse<RequestResponse>.self)
-                guard let result = response?.result?.requestApplicationList else { return }
-                self.requestData = result
-                print("대기 중: \(self.requestData)")
-                DispatchQueue.main.async {
-                    self.requestView.requestTableView.reloadData()
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+                    let response = try? response.map(ApiResponse<RequestResponse>.self)
+                    guard let result = response?.result?.applicationList else { return }
+                    guard let isLast = response?.result?.isLast else { return }
+                    
+                    DispatchQueue.main.async {
+                        if self.currentPage[self.selectedTag] == 0 {
+                            self.requestData = result // 첫 페이지면 초기화
+                        } else {
+                            self.requestData.append(contentsOf: result) // 페이지네이션: 데이터 추가
+                        }
+
+                        print("요청 목록: \(self.requestData)")
+                        
+                        if (self.isLastPage[self.selectedTag]) {
+                            self.requestView.requestTableView.tableFooterView = nil
+                        }
+
+                        self.requestView.empty.isHidden = !self.requestData.isEmpty
+                        self.isLastPage[self.selectedTag] = isLast // 마지막 페이지 여부 업데이트
+                        self.isLoading = false
+                        self.requestView.loadingIndicator.stopLoading()
+                        self.requestView.requestTableView.reloadData()
+                    }
                 }
             case .failure(let error):
                 print(error)
-            }
-        }
-    }
-    private func getSentAPI() {
-        provider.request(.getSentRequests(memberId: 1, page: 0)) { result in
-            switch result {
-            case .success(let response):
-                self.requestData.removeAll()
-                let response = try? response.map(ApiResponse<RequestResponse>.self)
-                guard let result = response?.result?.requestApplicationList else { return }
-                self.requestData = result
-                print("보낸 요청: \(self.requestData)")
-                DispatchQueue.main.async {
-                    self.requestView.requestTableView.reloadData()
-                }
-            case .failure(let error):
-                print(error)
-            }
-        }
-    }
-    private func getReceivedAPI() {
-        provider.request(.getReceivedRequests(memberId: 1, page: 0)) { result in
-            switch result {
-            case .success(let response):
-                self.requestData.removeAll()
-                let response = try? response.map(ApiResponse<RequestResponse>.self)
-                guard let result = response?.result?.requestApplicationList else { return }
-                self.requestData = result
-                print("받은 요청: \(self.requestData)")
-                DispatchQueue.main.async {
-                    self.requestView.requestTableView.reloadData()
-                }
-            case .failure(let error):
-                print(error)
+                self.isLoading = false
+                self.requestView.loadingIndicator.stopLoading()
             }
         }
     }
     
     private func postSucceedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
-        provider.request(.postRequestSucceed(applicationId: applicationId, memberId: 1)) { result in
+        provider.request(.postRequestSucceed(applicationId: applicationId)) { result in
             switch result {
             case .success(let response):
                 print("요청 수락 성공: \(response)")
@@ -142,7 +143,7 @@ class RequestViewController: UIViewController {
         }
     }
     private func postFailedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
-        provider.request(.postRequestFailed(applicationId: applicationId, memberId: 1)) { result in
+        provider.request(.postRequestFailed(applicationId: applicationId)) { result in
             switch result {
             case .success(let response):
                 print("요청 거절 성공: \(response)")
@@ -182,5 +183,32 @@ extension RequestViewController: UITableViewDelegate, UITableViewDataSource, MyA
         guard let indexPath = requestView.requestTableView.indexPath(for: cell) else { return }
         let selectedItem = requestData[indexPath.row]
         postFailedAPI(selectedItem.applicationId, cell)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if (isLastPage[selectedTag]) {
+            return
+        }
+        
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let tableViewHeight = scrollView.frame.size.height
+
+        if offsetY > contentHeight - tableViewHeight * 2 {
+            self.currentPage[self.selectedTag] += 1  // 페이지 증가
+            switch selectedTag {
+            case 0:
+                status = "PENDING"
+                fetchRequestAPI(api: .getPendingRequests(page: currentPage[0]))
+            case 1:
+                status = "SENT"
+                fetchRequestAPI(api: .getSentRequests(page: currentPage[1]))
+            case 2:
+                status = "RECEIVED"
+                fetchRequestAPI(api: .getReceivedRequests(page: currentPage[2]))
+            default:
+                break
+            }
+        }
     }
 }

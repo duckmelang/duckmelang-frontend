@@ -22,11 +22,17 @@ class BookmarksView: UIView {
         $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 106
+        $0.tableFooterView = loadingIndicator
     }
+    
+    let loadingIndicator = LoadingIndicator()
+    
+    lazy var empty = emptyLabel(text: "스크랩 목록이 없습니다")
     
     private func setupView() {
         [
             bookmarksTableView,
+            empty,
         ].forEach {
             addSubview($0)
         }
@@ -34,6 +40,11 @@ class BookmarksView: UIView {
         bookmarksTableView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        empty.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(40)
+            $0.centerX.equalToSuperview()
         }
     }
 }

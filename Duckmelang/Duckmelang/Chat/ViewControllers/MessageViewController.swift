@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Moya
 
 class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate {
     private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
@@ -30,6 +31,10 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         DispatchQueue.main.async {
             self.scrollToLastItem()
         }
+        
+        getMessagesAPI()
+        connectWebSocket()
+//        getDetailChatroomsAPI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -55,11 +60,10 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
                 self.messageData.removeAll()
                 let response = try? response.map(ApiResponse<MessageResponse>.self)
                 guard let results = response?.result?.chatMessageList else { return }
-                // UTC로 createdAt이 되어있나? 물어보기
+                
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                 dateFormatter.locale = Locale(identifier: "ko_KR")
-                dateFormatter.timeZone = TimeZone.current
                 
                 results.forEach { result in
                     let newChatType: ChatType = result.receiverId == 1 ? .receive : .send
@@ -180,7 +184,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     private func setupNavigationBar() {
         self.navigationController?.navigationBar.backgroundColor = .white
         
-        self.navigationItem.title = "유저네임"
+        self.navigationItem.title = oppositeNickname
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
         
         let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
@@ -326,7 +330,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
 
 extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return data.count
+        return messageData.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -350,14 +354,14 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
         dateFormatter.locale = Locale(identifier: "ko_KR")
         dateFormatter.dateFormat = "yyyy년 MM월 dd일"
 
-        header.configure(date: dateFormatter.string(from: data[indexPath.section].date))
+        header.configure(date: dateFormatter.string(from: messageData[indexPath.section].date))
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if section == 0 || !isSameDay(date1: data[section].date, date2: data[section - 1].date) {
+        if section == 0 || !isSameDay(date1: messageData[section].date, date2: messageData[section - 1].date) {
             return CGSize(width: collectionView.bounds.width, height: 24)
         } else {
             return CGSize(width: collectionView.bounds.width, height: 0)
@@ -365,7 +369,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let messageDate = data[indexPath.section]
+        let messageDate = messageData[indexPath.section]
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")
         dateFormatter.dateFormat = "a hh:mm"
@@ -409,7 +413,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
 
 extension MessageViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        appendNewMessage()
+        sendNewMessage()
         return true
     }
 }
