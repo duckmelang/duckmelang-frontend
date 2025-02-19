@@ -29,7 +29,8 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
     private let selectFavoriteCelebView = SelectFavoriteCelebView()
 
     private var idolCategories: [(id: Int, name: String)] = []
-    private var selectedIdols: [Int] = []
+    private var selectedIdols: [(id: Int, name: String)] = []
+
     private let memberId: Int
 
     init(memberId: Int) {
@@ -96,26 +97,24 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
     // 아이돌 선택 시 추가
     private func addSelectedIdol(_ selectedId: Int) {
         guard let idol = idolCategories.first(where: { $0.id == selectedId }) else { return }
-        print("🟢 태그 추가 - ID: \(idol.id), 이름 : \(idol.name)")
-        selectedIdols.append(idol.id)
-        selectFavoriteCelebView.addTag(idol)
-        print("📌 현재 선택된 아이돌 목록: \(selectedIdols)") // ✅ 추가 후 확인
         
-        // ✅ 선택된 아이돌이 1개 이상이면 nextButton 활성화
-        nextButtonDelegate?.updateNextButtonState(isEnabled: selectedIdols.count > 0)
+        selectedIdols.append(idol)
+        selectFavoriteCelebView.updateTagsView(with: selectedIdols) // ✅ UI 업데이트
+        print("📌 추가 - 현재 선택된 아이돌 목록: \(selectedIdols)") // ✅ 추가 후 확인
+        nextButtonDelegate?.updateNextButtonState(isEnabled: !selectedIdols.isEmpty)
     }
 
     // 아이돌 태그 삭제 시 목록에서도 제거
     private func removeSelectedIdol(_ removedId: Int) {
-        selectedIdols.removeAll { $0 == removedId }
-
-        print("📌 현재 선택된 아이돌 목록: \(selectedIdols)") // ✅ 삭제 후 확인
-        nextButtonDelegate?.updateNextButtonState(isEnabled: selectedIdols.count > 0)
+        selectedIdols.removeAll { $0.id == removedId }
+        selectFavoriteCelebView.updateTagsView(with: selectedIdols) // ✅ UI 업데이트
+        print("📌 삭제 - 현재 선택된 아이돌 목록: \(selectedIdols)") // ✅ 삭제 후 확인
+        nextButtonDelegate?.updateNextButtonState(isEnabled: !selectedIdols.isEmpty)
     }
     
     func handleNextStep(completion: @escaping () -> Void) {
-            sendSelectedIdolsRequest(completion: completion)
-        }
+        sendSelectedIdolsRequest(completion: completion)
+    }
 
     // ✅ 서버에 선택한 아이돌 POST 요청 보내기
     private func sendSelectedIdolsRequest(completion: @escaping () -> Void) {
@@ -124,7 +123,7 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
             return
         }
 
-        let request = SelectFavoriteIdolRequest(idolCategoryIds: selectedIdols)
+        let request = SelectFavoriteIdolRequest(idolCategoryIds: selectedIdols.map { $0.id })
 
         provider.request(.postMemberInterestCeleb(memberId: memberId, idolNums: request)) { result in
             switch result {
@@ -141,7 +140,6 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
                 }
 
             case .failure(let error):
-                print("❌ 요청 실패: \(error.localizedDescription)")
                 self.showAlert(title: "네트워크 오류", message: "아이돌 선택 저장에 실패했습니다.")
             }
         }

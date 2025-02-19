@@ -1,5 +1,5 @@
 //
-//  SelectFavoriteIdolView.swift
+//  SelectFavoriteCelebView.swift
 //  Duckmelang
 //
 //  Created by 김연우 on 1/28/25.
@@ -61,8 +61,8 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
     
     private let dropdownContainerView = UIView().then {
         $0.isHidden = true
-        $0.layer.borderColor = UIColor.gray.cgColor
-        $0.layer.borderWidth = 0
+        $0.layer.borderColor = UIColor.grey200!.cgColor
+        $0.layer.borderWidth = 1
         $0.backgroundColor = .white
     }
     
@@ -71,8 +71,7 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
     }
     
     private var idolCategories: [(id: Int, name: String)] = []
-    private var selectedIdols: [(id: Int, name: String)] = []
-
+    
     var onTextInput: ((String) -> Void)?
     var onIdolSelected: ((Int) -> Void)?
     var onIdolRemoved: ((Int) -> Void)?
@@ -155,74 +154,28 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
     func updateDropdown(with idolCategories: [(id: Int, name: String)]) {
         self.idolCategories = idolCategories
         dropdownTableView.reloadData()
-
-        // 기존 드롭다운 상태 유지, 필터링 결과가 없으면 숨김
-        dropdownContainerView.isHidden = celebTextField.text?.isEmpty ?? true || idolCategories.isEmpty
+        dropdownContainerView.isHidden = (celebTextField.text?.isEmpty ?? true) || idolCategories.isEmpty
     }
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
-        let text = textField.text ?? ""
-        onTextInput?(text)
-        
-        dropdownContainerView.isHidden = text.isEmpty
+        onTextInput?(textField.text ?? "")
+        dropdownContainerView.isHidden = textField.text?.isEmpty ?? true
     }
 
-    func addTag(_ idol: (id: Int, name: String)) {
-        guard !selectedIdols.contains(where: { $0.id == idol.id }) else { return }
-        selectedIdols.append(idol)
-        updateTagsView()
-        celebTextField.text = "" // 선택 후 입력창 초기화
-        dropdownContainerView.isHidden = true // 선택 후 드롭다운 숨김
-        print("🟡 추가 후 현재 선택된 아이돌 개수: \(selectedIdols.count)")
-    }
-    
-    func removeTag(_ id: Int) {
-        selectedIdols.removeAll { $0.id == id }
-        updateTagsView()
-        print("🟡 삭제 후 현재 선택된 아이돌 개수: \(selectedIdols.count)")
-        onIdolRemoved?(id)
-    }
-    
-    private func updateTagsView() {
-        tagScrollView.isHidden = selectedIdols.isEmpty ? true : false
-
-        let existingTags = tagStackView.arrangedSubviews.compactMap { $0 as? TagView } // 현재 추가된 태그 목록
-        let existingIds = Set(existingTags.map { $0.id }) // 기존 태그의 ID 목록
-        let newIds = Set(selectedIdols.map { $0.id }) // 새롭게 추가된 태그의 ID 목록
+    public func updateTagsView(with selectedIdols: [(id: Int, name: String)]) {
+        tagStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        // 삭제된 태그 제거
-        for tag in existingTags where !newIds.contains(tag.id) {
-            tagStackView.removeArrangedSubview(tag)
-            tag.removeFromSuperview()
-            print("🟡 태그 삭제됨: (ID: \(tag.id))")
-        }
-        
-        // 추가된 태그만 새로 추가
-        for idol in selectedIdols where !existingIds.contains(idol.id) {
-            let tagView = createTagView(idol)
+        for idol in selectedIdols {
+            let tagView = TagView(id: idol.id, name: idol.name)
+            tagView.onDelete = { [weak self] id in
+                self?.onIdolRemoved?(id) // ✅ 삭제 이벤트 전달
+            }
             tagStackView.addArrangedSubview(tagView)
-            print("🟡 태그 추가됨: \(idol.name) (ID: \(idol.id))")
         }
-
-        self.layoutIfNeeded()
-        tagScrollView.contentSize = tagStackView.frame.size
+        
+        tagScrollView.isHidden = selectedIdols.isEmpty
     }
     
-    private func createTagView(_ idol: (id: Int, name: String)) -> UIView {
-        let tagView = TagView(id: idol.id, name: idol.name)
-
-        tagView.onDelete = { [weak self] id in
-            self?.removeTag(id)
-        }
-
-        tagView.snp.makeConstraints {
-            $0.height.equalTo(30)
-            $0.width.greaterThanOrEqualTo(80)
-        }
-
-        return tagView
-    }
-
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return idolCategories.count
@@ -230,11 +183,10 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selected = idolCategories[indexPath.row]
-        guard !selectedIdols.contains(where: { $0.id == selected.id }) else { return }
-        
         onIdolSelected?(selected.id)
         
         celebTextField.text = "" // 입력창 초기화
+        celebTextField.resignFirstResponder() //키보드 닫기
         dropdownContainerView.isHidden = true
     }
 
@@ -245,6 +197,7 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
     }
 }
 
+// MARK: - TagView (삭제 버튼)
 class TagView: UIView {
     let id: Int
     var onDelete: ((Int) -> Void)?
@@ -297,10 +250,6 @@ class TagView: UIView {
     }
 
     @objc private func removeTagAction(_ sender: UIButton) {
-        if let onDelete = onDelete {
-            onDelete(id)
-        } else {
-            print("❌ onDelete가 nil")
-        }
+        onDelete?(id)
     }
 }
