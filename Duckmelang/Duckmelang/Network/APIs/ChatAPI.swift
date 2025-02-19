@@ -53,8 +53,8 @@ extension ChatAPI: TargetType {
             return "/terminated"
         case .getConfirmedChatrooms:
             return "/confirmed"
-        case .getDetailChatroom(let chatRoomId):
-            return "/\(chatRoomId)"
+        case .getDetailChatroom:
+            return "/{chatRoomId}"
         case .getMessages(let chatRoomId, _):
             return "/chat/\(chatRoomId)/messages"
         }
@@ -74,8 +74,8 @@ extension ChatAPI: TargetType {
         switch self {
         case .getChatrooms(let page), .getOngoingChatrooms(let page), .getTerminatedChatrooms(let page), .getConfirmedChatrooms(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getDetailChatroom:
-            return .requestPlain
+        case .getDetailChatroom(let chatRoomId):
+            return .requestParameters(parameters: ["chatRoomId": chatRoomId], encoding: URLEncoding.queryString)
         case .getMessages(_, let size):
             return .requestParameters(parameters: ["size": size], encoding: URLEncoding.queryString)
         }
@@ -86,7 +86,7 @@ extension ChatAPI: TargetType {
         default :
             return [
                 "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTQ1OTQ5LCJleHAiOjE3Mzk5NDk1NDl9.D-G_E0ObDDk8JrHn4_LrvA7BEQZ0U-c6yLkJ03zutEo"
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTY3NjYzLCJleHAiOjE3Mzk5NzEyNjN9.-0PcZnrTYJuo868k1fEqfuaQsP2uHy9Ff8IX9BAUasM"
             ]
         }
     }

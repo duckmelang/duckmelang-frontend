@@ -13,7 +13,6 @@ class ChatViewController: UIViewController {
     
     var selectedTag: Int = 0
 
-    let data1 = ChatModel.dummy()
     var chatData: [ChatDTO] = []
     
     override func viewDidLoad() {
@@ -134,8 +133,7 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         let chat = chatData[indexPath.row]
         
         let messageVC = MessageViewController()
-        messageVC.chatRoomId = chat.chatRoomId
-        messageVC.oppositeNickname = chat.oppositeNickname
+        messageVC.chat = chat
         navigationController?.pushViewController(messageVC, animated: true)
     }
 }

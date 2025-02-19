@@ -34,7 +34,7 @@ public struct OtherImageData: Codable {
 
 // 리뷰 데이터 구조체
 public struct OtherReviewDTO: Codable {
-    let reviewID: Int
+    let reviewId: Int
     let nickname: String
     let gender: String
     let age: Int

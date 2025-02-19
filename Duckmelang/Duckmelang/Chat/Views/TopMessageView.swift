@@ -46,7 +46,7 @@ class TopMessageView: UIView {
         $0.font = .ptdRegularFont(ofSize: 17)
     }
     
-    private lazy var inProgress = UILabel().then {
+    lazy var inProgress = UILabel().then {
         $0.text = "진행 중"
         $0.textColor = .grey700
         $0.font = .ptdSemiBoldFont(ofSize: 13)
@@ -97,7 +97,6 @@ class TopMessageView: UIView {
         postTitle.snp.makeConstraints {
             $0.top.equalTo(postImage.snp.top).offset(3)
             $0.leading.equalTo(postImage.snp.trailing).offset(8)
-            $0.trailing.equalToSuperview().offset(21)
         }
         
         inProgress.snp.makeConstraints {

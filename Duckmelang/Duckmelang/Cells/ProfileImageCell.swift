@@ -144,12 +144,21 @@ class ProfileImageCell: UITableViewCell {
         let inputFormatter = DateFormatter()
         inputFormatter.dateFormat = "yyyy-MM-dd HH:mm"
         inputFormatter.locale = Locale(identifier: "ko_KR")
-        inputFormatter.timeZone = TimeZone.current
 
         if let date = inputFormatter.date(from: isoDateString) {
+            let calendar = Calendar.current
+            let currentYear = calendar.component(.year, from: Date()) // 현재 연도
+            let dateYear = calendar.component(.year, from: date) // 입력된 날짜의 연도
+
             let outputFormatter = DateFormatter()
             outputFormatter.locale = Locale(identifier: "ko_KR")
-            outputFormatter.dateFormat = "yyyy년 MM월 dd일"
+            
+            // 현재 연도와 다르면 연도를 포함, 같으면 연도 제외
+            if currentYear == dateYear {
+                outputFormatter.dateFormat = "MM월 dd일"
+            } else {
+                outputFormatter.dateFormat = "yyyy년 MM월 dd일"
+            }
 
             formattedDate = outputFormatter.string(from: date)
         } else {
@@ -158,4 +167,5 @@ class ProfileImageCell: UITableViewCell {
         
         return formattedDate
     }
+
 }
