@@ -108,3 +108,17 @@ struct SelectableIdol {
     let idol: Idol
     var isSelected: Bool
 }
+
+//지뢰 키워드 설정 응답 모델
+struct LandmineResponse: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: LandmineResult
+}
+
+struct LandmineResult: Decodable {
+    let memberId: Int
+    let landmineContents: [String]
+}
+

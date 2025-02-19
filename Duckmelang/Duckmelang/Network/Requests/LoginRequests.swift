@@ -47,3 +47,8 @@ public struct NicknameCheckRequest: Encodable {
 public struct SelectFavoriteIdolRequest: Encodable {
     let idolCategoryIds: [Int]
 }
+
+//지뢰 키워드 설정 모델
+public struct SetLandmineKeywordRequest: Encodable {
+    let keyword: [String]
+}

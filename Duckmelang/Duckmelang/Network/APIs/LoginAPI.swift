@@ -27,6 +27,7 @@ public enum LoginAPI {
     case getMemberNicknameCheck(nickname: String)
     case getAllIdols
     case postMemberInterestCeleb(memberId: Int, idolNums: SelectFavoriteIdolRequest)
+    case postLandMines(memberId: Int, landmineString: SetLandmineKeywordRequest)
     
 }
 
@@ -90,6 +91,11 @@ extension LoginAPI: TargetType {
                 fatalError("memberURL 오류")
             }
             return url
+        case .postLandMines(memberId : _):
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
         }
     }
     
@@ -116,6 +122,8 @@ extension LoginAPI: TargetType {
             return "/idols"
         case .postMemberInterestCeleb(let memberId, _):
             return "/\(memberId)/idols"
+        case .postLandMines(let memberId, _):
+            return "/\(memberId)/landmines"
         }
     }
     
@@ -170,6 +178,9 @@ extension LoginAPI: TargetType {
         
         case .postMemberInterestCeleb(_, let SelectFavoriteIdolRequest):
             return .requestJSONEncodable(SelectFavoriteIdolRequest)
+            
+        case .postLandMines(_, let SetLandmineKeywordRequest):
+            return .requestJSONEncodable(SetLandmineKeywordRequest)
             
         case .kakaoLogin, .googleLogin:
             return .requestPlain
