@@ -130,6 +130,19 @@ class PostFilterViewController: UIViewController {
             tableView.reloadSections(IndexSet(integer: section), with: .automatic)
         }, completion: nil)
     }
+    
+    @objc private func toggleSection(_ sender: UIButton) {
+        let section = sender.tag
+        let previousExpandedSection = expandedSection
+        expandedSection = (previousExpandedSection == section) ? nil : section
+
+        tableView.performBatchUpdates({
+            if let previousSection = previousExpandedSection {
+                tableView.reloadSections(IndexSet(integer: previousSection), with: .automatic)
+            }
+            tableView.reloadSections(IndexSet(integer: section), with: .automatic)
+        }, completion: nil)
+    }
 }
 
 extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
@@ -195,7 +208,7 @@ extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
             let imageName = isExpanded ? "chevron.up" : "chevron.down"
             $0.setImage(UIImage(systemName: imageName), for: .normal)
             $0.tintColor = .grey500
-            $0.addTarget(self, action: #selector(handleSectionTap(_:)), for: .touchUpInside)
+            $0.addTarget(self, action: #selector(toggleSection), for: .touchUpInside)
         }
         
         let separator = UIView().then {

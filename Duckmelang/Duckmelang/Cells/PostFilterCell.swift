@@ -182,8 +182,6 @@ class AgeSelectionCell: UITableViewCell {
         }
     }
 
-
-    
     func updateUI() {
         guard let min = minAge, let max = maxAge else {
             print("⚠️ updateUI() 호출 실패 - minAge 또는 maxAge가 nil")
@@ -215,7 +213,7 @@ class RangeSlider: UIControl {
         }
     }
     
-    var upperValue: Float = 28 {
+    var upperValue: Float = 50 {
         didSet {
             if upperValue < lowerValue { upperValue = lowerValue }
             updateLayerFrames()

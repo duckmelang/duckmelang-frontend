@@ -40,7 +40,7 @@ extension MyPageAPI: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
-        case.getMyPostDetail, .deletePost:
+        case.getMyPostDetail:
             guard let url = URL(string: API.postURL) else {
                 fatalError("mypageURL 오류")
             }
@@ -67,7 +67,7 @@ extension MyPageAPI: TargetType {
         case .getReviews:
             return "/reviews"
         case .getMyPostDetail(postId: let postId), .deletePost(postId: let postId):
-            return "/\(postId)"
+            return "/posts/\(postId)"
         case .postProfileImage:
             return "/profile/image/edit"
         case .getIdolList:
@@ -124,7 +124,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTMzMzUzLCJleHAiOjE3Mzk5MzY5NTN9.cZ3hJG6hdnjH7_vBS6wb3mgtjNpJLOsf2KcM01Y45is"]
+                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTQ0Mjk4LCJleHAiOjE3Mzk5NDc4OTh9.IgMUViB3C2ohA1g-SpRl-2JK7962jbZwnOKezFrajXE"]
         }
     }
 }
