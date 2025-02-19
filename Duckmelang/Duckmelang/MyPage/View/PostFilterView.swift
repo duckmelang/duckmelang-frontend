@@ -44,6 +44,7 @@ class PostFilterView: UIView {
         $0.allowsSelection = false
         $0.estimatedRowHeight = 50
         $0.sectionHeaderHeight = 44
+        $0.isUserInteractionEnabled = true
     }
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
