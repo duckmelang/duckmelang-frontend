@@ -58,6 +58,11 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
     }
     
     private func setupHandlers() {
+        textInputUpdate()
+        isSelectedUpdate()
+    }
+    
+    private func textInputUpdate(){
         selectFavoriteCelebView.onTextInput = { [weak self] query in
             guard let self = self else { return }
             
@@ -69,12 +74,15 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
                 self.filterIdols(with: query)
             }
         }
-        
+    }
+    
+    private func isSelectedUpdate() {
         selectFavoriteCelebView.isSelected = { [weak self] idolId, isSelected in
             guard let self = self else { return }
             if let index = self.selectableIdols.firstIndex(where: { $0.idol.idolId == idolId }) {
                 self.selectableIdols[index].isSelected = isSelected
                 print("✅ 선택 상태 변경: \(self.selectableIdols[index])")
+                selectFavoriteCelebView.resetTextField()
             }
             self.nextButtonDelegate?.updateNextButtonState(isEnabled: !self.selectableIdols.filter { $0.isSelected }.isEmpty)
         }

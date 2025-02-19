@@ -128,6 +128,11 @@ class SelectFavoriteCelebView: UIView, UITextFieldDelegate {
         self.selectableIdols = idols
         collectionView.reloadData()
     }
+    
+    func resetTextField(){
+        celebTextField.text = ""
+        onTextInput?("")
+    }
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
         let query = textField.text?.lowercased() ?? ""
