@@ -79,7 +79,7 @@ class MyAccompanyCell: UITableViewCell {
         $0.font = .ptdRegularFont(ofSize: 15)
         $0.textColor = .grey800
         $0.textAlignment = .left
-        $0.numberOfLines = 2
+        $0.numberOfLines = 1
     }
     
     let status = UILabel().then {
@@ -226,15 +226,23 @@ class MyAccompanyCell: UITableViewCell {
     private func updateStatus(status: String, applicationStatus: String) {
         var statusText = ""
         
-        switch applicationStatus {
-        case "SUCCEED":
-            statusText = "수락"
-            self.status.textColor = .dmrBlue
-        case "PENDING":
+        if (status == "PENDING") {
+            self.btnStackView.isHidden = false
+            self.status.isHidden = true
+            return
+        }
+        
+        if (applicationStatus == "PENDING") {
             statusText = "수락 대기중"
             self.status.textColor = .grey600
             self.status.text = statusText
             return
+        }
+        
+        switch applicationStatus {
+        case "SUCCEED":
+            statusText = "수락"
+            self.status.textColor = .dmrBlue
         case "FAILED":
             statusText = "거절"
             self.status.textColor = .errorPrimary
@@ -243,9 +251,6 @@ class MyAccompanyCell: UITableViewCell {
         }
         
         switch status {
-        case "PENDING":
-            self.btnStackView.isHidden = false
-            self.status.isHidden = true
         case "SENT":
             statusText += "됨"
         case "RECEIVED":
@@ -255,6 +260,8 @@ class MyAccompanyCell: UITableViewCell {
         }
 
         self.status.text = statusText
+        self.btnStackView.isHidden = true
+        self.status.isHidden = false
     }
     
     public func updateForRequest() {

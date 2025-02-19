@@ -11,9 +11,13 @@ import Moya
 class ChatViewController: UIViewController {
     private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
-    var selectedTag: Int = 0
-
     var chatData: [ChatDTO] = []
+    
+    var selectedTag: Int = 0
+    
+    var isLoading = false   // 중복 로딩 방지
+    var isLastPage = [false, false, false, false]  // 마지막 페이지인지 여부
+    var currentPage = [0, 0, 0, 0]    // 현재 페이지 번호
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,21 +42,41 @@ class ChatViewController: UIViewController {
     }()
     
     private func fetchChatrooms(api: ChatAPI) {
+        guard !isLoading && !isLastPage[selectedTag] else { return } // 중복 호출 & 마지막 페이지 방지
+        isLoading = true
+        
         provider.request(api) { result in
             switch result {
             case .success(let response):
-                self.chatData.removeAll()
-                let response = try? response.map(ApiResponse<ChatResponse>.self)
-                guard let result = response?.result?.chatRoomList else { return }
-                self.chatData = result
-                print("채팅 목록: \(self.chatData)")
-                
-                DispatchQueue.main.async {
-                    self.chatView.empty.isHidden = !result.isEmpty
-                    self.chatView.chatTableView.reloadData()
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+                    let response = try? response.map(ApiResponse<ChatResponse>.self)
+                    guard let result = response?.result?.chatRoomList else { return }
+                    guard let isLast = response?.result?.isLast else { return }
+                    
+                    DispatchQueue.main.async {
+                        if self.currentPage[self.selectedTag] == 0 {
+                            self.chatData = result // 첫 페이지면 초기화
+                        } else {
+                            self.chatData.append(contentsOf: result) // 페이지네이션: 데이터 추가
+                        }
+
+                        print("요청 목록: \(self.chatData)")
+                        
+                        if (self.isLastPage[self.selectedTag]) {
+                            self.chatView.chatTableView.tableFooterView = nil
+                        }
+
+                        self.chatView.empty.isHidden = !self.chatData.isEmpty
+                        self.isLastPage[self.selectedTag] = isLast // 마지막 페이지 여부 업데이트
+                        self.isLoading = false
+                        self.chatView.loadingIndicator.stopLoading()
+                        self.chatView.chatTableView.reloadData()
+                    }
                 }
             case .failure(let error):
                 print(error)
+                self.isLoading = false
+                self.chatView.loadingIndicator.stopLoading()
             }
         }
     }
@@ -86,30 +110,42 @@ class ChatViewController: UIViewController {
     
     @objc func clickBtn(_ sender: UIButton) {
         selectedTag = sender.tag
-        
-        switch selectedTag {
-        case 0:
-            fetchChatrooms(api: .getChatrooms(page: 0))
-        case 1:
-            fetchChatrooms(api: .getOngoingChatrooms(page: 0))
-        case 2:
-            fetchChatrooms(api: .getConfirmedChatrooms(page: 0))
-        case 3:
-            fetchChatrooms(api: .getTerminatedChatrooms(page: 0))
-        default:
-            return
-        }
-        
         updateBtnSelected()
+        updateData()
     }
     
     private func updateBtnSelected() {
+        chatView.empty.isHidden = true
+        chatView.chatTableView.isHidden = false
+        chatData.removeAll()
+        chatView.chatTableView.reloadData()
+        
+        chatView.loadingIndicator.startLoading()
+        
         for btn in [chatView.allBtn, chatView.ongoingBtn, chatView.confirmBtn, chatView.doneBtn] {
             if btn.tag == selectedTag {
                 btn.isSelected = true
             } else {
                 btn.isSelected = false
             }
+        }
+    }
+    
+    private func updateData() {
+        currentPage[selectedTag] = 0
+        isLastPage[selectedTag] = false
+        
+        switch selectedTag {
+        case 0:
+            fetchChatrooms(api: .getChatrooms(page: currentPage[selectedTag]))
+        case 1:
+            fetchChatrooms(api: .getOngoingChatrooms(page: currentPage[selectedTag]))
+        case 2:
+            fetchChatrooms(api: .getConfirmedChatrooms(page: currentPage[selectedTag]))
+        case 3:
+            fetchChatrooms(api: .getTerminatedChatrooms(page: currentPage[selectedTag]))
+        default:
+            return
         }
     }
 }
@@ -135,5 +171,31 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         let messageVC = MessageViewController()
         messageVC.chat = chat
         navigationController?.pushViewController(messageVC, animated: true)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if (isLastPage[selectedTag]) {
+            return
+        }
+        
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let tableViewHeight = scrollView.frame.size.height
+
+        if offsetY > contentHeight - tableViewHeight * 2 {
+            self.currentPage[self.selectedTag] += 1  // 페이지 증가
+            switch selectedTag {
+            case 0:
+                fetchChatrooms(api: .getChatrooms(page: currentPage[selectedTag]))
+            case 1:
+                fetchChatrooms(api: .getOngoingChatrooms(page: currentPage[selectedTag]))
+            case 2:
+                fetchChatrooms(api: .getConfirmedChatrooms(page: currentPage[selectedTag]))
+            case 3:
+                fetchChatrooms(api: .getTerminatedChatrooms(page: currentPage[selectedTag]))
+            default:
+                return
+            }
+        }
     }
 }
