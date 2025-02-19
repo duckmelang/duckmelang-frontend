@@ -10,7 +10,7 @@ import UIKit
 import Alamofire
 import Moya
 
-class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, MoyaErrorHandlerDelegate {
+class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, MoyaErrorHandlerDelegate, NextStepHandler {
     
     weak var nextButtonDelegate: NextButtonUpdatable?
     
