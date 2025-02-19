@@ -28,7 +28,7 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
 
     private let selectFavoriteCelebView = SelectFavoriteCelebView()
 
-    private var idolCategories: [(id: Int, name: String)] = []
+    private var idolCategories: [Idol] = []
     private var selectedIdols: [(id: Int, name: String)] = []
 
     private let memberId: Int
@@ -46,7 +46,7 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
         super.viewDidLoad()
         setupUI()
         setupHandlers()
-        getAllIdol()
+        fetchIdolCategories()
     }
     
     private func setupUI() {
@@ -75,7 +75,7 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
         }
     }
 
-    private func getAllIdol() {
+    private func fetchIdolCategories() {
         provider.request(.getAllIdols) { [weak self] result in
             guard let self = self else { return }
 
@@ -85,11 +85,11 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
                     let idolListResponse = try response.map(IdolListResponse.self)
                     
                     // 서버에서 받아온 데이터를 idolCategories에 저장
-                    self.idolCategories = idolListResponse.result.idolList.map { ($0.idolId, $0.idolName) }
+                    self.idolCategories = idolListResponse.result.idolList.map { Idol(idolId: $0.idolId, idolName: $0.idolName, idolImage: $0.idolImage)}
 
                     // UI 업데이트
                     DispatchQueue.main.async {
-                        self.selectFavoriteCelebView.updateDropdown(with: self.idolCategories)
+                        self.selectFavoriteCelebView.updateCollectionView(with: self.idolCategories)
                     }
                     print("✅ 서버에서 아이돌 목록 가져오기 성공: \(self.idolCategories)")
 
@@ -107,16 +107,15 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
 
     // 입력한 텍스트에 따라 필터링
     private func filterIdols(with query: String) {
-        let filtered = idolCategories.filter { $0.name.lowercased().contains(query.lowercased()) }
-        selectFavoriteCelebView.updateDropdown(with: filtered)
+        let filtered = idolCategories.filter { $0.idolName.lowercased().contains(query.lowercased()) }
+        selectFavoriteCelebView.updateCollectionView(with: filtered)
     }
 
     // 아이돌 선택 시 추가
-    private func addSelectedIdol(_ selectedId: Int) {
-        guard let idol = idolCategories.first(where: { $0.id == selectedId }) else { return }
-        
-        selectedIdols.append(idol)
-        selectFavoriteCelebView.updateTagsView(with: selectedIdols) // ✅ UI 업데이트
+    private func addSelectedIdol(_ selectedIdol: Idol) {
+        selectedIdols.append((id: selectedIdol.idolId, name: selectedIdol.idolName))
+        // ✅ 배열 형태로 넘겨줌
+        selectFavoriteCelebView.updateCollectionView(with: [selectedIdol])
         print("📌 추가 - 현재 선택된 아이돌 목록: \(selectedIdols)") // ✅ 추가 후 확인
         nextButtonDelegate?.updateNextButtonState(isEnabled: !selectedIdols.isEmpty)
     }
@@ -124,7 +123,11 @@ class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, 
     // 아이돌 태그 삭제 시 목록에서도 제거
     private func removeSelectedIdol(_ removedId: Int) {
         selectedIdols.removeAll { $0.id == removedId }
-        selectFavoriteCelebView.updateTagsView(with: selectedIdols) // ✅ UI 업데이트
+        // ✅ selectedIdols에 저장된 id를 기준으로 idolCategories에서 해당 데이터만 찾아서 업데이트
+        let remainingIdols = idolCategories.filter { idol in
+            selectedIdols.contains { $0.id == idol.idolId }
+        }
+        selectFavoriteCelebView.updateCollectionView(with: remainingIdols) // ✅ UI 업데이트
         print("📌 삭제 - 현재 선택된 아이돌 목록: \(selectedIdols)") // ✅ 삭제 후 확인
         nextButtonDelegate?.updateNextButtonState(isEnabled: !selectedIdols.isEmpty)
     }
