@@ -21,6 +21,14 @@ class MyPageViewController: UIViewController {
         navigationController?.isNavigationBarHidden = true
         
         getProfileInfo()
+        
+        //NotificationCenter 등록
+        NotificationCenter.default.addObserver(self, selector: #selector(updateProfile(_:)), name: NSNotification.Name("ProfileUpdated"), object: nil)
+    }
+    
+    deinit {
+        // 옵저버 제거
+        NotificationCenter.default.removeObserver(self)
     }
     
     private lazy var myPageView = MyPageView().then {
@@ -34,12 +42,34 @@ class MyPageViewController: UIViewController {
         $0.goBtn.addTarget(self, action: #selector(goBtnDidTap), for: .touchUpInside)
     }
     
+    // MARK: - Notification Handling
+    @objc private func updateProfile(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let nickname = userInfo["nickname"] as? String,
+              let introduction = userInfo["introduction"] as? String,
+              let imageURLString = userInfo["imageURL"] as? String,
+              let imageURL = URL(string: imageURLString) else { return }
+        
+        print("📢 프로필 업데이트 알림 수신 - UI 갱신")
+        
+        DispatchQueue.main.async {
+            self.myPageView.myPageTopView.nickname.text = nickname
+            self.myPageView.myPageTopView.profileImage.kf.setImage(with: imageURL)
+            self.myPageView.myPageTopView.profileImage.contentMode = .scaleAspectFill
+        }
+    }
+    
     @objc private func goBtnDidTap() {
         let postDetailVC = UINavigationController(rootViewController: PostDetailViewController())
         postDetailVC.modalPresentationStyle = .fullScreen
         present(postDetailVC, animated: true)
     }
     
+    //Notification을 받으면 프로필 정보를 다시 가져오는 함수
+    @objc private func refreshProfile() {
+        print("📢 프로필 업데이트 알림 수신 - 프로필 정보를 다시 가져옵니다.")
+        getProfileInfo()
+    }
     
     @objc private func profileSeeBtnDidTap() {
         let profileVC = ProfileViewController()

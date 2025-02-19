@@ -24,6 +24,15 @@ public enum MyPageAPI {
     case postProfileImage(profileImage: [MultipartFormData])
     case getProfileEdit
     case deletePost(postId: Int)
+    case getIdolList
+    case getSearchIdol(keyword: String)
+    case postIdol(idolId: Int)
+    case deleteIdol(idolId: Int)
+    case getLandmines
+    case postLandmines(content: String)
+    case deleteLandmines(landmineId: Int)
+    case getFilters
+    case postFilters(FilterRequest: FilterRequest)
 }
 
 extension MyPageAPI: TargetType {
@@ -31,7 +40,7 @@ extension MyPageAPI: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
-        case.getMyPostDetail, .deletePost:
+        case.getMyPostDetail:
             guard let url = URL(string: API.postURL) else {
                 fatalError("mypageURL 오류")
             }
@@ -58,9 +67,21 @@ extension MyPageAPI: TargetType {
         case .getReviews:
             return "/reviews"
         case .getMyPostDetail(postId: let postId), .deletePost(postId: let postId):
-            return "/\(postId)"
+            return "/posts/\(postId)"
         case .postProfileImage:
             return "/profile/image/edit"
+        case .getIdolList:
+            return "/idols"
+        case .deleteIdol(idolId: let idolId), .postIdol(idolId: let idolId):
+            return "/idols/\(idolId)"
+        case .getSearchIdol:
+            return "/idols/search"
+        case .getLandmines, .postLandmines:
+            return "/landmines"
+        case .deleteLandmines(landmineId: let landmineId):
+            return "/landmines/\(landmineId)"
+        case .getFilters, .postFilters:
+            return "/filters"
         }
     }
     
@@ -70,9 +91,9 @@ extension MyPageAPI: TargetType {
         switch self {
         case .patchProfile:
             return .patch
-        case .postProfileImage:
+        case .postProfileImage, .postIdol, .postLandmines, .postFilters:
             return .post
-        case .deletePost:
+        case .deletePost, .deleteIdol, .deleteLandmines:
             return .delete
         default:
             return .get
@@ -82,23 +103,20 @@ extension MyPageAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getProfileImage(let page):
+        case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters:
             return .requestPlain
         case .patchProfile(let profileData):
-            return .requestCompositeParameters(
-                bodyParameters: [
-                    "memberProfileImageURL": profileData.memberProfileImageURL,
-                    "nickname": profileData.nickname,
-                    "introduction": profileData.introduction
-                ],
-                bodyEncoding: JSONEncoding.default, urlParameters: [:]
-            )
-        case .getMyPosts(let page):
-            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+            return .requestJSONEncodable(profileData)
         case .postProfileImage(let profileImage):
-                return .uploadMultipart(profileImage)
+            return .uploadMultipart(profileImage)
+        case .getSearchIdol(keyword: let keyword):
+            return .requestParameters(parameters: ["keyword" : keyword], encoding: URLEncoding.queryString)
+        case .postLandmines(content: let content):
+            return .requestParameters(parameters: ["content" : content], encoding: JSONEncoding.default)
+        case .postFilters(FilterRequest: let FilterRequest):
+            return .requestJSONEncodable(FilterRequest)
         }
     }
     
@@ -106,7 +124,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5MzM2ODY1LCJleHAiOjE3MzkzNDA0NjV9.80z5BQfcpT-k4_YqsIakMiQwlTGQyWN3lKU63dEO01E")"]
+                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTQ0Mjk4LCJleHAiOjE3Mzk5NDc4OTh9.IgMUViB3C2ohA1g-SpRl-2JK7962jbZwnOKezFrajXE"]
         }
     }
 }

@@ -1,21 +1,14 @@
 //
-//  PostDetailViewController.swift
+//  BookmarkDetailViewController.swift
 //  Duckmelang
 //
-//  Created by KoNangYeon on 1/14/25.
+//  Created by 주민영 on 2/16/25.
 //
 
 import UIKit
 import Moya
 
-//버튼 상태
-enum PostProgressState {
-    case inProgress
-    case progressTap(progressing: Bool) // 진행 중이면 true, 완료 상태면 false
-    case completed
-}
-
-class PostDetailViewController: UIViewController {
+class BookmarkDetailViewController: UIViewController {
     var postId: Int?  // 전달받을 게시물 ID
     
     var data = PostDetailAccompanyModel.dummy()
@@ -24,7 +17,7 @@ class PostDetailViewController: UIViewController {
     
     private var currentState: PostProgressState = .inProgress
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +30,11 @@ class PostDetailViewController: UIViewController {
         
         updateButtonVisibility(state: .inProgress) // 초기 상태 설정
         
-        fetchPostDetail(postId: 0)
+        if let postId = postId {
+            print("Received postId: \(postId)")
+            // postId로 서버 요청 등을 수행
+            getPostDetail(postId: postId)
+        }
     }
     
     private lazy var postDetailView = PostDetailView().then {
@@ -59,7 +56,7 @@ class PostDetailViewController: UIViewController {
     
     @objc
     private func backBtnDidTap() {
-        self.presentingViewController?.dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
     
     // 버튼 상태 업데이트 함수
@@ -137,28 +134,20 @@ class PostDetailViewController: UIViewController {
         postDetailView.postDetailBottomView.tableView.dataSource = self
     }
     
-    private func fetchPostDetail(postId: Int) {
-        provider.request(.getMyPostDetail(postId: postId)) { result in
+    private func getPostDetail(postId: Int) {
+        provider.request(.getPostDetail(postId: postId)) { result in
             switch result {
             case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<MyPostDetailResponse>.self)
-                    if decodedResponse.isSuccess {
-                        guard let postDetail = decodedResponse.result else { return }
-                        DispatchQueue.main.async {
-                            self.postDetailView.updateUI(with: postDetail)
-                            self.updateAccompanyData(with: postDetail)
-                        }
-                        // ✅ 성공 시 데이터 출력
-                        print("Post Detail: \(String(describing: decodedResponse.result))")
-                    } else {
-                        print("❌ 서버 에러: \(decodedResponse.message)")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 실패: \(error.localizedDescription)")
+                let response = try? response.map(ApiResponse<MyPostDetailResponse>.self)
+                guard let postDetail = response?.result else { return }
+                print("상세 페이지 : \(postDetail)")
+                
+                DispatchQueue.main.async {
+                    self.postDetailView.updateUI(with: postDetail)
+                    self.updateAccompanyData(with: postDetail)
                 }
             case .failure(let error):
-                print("❌ 요청 실패: \(error.localizedDescription)")
+                print(error)
             }
         }
     }
@@ -176,7 +165,7 @@ class PostDetailViewController: UIViewController {
     }
 }
 
-extension PostDetailViewController: UITableViewDataSource, UITableViewDelegate {
+extension BookmarkDetailViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return accompanyData.count
     }

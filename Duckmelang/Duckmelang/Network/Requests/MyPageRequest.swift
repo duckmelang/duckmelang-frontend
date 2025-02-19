@@ -9,7 +9,12 @@ import Foundation
 
 //내 프로필 수정
 public struct EditProfileRequest: Codable {
-    let memberProfileImageURL: String
     let nickname: String
     let introduction: String
+}
+
+public struct FilterRequest: Codable {
+    let gender : String?
+    let minAge : Int?
+    let maxAge : Int?
 }

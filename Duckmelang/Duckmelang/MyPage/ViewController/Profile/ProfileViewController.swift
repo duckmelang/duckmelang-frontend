@@ -34,24 +34,59 @@ class ProfileViewController: UIViewController{
         
         setupAction()
         setupDelegate()
-        updateUI()
+        fetchProfileData()
         fetchMyPosts()
         fetchReviews()
+        
+        // NotificationCenter 등록
+        NotificationCenter.default.addObserver(self, selector: #selector(updateProfile(_:)), name: NSNotification.Name("ProfileUpdated"), object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func updateProfile(_ notification: Notification) {
+        print("📢 프로필 업데이트 알림 수신 - UI 업데이트")
+        fetchProfileData()
+    }
+    
+    private func fetchProfileData() {
+        provider.request(.getProfile) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<ProfileData>.self)
+                    guard let profile = decodedResponse.result else { return }
+                    DispatchQueue.main.async {
+                        self.profileData = profile
+                        self.updateUI()
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ 프로필 가져오기 실패: \(error.localizedDescription)")
+            }
+        }
     }
 
     private lazy var profileView = ProfileView()
     private lazy var postDetailView = PostDetailView()
     
     private func updateUI() {
-        if let profile = profileData { //MyPage에서 전달받은 데이터 적용
+        if let profile = profileData {
             profileView.profileTopView.profileData = profile
-            //profileView.profileTopView.profileImage.contentMode = .scaleAspectFill
+            
+            if let imageUrl = URL(string: "\(profile.latestPublicMemberProfileImage)?timestamp=\(Date().timeIntervalSince1970)") {
+                profileView.profileTopView.profileImage.kf.setImage(with: imageUrl, options: [.cacheMemoryOnly])
+            }
         }
     }
     
     // 내 게시글 가져오기
     private func fetchMyPosts() {
-        provider.request(.getMyPosts(page: 1)) { result in
+        provider.request(.getMyPosts(page: 0)) { result in
             switch result {
             case .success(let response):
                 do {
@@ -97,7 +132,7 @@ class ProfileViewController: UIViewController{
                     print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
                 }
             case .failure(let error):
-                print("❌ API 요청 실패: \(error.localizedDescription)")
+                print("❌ 동행후기 가져오기 요청 실패: \(error.localizedDescription)")
             }
         }
     }
@@ -193,7 +228,7 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
         if (tableView == profileView.profileBottomView.uploadPostView) {
             return posts.isEmpty ? 0 : posts.count
         } else if (tableView == profileView.profileBottomView.reviewTableView) {
-            return data2.count
+            return reviews.count
         }
         return 0
     }
@@ -243,9 +278,13 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("📌 didSelectRowAt 호출됨 - IndexPath: \(indexPath.row)")
+
         if tableView == profileView.profileBottomView.uploadPostView {
+            print("📌 게시물 선택됨 - Post ID: \(posts[indexPath.row].postId)")
+
             let post = posts[indexPath.row]  // 선택한 게시물 가져오기
-            
+           
             // PostDetailViewController로 postId 전달
             let postDetailVC = PostDetailViewController()
             postDetailVC.postId = post.postId  // PostDetailViewController에 postId 설정

@@ -59,4 +59,13 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
         cell.configure(model: myPostsData[indexPath.row])
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let postId = myPostsData[indexPath.row].postId
+        let myPostDetailVC = MyPostDetailViewController()
+        
+        myPostDetailVC.postId = postId
+        
+        self.navigationController?.pushViewController(myPostDetailVC, animated: true)
+    }
 }

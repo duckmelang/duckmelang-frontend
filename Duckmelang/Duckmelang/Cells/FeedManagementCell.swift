@@ -91,7 +91,7 @@ class FeedManagementCell: UITableViewCell {
         
         postImage.snp.makeConstraints {
             $0.top.bottom.equalToSuperview().inset(6)
-            $0.leading.equalToSuperview().inset(16)
+            $0.leading.equalToSuperview()
             $0.width.height.equalTo(94)
         }
         

@@ -102,6 +102,7 @@ class PostCell: UITableViewCell {
         postTitle.snp.makeConstraints {
             $0.top.equalToSuperview().offset(12)
             $0.leading.equalTo(postImage.snp.trailing).offset(12)
+            $0.width.equalTo(225)
         }
         
         EventTypeDate.snp.makeConstraints {
@@ -150,10 +151,9 @@ class PostCell: UITableViewCell {
         
         if let date = dateFromString(model.createdAt) {
             self.postTime.text = timeAgo(from: date)
+        } else {
+            self.postTime.text = "날짜 없음"
         }
-        
-        print("📌 [DEBUG] PostCell configure() 호출됨")
-        print("📌 postId: \(model.postId), title: \(model.title)")
     }
     
     func dateFromString(_ dateString: String) -> Date? {
@@ -173,7 +173,7 @@ class PostCell: UITableViewCell {
             from: date,
             to: now
         )
-        
+
         if let year = components.year, year > 0 {
             return "\(year)년 전"
         }

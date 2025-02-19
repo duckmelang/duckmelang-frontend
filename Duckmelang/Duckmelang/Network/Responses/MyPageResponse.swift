@@ -4,7 +4,7 @@
 //
 //  Created by 주민영 on 2/3/25.
 //
-
+import Foundation
 //프로필 정보 담는 구조체
 public struct ProfileData: Codable {
     let memberId: Int
@@ -18,6 +18,10 @@ public struct ProfileData: Codable {
     
     var localizedGender: String {
         return gender.lowercased() == "male" ? "남성" : "여성"
+    }
+    
+    var localizedAge: String {
+        return "만 \(age)세"
     }
     
     enum CodingKeys: String, CodingKey {
@@ -44,6 +48,10 @@ public struct myReviewDTO: Codable {
     var localizedGender: String {
         return gender.lowercased() == "male" ? "남성" : "여성"
     }
+    
+    var localizedAge: String {
+        return "만 \(age)세"
+    }
 }
 
 // API 응답 구조체 (리뷰 리스트 포함)
@@ -66,8 +74,12 @@ struct MyPostDetailResponse: Codable {
     let category: String
     let date: String
     let createdAt: String
-    let postImageURL: [String]
-    let latestPublicMemberProfileImage: String
+    let postImageUrl: [String]
+    let latestPublicMemberProfileImage: String?
+    
+    var localizedAge: String {
+        return "만 \(age)세"
+    }
 }
 
 struct ProfileImageResponse: Codable {
@@ -78,4 +90,26 @@ struct ProfileImageResponse: Codable {
 struct ProfileEditInfoResponse: Codable {
     let nickname: String
     let latestPublicMemberProfileImage: String?
+}
+
+//현재 관심 아이돌 목록 조회
+struct idolListResponse: Codable {
+    let idolList: [IdolListDTO]
+}
+
+struct IdolListDTO: Codable {
+    let idolId: Int
+    let idolName: String
+    let idolImage: String
+}
+
+//get 응답 모델
+struct LandmineResponse: Codable {
+    let landmineList: [LandmineModel]
+}
+
+//post 응답 모델
+struct LandmineModel: Codable {
+    let landmineId: Int
+    let content: String
 }

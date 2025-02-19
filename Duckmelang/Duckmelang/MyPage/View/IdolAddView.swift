@@ -45,6 +45,14 @@ class IdolAddView: UIView {
         $0.setImage(.search, for: .normal)
     }
     
+    let idolAddCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
+        $0.itemSize = .init(width: 88, height: 108)
+        $0.minimumInteritemSpacing = 26
+    }).then {
+        $0.backgroundColor = .white
+        $0.register(IdolAddCell.self, forCellWithReuseIdentifier: IdolAddCell.identifier)
+    }
+    
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
     private func addStack(){
@@ -52,7 +60,7 @@ class IdolAddView: UIView {
     }
     
     private func setupView(){
-        [topStack, searchBar, searchIcon].forEach{addSubview($0)}
+        [topStack, searchBar, searchIcon, idolAddCollectionView].forEach{addSubview($0)}
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
@@ -70,6 +78,13 @@ class IdolAddView: UIView {
         searchIcon.snp.makeConstraints{
             $0.centerY.equalTo(searchBar.snp.centerY)
             $0.trailing.equalTo(searchBar.snp.trailing).inset(16)
+        }
+        
+        idolAddCollectionView.snp.makeConstraints{
+            $0.top.equalTo(searchBar.snp.bottom).offset(24)
+            $0.horizontalEdges.equalToSuperview().inset(32)
+            $0.bottom.equalTo(safeAreaLayoutGuide)
+            $0.height.equalTo(400)
         }
     }
 }

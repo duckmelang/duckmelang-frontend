@@ -59,4 +59,13 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
         cell.configure(model: bookmarksData[indexPath.row])
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let postId = bookmarksData[indexPath.row].postId
+        let bookmarkDetailVC = BookmarkDetailViewController()
+        
+        bookmarkDetailVC.postId = postId
+        
+        self.navigationController?.pushViewController(bookmarkDetailVC, animated: true)
+    }
 }

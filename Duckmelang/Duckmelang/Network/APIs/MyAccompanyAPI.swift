@@ -22,6 +22,7 @@ public enum MyAccompanyAPI {
     case postRequestFailed(applicationId: Int)
     case getBookmarks(page: Int)
     case getMyPosts(page: Int)
+    case getPostDetail(postId: Int)
 }
 
 extension MyAccompanyAPI: TargetType {
@@ -34,7 +35,7 @@ extension MyAccompanyAPI: TargetType {
                 fatalError("requestURL 오류")
             }
             return url
-        case .getMyPosts:
+        case .getMyPosts, .getPostDetail:
             guard let url = URL(string: API.postURL) else {
                 fatalError("postURL 오류")
             }
@@ -64,6 +65,8 @@ extension MyAccompanyAPI: TargetType {
             return "/bookmarks"
         case .getMyPosts:
             return "/my"
+        case .getPostDetail(let postId):
+            return "/\(postId)"
         }
     }
     

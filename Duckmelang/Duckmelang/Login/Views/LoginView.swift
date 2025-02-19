@@ -9,6 +9,8 @@ import SnapKit
 import Then
 
 class LoginView: UIView {
+
+    var iconClick = true
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -60,20 +62,45 @@ class LoginView: UIView {
     public lazy var pwdTextField: TextField = {
         let textField = TextField()
         let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
+        
+        let eyeButton = UIButton(type: .custom)
+        
+        let eyeSlash = UIImage(systemName: "eye.slash")?.withRenderingMode(.alwaysTemplate)
+        let eyeOpen = UIImage(systemName: "eye")?.withRenderingMode(.alwaysTemplate)
+        
+        eyeButton.setImage(eyeSlash, for: .normal)
+        eyeButton.setImage(eyeOpen, for: .selected)
+        
+        eyeButton.tintColor = UIColor.grey800
+        
+        eyeButton.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
+        eyeButton.addTarget(self, action: #selector(iconAction), for: .touchUpInside)
+    
         textField.configTextField(
             placeholder: "비밀번호",
             leftView: leftPadding,
             leftViewMode: .always,
             interaction: true
         )
+        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        eyeButton.center = rightPaddingView.center
+        rightPaddingView.addSubview(eyeButton)
+        
         textField.configLayer(layerBorderWidth: 1.0, layerCornerRadius: 5, layerColor: UIColor.grey400)
         textField.isSecureTextEntry = true
+        textField.rightView = rightPaddingView
+        textField.rightViewMode = .always
         return textField
     }()
     
+    @objc func iconAction(sender: UIButton) {
+        sender.isSelected.toggle()
+        pwdTextField.isSecureTextEntry.toggle()
+    }
+    
     public lazy var loginButton: longCustomBtn = {
         return longCustomBtn(
-            backgroundColor: UIColor.grey400!,
+            backgroundColor: UIColor.grey700!,
             title: "확인",
             titleColor: .white!,
             width: 343,
