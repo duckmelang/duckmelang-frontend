@@ -85,6 +85,8 @@ class FeedManagementViewController: UIViewController {
                 DispatchQueue.main.async {
                     self.fetchMyPosts() // 서버에서 최신 데이터 다시 불러옴
                     self.pendingDeletes.removeAll() // 삭제 완료 후 대기열 초기화
+                    
+                    NotificationCenter.default.post(name: NSNotification.Name("PostDeleted"), object: nil)
                 }
             }
         }

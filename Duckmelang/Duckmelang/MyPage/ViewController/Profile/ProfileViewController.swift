@@ -40,6 +40,8 @@ class ProfileViewController: UIViewController{
         
         // NotificationCenter 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateProfile(_:)), name: NSNotification.Name("ProfileUpdated"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(PostDeleted(_:)), name: NSNotification.Name("PostDeleted"), object: nil)
     }
     
     deinit {
@@ -48,6 +50,11 @@ class ProfileViewController: UIViewController{
 
     @objc private func updateProfile(_ notification: Notification) {
         print("📢 프로필 업데이트 알림 수신 - UI 업데이트")
+        fetchProfileData()
+    }
+    
+    @objc private func PostDeleted(_ notification: Notification) {
+        fetchMyPosts()
         fetchProfileData()
     }
     
