@@ -21,6 +21,14 @@ class IdolCollectionViewCell: UICollectionViewCell {
         $0.layer.masksToBounds = true
     }
     
+    private let idolImageShadowView = UIImageView().then {
+        $0.layer.shadowOffset = CGSize(width: 5, height: 5)
+        $0.layer.shadowOpacity = 0.7
+        $0.layer.shadowRadius = 5
+        $0.layer.shadowColor = UIColor.black!.cgColor
+        $0.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
     private let idolNameLabel = UILabel().then {
         $0.font = UIFont.ptdRegularFont(ofSize: 16)
         $0.textColor = .grey800
@@ -39,6 +47,7 @@ class IdolCollectionViewCell: UICollectionViewCell {
     
     private func setupUI() {
         contentView.addSubview(idolImageView)
+        contentView.addSubview(idolImageShadowView)
         contentView.addSubview(idolNameLabel)
         
         idolImageView.snp.makeConstraints {
@@ -47,14 +56,24 @@ class IdolCollectionViewCell: UICollectionViewCell {
             $0.width.height.equalTo(64)
         }
         
+        idolImageShadowView.snp.makeConstraints{
+            $0.centerY.equalTo(idolImageView)
+            $0.centerX.equalToSuperview()
+            $0.width.height.equalTo(66)
+        }
+        
         idolNameLabel.snp.makeConstraints {
             $0.top.equalTo(idolImageView.snp.bottom).offset(8)
             $0.leading.trailing.equalToSuperview().inset(12)
         }
     }
     
-    func configure(with idol: Idol) {
+    func configure(with idol: Idol, isSelected: Bool) {
         idolNameLabel.text = idol.idolName
+        idolNameLabel.textColor = isSelected ? .dmrBlue : .grey800
+        idolImageView.layer.borderColor = isSelected ? UIColor.dmrBlue!.cgColor : UIColor.clear.cgColor
+        idolImageView.layer.borderWidth = isSelected ? 2 : 0
+        
         if let imageUrl = URL(string: idol.idolImage) {
             idolImageView.kf.setImage(with: imageUrl, placeholder: UIImage(named: "placeholder"))
         }

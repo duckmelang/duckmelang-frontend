@@ -51,7 +51,6 @@ class SelectFavoriteCelebView: UIView, UITextFieldDelegate {
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        ///한줄에 세개 표시
         layout.minimumInteritemSpacing = 16
         layout.minimumLineSpacing = 24
         layout.sectionInset = UIEdgeInsets(top: 24, left: 16, bottom: 24, right: 16)
@@ -60,15 +59,14 @@ class SelectFavoriteCelebView: UIView, UITextFieldDelegate {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsVerticalScrollIndicator = false
         collectionView.backgroundColor = .white
-        collectionView.register(IdolCollectionViewCell.self, forCellWithReuseIdentifier: "IdolCell")
+        collectionView.register(IdolCollectionViewCell.self, forCellWithReuseIdentifier: "IdolCollectionViewCell")
         return collectionView
     }()
     
-    private var idolCategories: [Idol] = []
-    var onIdolSelected: ((Idol) -> Void)?
+    private var selectableIdols: [SelectableIdol] = []
     
+    var isSelected: ((Int, Bool) -> Void)?
     var onTextInput: ((String) -> Void)?
-    var onIdolRemoved: ((Int) -> Void)?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -126,43 +124,47 @@ class SelectFavoriteCelebView: UIView, UITextFieldDelegate {
         return true
     }
     
-    func updateCollectionView(with idols: [Idol]) {
-        self.idolCategories = idols
+    func updateCollectionView(with idols: [SelectableIdol]) {
+        self.selectableIdols = idols
         collectionView.reloadData()
     }
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
-        onTextInput?(textField.text ?? "")
-        collectionView.isHidden = textField.text?.isEmpty ?? true
-    }
-    
-    // MARK: - UICollectionViewDataSource
-    public func updateCollectionView(with idolCategories: [(id: Int, name: String, imageURL: String)]) {
-        self.idolCategories = idolCategories.map {
-            Idol(idolId: $0.id, idolName: $0.name, idolImage: $0.imageURL)
+        let query = textField.text?.lowercased() ?? ""
+        
+        if query.isEmpty {
+            // ✅ 검색어가 비었을 때: 전체 목록 보여주기
+            collectionView.isHidden = false
+            onTextInput?("")
+        } else {
+            // ✅ 검색어가 있을 때: 필터링된 목록 보여주기
+            collectionView.isHidden = false
+            onTextInput?(query)
         }
-        collectionView.reloadData()
     }
 }
 
 extension SelectFavoriteCelebView: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return idolCategories.count
+        return selectableIdols.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "IdolCollectionViewCell", for: indexPath) as? IdolCollectionViewCell else {
             return UICollectionViewCell()
         }
-        let idol = idolCategories[indexPath.item]
-        cell.configure(with: idol)
+        
+        let idol = selectableIdols[indexPath.item]
+        cell.configure(with: idol.idol, isSelected: idol.isSelected)
+        
         return cell
     }
 }
 
 extension SelectFavoriteCelebView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedIdol = idolCategories[indexPath.item]
-        onIdolSelected?(selectedIdol)
+        selectableIdols[indexPath.item].isSelected.toggle()
+        isSelected?(selectableIdols[indexPath.item].idol.idolId, selectableIdols[indexPath.item].isSelected)
+        collectionView.reloadItems(at: [indexPath])
     }
 }

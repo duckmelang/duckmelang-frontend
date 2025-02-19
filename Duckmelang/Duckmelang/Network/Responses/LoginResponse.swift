@@ -103,4 +103,8 @@ struct Idol: Codable {
     let idolImage: String
 }
 
-
+//isSelected속성을 추가한 Idol모델
+struct SelectableIdol {
+    let idol: Idol
+    var isSelected: Bool
+}
