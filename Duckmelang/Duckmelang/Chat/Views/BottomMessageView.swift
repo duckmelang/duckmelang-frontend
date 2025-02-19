@@ -42,6 +42,11 @@ class BottomMessageView: UIView {
         $0.rightViewMode = .always
     }
     
+    let plusBtn = UIButton().then {
+        $0.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
+        $0.tintColor = .grey600
+    }
+    
     let sendBtn = UIButton().then {
         $0.setImage(UIImage(named: "Send"), for: .normal)
     }
@@ -69,18 +74,29 @@ class BottomMessageView: UIView {
     }
     
     private func setupIncompleteView() {
-        main.addSubview(sendBtn)
+        [
+            plusBtn,
+            sendBtn
+        ].forEach {
+            main.addSubview($0)
+        }
         
         messageTextField.snp.makeConstraints {
             $0.top.equalToSuperview().offset(12)
-            $0.leading.equalToSuperview().offset(16)
-            $0.trailing.equalToSuperview().offset(-48)
+            $0.leading.equalTo(plusBtn.snp.trailing).offset(8)
+            $0.trailing.equalTo(sendBtn.snp.leading).offset(-8)
             $0.bottom.equalToSuperview().offset(-12)
+        }
+        
+        plusBtn.snp.makeConstraints {
+            $0.centerY.equalTo(messageTextField.snp.centerY)
+            $0.leading.equalToSuperview().offset(15)
+            $0.width.height.equalTo(24)
         }
         
         sendBtn.snp.makeConstraints {
             $0.centerY.equalTo(messageTextField.snp.centerY)
-            $0.leading.equalTo(messageTextField.snp.trailing).offset(8)
+            $0.trailing.equalToSuperview().offset(-15)
             $0.width.height.equalTo(24)
         }
     }

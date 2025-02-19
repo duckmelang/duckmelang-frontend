@@ -7,8 +7,13 @@
 
 import UIKit
 
-class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate {
-    var data = MessageModel.dummy()
+class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate {
+    private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let socketManager = SocketManager()
+    
+    var chatRoomId: Int?
+    var oppositeNickname: String?
+    private var messageData: [MessageModel] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +48,135 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         return view
     }()
     
+    private func getMessagesAPI() {
+        provider.request(.getMessages(chatRoomId: chatRoomId ?? 0, size: 20)) { result in
+            switch result {
+            case .success(let response):
+                self.messageData.removeAll()
+                let response = try? response.map(ApiResponse<MessageResponse>.self)
+                guard let results = response?.result?.chatMessageList else { return }
+                // UTC로 createdAt이 되어있나? 물어보기
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+                dateFormatter.locale = Locale(identifier: "ko_KR")
+                dateFormatter.timeZone = TimeZone.current
+                
+                results.forEach { result in
+                    let newChatType: ChatType = result.receiverId == 1 ? .receive : .send
+                    var newDate = Date()
+                    
+                    if let date = dateFormatter.date(from: result.createdAt) {
+                        print("Converted Date: \(date)")
+                        newDate = date
+                    } else {
+                        print("Failed to convert date")
+                    }
+                    
+                    let message = MessageModel(
+                        text: result.text ?? "",
+                        chatType: newChatType,
+                        date: newDate
+                    )
+                    self.messageData.append(message)
+                }
+                
+                print("메세지: \(self.messageData)")
+                self.messageData = self.messageData.reversed()
+                DispatchQueue.main.async {
+                    self.reloadMessage()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    private func connectWebSocket() {
+        let url = URL(string: "wss://13.125.217.231.nip.io/wss/chat")!
+
+        socketManager.connect(to: url)
+        
+        // 연결 후 받은 메세지 받아오기
+        socketManager.receiveMessage { result in
+            switch result {
+            case .success(let response):
+                let newChatType: ChatType = response.receiverId == 1 ? .receive : .send
+                          
+                let message = MessageModel(
+                    text: response.text ?? "메세지 없음",
+                    chatType: newChatType,
+                    date: Date()
+                )
+                
+                self.messageData.append(message)
+                DispatchQueue.main.async {
+                    self.reloadMessage()
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func getDetailChatroomsAPI() {
+        provider.request(.getDetailChatroom(chatRoomId: self.chatRoomId ?? 0)) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<DetailChatroomResponse>.self)
+                guard let result = response?.result else { return }
+                print("채팅 상세 정보: \(result)")
+                
+                DispatchQueue.main.async {
+                    self.messageView.detailChatroomResponse = result
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    @objc private func sendNewMessage() {
+        if (messageView.bottomMessageView.messageTextField.text == "") {
+            return
+        }
+        
+        if let text = messageView.bottomMessageView.messageTextField.text {
+            sendMessage(with: text)
+        }
+    }
+    
+    private func sendMessage(with text: String) {
+        let newMessage = ReceivedMessage(
+            senderId: 1,
+            receiverId: 2,
+            postId: 2,
+            messageType: "TEXT",
+            text: text,
+            imageUrls: nil,
+            fileUrl: nil
+        )
+        
+        let newMessageModel = MessageModel(text: text, chatType: .send, date: Date())
+        
+        socketManager.sendMessage(messageRequest: newMessage) { [weak self] result in
+            switch result {
+            case .success(_):
+                DispatchQueue.main.async {
+                    self?.messageData.append(newMessageModel)
+                    self?.reloadMessage()
+                    self?.messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func reloadMessage() {
+        self.messageView.messageCollectionView.reloadData()
+        self.scrollToLastItem()
+    }
+    
     private func setupNavigationBar() {
         self.navigationController?.navigationBar.backgroundColor = .white
         
@@ -67,7 +201,8 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     private func setupAction() {
         messageView.topMessageView.confirmBtn.addTarget(self, action: #selector(openConfirmPopup), for: .touchUpInside)
         messageView.topMessageView.reviewBtn.addTarget(self, action: #selector(openReview), for: .touchUpInside)
-        messageView.bottomMessageView.sendBtn.addTarget(self, action: #selector(appendNewMessage), for: .touchUpInside)
+        messageView.bottomMessageView.plusBtn.addTarget(self, action: #selector(showAttachmentOptions), for: .touchUpInside)
+        messageView.bottomMessageView.sendBtn.addTarget(self, action: #selector(sendNewMessage), for: .touchUpInside)
     }
     
     @objc private func openConfirmPopup() {
@@ -82,20 +217,95 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         navigationController?.pushViewController(afterReviewVC, animated: true)
     }
     
-    @objc private func appendNewMessage() {
-        if (messageView.bottomMessageView.messageTextField.text == "") {
+    @objc private func showAttachmentOptions() {
+        let actionSheet = UIAlertController(title: "파일 및 사진 첨부", message: "", preferredStyle: .actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(title: "사진 선택", style: .default, handler: { _ in
+            self.openPhotoLibrary()
+        }))
+        actionSheet.addAction(UIAlertAction(title: "카메라", style: .default, handler: { _ in
+            self.openCamera()
+        }))
+        actionSheet.addAction(UIAlertAction(title: "파일 선택", style: .default, handler: { _ in
+            self.openFilePicker()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+
+        present(actionSheet, animated: true, completion: nil)
+    }
+    
+    private func openPhotoLibrary() {
+        let picker = UIImagePickerController()
+        picker.sourceType = .photoLibrary
+        picker.delegate = self
+        picker.mediaTypes = ["public.image"] // 이미지만 선택 가능
+        present(picker, animated: true, completion: nil)
+    }
+    
+    private func openCamera() {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            print("카메라 사용 불가능")
             return
         }
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = self
+        picker.mediaTypes = ["public.image"]
+        present(picker, animated: true, completion: nil)
+    }
+
+    private func openFilePicker() {
+        let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.pdf, .image, .plainText, .spreadsheet])
+        documentPicker.delegate = self
+        documentPicker.allowsMultipleSelection = false // 다중 선택 가능하도록 하려면 true로 변경
+        present(documentPicker, animated: true, completion: nil)
+    }
+
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true, completion: nil)
         
-        let newMessage = MessageModel(text: messageView.bottomMessageView.messageTextField.text ?? "", chatType: .send, date: Date())
-        data.append(newMessage)
-        messageView.messageCollectionView.reloadData()
-        
-        DispatchQueue.main.async {
-            self.scrollToLastItem()
+        if let image = info[.originalImage] as? UIImage {
+            sendImage(image)
         }
+    }
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let selectedFileURL = urls.first else { return }
+        sendFile(url: selectedFileURL)
+    }
+    
+    private func sendImage(_ image: UIImage) {
+        print("📸 이미지 전송: \(image)")
+        /*
+        let newMessage = MessageRequest(
+            senderId: 1,
+            receiverId: 2,
+            postId: 2,
+            messageType: "IMAGE",
+            imageUrls: text
+        )
         
-        messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
+        let newMessageModel = MessageModel(text: text, chatType: .send, date: Date())
+        
+        socketManager.sendMessage(messageRequest: newMessage) { [weak self] result in
+            switch result {
+            case .success(_):
+                DispatchQueue.main.async {
+                    self?.messageData.append(newMessageModel)
+                    self?.reloadMessage()
+                    self?.messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+         */
+    }
+    
+    private func sendFile(url: URL) {
+        print("📂 파일 전송: \(url.lastPathComponent)")
+        // 👉 여기서 파일을 서버로 업로드하거나 채팅에 추가하는 로직을 구현
     }
     
     private func scrollToLastItem() {
