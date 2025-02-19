@@ -28,7 +28,15 @@ class PostFilterCell: UITableViewCell {
 class GenderSelectionCell: UITableViewCell {
     
     static let identifier = "GenderSelectionCell"
-
+    
+    var selectedGender: String? {
+        didSet {
+            updateGenderUI()
+        }
+    }
+    
+    var onGenderSelected: ((String?) -> Void)?
+    
     private let maleBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.attributedTitle = AttributedString("남성", attributes: AttributeContainer([.font: UIFont.ptdSemiBoldFont(ofSize: 14), .foregroundColor: UIColor.grey400!]))
@@ -38,7 +46,7 @@ class GenderSelectionCell: UITableViewCell {
         $0.layer.cornerRadius = 14
         $0.layer.borderWidth = 1
     }
-
+    
     private let femaleBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.attributedTitle = AttributedString("여성", attributes: AttributeContainer([.font: UIFont.ptdSemiBoldFont(ofSize: 14), .foregroundColor: UIColor.grey400!]))
@@ -48,31 +56,68 @@ class GenderSelectionCell: UITableViewCell {
         $0.layer.cornerRadius = 14
         $0.layer.borderWidth = 1
     }
-
-    private lazy var stack = Stack(axis: .horizontal, spacing: 16)
-   
-    private func addStack() {
-        [maleBtn, femaleBtn].forEach{stack.addArrangedSubview($0)}
-    }
-    
+  
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        addStack()
+        let stack = Stack(axis: .horizontal, spacing: 16)
         contentView.addSubview(stack)
+        [maleBtn, femaleBtn].forEach{stack.addArrangedSubview($0)}
         
         stack.snp.makeConstraints {
-            $0.centerY.trailing.equalToSuperview()
+            $0.trailing.centerY.equalToSuperview()
         }
         
-        maleBtn.snp.makeConstraints {
-            $0.height.equalTo(28)
-            $0.width.equalTo(49)
-        }
+        maleBtn.addTarget(self, action: #selector(genderSelected(_:)), for: .touchUpInside)
+        femaleBtn.addTarget(self, action: #selector(genderSelected(_:)), for: .touchUpInside)
         
-        femaleBtn.snp.makeConstraints {
-            $0.height.equalTo(28)
-            $0.width.equalTo(49)
+        updateGenderUI()
+    }
+    
+    @objc private func genderSelected(_ sender: UIButton) {
+        if sender == maleBtn { //남자버튼을 눌렀을때
+            if selectedGender == "BOTH" {
+                selectedGender = "FEMALE" // ✅ BOTH 상태에서 남성 해제 → 여성만 남음
+            } else if selectedGender == "MALE" {
+                selectedGender = "MALE" // ✅ 남성 선택 해제 → 아무것도 선택 안되는 건 불가
+            } else {
+                selectedGender = "BOTH"
+            }
+        } else if sender == femaleBtn {
+            if selectedGender == "BOTH" {
+                selectedGender = "MALE" // ✅ BOTH 상태에서 여성 해제 → 남성만 남음
+            } else if selectedGender == "FEMALE" {
+                selectedGender = "FEMALE" // ✅ 여성 선택 해제 → 아무것도 선택 안되는 건 안됨.
+            } else {
+                selectedGender = "BOTH"
+            }
+        }
+
+        onGenderSelected?(selectedGender)
+        updateGenderUI()
+    }
+    
+    func updateGenderUI() {
+        print("📌 updateGenderUI() - selectedGender: \(selectedGender ?? "nil")")
+
+        if selectedGender == "MALE" || selectedGender == "BOTH" {
+            maleBtn.backgroundColor = .dmrBlue
+            maleBtn.layer.borderColor = UIColor.dmrBlue?.cgColor
+            maleBtn.setTitleColor(.white, for: .normal)
+        } else {
+            maleBtn.backgroundColor = .clear
+            maleBtn.layer.borderColor = UIColor.grey400?.cgColor
+            maleBtn.setTitleColor(.grey400, for: .normal)
+        }
+
+        if selectedGender == "FEMALE" || selectedGender == "BOTH" {
+            femaleBtn.backgroundColor = .dmrBlue
+            femaleBtn.layer.borderColor = UIColor.dmrBlue?.cgColor
+            femaleBtn.setTitleColor(.white, for: .normal)
+        } else {
+            femaleBtn.backgroundColor = .clear
+            femaleBtn.layer.borderColor = UIColor.grey400?.cgColor
+            femaleBtn.setTitleColor(.grey400, for: .normal)
         }
     }
     
@@ -83,17 +128,20 @@ class AgeSelectionCell: UITableViewCell {
     
     static let identifier = "AgeSelectionCell"
     
-    private let rangeSlider = RangeSlider().then {
-        $0.minValue = 18
-        $0.maxValue = 50
-        $0.lowerValue = 18
-        $0.upperValue = 28
+    var minAge: Int? {
+        didSet { updateUI() }
     }
     
-    private let ageLabel = Label(text: "만 18 ~ 28세", font: .ptdSemiBoldFont(ofSize: 22), color: .grey800).then {
+    var maxAge: Int? {
+        didSet { updateUI() }
+    }
+    
+    var onAgeChanged: ((Int, Int) -> Void)?
+    
+    private let rangeSlider = RangeSlider()
+    private let ageLabel = Label(text: "만 18 ~ 50살", font: .ptdBoldFont(ofSize: 22), color: .grey800).then {
         $0.textAlignment = .left
     }
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -101,25 +149,36 @@ class AgeSelectionCell: UITableViewCell {
         contentView.addSubview(rangeSlider)
         
         ageLabel.snp.makeConstraints {
-            $0.top.leading.equalToSuperview().inset(16)
-            $0.width.greaterThanOrEqualTo(200)
+            $0.top.equalToSuperview().inset(24)
+            $0.leading.equalToSuperview()
         }
-        
         rangeSlider.snp.makeConstraints {
-            $0.top.equalTo(ageLabel.snp.bottom).offset(8)
+            $0.top.equalTo(ageLabel.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(40)
-            $0.bottom.equalToSuperview().inset(8)
         }
         
         rangeSlider.addTarget(self, action: #selector(rangeSliderValueChanged(_:)), for: .valueChanged)
     }
     
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    
     @objc private func rangeSliderValueChanged(_ sender: RangeSlider) {
-        ageLabel.text = "만 \(Int(sender.lowerValue)) ~ \(Int(sender.upperValue))세"
+        minAge = Int(sender.lowerValue)
+        maxAge = Int(sender.upperValue)
+        onAgeChanged?(minAge ?? 18, maxAge ?? 50)
     }
     
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    func updateUI() {
+        if let min = minAge, let max = maxAge {
+            ageLabel.text = "만 \(minAge ?? 18) ~ \(maxAge ?? 50)살"
+            
+            rangeSlider.lowerValue = Float(min)
+            rangeSlider.upperValue = Float(max)
+            rangeSlider.updateLayerFrames()
+            layoutIfNeeded()
+            setNeedsLayout()
+        }
+    }
 }
 
 class RangeSlider: UIControl {
@@ -199,37 +258,42 @@ class RangeSlider: UIControl {
         upperThumbView.addGestureRecognizer(upperPan)
     }
     
-    private func updateLayerFrames() {
+    func updateLayerFrames() {
         let trackHeight: CGFloat = 4
         let thumbSize: CGFloat = 24
-        
-        let lowerThumbCenter = CGFloat((lowerValue - minValue) / (maxValue - minValue)) * bounds.width
-        let upperThumbCenter = CGFloat((upperValue - minValue) / (maxValue - minValue)) * bounds.width
-        
-        trackView.frame = CGRect(x: 0, y: bounds.midY - trackHeight / 2, width: bounds.width, height: trackHeight)
-        
-        lowerThumbView.frame = CGRect(x: lowerThumbCenter - thumbSize / 2, y: bounds.midY - thumbSize / 2, width: thumbSize, height: thumbSize)
-        
-        upperThumbView.frame = CGRect(x: upperThumbCenter - thumbSize / 2, y: bounds.midY - thumbSize / 2, width: thumbSize, height: thumbSize)
+
+        let availableWidth = bounds.width - thumbSize // ✅ 슬라이더 이동 가능 범위
+        let lowerThumbCenter = CGFloat((lowerValue - minValue) / (maxValue - minValue)) * availableWidth
+        let upperThumbCenter = CGFloat((upperValue - minValue) / (maxValue - minValue)) * availableWidth
+
+        trackView.frame = CGRect(x: thumbSize / 2, y: bounds.midY - trackHeight / 2, width: availableWidth, height: trackHeight)
+
+        lowerThumbView.frame = CGRect(x: lowerThumbCenter, y: bounds.midY - thumbSize / 2, width: thumbSize, height: thumbSize)
+
+        upperThumbView.frame = CGRect(x: upperThumbCenter, y: bounds.midY - thumbSize / 2, width: thumbSize, height: thumbSize)
+
+        setNeedsDisplay() // ✅ 다시 그리기 요청
     }
     
     @objc private func handleLowerPan(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: self)
-        let percentage = Float(translation.x / bounds.width)
+        let percentage = Float(translation.x / (bounds.width - 24)) // ✅ 이동 가능한 영역 고려
         let newValue = lowerValue + percentage * (maxValue - minValue)
-        
-        lowerValue = min(upperValue, max(minValue, newValue)) // 🚀 초과 방지
+
+        lowerValue = max(minValue, min(newValue, upperValue - 1)) // ✅ 최소값, 최대값 제한
         gesture.setTranslation(.zero, in: self)
         sendActions(for: .valueChanged)
+        updateLayerFrames() // ✅ UI 업데이트
     }
-    
+
     @objc private func handleUpperPan(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: self)
-        let percentage = Float(translation.x / bounds.width)
+        let percentage = Float(translation.x / (bounds.width - 24)) // ✅ 이동 가능한 영역 고려
         let newValue = upperValue + percentage * (maxValue - minValue)
-        
-        upperValue = min(maxValue, max(lowerValue, newValue)) // 🚀 역전 방지
+
+        upperValue = min(maxValue, max(newValue, lowerValue + 1)) // ✅ 최소값, 최대값 제한
         gesture.setTranslation(.zero, in: self)
         sendActions(for: .valueChanged)
+        updateLayerFrames() // ✅ UI 업데이트
     }
 }

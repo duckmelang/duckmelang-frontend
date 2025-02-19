@@ -31,6 +31,8 @@ public enum MyPageAPI {
     case getLandmines
     case postLandmines(content: String)
     case deleteLandmines(landmineId: Int)
+    case getFilters
+    case postFilters(FilterRequest: FilterRequest)
 }
 
 extension MyPageAPI: TargetType {
@@ -78,6 +80,8 @@ extension MyPageAPI: TargetType {
             return "/landmines"
         case .deleteLandmines(landmineId: let landmineId):
             return "/landmines/\(landmineId)"
+        case .getFilters, .postFilters:
+            return "/filters"
         }
     }
     
@@ -87,7 +91,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .patchProfile:
             return .patch
-        case .postProfileImage, .postIdol, .postLandmines:
+        case .postProfileImage, .postIdol, .postLandmines, .postFilters:
             return .post
         case .deletePost, .deleteIdol, .deleteLandmines:
             return .delete
@@ -101,7 +105,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
@@ -111,6 +115,8 @@ extension MyPageAPI: TargetType {
             return .requestParameters(parameters: ["keyword" : keyword], encoding: URLEncoding.queryString)
         case .postLandmines(content: let content):
             return .requestParameters(parameters: ["content" : content], encoding: JSONEncoding.default)
+        case .postFilters(FilterRequest: let FilterRequest):
+            return .requestJSONEncodable(FilterRequest)
         }
     }
     
@@ -118,7 +124,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer \("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5NzYwMjI4LCJleHAiOjE3Mzk3NjM4Mjh9.M2_Ax7Ga3e-r22GymxS21UNeeVq1Iu4ZWC3PTNP-t2A")"]
+                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTI5NDg3LCJleHAiOjE3Mzk5MzMwODd9.DdYkQ77hbFtNb2kiSwyi6xJPBVVyCjhY02m8JzlVChs"]
         }
     }
 }
