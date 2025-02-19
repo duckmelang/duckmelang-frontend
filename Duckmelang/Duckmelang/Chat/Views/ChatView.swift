@@ -22,7 +22,7 @@ class ChatView: UIView {
     
     lazy var allBtn = ChipButton(title: "전체", width: 47, tag: 0)
     lazy var ongoingBtn = ChipButton(title: "진행 중", width: 62, tag: 1)
-    lazy var confirmBtn = ChipButton(title: "동행확정", width: 62, tag: 2)
+    lazy var confirmBtn = ChipButton(title: "동행 확정", width: 68, tag: 2)
     lazy var doneBtn = ChipButton(title: "종료", width: 47, tag: 3)
     
     lazy var btnStackView = UIStackView().then {
@@ -36,7 +36,10 @@ class ChatView: UIView {
         $0.register(ChatCell.self, forCellReuseIdentifier: ChatCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 75
+        $0.tableFooterView = loadingIndicator
     }
+    
+    let loadingIndicator = LoadingIndicator()
     
     lazy var empty = emptyLabel(text: "채팅 목록이 없습니다")
     

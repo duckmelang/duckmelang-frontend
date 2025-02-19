@@ -60,11 +60,10 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
                 self.messageData.removeAll()
                 let response = try? response.map(ApiResponse<MessageResponse>.self)
                 guard let results = response?.result?.chatMessageList else { return }
-                // UTC로 createdAt이 되어있나? 물어보기
+                
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                 dateFormatter.locale = Locale(identifier: "ko_KR")
-                dateFormatter.timeZone = TimeZone.current
                 
                 results.forEach { result in
                     let newChatType: ChatType = result.receiverId == 1 ? .receive : .send

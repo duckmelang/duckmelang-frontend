@@ -22,7 +22,10 @@ class BookmarksView: UIView {
         $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 106
+        $0.tableFooterView = loadingIndicator
     }
+    
+    let loadingIndicator = LoadingIndicator()
     
     lazy var empty = emptyLabel(text: "스크랩 목록이 없습니다")
     

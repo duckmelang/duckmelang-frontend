@@ -22,7 +22,10 @@ class MyPostsView: UIView {
         $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 106
+        $0.tableFooterView = loadingIndicator
     }
+    
+    let loadingIndicator = LoadingIndicator()
     
     lazy var empty = emptyLabel(text: "내 게시물이 없습니다")
     
