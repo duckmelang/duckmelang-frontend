@@ -56,6 +56,7 @@ class PostFilterViewController: UIViewController {
                         
                         print("📌 JSON 원본: \(result)")
                         
+                        // ✅ 성별 데이터 적용
                         if let gender = result["gender"] as? String {
                             self.selectedGender = gender
                             print("✅ selectedGender 적용됨: \(self.selectedGender!)")
@@ -64,8 +65,25 @@ class PostFilterViewController: UIViewController {
                             print("⚠️ selectedGender가 nil이므로 BOTH로 설정됨")
                         }
 
+                        // ✅ 나이 데이터 적용 (nil이면 기본값 18~50 적용)
+                        let fetchedMinAge = result["minAge"] as? Int ?? 18
+                        let fetchedMaxAge = result["maxAge"] as? Int ?? 50
+
+                        self.minAge = fetchedMinAge
+                        self.maxAge = fetchedMaxAge
+
+                        print("✅ minAge 적용됨: \(self.minAge!)")
+                        print("✅ maxAge 적용됨: \(self.maxAge!)")
+
                         DispatchQueue.main.async {
-                            self.tableView.reloadData()
+                            self.tableView.reloadData() // ✅ UI 업데이트
+                            
+                            // ✅ 값이 설정된 후에만 `updateUI()` 실행
+                            if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as? AgeSelectionCell {
+                                cell.minAge = self.minAge
+                                cell.maxAge = self.maxAge
+                                cell.updateUI()  // 🎯 여기서 updateUI() 실행!
+                            }
                         }
                     }
                 } catch {
@@ -76,6 +94,7 @@ class PostFilterViewController: UIViewController {
             }
         }
     }
+
 
     
     /// ✅ 필터 데이터를 서버로 저장하기 (POST 요청)
@@ -143,12 +162,21 @@ extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
             guard let ageCell = tableView.dequeueReusableCell(withIdentifier: AgeSelectionCell.identifier, for: indexPath) as? AgeSelectionCell else {
                 return UITableViewCell()
             }
+            // ✅ minAge, maxAge 값 적용 후 UI 업데이트
             ageCell.minAge = minAge
             ageCell.maxAge = maxAge
+            ageCell.updateUI()
+            
             ageCell.onAgeChanged = { min, max in
                 self.minAge = min
                 self.maxAge = max
+                print("📌 PostFilterViewController - minAge: \(self.minAge!), maxAge: \(self.maxAge!)")
+                
+                DispatchQueue.main.async {
+                    self.tableView.reloadData() // ✅ UI 즉시 반영
+                }
             }
+            
             return ageCell
         }
     }
@@ -222,7 +250,7 @@ extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
             } else {
                 separator.snp.makeConstraints {
                     $0.leading.trailing.equalToSuperview()
-                    $0.bottom.equalToSuperview().offset(50)
+                    $0.bottom.equalToSuperview()
                     $0.height.equalTo(1)
                 }
             }

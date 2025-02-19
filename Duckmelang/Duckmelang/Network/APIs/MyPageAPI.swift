@@ -124,7 +124,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTI5NDg3LCJleHAiOjE3Mzk5MzMwODd9.DdYkQ77hbFtNb2kiSwyi6xJPBVVyCjhY02m8JzlVChs"]
+                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTMzMzUzLCJleHAiOjE3Mzk5MzY5NTN9.cZ3hJG6hdnjH7_vBS6wb3mgtjNpJLOsf2KcM01Y45is"]
         }
     }
 }
