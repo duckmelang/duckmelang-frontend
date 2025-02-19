@@ -78,18 +78,28 @@ class FilterKeywordsView: UIView, UITextFieldDelegate {
         
         filterKeywordTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         filterKeywordTextField.delegate = self
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        self.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        self.endEditing(true)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty, !keywords.contains(text) else {
-            return false
+        let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        if text.isEmpty {
+            textField.resignFirstResponder()
+        } else {
+            if !keywords.contains(text) {
+                keywords.append(text)
+            }
+            textField.text = ""
+            textField.resignFirstResponder()
         }
-        
-        keywords.append(text)
-        
-        textField.text = ""
-        textField.becomeFirstResponder()
-        
         return true
     }
 
@@ -98,12 +108,15 @@ class FilterKeywordsView: UIView, UITextFieldDelegate {
         let query = textField.text?.lowercased() ?? ""
         
         if query.isEmpty {
+            textField.returnKeyType = .default
             keywordsCollectionView.isHidden = true
             onTextInput?("")
         } else {
+            textField.returnKeyType = .done
             keywordsCollectionView.isHidden = false
             onTextInput?(query)
         }
+        textField.reloadInputViews()
     }
     
     required init?(coder: NSCoder) {
