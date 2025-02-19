@@ -129,8 +129,8 @@ class MyAccompanyCell: UITableViewCell {
     
     private func setView() {
         [
-            postImage,
             userImage,
+            postImage,
             userName,
             sentTime,
             postTitle,
@@ -207,14 +207,20 @@ class MyAccompanyCell: UITableViewCell {
     }
     
     private func formatDate(_ isoDateString: String) -> String {
-        let dateFormatter = ISO8601DateFormatter()
-        guard let date = dateFormatter.date(from: isoDateString) else { return "시간 없음" }
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        dateFormatter.timeZone = TimeZone.current
         
-        let displayFormatter = DateFormatter()
-        displayFormatter.locale = Locale(identifier: "ko_KR")
-        displayFormatter.dateFormat = "hh:mm"
-        
-        return displayFormatter.string(from: date)
+        if let date = dateFormatter.date(from: isoDateString) {
+            let displayFormatter = DateFormatter()
+            displayFormatter.locale = Locale(identifier: "ko_KR")
+            displayFormatter.dateFormat = "hh:mm"
+            
+            return displayFormatter.string(from: date)
+        } else {
+            return "시간 없음"
+        }
     }
     
     private func updateStatus(status: String, applicationStatus: String) {

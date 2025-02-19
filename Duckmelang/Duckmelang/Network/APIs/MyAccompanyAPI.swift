@@ -93,7 +93,7 @@ extension MyAccompanyAPI: TargetType {
         default :
             return [
                 "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5ODQ1OTA1LCJleHAiOjE3Mzk4NDk1MDV9.vH_3glOyAQfrcSXUWIHWpyLE19UNy8Y-8BThZCr6C8k"
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTQ1OTQ5LCJleHAiOjE3Mzk5NDk1NDl9.D-G_E0ObDDk8JrHn4_LrvA7BEQZ0U-c6yLkJ03zutEo"
             ]
         }
     }
