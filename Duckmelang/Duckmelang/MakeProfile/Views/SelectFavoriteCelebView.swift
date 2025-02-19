@@ -173,11 +173,14 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
         updateTagsView()
         celebTextField.text = "" // 선택 후 입력창 초기화
         dropdownContainerView.isHidden = true // 선택 후 드롭다운 숨김
+        print("🟡 추가 후 현재 선택된 아이돌 개수: \(selectedIdols.count)")
     }
     
     func removeTag(_ id: Int) {
         selectedIdols.removeAll { $0.id == id }
         updateTagsView()
+        print("🟡 삭제 후 현재 선택된 아이돌 개수: \(selectedIdols.count)")
+        onIdolRemoved?(id)
     }
     
     private func updateTagsView() {
@@ -191,6 +194,7 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
         for tag in existingTags where !newIds.contains(tag.id) {
             tagStackView.removeArrangedSubview(tag)
             tag.removeFromSuperview()
+            print("🟡 태그 삭제됨: (ID: \(tag.id))")
         }
         
         // 추가된 태그만 새로 추가
@@ -202,7 +206,6 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
 
         self.layoutIfNeeded()
         tagScrollView.contentSize = tagStackView.frame.size
-        print("현재 아이템 개수: \(tagStackView.arrangedSubviews.count)개")
     }
     
     private func createTagView(_ idol: (id: Int, name: String)) -> UIView {
@@ -218,10 +221,6 @@ class SelectFavoriteCelebView: UIView, UITableViewDelegate, UITableViewDataSourc
         }
 
         return tagView
-    }
-
-    @objc private func removeTagAction(_ sender: UIButton) {
-        onIdolRemoved?(sender.tag)
     }
 
     // MARK: - UITableViewDataSource
@@ -298,6 +297,10 @@ class TagView: UIView {
     }
 
     @objc private func removeTagAction(_ sender: UIButton) {
-        onDelete?(id)
+        if let onDelete = onDelete {
+            onDelete(id)
+        } else {
+            print("❌ onDelete가 nil")
+        }
     }
 }

@@ -33,9 +33,12 @@ class MakeProfilesViewController: UIViewController, NextButtonUpdatable {
         let setupNickBirthVC = SetupNickBirthGenViewController(memberId: memberId)
         setupNickBirthVC.nextButtonDelegate = self
         
+        let selectFavoriteCelebVC = SelectFavoriteCelebViewController(memberId: memberId)
+        selectFavoriteCelebVC.nextButtonDelegate = self
+        
         self.stepVCs = [
             setupNickBirthVC,
-            SelectFavoriteCelebViewController(memberId: memberId),
+            selectFavoriteCelebVC,
             SelectEventViewController(),
             FilterKeywordsViewController()
         ]

@@ -10,7 +10,14 @@ import UIKit
 import Alamofire
 import Moya
 
-class SelectFavoriteCelebViewController: UIViewController, MoyaErrorHandlerDelegate {
+class SelectFavoriteCelebViewController: UIViewController, NextButtonUpdatable, MoyaErrorHandlerDelegate {
+    
+    weak var nextButtonDelegate: NextButtonUpdatable?
+    
+    func updateNextButtonState(isEnabled: Bool) {
+        nextButtonDelegate?.updateNextButtonState(isEnabled: isEnabled)
+    }
+    
     func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
@@ -92,11 +99,18 @@ class SelectFavoriteCelebViewController: UIViewController, MoyaErrorHandlerDeleg
         print("🟢 태그 추가 - ID: \(idol.id), 이름 : \(idol.name)")
         selectedIdols.append(idol.id)
         selectFavoriteCelebView.addTag(idol)
+        print("📌 현재 선택된 아이돌 목록: \(selectedIdols)") // ✅ 추가 후 확인
+        
+        // ✅ 선택된 아이돌이 1개 이상이면 nextButton 활성화
+        nextButtonDelegate?.updateNextButtonState(isEnabled: selectedIdols.count > 0)
     }
 
     // 아이돌 태그 삭제 시 목록에서도 제거
     private func removeSelectedIdol(_ removedId: Int) {
-        selectFavoriteCelebView.removeTag(removedId)
+        selectedIdols.removeAll { $0 == removedId }
+
+        print("📌 현재 선택된 아이돌 목록: \(selectedIdols)") // ✅ 삭제 후 확인
+        nextButtonDelegate?.updateNextButtonState(isEnabled: selectedIdols.count > 0)
     }
     
     func handleNextStep(completion: @escaping () -> Void) {
