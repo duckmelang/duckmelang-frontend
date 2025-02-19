@@ -124,16 +124,18 @@ class ProfileViewController: UIViewController{
                 do {
                     let decodedResponse = try response.map(ApiResponse<ReviewResponse>.self)
                     
-                    // 리뷰 리스트가 `nil`이면 빈 배열을 할당하여 오류 방지
-                    let myReviewList = decodedResponse.result?.myReviewList ?? []
-                    let averageRating = decodedResponse.result?.average ?? 0.0 //API에서 받은 평균 평점
+                    // ✅ 서버 응답 확인
+                    print("📌 [DEBUG] fetchReviews() - 서버 응답 데이터: \(decodedResponse)")
 
-                    
+                    // 리뷰 리스트가 `nil`이면 빈 배열을 할당하여 오류 방지
+                    let myReviewList = decodedResponse.result?.reviewList ?? []
+                    let averageRating = decodedResponse.result?.average ?? 0.0 // API에서 받은 평균 평점
+
                     DispatchQueue.main.async {
                         self.reviews = myReviewList
-                        self.profileView.profileBottomView.reviewTableView.reloadData() // 테이블뷰 갱신
-                        //평점 업데이트
-                        self.profileView.profileBottomView.cosmosView.rating = averageRating
+                        self.profileView.profileBottomView.reviewTableView.reloadData() // ✅ 테이블뷰 갱신
+                        self.profileView.profileBottomView.cosmosView.rating = averageRating // ✅ 평점 업데이트
+                        print("✅ [DEBUG] 리뷰 \(myReviewList.count)개 로드됨!")
                     }
                 } catch {
                     print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
@@ -143,6 +145,7 @@ class ProfileViewController: UIViewController{
             }
         }
     }
+
 
     @objc
     private func backBtnDidTap() {
