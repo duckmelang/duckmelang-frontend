@@ -12,6 +12,11 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
     private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private var myPostsData: [PostDTO] = []
     
+    var isLoading = false   // 중복 로딩 방지
+    var isLastPage = false  // 마지막 페이지인지 여부
+    var currentPage = 0     // 현재 페이지 번호
+    let pageSize = 10       // 한 페이지당 데이터 개수
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = myPostsView
@@ -30,16 +35,31 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
 
     private func getMyPostsAPI() {
-        provider.request(.getMyPosts(page: 0)) { result in
+        guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
+        isLoading = true
+        myPostsView.loadingIndicator.startAnimating()
+        
+        provider.request(.getMyPosts(page: currentPage)) { result in
             switch result {
             case .success(let response):
-                self.myPostsData.removeAll()
-                let response = try? response.map(ApiResponse<PostResponse>.self)
-                guard let result = response?.result?.postList else { return }
-                self.myPostsData = result
-                print("내 게시글: \(self.myPostsData)")
-                DispatchQueue.main.async {
-                    self.myPostsView.myPostsTableView.reloadData()
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+                    let response = try? response.map(ApiResponse<PostResponse>.self)
+                    guard let result = response?.result?.postList else { return }
+                    guard let isLast = response?.result?.isLast else { return }
+                    self.myPostsData.append(contentsOf: result)
+                    print("내 게시글: \(self.myPostsData)")
+                    
+                    DispatchQueue.main.async {
+//                        self.myPostsView.empty.isHidden = !result.isEmpty
+                        self.isLastPage = isLast
+                        self.isLoading = false
+                        self.myPostsView.loadingIndicator.stopAnimating()
+                        self.myPostsView.myPostsTableView.reloadData()
+                        
+                        if isLast {
+                            self.myPostsView.myPostsTableView.tableFooterView = nil
+                        }
+                    }
                 }
             case .failure(let error):
                 print(error)
@@ -66,5 +86,18 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
         myPostDetailVC.postId = postId
         
         self.navigationController?.pushViewController(myPostDetailVC, animated: true)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let tableViewHeight = scrollView.frame.size.height
+
+        if offsetY > contentHeight - tableViewHeight * 2 {
+            if !isLoading && !isLastPage {
+                currentPage += 1
+                getMyPostsAPI()
+            }
+        }
     }
 }
