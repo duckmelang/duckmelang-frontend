@@ -75,15 +75,16 @@ class RequestViewController: UIViewController {
     }
     
     private func getPendingAPI() {
-        provider.request(.getPendingRequests(memberId: 1, page: 0)) { result in
+        provider.request(.getPendingRequests(page: 0)) { result in
             switch result {
             case .success(let response):
                 self.requestData.removeAll()
                 let response = try? response.map(ApiResponse<RequestResponse>.self)
-                guard let result = response?.result?.requestApplicationList else { return }
+                guard let result = response?.result?.applicationList else { return }
                 self.requestData = result
                 print("대기 중: \(self.requestData)")
                 DispatchQueue.main.async {
+                    self.requestView.empty.isHidden = !result.isEmpty
                     self.requestView.requestTableView.reloadData()
                 }
             case .failure(let error):
@@ -92,15 +93,16 @@ class RequestViewController: UIViewController {
         }
     }
     private func getSentAPI() {
-        provider.request(.getSentRequests(memberId: 1, page: 0)) { result in
+        provider.request(.getSentRequests(page: 0)) { result in
             switch result {
             case .success(let response):
                 self.requestData.removeAll()
                 let response = try? response.map(ApiResponse<RequestResponse>.self)
-                guard let result = response?.result?.requestApplicationList else { return }
+                guard let result = response?.result?.applicationList else { return }
                 self.requestData = result
                 print("보낸 요청: \(self.requestData)")
                 DispatchQueue.main.async {
+                    self.requestView.empty.isHidden = !result.isEmpty
                     self.requestView.requestTableView.reloadData()
                 }
             case .failure(let error):
@@ -109,15 +111,16 @@ class RequestViewController: UIViewController {
         }
     }
     private func getReceivedAPI() {
-        provider.request(.getReceivedRequests(memberId: 1, page: 0)) { result in
+        provider.request(.getReceivedRequests(page: 0)) { result in
             switch result {
             case .success(let response):
                 self.requestData.removeAll()
                 let response = try? response.map(ApiResponse<RequestResponse>.self)
-                guard let result = response?.result?.requestApplicationList else { return }
+                guard let result = response?.result?.applicationList else { return }
                 self.requestData = result
                 print("받은 요청: \(self.requestData)")
                 DispatchQueue.main.async {
+                    self.requestView.empty.isHidden = !result.isEmpty
                     self.requestView.requestTableView.reloadData()
                 }
             case .failure(let error):
@@ -127,7 +130,7 @@ class RequestViewController: UIViewController {
     }
     
     private func postSucceedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
-        provider.request(.postRequestSucceed(applicationId: applicationId, memberId: 1)) { result in
+        provider.request(.postRequestSucceed(applicationId: applicationId)) { result in
             switch result {
             case .success(let response):
                 print("요청 수락 성공: \(response)")
@@ -142,7 +145,7 @@ class RequestViewController: UIViewController {
         }
     }
     private func postFailedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
-        provider.request(.postRequestFailed(applicationId: applicationId, memberId: 1)) { result in
+        provider.request(.postRequestFailed(applicationId: applicationId)) { result in
             switch result {
             case .success(let response):
                 print("요청 거절 성공: \(response)")
