@@ -43,13 +43,13 @@ class TopMessageView: UIView {
     lazy var postTitle = UILabel().then {
         $0.text = "게시글 제목"
         $0.textColor = .grey800
-        $0.font = .ptdRegularFont(ofSize: 17)
+        $0.font = .ptdRegularFont(ofSize: 15)
     }
     
-    private lazy var inProgress = UILabel().then {
+    lazy var inProgress = UILabel().then {
         $0.text = "진행 중"
         $0.textColor = .grey700
-        $0.font = .ptdSemiBoldFont(ofSize: 13)
+        $0.font = .ptdSemiBoldFont(ofSize: 11)
     }
     
     public lazy var confirmBtn = UIButton().then {
@@ -95,13 +95,12 @@ class TopMessageView: UIView {
         }
         
         postTitle.snp.makeConstraints {
-            $0.top.equalTo(postImage.snp.top).offset(3)
+            $0.top.equalTo(postImage.snp.top).offset(5)
             $0.leading.equalTo(postImage.snp.trailing).offset(8)
-            $0.trailing.equalToSuperview().offset(21)
         }
         
         inProgress.snp.makeConstraints {
-            $0.bottom.equalTo(postImage.snp.bottom).offset(-3)
+            $0.bottom.equalTo(postImage.snp.bottom).offset(-5)
             $0.leading.equalTo(postTitle.snp.leading)
         }
         

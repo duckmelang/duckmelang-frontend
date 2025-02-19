@@ -169,8 +169,7 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         let chat = chatData[indexPath.row]
         
         let messageVC = MessageViewController()
-        messageVC.chatRoomId = chat.chatRoomId
-        messageVC.oppositeNickname = chat.oppositeNickname
+        messageVC.chat = chat
         navigationController?.pushViewController(messageVC, animated: true)
     }
     

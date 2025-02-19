@@ -43,7 +43,7 @@ public struct myReviewDTO: Codable {
     let gender: String
     let age: Int
     let content: String
-    let score: Int
+    let score: Double
     
     var localizedGender: String {
         return gender.lowercased() == "male" ? "남성" : "여성"

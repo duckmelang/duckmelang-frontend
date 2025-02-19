@@ -51,9 +51,10 @@ class ReviewCell: UITableViewCell {
         $0.layer.cornerRadius = 7
         $0.layer.masksToBounds = true
         $0.textInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+        $0.lineBreakMode = .byCharWrapping
     }
     
-    let genderAndAgeStack = Stack(axis: .horizontal)
+    let genderAndAgeStack = Stack(axis: .horizontal, spacing: -13, distribution: .equalSpacing)
     let nicknameAndInfr = Stack(axis: .vertical, spacing: 5, alignment: .leading)
 
     private func addStack(){
@@ -68,7 +69,7 @@ class ReviewCell: UITableViewCell {
             $0.height.equalTo(40)
             $0.top.equalToSuperview().inset(15)
             $0.leading.equalToSuperview().inset(16)
-            $0.width.equalTo(70)
+            $0.width.equalTo(80)
         }
         
         review.snp.makeConstraints{
@@ -89,14 +90,14 @@ class ReviewCell: UITableViewCell {
     public func configure(model: myReviewDTO) {
         self.nickname.text = model.nickname
         self.gender.text = model.gender == "true" ? "남성" : "여성"
-        self.age.text = "\(model.age)세"
+        self.age.text = "만 \(model.age)세"
         self.review.text = model.content
     }
     
     public func configure(model: OtherReviewDTO) {
         self.nickname.text = model.nickname
         self.gender.text = model.gender == "true" ? "남성" : "여성"
-        self.age.text = "\(model.age)세"
+        self.age.text = "만 \(model.age)세"
         self.review.text = model.content
     }
 }

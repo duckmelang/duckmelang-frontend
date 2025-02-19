@@ -40,6 +40,7 @@ class OtherProfileView: UIView {
         otherProfileBottomView.snp.makeConstraints{
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.top.equalTo(otherProfileTopView.snp.bottom)
+            $0.bottom.equalToSuperview()
         }
     }
 }
@@ -116,7 +117,7 @@ class OtherProfileTopView: UIView {
     private lazy var matchingCount = Label(text: "80", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
     
     private lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
-    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: 1, distribution: .equalSpacing)
+    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -13, distribution: .equalSpacing)
     private lazy var postStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
     private lazy var matchingStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
     private lazy var postMatchingStack = Stack(axis: .horizontal, spacing: 25)
@@ -128,7 +129,14 @@ class OtherProfileTopView: UIView {
         $0.layer.cornerRadius = 7
     }
     
-    private lazy var selfPR = Label(text: "메랑이 구해요!", font: .ptdRegularFont(ofSize: 12), color: .grey800)
+    private lazy var selfPR = UILabel().then {
+        $0.text = "메랑이 구해요!"
+        $0.font = .ptdRegularFont(ofSize: 12)
+        $0.textColor = .grey800
+        $0.textAlignment = .left
+        $0.numberOfLines = 0
+        $0.lineBreakMode = .byCharWrapping
+    }
     
     private func addStack(){
         [gender, line, age].forEach{genderAndAgeStack.addArrangedSubview($0)}
@@ -188,8 +196,10 @@ class OtherProfileTopView: UIView {
         }
         
         selfPR.snp.makeConstraints{
-            $0.centerY.equalToSuperview()
+            $0.top.equalToSuperview().offset(12)
+            $0.bottom.equalToSuperview().offset(-12)
             $0.left.equalToSuperview().inset(16)
+            $0.right.equalToSuperview().inset(16)
         }
     }
 }
@@ -287,8 +297,9 @@ class OtherProfileBottomView: UIView {
         
         uploadPostView.snp.makeConstraints {
             $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
-            $0.horizontalEdges.bottom.equalToSuperview()
-            $0.height.equalTo(400)
+            $0.left.equalToSuperview().offset(-15)
+            $0.right.equalToSuperview().offset(10)
+            $0.height.equalTo(500)
         }
         
         cosmosView.snp.makeConstraints{
@@ -306,7 +317,7 @@ class OtherProfileBottomView: UIView {
         reviewTableView.snp.makeConstraints{
             $0.top.equalTo(cosmosStack.snp.bottom).offset(18)
             $0.horizontalEdges.bottom.equalToSuperview()
-            $0.height.equalTo(400)
+            $0.height.equalTo(500)
         }
     }
 }
