@@ -86,7 +86,7 @@ extension MyAccompanyAPI: TargetType {
         switch self {
         case .getPendingRequests(let page), .getSentRequests(let page), .getReceivedRequests(let page), .getBookmarks(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .postRequestSucceed, .postRequestFailed:
+        case .postRequestSucceed, .postRequestFailed, .getPostDetail:
             return .requestPlain
         }
     }
