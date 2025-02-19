@@ -12,3 +12,9 @@ public struct EditProfileRequest: Codable {
     let nickname: String
     let introduction: String
 }
+
+public struct FilterRequest: Codable {
+    let gender : String?
+    let minAge : Int?
+    let maxAge : Int?
+}
