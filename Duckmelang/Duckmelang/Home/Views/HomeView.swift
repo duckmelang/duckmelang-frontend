@@ -31,7 +31,7 @@ class HomeView: UIView {
     let bellIcon: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "bell"), for: .normal)
-        button.tintColor = .black
+        button.tintColor = .grey600
         return button
     }()
     
@@ -39,7 +39,7 @@ class HomeView: UIView {
     let findIcon: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "find"), for: .normal)
-        button.tintColor = .black
+        button.tintColor = .grey600
         return button
     }()
     

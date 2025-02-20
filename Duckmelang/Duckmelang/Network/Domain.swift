@@ -12,7 +12,7 @@ public struct API {
     public static let reviewURL = "\(baseURL)/reviews"
     public static let requestURL = "\(baseURL)/requests"
     public static let loginURL = "\(baseURL)/login"
-    public static let oauthURL = "\(baseURL)/oauth2/authorization"
+    public static let oauthURL = "https://13.125.217.231.nip.io/oauth2/authorization"
     public static let oauthCodeURL = "\(loginURL)/oauth2/code"
     public static let postURL = "\(baseURL)/posts"
     public static let smsURL = "\(baseURL)/sms"
