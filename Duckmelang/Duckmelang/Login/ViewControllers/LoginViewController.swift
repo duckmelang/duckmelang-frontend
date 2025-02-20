@@ -105,8 +105,13 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
 
                     if loginResponse.isSuccess {
                         print("✅ 로그인 성공: \(loginResponse.message)")
-                        print("🔑 Access Token: \(loginResponse.result.accessToken)")
-                        print("🔑 Refresh Token: \(loginResponse.result.refreshToken)")
+                        // 🔥 ✅ 토큰 저장
+                        let loginResult = loginResponse.result
+                        KeychainManager.shared.save(key: "accessToken", value: loginResult.accessToken)
+                        KeychainManager.shared.save(key: "refreshToken", value: loginResult.refreshToken)
+
+                        print("🔑 Access Token 저장 완료: \(loginResult.accessToken.prefix(10))...")
+                        print("🔑 Refresh Token 저장 완료: \(loginResult.refreshToken.prefix(10))...")
 
                         DispatchQueue.main.async {
                             self.navigateToHomeView()

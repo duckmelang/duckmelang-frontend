@@ -25,7 +25,9 @@ class OAuthWebViewController: UIViewController, WKNavigationDelegate, MoyaErrorH
     }
     
     
-    private lazy var provider = MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
+    lazy var provider: MoyaProvider<LoginAPI> = {
+        return MoyaProvider<LoginAPI>(plugins: [TokenPlugin(),MoyaLoggerPlugin()])
+    }()
     
     // `WKWebView`를 Then을 사용하여 선언
     private let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration()).then {
@@ -88,6 +90,15 @@ class OAuthWebViewController: UIViewController, WKNavigationDelegate, MoyaErrorH
             if response.isSuccess {
                 let memberId = response.result.memberId
                 let profileComplete = response.result.profileComplete
+                let accessToken = response.result.accessToken
+                let refreshToken = response.result.refreshToken
+                
+                // ✅ 🔥 Access Token & Refresh Token 저장
+                KeychainManager.shared.save(key: "accessToken", value: accessToken)
+                KeychainManager.shared.save(key: "refreshToken", value: refreshToken)
+                
+                print("🔑 Access Token 저장 완료: \(accessToken.prefix(10))...")
+                print("🔑 Refresh Token 저장 완료: \(refreshToken.prefix(10))...")
                 
                 // 전달된 데이터로 OnboardingViewController로 이동할 수 있게 콜백 호출
                 self.oauthCompletion?(memberId, profileComplete)

@@ -7,6 +7,19 @@
 
 import Foundation
 
+//토큰 재발급 응답모델
+struct RefreshTokenResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: RefreshTokenResponseResult
+}
+
+struct RefreshTokenResponseResult : Codable {
+    let accessToken: String
+    let refreshToken: String
+}
+
 //소셜 로그인 응답모델
 struct SocialLoginResponse: Codable {
     let isSuccess: Bool

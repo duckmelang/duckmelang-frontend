@@ -97,6 +97,15 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     // OAuthWebViewController에서 로그인 후 받은 데이터를 처리
     func handleOAuthResponse(memberId: Int, profileComplete: Bool) {
         print("✅ OAuth 완료 - memberId: \(memberId), profileComplete: \(profileComplete)")
+        
+        // 🔥 로그인 후 자동 발급된 토큰 가져오기
+        guard let accessToken = KeychainManager.shared.load(key: "accessToken"),
+              let refreshToken = KeychainManager.shared.load(key: "refreshToken") else {
+            print("❌ 토큰 저장 실패 - 로그인 API에서 토큰을 저장하지 못했을 가능성 있음")
+            return
+        }
+
+        print("🔐 로그인 완료 - Access Token: \(accessToken.prefix(10))..., Refresh Token: \(refreshToken.prefix(10))...")
 
         // 모달을 닫고 처리 후 화면 전환
         dismiss(animated: true) {

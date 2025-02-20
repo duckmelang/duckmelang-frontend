@@ -15,6 +15,7 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum LoginAPI {
+    case postRefreshToken(refreshToken: RefreshTokenRequest)
     case postLogin(email: String, password: String)
     case postSignUp(email: String, password: String)
     case postSendVerificationCode(phoneNum: String) //인증번호 전송
@@ -36,6 +37,11 @@ extension LoginAPI: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
+        case .postRefreshToken:
+            guard let url = URL(string: API.baseURL) else {
+                fatalError("baseURL 오류")
+            }
+            return url
         case .postLogin(email: _, password: _):
             guard let url = URL(string: API.loginURL) else {
                 fatalError("baseURL 오류")
@@ -102,6 +108,8 @@ extension LoginAPI: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
+        case .postRefreshToken:
+            return "/token/refresh"
         case .postLogin:
             return ""
         case .postSignUp:
@@ -144,6 +152,8 @@ extension LoginAPI: TargetType {
     
     public var task: Moya.Task {
         switch self {
+        case .postRefreshToken(let RefreshTokenRequest):
+            return .requestJSONEncodable(RefreshTokenRequest)
         case .postLogin(let email, let password):
             return .requestJSONEncodable(
                 LoginRequest(email: email, password: password)
