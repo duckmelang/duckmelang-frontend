@@ -215,11 +215,11 @@ extension FeedManagementViewController: UITableViewDataSource, UITableViewDelega
         if let cell = feedManagementView.postView.cellForRow(at: indexPath) as? FeedManagementCell {
             if selectedIndices.contains(indexPath) {
                 selectedIndices.remove(indexPath)
-                cell.selectBtn.setImage(UIImage(named: "noSelect"), for: .normal)
+                cell.selectBtn.setImage(UIImage(resource: .noSelect), for: .normal)
                 cell.contentView.backgroundColor = .clear
             } else {
                 selectedIndices.insert(indexPath)
-                cell.selectBtn.setImage(UIImage(named: "select"), for: .normal)
+                cell.selectBtn.setImage(UIImage(resource: .select), for: .normal)
                 cell.contentView.backgroundColor = .grey100
             }
             // delete 버튼 상태 업데이트
