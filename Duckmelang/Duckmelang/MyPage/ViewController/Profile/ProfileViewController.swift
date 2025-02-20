@@ -157,6 +157,13 @@ class ProfileViewController: UIViewController{
         profileView.profileTopView.setBtnImage.isHidden = false
     }
     
+    @objc
+    private func profileDidTap() {
+        let VC = MyProfileImageViewController()
+        VC.modalPresentationStyle = .fullScreen
+        present(VC, animated: true)
+    }
+    
     // setBtn 창 떠 있는 상태에서 다른 뷰를 누를때
     @objc
     private func viewDidTap() {
@@ -186,6 +193,11 @@ class ProfileViewController: UIViewController{
         
         let feedManagementDidTap = UITapGestureRecognizer(target: self, action: #selector(handleImageTap(_:)))
         profileView.profileTopView.setBtnImage.addGestureRecognizer(feedManagementDidTap)
+        
+        let profileDidTap = UITapGestureRecognizer(target: self, action: #selector(profileDidTap))
+        profileDidTap.numberOfTapsRequired = 1
+        //profileDidTap.cancelsTouchesInView = false
+        profileView.profileTopView.profileImage.addGestureRecognizer(profileDidTap)
     }
     
     @objc private func handleImageTap(_ sender: UITapGestureRecognizer) {

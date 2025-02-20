@@ -138,6 +138,25 @@ class ProfileImageCell: UITableViewCell {
         self.uploadDate.text = formatDate(model.createdAt)
     }
     
+    public func configure(profileData: ProfileData, model: ProfileImageData) {
+        if let lastestUserImageUrl = URL(string: profileData.latestPublicMemberProfileImage) {
+            self.userImage.kf.setImage(
+                with: lastestUserImageUrl,
+                placeholder: UIImage()
+            )
+        }
+        
+        if let userImageUrl = URL(string: model.memberProfileImageUrl) {
+            self.largeUserImage.kf.setImage(
+                with: userImageUrl,
+                placeholder: UIImage()
+            )
+        }
+        
+        self.userName.text = "\(profileData.nickname) 님의 프로필 사진"
+        self.uploadDate.text = formatDate(model.createdAt)
+    }
+    
     private func formatDate(_ isoDateString: String) -> String {
         var formattedDate: String = ""
         
