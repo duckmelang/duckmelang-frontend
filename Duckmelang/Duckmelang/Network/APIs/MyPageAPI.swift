@@ -91,7 +91,7 @@ extension MyPageAPI: TargetType {
             return "/landmines/\(landmineId)"
         case .getFilters, .postFilters:
             return "/filters"
-        case .patchPostStatus(postId: let postId):
+        case .patchPostStatus(postId: let postId, wanted: let wanted):
             return "/\(postId)/status"
         case .patchNotificationsSetting, .getNotificationsSetting:
             return "/setting"
@@ -120,7 +120,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .patchPostStatus, .getMyPageLogin, .getNotificationsSetting:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
@@ -134,6 +134,8 @@ extension MyPageAPI: TargetType {
             return .requestJSONEncodable(FilterRequest)
         case .patchNotificationsSetting(let parameters):
             return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
+        case .patchPostStatus(let postId, let wanted):
+            return .requestParameters(parameters: ["wanted": wanted], encoding: URLEncoding.queryString)
         }
     }
     
@@ -141,7 +143,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDQ0ODA1LCJleHAiOjE3NDAwNDg0MDV9.caka0F1GKcqiECkl5_BATCQCnxdYR17rsZ8IukWAkk4"]
+                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDYzNjY0LCJleHAiOjE3NDAwNjcyNjR9.gunMvdm5YpHWuqg_IgeK2ISxQml-V4g4Ms3QISIxxMA"]
             
         }
     }

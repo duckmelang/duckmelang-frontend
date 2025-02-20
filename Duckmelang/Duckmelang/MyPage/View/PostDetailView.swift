@@ -244,13 +244,14 @@ class PostDetailTopView: UIView {
 
         imageView.snp.makeConstraints{
             $0.top.equalToSuperview().offset(-(UIApplication.shared.windows.first?.safeAreaInsets.top)!) //Safe Area 고려하여 확장\
-            $0.leading.trailing.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
         }
         
         imageViews.snp.makeConstraints {
             $0.edges.equalTo(imageView)
-            //$0.height.equalTo(imageView)
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(imageView)
         }
         
         //그라데이션 추가
