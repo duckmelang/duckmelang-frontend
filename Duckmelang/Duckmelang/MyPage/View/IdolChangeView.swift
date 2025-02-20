@@ -34,7 +34,7 @@ class IdolChangeView: UIView {
         $0.backgroundColor = .clear
     }
     
-    let idolChangeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
+    let idolChangeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: LeftAlignedCollectionViewFlowLayout().then {
         $0.estimatedItemSize = .init(width: 88, height: 108)
         $0.minimumInteritemSpacing = 26
     }).then {
