@@ -160,8 +160,7 @@ class ProfileViewController: UIViewController{
     @objc
     private func profileDidTap() {
         let VC = MyProfileImageViewController()
-        VC.modalPresentationStyle = .fullScreen
-        present(VC, animated: true)
+        self.navigationController?.pushViewController(VC, animated: true)
     }
     
     // setBtn 창 떠 있는 상태에서 다른 뷰를 누를때

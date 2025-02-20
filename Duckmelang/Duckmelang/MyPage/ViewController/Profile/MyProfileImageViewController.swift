@@ -18,15 +18,24 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.navigationController?.isNavigationBarHidden = false
+   
         self.tabBarController?.tabBar.isHidden = true
         
         self.view = myProfileImageView
         
         setupDelegate()
         setupNavigationBar()
-        getMyProfileImageAPI()
+        getProfileDataAPI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(false, animated: true) // ✅ 현재 뷰에서만 보이도록 설정
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: true) // ✅ 원래 상태로 복구
     }
     
     private lazy var myProfileImageView = MyProfileImageView().then {
@@ -48,6 +57,31 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
         self.navigationController?.popViewController(animated: true)
     }
 
+    private func getProfileDataAPI() {
+        provider.request(.getProfile) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<ProfileData>.self)
+                    if decodedResponse.isSuccess, let profileData = decodedResponse.result {
+                        self.profileData = profileData
+                        print("✅ 프로필 데이터 가져오기 성공: \(profileData)")
+
+                        // ✅ 프로필 데이터를 성공적으로 가져오면 이미지 API 호출
+                        self.getMyProfileImageAPI()
+                    } else {
+                        print("❌ 프로필 데이터를 가져오는 데 실패했습니다: \(decodedResponse.message)")
+                    }
+                } catch {
+                    print("❌ 프로필 데이터 JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ 프로필 데이터 요청 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    
     private func getMyProfileImageAPI() {
         provider.request(.getMyProfileImage(page: 0)) { result in
             switch result {
@@ -56,7 +90,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
                 let response = try? response.map(ApiResponse<myProfileImageResponse>.self)
                 guard let result = response?.result?.profileImageList else { return }
                 self.profileImageData = result
-                print("다른 사람 이미지: \(self.profileImageData)")
+                print("이미지: \(self.profileImageData)")
                 
                 DispatchQueue.main.async {
                     self.myProfileImageView.imageTableView.reloadData()
@@ -68,7 +102,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return profileImageData.count
+        return profileImageData.isEmpty ? 0 : profileImageData.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -80,9 +114,14 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
             return UITableViewCell()
         }
         
-        let profile = profileData ?? ProfileData(latestPublicMemberProfileImage: nil)
+        guard let profileData = self.profileData else {
+            print("❌ profileData가 nil입니다. 기본 데이터를 설정합니다.")
+            return UITableViewCell() // 빈 셀 반환하여 크래시 방지
+        }
+
+        // ✅ 데이터 전달 시 nil 방지
+        cell.configure(profileData: profileData, model: self.profileImageData[indexPath.section])
         
-        cell.configure(profileData: profile, model: self.profileImageData[indexPath.section])
         return cell
     }
     

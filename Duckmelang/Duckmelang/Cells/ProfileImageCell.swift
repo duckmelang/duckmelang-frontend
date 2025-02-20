@@ -153,7 +153,7 @@ class ProfileImageCell: UITableViewCell {
             )
         }
         
-        self.userName.text = "\(profileData.nickname) 님의 프로필 사진"
+        self.userName.text = "나의 프로필 사진"
         self.uploadDate.text = formatDate(model.createdAt)
     }
     
