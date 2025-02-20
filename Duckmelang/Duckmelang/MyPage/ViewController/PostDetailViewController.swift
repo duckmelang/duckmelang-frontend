@@ -80,11 +80,21 @@ class PostDetailViewController: UIViewController {
         switch state {
         case .inProgress:
             postDetailView.postDetailTopView.progressBtn.isHidden = false
+            if (postDetailView.postDetailTopView.progressBtn.titleLabel?.text == "진행 중") {
+                patchPostStatus(wanted: 1)
+            } else {
+                patchPostStatus(wanted: 0)
+            }
         case .progressTap(let progressing):
             postDetailView.postDetailTopView.progressTapBtn.isHidden = false
             updateProgressTapButtonStyle(progressing: progressing)
         case .completed:
             postDetailView.postDetailTopView.endBtn.isHidden = false
+            if (postDetailView.postDetailTopView.endBtn.titleLabel?.text == "진행 중") {
+                patchPostStatus(wanted: 1)
+            } else {
+                patchPostStatus(wanted: 0)
+            }
         }
     }
     
@@ -180,13 +190,13 @@ class PostDetailViewController: UIViewController {
         }
     }
     
-    private func patchPostStatus() {
+    private func patchPostStatus(wanted: Int) {
         guard let postId = postId else {
             print("❌ postId가 없습니다.")
             return
         }
         
-        provider.request(.patchPostStatus(postId: postId)) { result in
+        provider.request(.patchPostStatus(postId: postId, wanted: wanted)) { result in
             switch result {
             case .success(let response):
                 // ✅ 서버 응답 로그 출력

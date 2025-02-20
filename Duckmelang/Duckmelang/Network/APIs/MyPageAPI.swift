@@ -33,7 +33,7 @@ public enum MyPageAPI {
     case deleteLandmines(landmineId: Int)
     case getFilters
     case postFilters(FilterRequest: FilterRequest)
-    case patchPostStatus(postId: Int)
+    case patchPostStatus(postId: Int, wanted: Int)
     case patchNotificationsSetting([String: Bool])
     case getNotificationsSetting
     case getMyPageLogin
@@ -141,7 +141,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDM5Njc5LCJleHAiOjE3NDAwNDMyNzl9.XpVh-5Mh3UfbuMGwIJDINggH7QREUvjPa2xD1h00a8k"]
+                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDQ0ODA1LCJleHAiOjE3NDAwNDg0MDV9.caka0F1GKcqiECkl5_BATCQCnxdYR17rsZ8IukWAkk4"]
             
         }
     }

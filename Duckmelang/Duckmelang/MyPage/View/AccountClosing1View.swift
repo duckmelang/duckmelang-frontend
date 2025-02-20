@@ -88,7 +88,7 @@ class AccountClosing1View: UIView {
         }
         
         view.snp.makeConstraints{
-            $0.top.equalTo(textStack.snp.bottom).offset(12)
+            $0.top.equalTo(textStack.snp.bottom).offset(16)
             $0.centerX.equalToSuperview()
             $0.width.equalTo(topStack.snp.width).inset(11)
             $0.height.equalTo(400)
