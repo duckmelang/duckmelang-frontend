@@ -7,8 +7,14 @@
 
 import UIKit
 
+protocol FeedManagementCellDelegate: AnyObject {
+    func didToggleSelection(in cell: FeedManagementCell)
+}
+
 class FeedManagementCell: UITableViewCell {
     static let identifier = "FeedManagementCell"
+    
+    weak var delegate: FeedManagementCellDelegate? // ✅ 델리게이트 추가
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -120,6 +126,9 @@ class FeedManagementCell: UITableViewCell {
             $0.top.equalToSuperview().inset(6)
             $0.trailing.equalToSuperview().inset(16)
         }
+        
+        // ✅ 버튼 터치 이벤트 처리
+        selectBtn.addTarget(self, action: #selector(toggleSelection), for: .touchUpInside)
     }
     
     public func configure(model: FeedManagementModel) {
@@ -136,7 +145,7 @@ class FeedManagementCell: UITableViewCell {
         )
     }
     
-    public func configure(model: PostDTO) {
+    public func configure(model: PostDTO, isSelected: Bool) {
         if let postImageUrl = URL(string: model.postImageUrl) {
             self.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage(named: "defaultPostImage"))
         }
@@ -152,5 +161,19 @@ class FeedManagementCell: UITableViewCell {
         
         print("📌 [DEBUG] PostCell configure() 호출됨")
         print("📌 postId: \(model.postId), title: \(model.title)")
+        
+        if isSelected {
+            selectBtn.setImage(UIImage(resource: .select), for: .normal)
+            contentView.backgroundColor = .grey100
+        } else {
+            selectBtn.setImage(UIImage(resource: .noSelect), for: .normal)
+            contentView.backgroundColor = .clear
+        }
     }
+    
+    // ✅ 버튼을 눌렀을 때 델리게이트 호출
+    @objc private func toggleSelection() {
+        delegate?.didToggleSelection(in: self)
+    }
+   
 }

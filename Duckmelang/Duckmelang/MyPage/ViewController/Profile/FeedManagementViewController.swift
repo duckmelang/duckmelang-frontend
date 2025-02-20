@@ -8,7 +8,14 @@
 import UIKit
 import Moya
 
-class FeedManagementViewController: UIViewController {
+class FeedManagementViewController: UIViewController, FeedManagementCellDelegate {
+
+    // ✅ 델리게이트 메서드 구현
+    func didToggleSelection(in cell: FeedManagementCell) {
+        if let indexPath = feedManagementView.postView.indexPath(for: cell) {
+            toggleCellSelection(at: indexPath)
+        }
+    }
     
     var data = FeedManagementModel.dummy()
     
@@ -187,53 +194,40 @@ extension FeedManagementViewController: UITableViewDataSource, UITableViewDelega
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard !posts.isEmpty else { return UITableViewCell() } //데이터 없을 때 기본 셀 반환
-            
+        
         guard let cell = tableView.dequeueReusableCell(withIdentifier: FeedManagementCell.identifier, for: indexPath) as? FeedManagementCell else {
             return UITableViewCell()
         }
         
         //posts 배열에서 해당 인덱스의 데이터를 가져와 전달
         let post = posts[indexPath.row]
-        cell.configure(model: post)
+        let isSelected = selectedIndices.contains(indexPath)
+        cell.configure(model: post, isSelected: isSelected)
         
-        //디버깅용 데이터 출력
-        print("📌 [DEBUG] configure()에 전달되는 Post 데이터:")
-        print("📌 postId: \(post.postId), title: \(post.title), category: \(post.category)")
-        print("📌 postImageUrl: \(post.postImageUrl), latestProfileImage: \(post.latestPublicMemberProfileImage)")
-        
-        // 셀이 선택된 상태인지 확인
-        if selectedIndices.contains(indexPath) {
-            cell.selectBtn.isSelected = true
-            cell.selectBtn.setImage(.select, for: .normal)
-            cell.contentView.backgroundColor = .grey100
-        } else {
-            cell.selectBtn.isSelected = false
-            cell.selectBtn.setImage(.noSelect, for: .normal)
-            cell.contentView.backgroundColor = .clear
-        }
-        
+        // ✅ 델리게이트 설정
+        cell.delegate = self
         return cell
     }
     
+    // ✅ 셀을 눌렀을 때 선택/해제 기능 추가
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let cell = tableView.cellForRow(at: indexPath) as? FeedManagementCell {
-            // 선택된 셀을 토글
+        toggleCellSelection(at: indexPath)
+    }
+    
+    private func toggleCellSelection(at indexPath: IndexPath) {
+        if let cell = feedManagementView.postView.cellForRow(at: indexPath) as? FeedManagementCell {
             if selectedIndices.contains(indexPath) {
-                // 이미 선택된 경우, 선택 해제
                 selectedIndices.remove(indexPath)
-                cell.selectBtn.isSelected = false
-                cell.selectBtn.setImage(.noSelect, for: .normal)
+                cell.selectBtn.setImage(UIImage(resource: .noSelect), for: .normal)
                 cell.contentView.backgroundColor = .clear
             } else {
-                // 새로 선택된 경우
                 selectedIndices.insert(indexPath)
-                cell.selectBtn.isSelected = true
-                cell.selectBtn.setImage(.select, for: .normal)
+                cell.selectBtn.setImage(UIImage(resource: .select), for: .normal)
                 cell.contentView.backgroundColor = .grey100
             }
-            
-            // delete 버튼 상태 업데이트
-            feedManagementView.deleteBtn.isHidden = selectedIndices.isEmpty
         }
+        
+        // ✅ 삭제 버튼 상태 업데이트
+        feedManagementView.deleteBtn.isHidden = selectedIndices.isEmpty
     }
 }
