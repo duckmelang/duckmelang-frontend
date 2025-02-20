@@ -49,7 +49,7 @@ class IdolChangeViewController: UIViewController {
         self.presentingViewController?.dismiss(animated: false)
     }
     
-    @objc private func deleteBtnTapped(_ sender: UIButton) {
+    /*@objc private func deleteBtnTapped(_ sender: UIButton) {
         let index = sender.tag
         let idolId = idolList[index].idolId
         
@@ -60,7 +60,33 @@ class IdolChangeViewController: UIViewController {
             //idolChangeView.idolChangeCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
             idolChangeView.idolChangeCollectionView.reloadData()
         }
+    }*/
+    
+    @objc private func deleteBtnTapped(_ sender: UIButton) {
+        let index = sender.tag
+        let idolId = idolList[index].idolId
+        
+        guard index < idolList.count else { return }  // ✅ 안전한 인덱스 확인
+
+        // ✅ 삭제 대기 목록에 추가
+        if !deleteQueue.contains(idolId) {
+            deleteQueue.insert(idolId)
+
+            // ✅ 컬렉션 뷰 업데이트를 위해 삭제 전 인덱스 저장
+            let indexPath = IndexPath(item: index, section: 0)
+            
+            // ✅ 데이터 먼저 삭제
+            idolList.remove(at: index)
+            
+            // ✅ 부드러운 삭제 애니메이션 적용
+            idolChangeView.idolChangeCollectionView.performBatchUpdates {
+                idolChangeView.idolChangeCollectionView.deleteItems(at: [indexPath])
+            } completion: { _ in
+                self.idolChangeView.idolChangeCollectionView.reloadItems(at: self.idolChangeView.idolChangeCollectionView.indexPathsForVisibleItems)  // ✅ 남은 셀들 정렬
+            }
+        }
     }
+
     
     @objc private func finishBtnTapped() {
         let group = DispatchGroup()

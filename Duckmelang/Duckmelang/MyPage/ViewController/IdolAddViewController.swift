@@ -101,9 +101,11 @@ extension IdolAddViewController: UICollectionViewDataSource {
         let idol = searchResults[indexPath.item]
         cell.configure(model: idol)
         
-        // 선택된 아이돌은 파란색 배경으로 표시
+        // 선택된 아이돌
         if selectedIdols.contains(idol.idolId) {
             cell.idolName.textColor = .dmrBlue
+            cell.idolImage.layer.borderWidth = 1
+            cell.idolImage.layer.borderColor = UIColor.dmrBlue?.cgColor
         }
         
         return cell
@@ -121,6 +123,9 @@ extension IdolAddViewController: UICollectionViewDelegate {
             selectedIdols.insert(idolId)
         }
         
-        collectionView.reloadItems(at: [indexPath])  // 선택된 셀만 다시 로드
+        // ✅ 개별 아이템 새로고침 (오류 방지)
+        DispatchQueue.main.async {
+            collectionView.reloadItems(at: [indexPath])
+        }
     }
 }

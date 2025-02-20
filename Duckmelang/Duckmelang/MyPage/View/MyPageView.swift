@@ -73,7 +73,7 @@ class MyPageView: UIView {
         }
         
         topStack.snp.makeConstraints{
-            $0.top.equalTo(myPageTopView.snp.bottom).offset(16)
+            $0.top.equalTo(myPageTopView.snp.bottom)
             $0.leading.equalToSuperview().inset(16)
         }
         

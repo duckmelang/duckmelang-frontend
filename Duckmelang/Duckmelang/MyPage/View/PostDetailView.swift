@@ -98,7 +98,9 @@ class PostDetailView: UIView {
         // 하단 게시글 정보 업데이트
         postDetailBottomView.title1.text = data.title
         postDetailBottomView.body.text = data.content
-        postDetailBottomView.info.text = "스크랩 \(data.bookmarkCount) | 채팅 \(data.viewCount) | 조회 \(data.viewCount)"
+        postDetailBottomView.text1.text = "스크랩 \(data.bookmarkCount)"
+        postDetailBottomView.text2.text = "| 채팅 \(data.chatCount)"
+        postDetailBottomView.text3.text = "| 조회 \(data.viewCount)"
         
         postDetailBottomView.tableView.reloadData()
     }
@@ -150,11 +152,17 @@ class PostDetailTopView: UIView {
     
     lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 14), color: .black)
     
-    lazy var gender = Label(text: "여성", font: .ptdRegularFont(ofSize: 13), color: .grey600)
+    lazy var gender = Label(text: "여성", font: .ptdRegularFont(ofSize: 13), color: .grey600).then {
+        $0.textAlignment = .left
+    }
     
-    private lazy var line = Label(text: "ㅣ", font: .ptdRegularFont(ofSize: 13), color: .grey400)
+    private lazy var line = Label(text: "ㅣ", font: .ptdRegularFont(ofSize: 13), color: .grey400).then {
+        $0.textAlignment = .left
+    }
     
-    lazy var age = Label(text: "나이", font: .ptdRegularFont(ofSize: 13), color: .grey600)
+    lazy var age = Label(text: "나이", font: .ptdRegularFont(ofSize: 13), color: .grey600).then {
+        $0.textAlignment = .left
+    }
     
     lazy var progressBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
@@ -201,8 +209,8 @@ class PostDetailTopView: UIView {
         $0.isHidden = true
     }
     
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -10)
-    lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
+    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -10, distribution: .equalCentering)
+    lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6, alignment: .leading)
     lazy var profileInfo = Stack(axis: .horizontal, spacing: 16, alignment: .center)
     
     private func addGradientLayer() {
@@ -296,9 +304,12 @@ class PostDetailBottomView: UIView {
         $0.numberOfLines = 0
     }
     
-    lazy var info = Label(text: "스크랩 0      | 채팅 0      | 조회 0 ", font: .ptdRegularFont(ofSize: 12), color: .grey500)
+    lazy var text1 = Label(text: "스크랩 0", font: .ptdRegularFont(ofSize: 12), color: .grey500)
+    lazy var text2 = Label(text: "| 채팅 0", font: .ptdRegularFont(ofSize: 12), color: .grey500)
+    lazy var text3 = Label(text: "| 조회 0", font: .ptdRegularFont(ofSize: 12), color: .grey500)
     
-    private lazy var textStack = Stack(axis: .vertical, spacing: 8)
+    private lazy var textStack = Stack(axis: .vertical, spacing: 14)
+    lazy var infoStack = Stack(axis: .horizontal, spacing: 10)
     
     private lazy var title2 = Label(text: "동행 정보", font: .ptdSemiBoldFont(ofSize: 17), color: .grey900)
     
@@ -309,14 +320,16 @@ class PostDetailBottomView: UIView {
     }
     
     private func addStack(){
-        [title1, body, info].forEach{textStack.addArrangedSubview($0)}
+        [title1, body, infoStack].forEach{textStack.addArrangedSubview($0)}
+        [text1, text2, text3].forEach{infoStack.addArrangedSubview($0)}
+        
     }
     
     private func setupView(){
         [textStack, title2, tableView].forEach{addSubview($0)}
         
         textStack.snp.makeConstraints{
-            $0.top.equalToSuperview().inset(16)
+            $0.top.equalToSuperview().inset(8)
             $0.horizontalEdges.equalToSuperview().inset(24)
         }
         
@@ -332,6 +345,4 @@ class PostDetailBottomView: UIView {
             $0.height.equalTo(500)//수정예정
         }
     }
-    
-    
 }

@@ -9,8 +9,7 @@ import UIKit
 import Moya
 
 class SignUpViewController: UIViewController, MoyaErrorHandlerDelegate {
-    // MARK: - 오류 처리 (Alert)
-    func showErrorAlert(message: String) {
+    func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: "오류 발생", message: message, preferredStyle: .alert)
             let confirmAction = UIAlertAction(title: "확인", style: .default)
@@ -19,7 +18,6 @@ class SignUpViewController: UIViewController, MoyaErrorHandlerDelegate {
             self.present(alert, animated: true)
         }
     }
-    
     
     lazy var provider: MoyaProvider<LoginAPI> = {
             return MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
@@ -75,36 +73,38 @@ class SignUpViewController: UIViewController, MoyaErrorHandlerDelegate {
     }
     
     private func signUp(email: String, password: String) {
-        // 5초 후 타임아웃 팝업을 띄우기 위한 DispatchWorkItem 설정
-        let timeoutWorkItem = DispatchWorkItem {
-            DispatchQueue.main.async {
-                self.showErrorPopup(message: "요청 시간이 초과되었습니다. 다시 시도해주세요.")
-            }
-        }
-        // 5초 후 실행 (만약 응답이 오면 취소됨)
-        DispatchQueue.main
-            .asyncAfter(deadline: .now() + 5, execute: timeoutWorkItem)
-        
+        print("🔵 회원가입 요청 시작 - email: \(email), password: \(password)")
+
         provider.request(.postSignUp(email: email, password: password)) { result in
-            timeoutWorkItem.cancel()
             switch result {
             case .success(let response):
-                if response.statusCode == 201 {
-                    print("회원가입 성공")
-                    self.navigateToMakeProfileView()
-                } else {
-                    print("회원가입 실패: \(response.statusCode)")
+                do {
+                    // JSON 디코딩
+                    let signUpResponse = try JSONDecoder().decode(SocialLoginResponse.self, from: response.data)
+                    
+                    if signUpResponse.isSuccess {
+                        let memberId = signUpResponse.result.memberId
+                        print("✅ 회원가입 성공 - memberId: \(memberId)")
+                        
+                        // 🔥 회원가입 성공 시 MakeProfilesViewController로 이동
+                        self.navigateToMakeProfileView(memberId: memberId)
+                    } else {
+                        print("❌ 회원가입 실패: \(signUpResponse.message)")
+                        self.showErrorPopup(message: signUpResponse.message)
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                    self.showErrorPopup(message: "데이터를 불러오는 중 오류가 발생했습니다.")
                 }
+                
             case .failure(let error):
-                print("오류: \(error), \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.showErrorPopup(message: "회원가입에 실패했습니다. 다시 시도해주세요.")
-                }
+                print("❌ 네트워크 오류: \(error.localizedDescription)")
+                self.showErrorPopup(message: "회원가입에 실패했습니다. 다시 시도해주세요.")
             }
         }
     }
-    private func navigateToMakeProfileView() {
-        let view = MakeProfilesViewController()
+    private func navigateToMakeProfileView(memberId: Int) {
+        let view = MakeProfilesViewController(memberId: memberId)
         self.navigationController?.pushViewController(view, animated: true)
     }
     

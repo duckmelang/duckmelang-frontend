@@ -41,7 +41,7 @@ class AfterReviewView: UIView, UITextViewDelegate {
     }
     
     let ratingLabel = UILabel().then {
-        $0.text = "아주 좋았어요"
+        $0.text = "훌륭해요! 기대 이상이에요!"
         $0.font = .ptdRegularFont(ofSize: 12)
         $0.textColor = .grey800
         $0.textAlignment = .center

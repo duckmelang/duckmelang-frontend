@@ -54,9 +54,9 @@ public struct DetailChatroomResponse: Codable {
     let postId: Int
     let postTitle: String
     let postImage: String
+    let chatRoomStatus: String?
+    let applicationStatus: String?
     let applicationId: Int
-    let chatRoomStatus: String
-    let applicationStatus: String
-    let hasReviewed: Bool
+    let reviewId: Int
     let postOwner: Bool
 }

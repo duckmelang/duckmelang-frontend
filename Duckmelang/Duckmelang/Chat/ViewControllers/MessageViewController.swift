@@ -12,8 +12,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let socketManager = SocketManager()
     
-    var chatRoomId: Int?
-    var oppositeNickname: String?
+    var chat: ChatDTO?
     private var messageData: [MessageModel] = []
     
     override func viewDidLoad() {
@@ -34,7 +33,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         
         getMessagesAPI()
         connectWebSocket()
-//        getDetailChatroomsAPI()
+        getDetailChatroomsAPI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -46,6 +45,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         DispatchQueue.main.async {
             self.scrollToLastItem()
         }
+        setupNavigationBar()
     }
     
     private lazy var messageView: MessageView = {
@@ -54,7 +54,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     }()
     
     private func getMessagesAPI() {
-        provider.request(.getMessages(chatRoomId: chatRoomId ?? 0, size: 20)) { result in
+        provider.request(.getMessages(chatRoomId: chat?.chatRoomId ?? 0, size: 20)) { result in
             switch result {
             case .success(let response):
                 self.messageData.removeAll()
@@ -123,7 +123,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     }
     
     private func getDetailChatroomsAPI() {
-        provider.request(.getDetailChatroom(chatRoomId: self.chatRoomId ?? 0)) { result in
+        provider.request(.getDetailChatroom(chatRoomId: self.chat?.chatRoomId ?? 0)) { result in
             switch result {
             case .success(let response):
                 let response = try? response.map(ApiResponse<DetailChatroomResponse>.self)
@@ -184,7 +184,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     private func setupNavigationBar() {
         self.navigationController?.navigationBar.backgroundColor = .white
         
-        self.navigationItem.title = oppositeNickname
+        self.navigationItem.title = chat?.oppositeNickname
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
         
         let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
@@ -212,12 +212,19 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     @objc private func openConfirmPopup() {
         let popupVC = ConfirmPopupViewController()
         popupVC.modalPresentationStyle = .overFullScreen
+        
+        popupVC.postId = chat?.postId
+        popupVC.oppositeNickname = chat?.oppositeNickname
+        popupVC.oppositeProfileImage = chat?.oppositeProfileImage
+        
         popupVC.delegate = self
         present(popupVC, animated: false)
     }
     
     @objc private func openReview() {
         let afterReviewVC = AfterReviewViewController()
+        afterReviewVC.oppositeId = chat?.oppositeId
+        afterReviewVC.postId = chat?.postId
         navigationController?.pushViewController(afterReviewVC, animated: true)
     }
     
@@ -392,7 +399,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
                 return UICollectionViewCell()
             }
             
-            cell.configure(userImage: UIImage(), text: messageDate.text, date: dateFormatter.string(from: messageDate.date))
+            cell.configure(userImage: chat?.oppositeProfileImage ?? "", text: messageDate.text, date: dateFormatter.string(from: messageDate.date))
             cell.delegate = self
             return cell
         }
@@ -407,6 +414,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func didTapUserImage(in cell: OtherMessageCell) {
         let otherProfileVC = OtherProfileViewController()
+        otherProfileVC.oppositeId = chat?.oppositeId
         navigationController?.pushViewController(otherProfileVC, animated: true)
     }
 }

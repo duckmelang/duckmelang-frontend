@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class ProgressBarView: UIView {
     
@@ -51,13 +52,19 @@ class ProgressBarView: UIView {
     
     private func updateProgress() {
         for (index, view) in stepViews.enumerated() {
-            view.backgroundColor = index <= currentStep ? UIColor.bgcThird : UIColor.grey200
+            view.backgroundColor = (index == currentStep) ? UIColor.bgcThird : UIColor.grey200
         }
     }
     
     func moveToNextStep() {
         if currentStep < totalSteps - 1 {
             currentStep += 1
+        }
+    }
+    
+    func moveToPreviousStep() {
+        if currentStep > 0 {
+            currentStep -= 1
         }
     }
 }

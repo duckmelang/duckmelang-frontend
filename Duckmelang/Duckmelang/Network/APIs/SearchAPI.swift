@@ -1,8 +1,8 @@
 //
-//  OtherPageAPI.swift
+//  SearchAPI.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 2/5/25.
+//  Created by 주민영 on 2/20/25.
 //
 
 import UIKit
@@ -14,21 +14,18 @@ import Moya
 // 매개변수를 사용하지 않는 곳이라면 생략하고 case 이름만 작성해도 됨
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
-public enum OtherPageAPI {
-    case getOtherProfile(memberId: Int)
-    case getOtherProfileImage(memberId: Int, page: Int)
-    case getOtherPosts(memberId: Int, page: Int)
-    case getOtherReviews(memberId: Int)
+public enum SearchAPI {
+    case getSearch(page: Int, searchKeyword: String)
 }
 
-extension OtherPageAPI: TargetType {
+extension SearchAPI: TargetType {
     // Domain.swift 파일 참고해서 맞는 baseURL 적용하기
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
         default:
-            guard let url = URL(string: API.profileURL) else {
-                fatalError("profileURL 오류")
+            guard let url = URL(string: API.postURL) else {
+                fatalError("postURL 오류")
             }
             return url
         }
@@ -37,14 +34,8 @@ extension OtherPageAPI: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
-        case .getOtherProfile(let memberId):
-            return "/\(memberId)"
-        case .getOtherProfileImage(let memberId, _):
-            return "/\(memberId)/images"
-        case .getOtherPosts(let memberId, _):
-            return "/\(memberId)/posts"
-        case .getOtherReviews(let memberId):
-            return "/\(memberId)/reviews"
+        case .getSearch:
+            return "/search"
         }
     }
     
@@ -60,10 +51,8 @@ extension OtherPageAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getOtherProfileImage(_, let page), .getOtherPosts(_, let page):
-            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getOtherProfile, .getOtherReviews:
-            return .requestPlain
+        case .getSearch(let page, let searchKeyword):
+            return .requestParameters(parameters: ["page": page, "searchKeyword": searchKeyword], encoding: URLEncoding.queryString)
         }
     }
     
@@ -72,7 +61,7 @@ extension OtherPageAPI: TargetType {
         default :
             return [
                 "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTc1NDUyLCJleHAiOjE3Mzk5NzkwNTJ9.BxOx3ezrGxMH7Bd5pbyd5nAFF7MYO1Kehg8GgNff7Ww"
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0IiwiaWF0IjoxNzQwMDE5NDQxLCJleHAiOjE3NDAwMjMwNDF9.hBjQ0_0FSeVpj6mqh78JQkeAntyXHDmnyT5T-Q3fSiE"
             ]
         }
     }

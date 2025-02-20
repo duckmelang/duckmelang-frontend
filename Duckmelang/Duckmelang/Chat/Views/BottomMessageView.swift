@@ -12,8 +12,6 @@ class BottomMessageView: UIView {
         super.init(frame: frame)
         self.backgroundColor = .clear
         setupView()
-        setupIncompleteView()
-//        setupCompleteView()
     }
     
     required init?(coder: NSCoder) {

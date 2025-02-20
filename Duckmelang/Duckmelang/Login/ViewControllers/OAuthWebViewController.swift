@@ -9,8 +9,25 @@ import UIKit
 import WebKit
 import SnapKit
 import Then
+import Moya
 
-class OAuthWebViewController: UIViewController, WKNavigationDelegate {
+class OAuthWebViewController: UIViewController, WKNavigationDelegate, MoyaErrorHandlerDelegate {
+    func showAlert(title: String, message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(
+                title: "오류 발생",
+                message: message,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
+    
+    
+    lazy var provider: MoyaProvider<LoginAPI> = {
+        return MoyaProvider<LoginAPI>(plugins: [TokenPlugin(),MoyaLoggerPlugin()])
+    }()
     
     // `WKWebView`를 Then을 사용하여 선언
     private let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration()).then {
@@ -29,6 +46,8 @@ class OAuthWebViewController: UIViewController, WKNavigationDelegate {
     private func setupWebView() {
         view.addSubview(webView)
         webView.navigationDelegate = self
+        
+        webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
         
         // SnapKit을 사용한 오토레이아웃 설정
         webView.snp.makeConstraints {
@@ -71,7 +90,15 @@ class OAuthWebViewController: UIViewController, WKNavigationDelegate {
             if response.isSuccess {
                 let memberId = response.result.memberId
                 let profileComplete = response.result.profileComplete
-                print("✅ OAuth 로그인 완료 - memberId: \(memberId), profileComplete: \(profileComplete)")
+                let accessToken = response.result.accessToken
+                let refreshToken = response.result.refreshToken
+                
+                // ✅ 🔥 Access Token & Refresh Token 저장
+                KeychainManager.shared.save(key: "accessToken", value: accessToken)
+                KeychainManager.shared.save(key: "refreshToken", value: refreshToken)
+                
+                print("🔑 Access Token 저장 완료: \(accessToken.prefix(10))...")
+                print("🔑 Refresh Token 저장 완료: \(refreshToken.prefix(10))...")
                 
                 // 전달된 데이터로 OnboardingViewController로 이동할 수 있게 콜백 호출
                 self.oauthCompletion?(memberId, profileComplete)

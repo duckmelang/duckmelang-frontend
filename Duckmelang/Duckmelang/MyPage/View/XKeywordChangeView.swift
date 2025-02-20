@@ -44,7 +44,7 @@ class XKeywordChangeView: UIView {
         $0.setImage(.addBtn2, for: .normal)
     }
     
-    let xKeywordCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
+    let xKeywordCollectionView = UICollectionView(frame: .zero, collectionViewLayout: LeftAlignedCollectionViewFlowLayout().then {
         $0.minimumLineSpacing = 16
         $0.minimumInteritemSpacing = 16
         $0.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
@@ -89,5 +89,4 @@ class XKeywordChangeView: UIView {
         }
     }
 }
-
 

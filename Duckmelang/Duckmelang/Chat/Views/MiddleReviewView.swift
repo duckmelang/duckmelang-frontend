@@ -28,7 +28,27 @@ class MiddleReviewView: UIView {
         self.userName.text = info.name
         self.postTitle.text = info.title
         self.category.text = info.eventCategory
-        self.date.text = info.date
+        self.date.text = formatDate(info.date)
+    }
+    
+    private func formatDate(_ isoDateString: String) -> String {
+        var formattedDate: String = ""
+        
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd"
+        inputFormatter.locale = Locale(identifier: "ko_KR")
+
+        if let date = inputFormatter.date(from: isoDateString) {
+            let outputFormatter = DateFormatter()
+            outputFormatter.locale = Locale(identifier: "ko_KR")
+            outputFormatter.dateFormat = "MM월 dd일"
+
+            formattedDate = outputFormatter.string(from: date)
+        } else {
+            formattedDate = "날짜 없음"
+        }
+        
+        return formattedDate
     }
     
     let userImage = UIImageView().then {
@@ -106,37 +126,37 @@ class MiddleReviewView: UIView {
         
         postImage.snp.makeConstraints {
             $0.top.equalToSuperview().offset(15)
-            $0.leading.equalToSuperview().offset(18)
+            $0.leading.equalToSuperview().offset(10)
             $0.width.height.equalTo(36)
         }
         
         userName.snp.makeConstraints {
             $0.top.equalToSuperview().offset(8)
             $0.leading.equalTo(postImage.snp.trailing).offset(16)
-            $0.width.equalTo(50)
+            $0.width.equalTo(35)
         }
         
         postTitle.snp.makeConstraints {
             $0.top.equalTo(userName.snp.top)
-            $0.leading.equalTo(userName.snp.trailing).offset(6)
+            $0.leading.equalTo(userName.snp.trailing).offset(10)
             $0.trailing.equalToSuperview().offset(-8)
         }
         
         category.snp.makeConstraints {
             $0.top.equalTo(userName.snp.bottom).offset(6)
             $0.leading.equalTo(userName.snp.leading)
-            $0.width.equalTo(60)
+            $0.width.equalTo(30)
         }
         
         divider.snp.makeConstraints {
             $0.top.equalTo(category.snp.top)
-            $0.leading.equalTo(category.snp.trailing).offset(12)
+            $0.leading.equalTo(category.snp.trailing).offset(4)
         }
         
         date.snp.makeConstraints {
             $0.top.equalTo(category.snp.top)
-            $0.leading.equalTo(divider.snp.trailing).offset(12)
-            $0.width.equalTo(60)
+            $0.leading.equalTo(divider.snp.trailing).offset(7)
+            $0.width.equalTo(50)
         }
     }
 }
