@@ -38,6 +38,13 @@ class MyPageViewController: UIViewController {
         $0.push.addTarget(self, action: #selector(pushDidTap), for: .touchUpInside)
         $0.out.addTarget(self, action: #selector(outDidTap), for: .touchUpInside)
         $0.logout.addTarget(self, action: #selector(logoutDidTap), for: .touchUpInside)
+        $0.goBtn.addTarget(self, action: #selector(goBtnDidTap), for: .touchUpInside)
+    }
+    
+    @objc private func goBtnDidTap() {
+        let VC = OtherPostDetailViewController()
+        VC.modalPresentationStyle = .fullScreen
+        present(VC, animated: false)
     }
     
     // MARK: - Notification Handling
