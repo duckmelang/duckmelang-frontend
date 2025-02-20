@@ -123,7 +123,7 @@ struct SelectableIdol {
 }
 
 //지뢰 키워드 설정 응답 모델
-struct LandmineResponse: Decodable {
+struct MakeProfileLandmineResponse: Decodable {
     let isSuccess: Bool
     let code: String
     let message: String

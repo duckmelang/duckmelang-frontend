@@ -64,7 +64,7 @@ class FilterKeywordsViewController: UIViewController, NextStepHandler, NextButto
                 do {
                     // JSON 디코딩
                     let decoder = JSONDecoder()
-                    let landmineResponse = try decoder.decode(LandmineResponse.self, from: response.data)
+                    let landmineResponse = try decoder.decode(MakeProfileLandmineResponse.self, from: response.data)
                     
                     // 응답 성공 여부 확인
                     if landmineResponse.isSuccess {
