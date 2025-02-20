@@ -73,8 +73,8 @@ class longCustomBtn: UIButton {
     }
     
     /// 버튼 활성화 상태 업데이트
-    func setEnabled(_ isEnabled: Bool?) {
-        self.isEnabled = isEnabled ?? true
+    func setEnabled(_ isEnabled: Bool) {
+        self.isEnabled = isEnabled
         updateBackgroundColor()
     }
     

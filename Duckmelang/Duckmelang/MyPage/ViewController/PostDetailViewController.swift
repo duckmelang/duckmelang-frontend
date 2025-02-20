@@ -37,7 +37,12 @@ class PostDetailViewController: UIViewController {
         
         updateButtonVisibility(state: .inProgress) // 초기 상태 설정
         
-        fetchPostDetail(postId: 0)
+        // ✅ postId가 nil이 아니면 API 요청
+        if let postId = postId {
+            fetchPostDetail(postId: postId)
+        } else {
+            print("❌ postId가 nil입니다. API 호출을 하지 않습니다.")
+        }
     }
     
     private lazy var postDetailView = PostDetailView().then {
@@ -57,17 +62,21 @@ class PostDetailViewController: UIViewController {
                 postDetailView.postDetailTopView.endBtn]
     }
     
-    @objc
-    private func backBtnDidTap() {
-        self.presentingViewController?.dismiss(animated: false)
+    @objc private func backBtnDidTap() {
+        if let navigationController = self.navigationController {
+            navigationController.popViewController(animated: true) // ✅ 네비게이션이 있을 경우 pop 사용
+        } else {
+            dismiss(animated: true) // ✅ 네비게이션이 없으면 dismiss
+        }
     }
+
     
     // 버튼 상태 업데이트 함수
     private func updateButtonVisibility(state: PostProgressState) {
         buttons.forEach { $0.isHidden = true }
         
         currentState = state
-        
+       
         switch state {
         case .inProgress:
             postDetailView.postDetailTopView.progressBtn.isHidden = false
@@ -86,12 +95,20 @@ class PostDetailViewController: UIViewController {
         
         // 진행 중일 때 클릭 시 완료 버튼이 아래, 완료일 때 클릭 시 진행 중 버튼이 아래
         switch currentState {
-        case .progressTap(let progressing):
+        /*case .progressTap(let progressing):
             if touchPoint.y <= (button.bounds.height / 2) {
                 updateButtonVisibility(state: progressing ? .inProgress : .completed)
             } else {
                 updateButtonVisibility(state: progressing ? .completed : .inProgress)
             }
+        default:
+            break
+        }*/
+        
+        case .progressTap(let progressing):
+            let newState: PostProgressState = touchPoint.y <= (button.bounds.height / 2) ? (progressing ? .inProgress : .completed) : (progressing ? .completed : .inProgress)
+    
+            updateButtonVisibility(state: newState)
         default:
             break
         }
@@ -163,6 +180,46 @@ class PostDetailViewController: UIViewController {
         }
     }
     
+    private func patchPostStatus() {
+        guard let postId = postId else {
+            print("❌ postId가 없습니다.")
+            return
+        }
+        
+        provider.request(.patchPostStatus(postId: postId)) { result in
+            switch result {
+            case .success(let response):
+                // ✅ 서버 응답 로그 출력
+                if let responseString = String(data: response.data, encoding: .utf8) {
+                    print("📌 [DEBUG] 서버 응답 바디: \(responseString)")
+                }
+
+                do {
+                    // ✅ `ApiResponse<UpdatePostStatusResponse>`으로 디코딩
+                    let decodedResponse = try response.map(ApiResponse<UpdatePostStatusResponse>.self)
+                    
+                    if decodedResponse.isSuccess, let updatedPost = decodedResponse.result {
+                        print("✅ 게시글 상태 변경 성공: \(decodedResponse.message)")
+                        print("📝 변경된 상태 - ID: \(updatedPost.id), 제목: \(updatedPost.title), 모집 상태: \(updatedPost.wanted)")
+
+                        // ✅ 변경된 상태를 UI에 반영
+                        /*DispatchQueue.main.async {
+                            self.updateBtn(with: updatedPost)
+                        }*/
+                    } else {
+                        print("❌ 상태 변경 실패: \(decodedResponse.message)")
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ 요청 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+
+
+    
     // 동행 정보 데이터 가공
     private func updateAccompanyData(with detail: MyPostDetailResponse) {
         var models: [PostDetailAccompanyModel] = []
@@ -174,6 +231,12 @@ class PostDetailViewController: UIViewController {
         self.accompanyData = models
         self.postDetailView.postDetailBottomView.tableView.reloadData()
     }
+    
+    /*private func updateBtn(with data: UpdatePostStatusResponse) {
+        // wanted == 0 → 모집 완료, wanted == 1 → 모집 중
+        let state = data.wanted == 0 ? PostProgressState.completed : PostProgressState.inProgress
+        updateButtonVisibility(state: state)
+    }*/
 }
 
 extension PostDetailViewController: UITableViewDataSource, UITableViewDelegate {

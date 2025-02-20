@@ -7,17 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AF1C013F2D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291A2D39ECEB0036A9AC /* Then */; };
-		AF1C01402D4DDF6E008AF4DE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291D2D39ECF20036A9AC /* SnapKit */; };
-		AF1C01412D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291F2D39EDBF0036A9AC /* Then */; };
-		AF1C01422D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29222D39EDD60036A9AC /* Then */; };
-		AF1C01432D4DDF6E008AF4DE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29252D39EDE30036A9AC /* SnapKit */; };
-		AF1C01442D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29282D39EE040036A9AC /* Then */; };
-		AF1C01452D4DDF6E008AF4DE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292B2D39EE120036A9AC /* SnapKit */; };
+		01997BE52D62DD120008A90C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01997BE42D62DD120008A90C /* WebKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		AF1C01462D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292D2D39EE460036A9AC /* Then */; };
 		AF1C01472D4DDF6E008AF4DE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34982D3F8FF1000D9697 /* SnapKit */; };
-		AF65D89B2D429167006AD2F6 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29302D39EF990036A9AC /* Then */; };
-		AF65D89C2D429167006AD2F6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29332D39EFA40036A9AC /* SnapKit */; };
 		AF65D99D2D429654006AD2F6 /* Cosmos in Frameworks */ = {isa = PBXBuildFile; productRef = AF65D99C2D429654006AD2F6 /* Cosmos */; };
 		FA6B349F2D3F8FFD000D9697 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B349E2D3F8FFD000D9697 /* Kingfisher */; };
 		FA6B34A22D3F900E000D9697 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = FA6B34A12D3F900E000D9697 /* CombineMoya */; };
@@ -27,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		01997BE42D62DD120008A90C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		AF1C01482D4DDF6E008AF4DE /* Duckmelang.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Duckmelang.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -56,17 +49,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01997BE52D62DD120008A90C /* WebKit.framework in Frameworks */,
 				AF1C01472D4DDF6E008AF4DE /* SnapKit in Frameworks */,
 				AF1C01462D4DDF6E008AF4DE /* Then in Frameworks */,
-				AF1C01452D4DDF6E008AF4DE /* SnapKit in Frameworks */,
-				AF1C01442D4DDF6E008AF4DE /* Then in Frameworks */,
-				AF1C01432D4DDF6E008AF4DE /* SnapKit in Frameworks */,
-				AF1C01422D4DDF6E008AF4DE /* Then in Frameworks */,
-				AF1C01412D4DDF6E008AF4DE /* Then in Frameworks */,
-				AF1C01402D4DDF6E008AF4DE /* SnapKit in Frameworks */,
-				AF1C013F2D4DDF6E008AF4DE /* Then in Frameworks */,
-				AF65D89C2D429167006AD2F6 /* SnapKit in Frameworks */,
-				AF65D89B2D429167006AD2F6 /* Then in Frameworks */,
 				FA6B34A62D3F900E000D9697 /* ReactiveMoya in Frameworks */,
 				FA6B34A42D3F900E000D9697 /* Moya in Frameworks */,
 				FA6B349F2D3F8FFD000D9697 /* Kingfisher in Frameworks */,
@@ -79,11 +64,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		01997BE32D62DD120008A90C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				01997BE42D62DD120008A90C /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FA4FE3FE2D2FA23D007423E3 = {
 			isa = PBXGroup;
 			children = (
 				FA4FE4092D2FA23D007423E3 /* Duckmelang */,
 				AF1C01482D4DDF6E008AF4DE /* Duckmelang.app */,
+				01997BE32D62DD120008A90C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
