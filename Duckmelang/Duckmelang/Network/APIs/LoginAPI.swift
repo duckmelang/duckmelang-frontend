@@ -28,8 +28,9 @@ public enum LoginAPI {
     case getMemberNicknameCheck(nickname: String)
     case getAllIdols
     case postMemberInterestCeleb(memberId: Int, idolNums: SelectFavoriteIdolRequest)
+    case getAllEvents
+    case postMemberInterestEvent(memberId: Int, eventNums: SelectFavoriteEventRequest)
     case postLandMines(memberId: Int, landmineString: SetLandmineKeywordRequest)
-    
 }
 
 extension LoginAPI: TargetType {
@@ -97,6 +98,16 @@ extension LoginAPI: TargetType {
                 fatalError("memberURL 오류")
             }
             return url
+        case .getAllEvents:
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
+        case .postMemberInterestEvent(memberId: _):
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
         case .postLandMines(memberId : _):
             guard let url = URL(string: API.memberURL) else {
                 fatalError("memberURL 오류")
@@ -130,6 +141,10 @@ extension LoginAPI: TargetType {
             return "/idols"
         case .postMemberInterestCeleb(let memberId, _):
             return "/\(memberId)/idols"
+        case .getAllEvents:
+            return "/events"
+        case .postMemberInterestEvent(let memberId, _):
+            return "/\(memberId)/events"
         case .postLandMines(let memberId, _):
             return "/\(memberId)/landmines"
         }
@@ -141,7 +156,7 @@ extension LoginAPI: TargetType {
         switch self {
         case .kakaoLogin, .getOAuthTokenKakao, .googleLogin, .getOAuthTokenGoogle:
             return .get
-        case .getMemberNicknameCheck, .getAllIdols:
+        case .getMemberNicknameCheck, .getAllIdols, .getAllEvents:
             return .get
         case .patchMemberProfile:
             return .patch
@@ -188,6 +203,12 @@ extension LoginAPI: TargetType {
         
         case .postMemberInterestCeleb(_, let SelectFavoriteIdolRequest):
             return .requestJSONEncodable(SelectFavoriteIdolRequest)
+            
+        case .getAllEvents:
+            return .requestPlain
+            
+        case .postMemberInterestEvent(_, let SelectFavoriteEventRequest):
+            return .requestJSONEncodable(SelectFavoriteEventRequest)
             
         case .postLandMines(_, let SetLandmineKeywordRequest):
             return .requestJSONEncodable(SetLandmineKeywordRequest)

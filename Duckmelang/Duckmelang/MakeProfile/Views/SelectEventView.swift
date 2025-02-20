@@ -9,7 +9,8 @@ import UIKit
 import Then
 import SnapKit
 
-class SelectEventView: UIView {
+class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
+    
     
     private let titleLabel = UILabel().then {
         $0.text = "자주 가는 행사를 알려주세요!"
@@ -23,28 +24,22 @@ class SelectEventView: UIView {
         $0.textColor = .grey600
     }
     
-    private let eventTextField = UITextField().then {
-        $0.placeholder = "텍스트 입력"
-        $0.borderStyle = .roundedRect
-
-        // 왼쪽 패딩 추가
-        let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
-        $0.leftView = leftPaddingView
-        $0.leftViewMode = .always
-
-        // 돋보기 아이콘 추가 (오른쪽)
-        let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        searchIcon.tintColor = .grey600
-        searchIcon.contentMode = .scaleAspectFit
-        searchIcon.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-
-        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 44))
-        searchIcon.center = CGPoint(x: rightPaddingView.frame.width / 2, y: rightPaddingView.frame.height / 2)
-        rightPaddingView.addSubview(searchIcon)
-
-        $0.rightView = rightPaddingView
-        $0.rightViewMode = .always
-    }
+    private var eventsView: [EventCategoryList] = []
+    public var selectedEvents: Set<Int> = []
+    
+    private lazy var eventCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumInteritemSpacing = 10  // 좌우 간격
+        layout.minimumLineSpacing = 12  // 위아래 간격
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize  // **버튼 크기 자동 조절**
+        
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.register(EventCollectionViewCell.self, forCellWithReuseIdentifier: EventCollectionViewCell.identifier)
+        cv.backgroundColor = .clear
+        cv.dataSource = self
+        cv.delegate = self
+        return cv
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -60,7 +55,7 @@ class SelectEventView: UIView {
         [
             titleLabel,
             subtitleLabel,
-            eventTextField
+            eventCollectionView
         ].forEach {
             addSubview($0)
         }
@@ -74,11 +69,47 @@ class SelectEventView: UIView {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
             $0.left.equalToSuperview()
         }
-            
-        eventTextField.snp.makeConstraints {
+        
+        eventCollectionView.snp.makeConstraints {
             $0.top.equalTo(subtitleLabel.snp.bottom).offset(20)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(44)
+            $0.leading.trailing.bottom.equalToSuperview()
         }
+    }
+    
+    // 서버에서 받은 데이터 업데이트
+    func updateWithEvents(events: [EventCategoryList]) {
+        self.eventsView = events
+        eventCollectionView.reloadData()
+    }
+
+    // UICollectionViewDataSource
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return eventsView.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EventCollectionViewCell.identifier, for: indexPath) as! EventCollectionViewCell
+        
+        let event = eventsView[indexPath.row]
+        cell.configure(title: event.eventName, isSelected: selectedEvents.contains(event.eventID))
+        
+        return cell
+    }
+
+    // 선택 시 토글 및 로그 추가
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let event = eventsView[indexPath.row]
+
+        if selectedEvents.contains(event.eventID) {
+            selectedEvents.remove(event.eventID)
+            print("🛑 이벤트 선택 해제: \(event.eventName) (ID: \(event.eventID))")
+        } else {
+            selectedEvents.insert(event.eventID)
+            print("✅ 이벤트 선택됨: \(event.eventName) (ID: \(event.eventID))")
+        }
+
+        print("📌 현재 선택된 이벤트 ID 목록: \(Array(selectedEvents))")
+
+        collectionView.reloadItems(at: [indexPath])
     }
 }

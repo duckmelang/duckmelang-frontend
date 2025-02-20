@@ -122,6 +122,35 @@ struct SelectableIdol {
     var isSelected: Bool
 }
 
+// 행사 목록 응답 모델
+struct EventListResponse: Codable {
+    let isSuccess: Bool
+    let code, message: String
+    let result: EventResult
+}
+
+struct EventResult: Codable {
+    let eventCategoryList: [EventCategoryList]
+}
+
+struct EventCategoryList: Codable {
+    let eventID: Int
+    let eventName: String
+    let eventKind: EventKind
+
+    enum CodingKeys: String, CodingKey {
+        case eventID = "eventId"
+        case eventName, eventKind
+    }
+}
+
+enum EventKind: String, Codable {
+    case 공연 = "공연"
+    case 행사 = "행사"
+}
+
+//행사 목록 post 응답 모델
+
 //지뢰 키워드 설정 응답 모델
 struct MakeProfileLandmineResponse: Decodable {
     let isSuccess: Bool
@@ -134,4 +163,3 @@ struct LandmineResult: Decodable {
     let memberId: Int
     let landmineContents: [String]
 }
-
