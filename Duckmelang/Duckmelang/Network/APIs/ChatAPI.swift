@@ -21,9 +21,11 @@ public enum ChatAPI {
     case getConfirmedChatrooms(page: Int)
     
     case getDetailChatroom(chatRoomId: Int)
-    case getMessages(chatRoomId: Int, size: Int)
+    case getMessages(chatRoomId: Int, lastMessageId: String?, size: Int)
     
     case postRequest(postId: Int)
+    
+    case getMemberId // 채팅 보내기에서 멤버아이디를 가져오기 위해서
 }
 
 extension ChatAPI: TargetType {
@@ -62,10 +64,12 @@ extension ChatAPI: TargetType {
             return "/confirmed"
         case .getDetailChatroom:
             return "/{chatRoomId}"
-        case .getMessages(let chatRoomId, _):
+        case .getMessages(let chatRoomId, _, _):
             return "/chat/\(chatRoomId)/messages"
         case .postRequest(let postId):
             return "/send/\(postId)"
+        case .getMemberId:
+            return "/mypage"
         }
     }
     
@@ -87,9 +91,13 @@ extension ChatAPI: TargetType {
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .getDetailChatroom(let chatRoomId):
             return .requestParameters(parameters: ["chatRoomId": chatRoomId], encoding: URLEncoding.queryString)
-        case .getMessages(_, let size):
-            return .requestParameters(parameters: ["size": size], encoding: URLEncoding.queryString)
-        case .postRequest:
+        case .getMessages(_, let lastMessageId, let size):
+            var params: [String: Any] = ["size": size]
+            if let lastMessageId = lastMessageId {
+                params["lastMessageId"] = lastMessageId
+            }
+            return .requestParameters(parameters: params, encoding: URLEncoding.queryString)
+        case .postRequest, .getMemberId:
             return .requestPlain
         }
     }
