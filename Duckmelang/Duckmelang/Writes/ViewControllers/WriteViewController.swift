@@ -8,14 +8,14 @@
 import UIKit
 
 protocol WriteViewControllerDelegate: AnyObject {
-    func didUpdateSelectedCeleb(_ celeb: Celeb?)
+    func didUpdateSelectedCeleb(_ celeb: idolDTO?)
 }
 
 class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDelegate, EventSelectionDelegate {
 
     weak var delegate: WriteViewControllerDelegate?
     
-    private var selectedCeleb: Celeb?
+    private var selectedCeleb: idolDTO?
     private var selectedEvent: Event?
 
     override func viewDidLoad() {
@@ -66,10 +66,7 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
     }
 
     @objc func didTapIdolSelectButton() {
-        let selectVC = CelebSelectionViewController(
-            celebs: Celeb.dummy1(),
-            selectedCeleb: selectedCeleb
-        )
+        let selectVC = CelebSelectionViewController(celebs: [], selectedCeleb: self.selectedCeleb)
         selectVC.delegate = self
         presentBottomSheet(selectVC)
     }
@@ -129,9 +126,9 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         writeView.eventDateSelectButton.layer.borderColor = UIColor.black!.cgColor
     }
 
-    func didSelectCeleb(_ celeb: Celeb) {
+    func didSelectCeleb(_ celeb: idolDTO) {
         selectedCeleb = celeb
-        writeView.idolSelectButton.setTitle(celeb.name, for: .normal)
+        writeView.idolSelectButton.setTitle(celeb.idolName, for: .normal)
         writeView.idolSelectButton.setTitleColor(.black, for: .normal)
         writeView.idolSelectButton.layer.borderColor = UIColor.black!.cgColor
     }
