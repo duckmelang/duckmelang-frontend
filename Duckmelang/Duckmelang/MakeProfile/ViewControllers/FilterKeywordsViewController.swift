@@ -12,7 +12,9 @@ import Alamofire
 
 class FilterKeywordsViewController: UIViewController, NextStepHandler, NextButtonUpdatable, MoyaErrorHandlerDelegate {
     
-    private lazy var provider = MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
+    lazy var provider: MoyaProvider<LoginAPI> = {
+        return MoyaProvider<LoginAPI>(plugins: [TokenPlugin(),MoyaLoggerPlugin()])
+    }()
     
     private let memberId: Int
     
@@ -46,13 +48,13 @@ class FilterKeywordsViewController: UIViewController, NextStepHandler, NextButto
     
     private var keywords: [String] = [] {
         didSet {
-            filterKeywordsView.keywordsCollectionView.reloadData()
+            print("📌 현재 키워드 목록: \(keywords) (총 \(keywords.count)개)")
             self.nextButtonDelegate?.updateNextButtonState(isEnabled: !keywords.isEmpty)
         }
     }
     
     private func postKeywords(completion: @escaping () -> Void) {
-        let request = SetLandmineKeywordRequest(keyword: keywords)
+        let request = SetLandmineKeywordRequest(landmineContents: keywords)
         
         provider.request(.postLandMines(memberId: memberId, landmineString: request)) { [weak self] result in
             guard let self = self else { return }
@@ -88,6 +90,10 @@ class FilterKeywordsViewController: UIViewController, NextStepHandler, NextButto
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        
+        filterKeywordsView.onKeywordsUpdated = { [weak self] updatedKeywords in
+            self?.keywords = updatedKeywords
+        }
     }
     
     private func setupUI() {
@@ -102,8 +108,8 @@ class FilterKeywordsViewController: UIViewController, NextStepHandler, NextButto
 
 extension FilterKeywordsViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        guard let text = textField.text, !text.isEmpty else { return false }
-        keywords.append(text)
+        guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return false }
+        filterKeywordsView.addKeyword(text)
         textField.text = ""
         return true
     }

@@ -56,10 +56,17 @@ class FilterKeywordsView: UIView, UITextFieldDelegate {
         return collectionView
     }()
     
+    var onKeywordsUpdated: (([String]) -> Void)?
     public var keywords: [String] = [] {
         didSet {
             keywordsCollectionView.reloadData()
+            onKeywordsUpdated?(keywords)
         }
+    }
+    
+    func addKeyword(_ keyword: String) {
+        guard !keyword.isEmpty, !keywords.contains(keyword) else { return }
+        keywords.append(keyword)
     }
     
     var onTextInput: ((String) -> Void)?
@@ -198,7 +205,7 @@ extension FilterKeywordsView: UICollectionViewDataSource, UICollectionViewDelega
         cell.configure(with: keyword)
         cell.deleteAction = { [weak self] in
             self?.keywords.remove(at: indexPath.row)
-            self?.keywordsCollectionView.reloadData()
+            self?.onKeywordsUpdated?(self?.keywords ?? [])
         }
         return cell
     }

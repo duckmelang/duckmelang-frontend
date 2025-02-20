@@ -8,6 +8,11 @@
 import Foundation
 import Moya
 
+//refreshToken요청모델
+public struct RefreshTokenRequest: Codable {
+    let refreshToken: String
+}
+
 
 //로그인 요청 모델
 struct LoginRequest: Codable {
@@ -50,5 +55,5 @@ public struct SelectFavoriteIdolRequest: Encodable {
 
 //지뢰 키워드 설정 모델
 public struct SetLandmineKeywordRequest: Encodable {
-    let keyword: [String]
+    let landmineContents: [String]
 }
