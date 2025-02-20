@@ -35,6 +35,7 @@ class PushNotificationView: UIView {
         $0.backgroundColor = .clear
         $0.separatorStyle = .none
         $0.allowsSelection = false
+        $0.rowHeight = 56
     }
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
@@ -53,8 +54,8 @@ class PushNotificationView: UIView {
         }
         
         tableView.snp.makeConstraints{
-            $0.top.equalTo(topStack.snp.bottom).offset(-10)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.top.equalTo(topStack.snp.bottom).offset(5)
+            $0.leading.trailing.equalToSuperview().inset(8)
             $0.bottom.equalToSuperview()
         }
         

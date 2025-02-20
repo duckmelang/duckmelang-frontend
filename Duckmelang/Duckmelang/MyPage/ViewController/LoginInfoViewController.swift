@@ -6,13 +6,12 @@
 //
 
 import UIKit
+import Moya
 
 class LoginInfoViewController: UIViewController {
     
-    //kakao, google 연동 되어있는지 여부
-    var kakaoLogin = false
-    var googleLogin = true
-
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+ 
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -20,8 +19,7 @@ class LoginInfoViewController: UIViewController {
         
         navigationController?.isNavigationBarHidden = true
         
-        loginKaKaoIsTrue()
-        loginGoogleIsTrue()
+        getLoginInfo()
     }
 
     private lazy var loginInfoView = LoginInfoView().then {
@@ -33,23 +31,28 @@ class LoginInfoViewController: UIViewController {
         self.presentingViewController?.dismiss(animated: false)
     }
     
-    private func loginKaKaoIsTrue() {
-        if kakaoLogin == true {
-            loginInfoView.kakaoCheckIcon.isHidden = false
-            loginInfoView.kakaoText.textColor = .grey800
-        } else {
-            loginInfoView.kakaoCheckIcon.isHidden = true
-            loginInfoView.kakaoText.textColor = .grey600
-        }
-    }
-    
-    private func loginGoogleIsTrue() {
-        if googleLogin == true {
-            loginInfoView.googleCheckIcon.isHidden = false
-            loginInfoView.googleText.textColor = .grey800
-        } else {
-            loginInfoView.googleCheckIcon.isHidden = true
-            loginInfoView.googleText.textColor = .grey600
+    private func getLoginInfo() {
+        provider.request(.getMyPageLogin) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<myPageLoginResponse>.self)
+                    guard let loginInfo = decodedResponse.result else {
+                        print("❌ 로그인정보가 없습니다.")
+                        return
+                    }
+
+                    // UI 업데이트는 반드시 메인 스레드에서 실행
+                    DispatchQueue.main.async {
+                        self.loginInfoView.loginInfo = loginInfo
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+                
+            case .failure(let error):
+                print("❌ 프로필 불러오기 실패: \(error.localizedDescription)")
+            }
         }
     }
 }

@@ -55,7 +55,7 @@ class ReviewCell: UITableViewCell {
         $0.lineBreakMode = .byCharWrapping
     }
     
-    let genderAndAgeStack = Stack(axis: .horizontal, spacing: -3)
+    let genderAndAgeStack = Stack(axis: .horizontal, spacing: -13, distribution: .equalSpacing)
 
     let nicknameAndInfr = Stack(axis: .vertical, spacing: 5, alignment: .leading)
 

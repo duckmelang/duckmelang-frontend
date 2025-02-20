@@ -18,3 +18,10 @@ public struct FilterRequest: Codable {
     let minAge : Int?
     let maxAge : Int?
 }
+
+public struct NotificationsSettingRequest: Codable {
+    var chatNotificationEnabled: Bool
+    var requestNotificationEnabled: Bool
+    var reviewNotificationEnabled: Bool
+    var bookmarkNotificationEnabled: Bool
+}

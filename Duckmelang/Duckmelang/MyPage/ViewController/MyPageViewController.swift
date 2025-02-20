@@ -27,7 +27,6 @@ class MyPageViewController: UIViewController {
     }
     
     deinit {
-        // 옵저버 제거
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -39,7 +38,7 @@ class MyPageViewController: UIViewController {
         $0.login.addTarget(self, action: #selector(loginInfoDidTap), for: .touchUpInside)
         $0.push.addTarget(self, action: #selector(pushDidTap), for: .touchUpInside)
         $0.out.addTarget(self, action: #selector(outDidTap), for: .touchUpInside)
-        $0.goBtn.addTarget(self, action: #selector(goBtnDidTap), for: .touchUpInside)
+        $0.logout.addTarget(self, action: #selector(logoutDidTap), for: .touchUpInside)
     }
     
     // MARK: - Notification Handling
@@ -59,12 +58,6 @@ class MyPageViewController: UIViewController {
         }
     }
     
-    @objc private func goBtnDidTap() {
-        let postDetailVC = UINavigationController(rootViewController: PostDetailViewController())
-        postDetailVC.modalPresentationStyle = .fullScreen
-        present(postDetailVC, animated: true)
-    }
-    
     //Notification을 받으면 프로필 정보를 다시 가져오는 함수
     @objc private func refreshProfile() {
         print("📢 프로필 업데이트 알림 수신 - 프로필 정보를 다시 가져옵니다.")
@@ -75,9 +68,7 @@ class MyPageViewController: UIViewController {
         let profileVC = ProfileViewController()
         profileVC.profileData = myPageView.myPageTopView.profileData // 데이터 전달
         
-        let navigationVC = UINavigationController(rootViewController: profileVC)
-        navigationVC.modalPresentationStyle = .fullScreen
-        present(navigationVC, animated: true)
+        navigationController?.pushViewController(profileVC, animated: true)
     }
 
     @objc
@@ -122,6 +113,13 @@ class MyPageViewController: UIViewController {
         present(outVC, animated: false)
     }
     
+    @objc
+    private func logoutDidTap() {
+        let logoutPopupVC = LogoutPopupViewController()
+        logoutPopupVC.modalPresentationStyle = .overFullScreen
+        present(logoutPopupVC, animated: false)
+    }
+    
     //내 프로필 가져오기
     private func getProfileInfo() {
         provider.request(.getProfile) { result in
@@ -150,7 +148,6 @@ class MyPageViewController: UIViewController {
             }
         }
     }
-
 }
 
 
