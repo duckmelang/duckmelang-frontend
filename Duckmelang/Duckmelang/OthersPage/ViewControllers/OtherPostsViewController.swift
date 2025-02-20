@@ -1,16 +1,18 @@
 //
-//  MyPostsViewController.swift
+//  OtherPostsViewController.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 1/31/25.
+//  Created by 주민영 on 2/21/25.
 //
 
 import UIKit
 import Moya
 
-class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
-    private var myPostsData: [PostDTO] = []
+class OtherPostsViewController: UIViewController {
+    private let provider = MoyaProvider<OtherPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    
+    var otherPostsData: [PostDTO] = []
+    var oppositeId: Int?
     
     var isLoading = false   // 중복 로딩 방지
     var isLastPage = false  // 마지막 페이지인지 여부
@@ -18,77 +20,66 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view = myPostsView
+        self.view = otherPostsView
         setupDelegate()
-        getMyPostsAPI()
+        getOtherPosts()
     }
     
-    private lazy var myPostsView: MyPostsView = {
-        let view = MyPostsView()
-        return view
-    }()
-
+    private lazy var otherPostsView = OtherPostsView()
+    
     private func setupDelegate() {
-        myPostsView.myPostsTableView.delegate = self
-        myPostsView.myPostsTableView.dataSource = self
+        otherPostsView.uploadPostView.dataSource = self
+        otherPostsView.uploadPostView.delegate = self
     }
-
-    private func getMyPostsAPI() {
+    
+    // MARK: - 게시글 가져오기
+    private func getOtherPosts() {
         guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
         isLoading = true
-        myPostsView.loadingIndicator.startLoading()
+        otherPostsView.loadingIndicator.startLoading()
         
-        provider.request(.getMyPosts(page: currentPage)) { result in
+        provider.request(.getOtherPosts(memberId: self.oppositeId!, page: currentPage)) { result in
             switch result {
             case .success(let response):
                 DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
                     let response = try? response.map(ApiResponse<PostResponse>.self)
                     guard let result = response?.result?.postList else { return }
                     guard let isLast = response?.result?.isLast else { return }
-                    self.myPostsData.append(contentsOf: result)
-                    print("내 게시글: \(self.myPostsData)")
+                    self.otherPostsData.append(contentsOf: result)
+                    print("다른 사람 게시글: \(self.otherPostsData)")
                     
                     DispatchQueue.main.async {
-                        self.myPostsView.empty.isHidden = !result.isEmpty
+                        self.otherPostsView.empty.isHidden = !result.isEmpty
                         self.isLastPage = isLast
                         self.isLoading = false
-                        self.myPostsView.loadingIndicator.stopLoading()
-                        self.myPostsView.myPostsTableView.reloadData()
+                        self.otherPostsView.loadingIndicator.stopLoading()
+                        self.otherPostsView.uploadPostView.reloadData()
                         
                         if isLast {
-                            self.myPostsView.myPostsTableView.tableFooterView = nil
+                            self.otherPostsView.uploadPostView.tableFooterView = nil
                         }
                     }
                 }
-                print(self.isLoading)
-                print(self.isLastPage)
             case .failure(let error):
-                print(error)
+                print("게시글 불러오기 실패: \(error.localizedDescription)")
                 self.isLoading = false
-                self.myPostsView.loadingIndicator.stopLoading()
+                self.otherPostsView.loadingIndicator.stopLoading()
             }
         }
     }
-    
+}
+
+extension OtherPostsViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return myPostsData.count
+        return otherPostsData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
             return UITableViewCell()
         }
-        cell.configure(model: myPostsData[indexPath.row])
+        cell.configure(model: otherPostsData[indexPath.row])
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let postId = myPostsData[indexPath.row].postId
-        let myPostDetailVC = MyPostDetailViewController()
-        
-        myPostDetailVC.postId = postId
-        
-        self.navigationController?.pushViewController(myPostDetailVC, animated: true)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -99,7 +90,7 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
         if offsetY > contentHeight - tableViewHeight * 2 {
             if !isLoading && !isLastPage {
                 currentPage += 1
-                getMyPostsAPI()
+                getOtherPosts()
             }
         }
     }

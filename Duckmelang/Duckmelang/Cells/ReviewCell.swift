@@ -71,7 +71,7 @@ class ReviewCell: UITableViewCell {
             $0.height.equalTo(40)
             $0.top.equalToSuperview().inset(15)
             $0.leading.equalToSuperview().inset(16)
-            $0.width.equalTo(80)
+            $0.width.equalTo(100)
         }
         
         review.snp.makeConstraints{

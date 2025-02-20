@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class NoticeViewController: UIViewController {
-    private let provider = MoyaProvider<NotificationAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<NotificationAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private var notices: [NotificationModel] = []
 
     override func viewDidLoad() {

@@ -24,7 +24,10 @@ class SSEClient: NSObject, URLSessionDataDelegate {
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
-        request.setValue("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDMxNTkwLCJleHAiOjE3NDAwMzUxOTB9.Oob_SjjHgYPKr0lL6FLwZ8LhIhTcyEYu_Jwbcg0WilU", forHTTPHeaderField: "Authorization")
+        
+        if let accessToken = KeychainManager.shared.load(key: "accessToken") {
+            request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        }
         
         print("🔗 SSE 연결 시작")
         

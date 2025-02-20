@@ -65,8 +65,7 @@ extension NotificationAPI: TargetType {
         switch self {
         default :
             return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTg4NzE4LCJleHAiOjE3Mzk5OTIzMTh9.jyJCnFb3mnTRKvUXhKKN7_-oPkclS3y7OnAQgBshqAM"
+                "Content-Type": "application/json"
             ]
         }
     }

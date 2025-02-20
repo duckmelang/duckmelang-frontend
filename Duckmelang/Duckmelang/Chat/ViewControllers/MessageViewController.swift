@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate {
-    private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let socketManager = SocketManager()
     
     var chat: ChatDTO?
