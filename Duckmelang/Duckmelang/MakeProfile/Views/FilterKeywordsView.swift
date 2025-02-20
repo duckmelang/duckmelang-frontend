@@ -47,15 +47,12 @@ class FilterKeywordsView: UIView, UITextFieldDelegate {
         $0.rightViewMode = .always
     }
 
-    public let keywordsCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 10
-        layout.minimumInteritemSpacing = 10
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+    public lazy var keywordsCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.backgroundColor = .clear
-        collectionView.register(KeywordCell.self, forCellWithReuseIdentifier: KeywordCell.identifier)
+        collectionView.register(KeywordCell.self, forCellWithReuseIdentifier: "KeywordCell")
+        collectionView.delegate = self
+        collectionView.dataSource = self
         return collectionView
     }()
     
@@ -157,16 +154,44 @@ class FilterKeywordsView: UIView, UITextFieldDelegate {
     }
 }
 
+// MARK: - Compositional Layout (태그 자동 정렬)
+extension FilterKeywordsView {
+    func createLayout() -> UICollectionViewCompositionalLayout {
+        return UICollectionViewCompositionalLayout { (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
+            
+            let itemSize = NSCollectionLayoutSize(
+                widthDimension: .estimated(100), // 자동 크기 조절
+                heightDimension: .absolute(30)  // 높이 고정
+            )
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            
+            let groupSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .estimated(40)
+            )
+            let group = NSCollectionLayoutGroup.vertical(
+                layoutSize: groupSize,
+                subitems: [item]
+            )
+            group.interItemSpacing = .fixed(8)
+            
+            let section = NSCollectionLayoutSection(group: group)
+            section.interGroupSpacing = 17
+            return section
+        }
+    }
+}
+
+
+// MARK: - UICollectionView Delegate & DataSource
 extension FilterKeywordsView: UICollectionViewDataSource, UICollectionViewDelegate {
-    
-    // MARK: - UICollectionViewDataSource
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return keywords.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: KeywordCell.identifier, for: indexPath) as? KeywordCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KeywordCell", for: indexPath) as? KeywordCell else {
             return UICollectionViewCell()
         }
         let keyword = keywords[indexPath.row]
@@ -177,11 +202,4 @@ extension FilterKeywordsView: UICollectionViewDataSource, UICollectionViewDelega
         }
         return cell
     }
-    
-    // MARK: - UICollectionViewDelegate
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("Selected Keyword: \(keywords[indexPath.row])")
-    }
 }
-
