@@ -60,8 +60,6 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
                         }
                     }
                 }
-                print(self.isLoading)
-                print(self.isLastPage)
             case .failure(let error):
                 print(error)
                 self.isLoading = false
