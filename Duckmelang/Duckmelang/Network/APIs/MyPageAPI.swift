@@ -36,6 +36,7 @@ public enum MyPageAPI {
     case patchPostStatus(postId: Int)
     case patchNotificationsSetting([String: Bool])
     case getNotificationsSetting
+    case getMyPageLogin
 }
 
 extension MyPageAPI: TargetType {
@@ -94,6 +95,8 @@ extension MyPageAPI: TargetType {
             return "/\(postId)/status"
         case .patchNotificationsSetting, .getNotificationsSetting:
             return "/setting"
+        case .getMyPageLogin:
+            return "/info"
         }
     }
     
@@ -117,7 +120,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .patchPostStatus, .getNotificationsSetting:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .patchPostStatus, .getMyPageLogin, .getNotificationsSetting:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)

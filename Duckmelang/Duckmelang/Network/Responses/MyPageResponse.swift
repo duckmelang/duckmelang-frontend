@@ -129,3 +129,10 @@ struct NotificationsSettingResponse: Codable {
     var reviewNotificationEnabled: Bool
     var bookmarkNotificationEnabled: Bool
 }
+
+struct myPageLoginResponse: Codable {
+    let nickname: String
+    let email: String
+    var kakaoLinked: Bool
+    var googleLinked: Bool
+}

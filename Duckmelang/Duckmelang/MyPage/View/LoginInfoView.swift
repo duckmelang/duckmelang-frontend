@@ -21,6 +21,15 @@ class LoginInfoView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    var loginInfo: myPageLoginResponse? {
+        didSet {
+            if let loginInfo = loginInfo { //loginInfo가 nil이 아닐 때만 실행
+                print("로그인정보 변경됨 \(loginInfo)") // 확인용로그
+                updateLoginInfo() //인스턴스를 전달
+            }
+        }
+    }
+    
     lazy var backBtn = UIButton().then {
         $0.setImage(.back, for: .normal)
     }
@@ -100,6 +109,32 @@ class LoginInfoView: UIView {
         
         googleIcon.snp.makeConstraints{
             $0.height.width.equalTo(24)
+        }
+    }
+    
+    /// ✅ 로그인 정보를 UI에 반영하는 메서드
+    func updateLoginInfo() {
+        guard let loginInfo = loginInfo else { return }
+        
+        name.text = "\(loginInfo.nickname) 님"
+        email.text = loginInfo.email
+        
+        // ✅ 카카오톡 연동 여부에 따라 UI 변경
+        if loginInfo.kakaoLinked {
+            kakaoCheckIcon.isHidden = false
+            kakaoText.textColor = .grey800
+        } else {
+            kakaoCheckIcon.isHidden = true
+            kakaoText.textColor = .grey600
+        }
+        
+        // ✅ 구글 연동 여부에 따라 UI 변경
+        if loginInfo.googleLinked {
+            googleCheckIcon.isHidden = false
+            googleText.textColor = .grey800
+        } else {
+            googleCheckIcon.isHidden = true
+            googleText.textColor = .grey600
         }
     }
 }
