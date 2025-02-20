@@ -45,6 +45,8 @@ class MyPageView: UIView {
         config.attributedTitle = AttributedString("계정 탈퇴", attributes: AttributeContainer([.font: UIFont.ptdRegularFont(ofSize: 16), .foregroundColor: UIColor.errorPrimary!]))
         $0.configuration = config
     }
+    
+    lazy var goBtn = myPageBtn(text: "go")
 
     private lazy var topBtnStack = Stack(axis: .vertical, spacing: 20)
     private lazy var bottomBtnStack = Stack(axis: .vertical, spacing: 20)
@@ -59,7 +61,7 @@ class MyPageView: UIView {
     }
     
     private func setupView() {
-        [myPageTopView, topStack, bottomStack].forEach{addSubview($0)}
+        [myPageTopView, topStack, bottomStack, goBtn].forEach{addSubview($0)}
         
         myPageTopView.snp.makeConstraints{
             $0.height.equalTo(200)
@@ -83,6 +85,12 @@ class MyPageView: UIView {
         
         bottomBtnStack.snp.makeConstraints{
             $0.leading.equalToSuperview().inset(8)
+        }
+        
+        goBtn.snp.makeConstraints{
+            $0.height.width.equalTo(30)
+            $0.top.equalTo(bottomBtnStack.snp.bottom).offset(40)
+            $0.leading.equalToSuperview()
         }
     }
 }
