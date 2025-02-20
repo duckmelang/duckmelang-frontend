@@ -137,19 +137,45 @@ class PushNotificationViewController: UIViewController {
 
     /// ✅ 알림 설정 변경 처리 (CustomToggleButton이 눌릴 때)
     @objc private func toggleChanged(_ sender: CustomToggleButton) {
-        guard var settings = notificationSettings else { return }
-        
+        guard let settings = notificationSettings else { return }
+
+        var parameters: [String: Bool] = [:]
+
+        // ✅ 변경된 값만 추가하여 PATCH 요청
         switch sender.tag {
-        case 0: settings.chatNotificationEnabled = sender.isOn
-        case 1: settings.requestNotificationEnabled = sender.isOn
-        case 2: settings.reviewNotificationEnabled = sender.isOn
-        case 3: settings.bookmarkNotificationEnabled = sender.isOn
+        case 0: parameters["chatNotificationEnabled"] = sender.isOn
+        case 1: parameters["requestNotificationEnabled"] = sender.isOn
+        case 2: parameters["reviewNotificationEnabled"] = sender.isOn
+        case 3: parameters["bookmarkNotificationEnabled"] = sender.isOn
         default: return
         }
-        
-        notificationSettings = settings
-        updateNotificationSettings()  // ✅ 서버에 PATCH 요청
+
+        // ✅ PATCH 요청 실행
+        provider.request(.patchNotificationsSetting(parameters)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<NotificationsSettingResponse>.self)
+                    if decodedResponse.isSuccess {
+                        print("✅ 알림 설정 변경 성공")
+
+                        // ✅ PATCH 요청 후 GET 요청을 다시 실행하여 최신 데이터 반영
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.fetchNotificationSettings()
+                        }
+
+                    } else {
+                        print("❌ 알림 설정 변경 실패: \(decodedResponse.message)")
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ 요청 실패: \(error.localizedDescription)")
+            }
+        }
     }
+
 
     private func setupDelegate() {
         pushNotificationView.tableView.delegate = self
@@ -161,41 +187,15 @@ class PushNotificationViewController: UIViewController {
         provider.request(.getNotificationsSetting) { result in
             switch result {
             case .success(let response):
+                if let responseString = String(data: response.data, encoding: .utf8) {
+                    print("📌 [DEBUG] 서버 응답 JSON: \(responseString)") // ✅ 서버 응답 직접 확인
+                }
                 do {
                     let decodedResponse = try response.map(ApiResponse<NotificationsSettingResponse>.self)
                     if decodedResponse.isSuccess {
                         self.notificationSettings = decodedResponse.result
                     } else {
                         print("❌ 알림 설정 가져오기 실패: \(decodedResponse.message)")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                }
-            case .failure(let error):
-                print("❌ 요청 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    private func updateNotificationSettings() {
-        guard let settings = notificationSettings else { return }
-        
-        let parameters: [String: Bool] = [
-            "chatNotificationEnabled": settings.chatNotificationEnabled,
-            "requestNotificationEnabled": settings.requestNotificationEnabled,
-            "reviewNotificationEnabled": settings.reviewNotificationEnabled,
-            "bookmarkNotificationEnabled": settings.bookmarkNotificationEnabled
-        ]
-
-        provider.request(.patchNotificationsSetting(parameters)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<NotificationsSettingResponse>.self)
-                    if decodedResponse.isSuccess {
-                        print("✅ 알림 설정 변경 성공")
-                    } else {
-                        print("❌ 알림 설정 변경 실패: \(decodedResponse.message)")
                     }
                 } catch {
                     print("❌ JSON 디코딩 오류: \(error.localizedDescription)")

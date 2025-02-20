@@ -117,7 +117,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .patchPostStatus, .getNotificationsSetting, .patchNotificationsSetting:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .patchPostStatus, .getNotificationsSetting:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
@@ -129,6 +129,8 @@ extension MyPageAPI: TargetType {
             return .requestParameters(parameters: ["content" : content], encoding: JSONEncoding.default)
         case .postFilters(FilterRequest: let FilterRequest):
             return .requestJSONEncodable(FilterRequest)
+        case .patchNotificationsSetting(let parameters):
+            return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
         }
     }
     
@@ -136,8 +138,8 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDM2MDQ1LCJleHAiOjE3NDAwMzk2NDV9.LIrqfqk4NguLJknA5aytA3bETOw1DYnVYz5yTa-ekRo"]
-
+                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDM5Njc5LCJleHAiOjE3NDAwNDMyNzl9.XpVh-5Mh3UfbuMGwIJDINggH7QREUvjPa2xD1h00a8k"]
+            
         }
     }
 }
