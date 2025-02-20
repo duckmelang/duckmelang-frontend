@@ -253,7 +253,7 @@ class ProfileBottomView: UIView {
         $0.separatorStyle = .none
         $0.rowHeight = 106
         $0.isHidden = false
-        $0.isUserInteractionEnabled = true
+        $0.allowsSelection = true
     }
     
     //변경 예정
@@ -310,7 +310,7 @@ class ProfileBottomView: UIView {
         }
         
         cosmosView.snp.makeConstraints{
-            $0.top.equalTo(segmentedControl.snp.bottom).offset(16)
+            $0.top.equalTo(segmentedControl.snp.bottom).offset(22)
             $0.centerX.equalToSuperview()
             $0.height.equalTo(25)
         }
@@ -323,7 +323,7 @@ class ProfileBottomView: UIView {
         
         reviewTableView.snp.makeConstraints{
             $0.top.equalTo(cosmosStack.snp.bottom).offset(18)
-            $0.horizontalEdges.bottom.equalToSuperview()
+            $0.horizontalEdges.bottom.equalToSuperview().inset(16)
             $0.height.equalTo(400)
         }
     }

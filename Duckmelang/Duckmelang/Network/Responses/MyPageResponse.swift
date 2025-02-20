@@ -4,7 +4,7 @@
 //
 //  Created by 주민영 on 2/3/25.
 //
-
+import Foundation
 //프로필 정보 담는 구조체
 public struct ProfileData: Codable {
     let memberId: Int
@@ -38,12 +38,12 @@ public struct ProfileData: Codable {
 
 // 리뷰 데이터 구조체
 public struct myReviewDTO: Codable {
-    let reviewID: Int
+    let reviewId: Int
     let nickname: String
     let gender: String
     let age: Int
     let content: String
-    let score: Int
+    let score: Double
     
     var localizedGender: String {
         return gender.lowercased() == "male" ? "남성" : "여성"
@@ -57,7 +57,7 @@ public struct myReviewDTO: Codable {
 // API 응답 구조체 (리뷰 리스트 포함)
 public struct ReviewResponse: Codable {
     let average: Double
-    let myReviewList: [myReviewDTO] //리뷰 목록
+    let reviewList: [myReviewDTO] //리뷰 목록
 }
 
 struct MyPostDetailResponse: Codable {
@@ -70,6 +70,7 @@ struct MyPostDetailResponse: Codable {
     let title: String
     let content: String
     let wanted: Int
+    let chatCount: Int
     let idol: [String]
     let category: String
     let date: String
@@ -102,3 +103,21 @@ struct IdolListDTO: Codable {
     let idolName: String
     let idolImage: String
 }
+
+//get 응답 모델
+struct LandmineResponse: Codable {
+    let landmineList: [LandmineModel]
+}
+
+//post 응답 모델
+struct LandmineModel: Codable {
+    let landmineId: Int
+    let content: String
+}
+
+struct UpdatePostStatusResponse: Codable {
+    let id: Int
+    let title: String
+    let wanted: Int
+}
+

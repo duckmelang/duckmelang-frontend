@@ -12,7 +12,8 @@ class OtherProfileViewController: UIViewController {
     private let provider = MoyaProvider<OtherPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     var selectedTag: Int = 0
-       
+    
+    var oppositeId: Int?
     var profileData: OtherProfileData?
     var otherPostsData: [PostDTO] = []
     var otherReviewsData: [OtherReviewDTO] = []
@@ -23,6 +24,7 @@ class OtherProfileViewController: UIViewController {
         self.view = otherProfileView
         
         navigationController?.isNavigationBarHidden = true
+        self.tabBarController?.tabBar.isHidden = false
         otherProfileView.otherProfileBottomView.cosmosView.isHidden = true
         otherProfileView.otherProfileBottomView.cosmosStack.isHidden = true
         
@@ -30,6 +32,7 @@ class OtherProfileViewController: UIViewController {
         setupDelegate()
         getProfileInfo()
         getOtherPosts()
+        getOtherReviews()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -45,6 +48,7 @@ class OtherProfileViewController: UIViewController {
         setupDelegate()
         getProfileInfo()
         getOtherPosts()
+        getOtherReviews()
     }
 
     private lazy var otherProfileView = OtherProfileView()
@@ -53,20 +57,6 @@ class OtherProfileViewController: UIViewController {
     private func backBtnDidTap() {
         self.navigationController?.popViewController(animated: true)
     }
-    
-    /*
-    @objc
-    private func setBtnDidTap() {
-        otherProfileView.otherProfileTopView.setBtnImage.isHidden = false
-    }
-    
-    // setBtn 창 떠 있는 상태에서 다른 뷰를 누를때
-    @objc
-    private func viewDidTap() {
-        if otherProfileView.otherProfileTopView.setBtnImage.isHidden == false {
-            otherProfileView.otherProfileTopView.setBtnImage.isHidden = true
-        }
-    }*/
 
     private func setupDelegate() {
         otherProfileView.otherProfileBottomView.uploadPostView.dataSource = self
@@ -110,16 +100,16 @@ class OtherProfileViewController: UIViewController {
     
     @objc private func userImageTapped() {
         let otherImageVC = OtherImageViewController()
+        otherImageVC.oppositeId = self.oppositeId
         otherImageVC.profileData = self.profileData
         navigationController?.pushViewController(otherImageVC, animated: true)
     }
     
     private func getProfileInfo() {
-        provider.request(.getOtherProfile(memberId: 1, page: 0)) { result in
+        provider.request(.getOtherProfile(memberId: self.oppositeId!)) { result in
             switch result {
             case .success(let response):
                 let response = try? response.map(ApiResponse<OtherProfileData>.self)
-                print(response)
                 guard let profile = response?.result else { return }
                 self.profileData = profile
                 print("다른 사람 정보 : \(profile)")
@@ -140,7 +130,7 @@ class OtherProfileViewController: UIViewController {
     
     // 게시글 가져오기
     private func getOtherPosts() {
-        provider.request(.getOtherPosts(memberId: 1, page: 0)) { result in
+        provider.request(.getOtherPosts(memberId: self.oppositeId!, page: 0)) { result in
             switch result {
             case .success(let response):
                 self.otherPostsData.removeAll()
@@ -160,7 +150,7 @@ class OtherProfileViewController: UIViewController {
     
     // 후기 가져오기
     private func getOtherReviews() {
-        provider.request(.getOtherReviews(memberId: 1)) { result in
+        provider.request(.getOtherReviews(memberId: self.oppositeId!)) { result in
             switch result {
             case .success(let response):
                 self.otherReviewsData.removeAll()

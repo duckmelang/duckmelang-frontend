@@ -8,18 +8,11 @@
 import UIKit
 
 class TopMessageView: UIView {
-    init(isReview: Bool, isMyFirstMessage: Bool) {
+    init() {
         super.init(frame: .zero)
         
         self.backgroundColor = .clear
         setupView()
-        if (isReview) {
-            confirmBtn.isHidden = true
-            reviewBtn.isHidden = false
-        } else if (isMyFirstMessage) {
-            confirmBtn.isHidden = false
-            reviewBtn.isHidden = true
-        }
     }
     
     required init?(coder: NSCoder) {
@@ -40,28 +33,28 @@ class TopMessageView: UIView {
         $0.layer.shadowOpacity = 0.75
     }
     
-    private lazy var postImage = UIImageView().then {
+    lazy var postImage = UIImageView().then {
         $0.backgroundColor = .grey300
         $0.contentMode = .scaleAspectFit
         $0.layer.cornerRadius = 2.4
         $0.clipsToBounds = true
     }
     
-    private lazy var postTitle = UILabel().then {
+    lazy var postTitle = UILabel().then {
         $0.text = "게시글 제목"
         $0.textColor = .grey800
-        $0.font = .ptdRegularFont(ofSize: 17)
+        $0.font = .ptdRegularFont(ofSize: 15)
     }
     
-    private lazy var inProgress = UILabel().then {
+    lazy var inProgress = UILabel().then {
         $0.text = "진행 중"
         $0.textColor = .grey700
-        $0.font = .ptdSemiBoldFont(ofSize: 13)
+        $0.font = .ptdSemiBoldFont(ofSize: 11)
     }
     
     public lazy var confirmBtn = UIButton().then {
         $0.backgroundColor = .dmrBlue
-        $0.setTitle("동행 확정", for: .normal)
+        $0.setTitle("동행 요청", for: .normal)
         $0.setTitleColor(.grey100, for: .normal)
         $0.titleLabel?.font = .ptdSemiBoldFont(ofSize: 13)
         $0.layer.cornerRadius = 5
@@ -102,13 +95,12 @@ class TopMessageView: UIView {
         }
         
         postTitle.snp.makeConstraints {
-            $0.top.equalTo(postImage.snp.top).offset(3)
+            $0.top.equalTo(postImage.snp.top).offset(5)
             $0.leading.equalTo(postImage.snp.trailing).offset(8)
-            $0.trailing.equalToSuperview().offset(21)
         }
         
         inProgress.snp.makeConstraints {
-            $0.bottom.equalTo(postImage.snp.bottom).offset(-3)
+            $0.bottom.equalTo(postImage.snp.bottom).offset(-5)
             $0.leading.equalTo(postTitle.snp.leading)
         }
         

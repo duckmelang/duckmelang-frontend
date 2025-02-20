@@ -43,7 +43,7 @@ public struct RequestDTO: Codable {
 
 // 보낸 요청 받아오는 구조체
 public struct RequestResponse: Codable {
-    let requestApplicationList: [RequestDTO]
+    let applicationList: [RequestDTO]
     let listSize: Int
     let totalPage: Int
     let totalElements: Int

@@ -23,7 +23,6 @@ class OtherImageView: UIView {
         $0.register(ProfileImageCell.self, forCellReuseIdentifier: ProfileImageCell.identifier)
         $0.rowHeight = 470
         $0.separatorStyle = .none
-        $0.tableFooterView = UIView()
     }
     
     private func setupView() {

@@ -34,12 +34,12 @@ public struct OtherImageData: Codable {
 
 // 리뷰 데이터 구조체
 public struct OtherReviewDTO: Codable {
-    let reviewID: Int
+    let reviewId: Int
     let nickname: String
     let gender: String
     let age: Int
     let content: String
-    let score: Int
+    let score: Double
 }
 
 // API 응답 구조체 (리뷰 리스트 포함)

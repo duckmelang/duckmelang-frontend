@@ -38,7 +38,7 @@ class OtherMessageCell: UICollectionViewCell {
     
     private lazy var userImage = UIImageView().then {
         $0.backgroundColor = .grey200
-        $0.contentMode = .scaleAspectFit
+        $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 32/2
     }
@@ -94,8 +94,10 @@ class OtherMessageCell: UICollectionViewCell {
         }
     }
     
-    func configure(userImage: UIImage, text: String, date: String) {
-        self.userImage.image = userImage
+    func configure(userImage: String, text: String, date: String) {
+        if let oppositeProfileImageUrl = URL(string: userImage) {
+            self.userImage.kf.setImage(with: oppositeProfileImageUrl, placeholder: UIImage())
+        }
         self.messageBox.text = text
         self.date.text = date
     }
