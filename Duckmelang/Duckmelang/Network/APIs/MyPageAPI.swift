@@ -128,6 +128,7 @@ extension MyPageAPI: TargetType {
         default :
             return ["Content-Type": "application/json",
                     "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDI0NjE3LCJleHAiOjE3NDAwMjgyMTd9.Zer9cnOn6jDxFGcDwnOMh17oFNjOpxwkJdSkFrVsXLE"]
+
         }
     }
 }
