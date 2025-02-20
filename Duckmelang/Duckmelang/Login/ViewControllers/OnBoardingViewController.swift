@@ -12,7 +12,7 @@ import Alamofire
 
 class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     // MARK: - MoyaErrorHandlerDelegate 구현
-    func showErrorAlert(message: String) {
+    func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(
                 title: "오류 발생",
@@ -25,6 +25,8 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     }
     
     private lazy var provider = MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
+    
+    var memberId: Int?
     
 
     // MARK: - Properties
@@ -65,12 +67,12 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     
     @objc private func didTapKakaoLoginButton() {
         print("Kakao login button tapped")
-        openOAuthLogin(urlString: "\(API.oauthURL)/kakao")
+        openOAuthLogin(api: .kakaoLogin)
     }
     
     @objc private func didTapGoogleLoginButton() {
         print("Google login button tapped")
-        openOAuthLogin(urlString: "\(API.oauthURL)/google")
+        openOAuthLogin(api: .googleLogin)
     }
     
     @objc private func didTapPhoneLoginButton() {
@@ -79,11 +81,8 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
     }
     
     // MARK: - OAuth 로그인 처리
-    private func openOAuthLogin(urlString: String) {
-        guard let url = URL(string: urlString) else {
-            print("❌ OAuth 로그인 URL이 잘못되었습니다.")
-            return
-        }
+    private func openOAuthLogin(api: LoginAPI) {
+        let url = api.baseURL.appendingPathComponent(api.path)
 
         let oauthWebVC = OAuthWebViewController()
         oauthWebVC.authURL = url
@@ -97,7 +96,16 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
 
     // OAuthWebViewController에서 로그인 후 받은 데이터를 처리
     func handleOAuthResponse(memberId: Int, profileComplete: Bool) {
-        print("✅ OAuth 처리 완료 - memberId: \(memberId), profileComplete: \(profileComplete)")
+        print("✅ OAuth 완료 - memberId: \(memberId), profileComplete: \(profileComplete)")
+        
+        // 🔥 로그인 후 자동 발급된 토큰 가져오기
+        guard let accessToken = KeychainManager.shared.load(key: "accessToken"),
+              let refreshToken = KeychainManager.shared.load(key: "refreshToken") else {
+            print("❌ 토큰 저장 실패 - 로그인 API에서 토큰을 저장하지 못했을 가능성 있음")
+            return
+        }
+
+        print("🔐 로그인 완료 - Access Token: \(accessToken.prefix(10))..., Refresh Token: \(refreshToken.prefix(10))...")
 
         // 모달을 닫고 처리 후 화면 전환
         dismiss(animated: true) {
@@ -117,8 +125,9 @@ class OnBoardingViewController: UIViewController, MoyaErrorHandlerDelegate {
         present(baseVC, animated: true)
     }
 
-    private func navigateToMakeProfilesViewController() {
-        let makeProfilesVC = MakeProfilesViewController()
+
+    private func navigateToMakeProfilesViewController(memberId: Int) {
+        let makeProfilesVC = MakeProfilesViewController(memberId: memberId)
         let navigationController = UINavigationController(rootViewController: makeProfilesVC)
         navigationController.modalPresentationStyle = .fullScreen
         // 모달을 닫고 네비게이션 방식으로 화면을 이동

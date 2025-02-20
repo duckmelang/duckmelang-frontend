@@ -8,6 +8,11 @@
 import Foundation
 import Moya
 
+//refreshToken요청모델
+public struct RefreshTokenRequest: Codable {
+    let refreshToken: String
+}
+
 
 //로그인 요청 모델
 struct LoginRequest: Codable {
@@ -30,4 +35,25 @@ struct VerificationCodeRequest: Codable {
 struct VerifyCode: Codable {
     let phoneNum: String
     let certificationCode: String
+}
+
+//닉네임, 생년월일, 성별 설정 모델
+public struct PatchMemberProfileRequest: Encodable {
+    let nickname: String
+    let birth: String
+    let gender: String
+}
+
+public struct NicknameCheckRequest: Encodable {
+    let nickname: String
+}
+
+//좋아하는 아이돌 선택 모델
+public struct SelectFavoriteIdolRequest: Encodable {
+    let idolCategoryIds: [Int]
+}
+
+//지뢰 키워드 설정 모델
+public struct SetLandmineKeywordRequest: Encodable {
+    let landmineContents: [String]
 }
