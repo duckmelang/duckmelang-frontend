@@ -9,8 +9,8 @@ import UIKit
 import Moya
 
 class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
-    
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+
     private var profileImageData: [ProfileImageData] = []
     
     var oppositeId: Int?

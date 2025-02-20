@@ -12,7 +12,7 @@ class ProfileViewController: UIViewController{
     var selectedTag: Int = 0
     var profileData: ProfileData? //MyPage에서 전달받을 변수
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
 
     private var posts: [PostDTO] = []
   

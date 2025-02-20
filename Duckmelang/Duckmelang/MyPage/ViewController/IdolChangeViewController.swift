@@ -12,7 +12,7 @@ class IdolChangeViewController: UIViewController {
     
     let data = IdolChangeModel.dummy()
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private var idolList: [IdolListDTO] = []  // 서버에서 가져온 관심 아이돌 목록
     private var deleteQueue: Set<Int> = []
 

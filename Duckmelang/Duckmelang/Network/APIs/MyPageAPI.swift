@@ -142,9 +142,7 @@ extension MyPageAPI: TargetType {
     public var headers: [String : String]? {
         switch self {
         default :
-            return ["Content-Type": "application/json",
-                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDczMTE2LCJleHAiOjE3NDAwNzY3MTZ9.piODELWGTRjsTjOgCcs48s0mVHnI-zQ7LJSKGlHA2a4"]
-            
+            return ["Content-Type": "application/json"]
         }
     }
 }

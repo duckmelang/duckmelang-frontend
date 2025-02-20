@@ -11,7 +11,7 @@ import Kingfisher
 class ProfileModifyViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     // MARK: - Properties
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(),NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private lazy var profileModifyView = ProfileModifyView()
     private var uploadedImageURL: String?
 

@@ -101,7 +101,7 @@ import Moya
 
 class PushNotificationViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>() // ✅ Moya API Provider
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]) // ✅ Moya API Provider
 
     private let notificationTitles = [
         "채팅 알림",

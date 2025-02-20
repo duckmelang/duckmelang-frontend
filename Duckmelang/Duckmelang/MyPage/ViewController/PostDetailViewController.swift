@@ -24,7 +24,7 @@ class PostDetailViewController: UIViewController {
     
     private var currentState: PostProgressState = .inProgress
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     override func viewDidLoad() {
         super.viewDidLoad()
