@@ -40,6 +40,8 @@ class ProfileViewController: UIViewController{
         
         // NotificationCenter 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateProfile(_:)), name: NSNotification.Name("ProfileUpdated"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(PostDeleted(_:)), name: NSNotification.Name("PostDeleted"), object: nil)
     }
     
     deinit {
@@ -48,6 +50,11 @@ class ProfileViewController: UIViewController{
 
     @objc private func updateProfile(_ notification: Notification) {
         print("📢 프로필 업데이트 알림 수신 - UI 업데이트")
+        fetchProfileData()
+    }
+    
+    @objc private func PostDeleted(_ notification: Notification) {
+        fetchMyPosts()
         fetchProfileData()
     }
     
@@ -117,16 +124,18 @@ class ProfileViewController: UIViewController{
                 do {
                     let decodedResponse = try response.map(ApiResponse<ReviewResponse>.self)
                     
-                    // 리뷰 리스트가 `nil`이면 빈 배열을 할당하여 오류 방지
-                    let myReviewList = decodedResponse.result?.myReviewList ?? []
-                    let averageRating = decodedResponse.result?.average ?? 0.0 //API에서 받은 평균 평점
+                    // ✅ 서버 응답 확인
+                    print("📌 [DEBUG] fetchReviews() - 서버 응답 데이터: \(decodedResponse)")
 
-                    
+                    // 리뷰 리스트가 `nil`이면 빈 배열을 할당하여 오류 방지
+                    let myReviewList = decodedResponse.result?.reviewList ?? []
+                    let averageRating = decodedResponse.result?.average ?? 0.0 // API에서 받은 평균 평점
+
                     DispatchQueue.main.async {
                         self.reviews = myReviewList
-                        self.profileView.profileBottomView.reviewTableView.reloadData() // 테이블뷰 갱신
-                        //평점 업데이트
-                        self.profileView.profileBottomView.cosmosView.rating = averageRating
+                        self.profileView.profileBottomView.reviewTableView.reloadData() // ✅ 테이블뷰 갱신
+                        self.profileView.profileBottomView.cosmosView.rating = averageRating // ✅ 평점 업데이트
+                        print("✅ [DEBUG] 리뷰 \(myReviewList.count)개 로드됨!")
                     }
                 } catch {
                     print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
@@ -136,6 +145,7 @@ class ProfileViewController: UIViewController{
             }
         }
     }
+
 
     @objc
     private func backBtnDidTap() {
@@ -171,6 +181,7 @@ class ProfileViewController: UIViewController{
         
         let setBtnDidTap = UITapGestureRecognizer(target: self, action: #selector(viewDidTap))
         setBtnDidTap.numberOfTapsRequired = 1 // 단일 탭, 횟수 설정
+        setBtnDidTap.cancelsTouchesInView = false  // ✅ 터치 이벤트가 다른 뷰로 전달되도록 설정
         profileView.addGestureRecognizer(setBtnDidTap)
         
         let feedManagementDidTap = UITapGestureRecognizer(target: self, action: #selector(handleImageTap(_:)))
@@ -288,10 +299,8 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
             // PostDetailViewController로 postId 전달
             let postDetailVC = PostDetailViewController()
             postDetailVC.postId = post.postId  // PostDetailViewController에 postId 설정
-            postDetailVC.modalPresentationStyle = .fullScreen
-            
-            // 화면 전환
-            present(postDetailVC, animated: true)
+            // ✅ 네비게이션 스택을 사용하여 푸시 (기존 present 방식에서 변경)
+            self.navigationController?.pushViewController(postDetailVC, animated: true)
         }
     }
 

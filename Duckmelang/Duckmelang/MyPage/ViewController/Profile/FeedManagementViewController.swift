@@ -39,42 +39,114 @@ class FeedManagementViewController: UIViewController {
         self.presentingViewController?.dismiss(animated: false)
     }
     
-    @objc
-    private func deleteBtnDidTap() {
-        guard !selectedIndices.isEmpty else {
-            // 선택된 셀이 없을 경우
-            print("No selected row")
-            return
+    /// ✅ 삭제 버튼 클릭: UI에서만 삭제 (서버 요청 X)
+        @objc private func deleteBtnDidTap() {
+            guard !selectedIndices.isEmpty else {
+                print("❌ 선택된 게시물이 없습니다.")
+                return
+            }
+
+            let sortedIndices = selectedIndices.sorted { $0.row > $1.row }
+
+            feedManagementView.postView.performBatchUpdates({
+                for indexPath in sortedIndices {
+                    if indexPath.row < posts.count {
+                        let postId = posts[indexPath.row].postId
+                        pendingDeletes.append((postId: postId, indexPath: indexPath)) // 대기열에 추가
+                        posts.remove(at: indexPath.row) // UI에서 제거
+                        feedManagementView.postView.deleteRows(at: [indexPath], with: .automatic)
+                    }
+                }
+            }, completion: { _ in
+                self.selectedIndices.removeAll()
+                self.feedManagementView.deleteBtn.isHidden = true
+                print("🕒 삭제 대기 상태: \(self.pendingDeletes)")
+            })
         }
-        
-        // 선택된 indexPath들을 정렬하여 처리 (역순으로 삭제하면 index 문제가 발생하지 않음)
-        let sortedIndices = selectedIndices.sorted { $0.row > $1.row }
-        
-        for indexPath in sortedIndices {
-            let postId = posts[indexPath.row].postId
-            pendingDeletes.append((postId: postId, indexPath: indexPath)) // 삭제 대기 상태로 저장
-            feedManagementView.postView.deleteRows(at: [indexPath], with: .automatic) // UI에서 제거
+
+        /// ✅ finish 버튼 클릭: 서버에서 실제로 삭제 요청
+        @objc private func finishBtnDidTap() {
+            guard !pendingDeletes.isEmpty else {
+                print("✅ 삭제할 게시물이 없습니다.")
+                return
+            }
+
+            let dispatchGroup = DispatchGroup()
+
+            for (postId, _) in pendingDeletes {
+                dispatchGroup.enter()
+                deletePost(postId: postId) {
+                    dispatchGroup.leave()
+                }
+            }
+
+            dispatchGroup.notify(queue: .main) {
+                print("✅ 모든 삭제 요청 완료됨, 서버에서 최신 데이터 다시 불러오기")
+                DispatchQueue.main.async {
+                    self.fetchMyPosts() // 서버에서 최신 데이터 다시 불러옴
+                    self.pendingDeletes.removeAll() // 삭제 완료 후 대기열 초기화
+                    
+                    NotificationCenter.default.post(name: NSNotification.Name("PostDeleted"), object: nil)
+                }
+            }
         }
-        
-        selectedIndices.removeAll()
-        feedManagementView.deleteBtn.isHidden = true
-        print("🕒 삭제 대기 상태: \(pendingDeletes.map { $0.postId })")
+
+        /// ✅ 서버에서 게시물 삭제 요청
+        private func deletePost(postId: Int, completion: (() -> Void)? = nil) {
+            provider.request(.deletePost(postId: postId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let decodedResponse = try response.map(ApiResponse<String>.self)
+                        if decodedResponse.isSuccess {
+                            print("✅ 게시물 삭제 성공: \(decodedResponse.message)")
+                        } else {
+                            print("❌ 삭제 실패: \(decodedResponse.message)")
+                        }
+                    } catch {
+                        print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                    }
+                case .failure(let error):
+                    print("❌ 요청 실패: \(error.localizedDescription)")
+                }
+                completion?() // 요청이 끝난 후 처리
+            }
+        }
+
+        /// ✅ 최신 게시물 가져오기 (삭제된 게시물 제외)
+        private func fetchMyPosts() {
+            provider.request(.getMyPosts(page: 0)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
+
+                        // ✅ 서버에서 최신 게시물 가져오기, 삭제된 postId 제외
+                        let allPosts = decodedResponse.result?.postList ?? []
+                        let deletedPostIds = self.pendingDeletes.map { $0.postId }
+                        let filteredPosts = allPosts.filter { !deletedPostIds.contains($0.postId) }
+
+                        DispatchQueue.main.async {
+                            self.posts = filteredPosts
+                            self.feedManagementView.postView.reloadData()
+                        }
+
+                    } catch {
+                        print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                    }
+                case .failure(let error):
+                    print("❌ 게시글 불러오기 실패: \(error.localizedDescription)")
+                }
+            }
+        }
+
+    /// ✅ 뷰가 다시 나타날 때 삭제된 상태 유지
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchMyPosts() // ✅ 최신 데이터 가져오면서 삭제된 항목 반영
     }
-    
-    @objc
-    private func finishBtnDidTap() {
-        guard !pendingDeletes.isEmpty else {
-            print("삭제할 게시물이 없습니다.")
-            return
-        }
-        
-        for pendingDelete in pendingDeletes {
-            deletePost(postId: pendingDelete.postId, indexPath: pendingDelete.indexPath)
-        }
-        
-        // 삭제 요청 후 대기 상태 초기화
-        pendingDeletes.removeAll()
-    }
+
+
     
     private func setupDelegate() {
         feedManagementView.postView.dataSource = self
@@ -85,48 +157,6 @@ class FeedManagementViewController: UIViewController {
         feedManagementView.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         feedManagementView.finishBtn.addTarget(self, action: #selector(finishBtnDidTap), for: .touchUpInside)
         feedManagementView.deleteBtn.addTarget(self, action: #selector(deleteBtnDidTap), for: .touchUpInside)
-    }
-    
-    // 내 게시글 가져오기
-    private func fetchMyPosts() {
-        provider.request(.getMyPosts(page: 0)) { result in
-            switch result {
-            case .success(let response):
-                print("📌 [DEBUG] HTTP 상태 코드: \(response.statusCode)")  // 상태 코드 출력
-                print("📌 [DEBUG] 응답 헤더: \(response.response?.allHeaderFields ?? [:])")  // 응답 헤더 출력
-                
-                do {
-                    let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
-                    
-                    // 📌 성공 시 응답 데이터 출력
-                    print("✅ [DEBUG] 성공적으로 디코딩됨: \(decodedResponse)")
-
-                    // `postList`가 `nil`이면 빈 배열을 할당하여 오류 방지
-                    let postList = decodedResponse.result?.postList ?? []
-
-                    DispatchQueue.main.async {
-                        self.posts = postList
-                        self.feedManagementView.postView.reloadData()  // 테이블뷰 갱신
-                    }
-                } catch {
-                    // ❌ JSON 디코딩 오류 세부 정보 출력
-                    print("❌ [DEBUG] JSON 디코딩 오류: \(error.localizedDescription)")
-                    if let responseString = String(data: response.data, encoding: .utf8) {
-                        print("📌 [DEBUG] 응답 바디: \(responseString)")  // 응답 바디 확인
-                    }
-                }
-
-            case .failure(let error):
-                // ❌ 요청 실패 시 오류 메시지와 기타 정보 출력
-                print("❌ [DEBUG] 요청 실패: \(error.localizedDescription)")
-                if let response = error.response {
-                    print("📌 [DEBUG] 상태 코드: \(response.statusCode)")
-                    if let responseString = String(data: response.data, encoding: .utf8) {
-                        print("📌 [DEBUG] 응답 바디: \(responseString)")
-                    }
-                }
-            }
-        }
     }
     
     private func deletePost(postId: Int, indexPath: IndexPath) {
