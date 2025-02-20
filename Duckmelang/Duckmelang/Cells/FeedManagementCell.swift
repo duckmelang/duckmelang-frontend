@@ -7,8 +7,13 @@
 
 import UIKit
 
+protocol FeedManagementCellDelegate: AnyObject {
+    func didTogleSelection(in cell: FeedManagementCell)
+}
 class FeedManagementCell: UITableViewCell {
     static let identifier = "FeedManagementCell"
+    
+    weak var delegate: FeedManagementCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -72,10 +77,7 @@ class FeedManagementCell: UITableViewCell {
         $0.textAlignment = .left
     }
     
-    let selectBtn = UIButton().then {
-        $0.setImage(.noSelect, for: .normal)
-        $0.setImage(.select, for: .selected)
-    }
+    let selectBtn = UIButton()
     
     private func setView() {
         [
@@ -120,6 +122,13 @@ class FeedManagementCell: UITableViewCell {
             $0.top.equalToSuperview().inset(6)
             $0.trailing.equalToSuperview().inset(16)
         }
+        
+        selectBtn.addTarget(self, action: #selector(toggleSelection), for: .touchUpInside)
+    }
+    
+    // ✅ 버튼을 눌렀을 때 선택 상태 변경
+    @objc private func toggleSelection() {
+        delegate?.didTogleSelection(in: self) // 버튼 이벤트를 컨트롤러에서 처리할 수 있도록 설정
     }
     
     public func configure(model: FeedManagementModel) {
@@ -136,7 +145,7 @@ class FeedManagementCell: UITableViewCell {
         )
     }
     
-    public func configure(model: PostDTO) {
+    public func configure(model: PostDTO, isSelected: Bool) {
         if let postImageUrl = URL(string: model.postImageUrl) {
             self.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage(named: "defaultPostImage"))
         }
@@ -149,6 +158,14 @@ class FeedManagementCell: UITableViewCell {
         }
         
         self.userName.text = model.nickname
+        
+        if isSelected {
+            selectBtn.setImage(.select, for: .selected)
+            contentView.backgroundColor = .grey100
+        } else {
+            selectBtn.setImage(.noSelect, for: .normal)
+            contentView.backgroundColor = .clear
+        }
         
         print("📌 [DEBUG] PostCell configure() 호출됨")
         print("📌 postId: \(model.postId), title: \(model.title)")

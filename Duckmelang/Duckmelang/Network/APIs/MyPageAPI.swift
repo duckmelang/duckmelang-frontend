@@ -34,6 +34,8 @@ public enum MyPageAPI {
     case getFilters
     case postFilters(FilterRequest: FilterRequest)
     case patchPostStatus(postId: Int)
+    case patchNotificationsSetting([String: Bool])
+    case getNotificationsSetting
 }
 
 extension MyPageAPI: TargetType {
@@ -43,6 +45,11 @@ extension MyPageAPI: TargetType {
         switch self {
         case.getMyPostDetail, .patchPostStatus:
             guard let url = URL(string: API.postURL) else {
+                fatalError("mypageURL 오류")
+            }
+            return url
+        case .patchNotificationsSetting, .getNotificationsSetting:
+            guard let url = URL(string: API.notificationURL) else {
                 fatalError("mypageURL 오류")
             }
             return url
@@ -85,6 +92,8 @@ extension MyPageAPI: TargetType {
             return "/filters"
         case .patchPostStatus(postId: let postId):
             return "/\(postId)/status"
+        case .patchNotificationsSetting, .getNotificationsSetting:
+            return "/setting"
         }
     }
     
@@ -92,7 +101,7 @@ extension MyPageAPI: TargetType {
         // 가장 많이 호출되는 get을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .patchProfile, .patchPostStatus:
+        case .patchProfile, .patchPostStatus, .patchNotificationsSetting:
             return .patch
         case .postProfileImage, .postIdol, .postLandmines, .postFilters:
             return .post
@@ -108,7 +117,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .patchPostStatus:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .patchPostStatus, .getNotificationsSetting, .patchNotificationsSetting:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
