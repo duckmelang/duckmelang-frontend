@@ -30,7 +30,6 @@ public enum LoginAPI {
     case postMemberInterestCeleb(memberId: Int, idolNums: SelectFavoriteIdolRequest)
     case postLandMines(memberId: Int, landmineString: SetLandmineKeywordRequest)
     case postLogout
-    
 }
 
 extension LoginAPI: TargetType {

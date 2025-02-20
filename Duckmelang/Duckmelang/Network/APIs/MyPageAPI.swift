@@ -37,6 +37,7 @@ public enum MyPageAPI {
     case getNotificationsSetting
     case getMyPageLogin
     case getMyProfileImage(page: Int)
+    case deleteAccount
 }
 
 extension MyPageAPI: TargetType {
@@ -97,6 +98,8 @@ extension MyPageAPI: TargetType {
             return "/setting"
         case .getMyPageLogin:
             return "/info"
+        case .deleteAccount:
+            return "/account/delete"
         }
     }
     
@@ -108,7 +111,7 @@ extension MyPageAPI: TargetType {
             return .patch
         case .postProfileImage, .postIdol, .postLandmines, .postFilters:
             return .post
-        case .deletePost, .deleteIdol, .deleteLandmines:
+        case .deletePost, .deleteIdol, .deleteLandmines, .deleteAccount:
             return .delete
         default:
             return .get
@@ -120,7 +123,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getMyPosts(let page), .getMyProfileImage(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting, .deleteAccount:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
