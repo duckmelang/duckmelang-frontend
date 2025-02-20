@@ -16,15 +16,15 @@ class RecentSearchCell: UITableViewCell {
     }
 
     private let keywordLabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 16)
-        $0.textColor = .black
+        $0.font = .ptdRegularFont(ofSize: 15)
+        $0.textColor = .grey700
         $0.numberOfLines = 0
         $0.lineBreakMode = .byWordWrapping
     }
     
     private let deleteButton = UIButton().then {
         $0.setImage(UIImage(systemName: "xmark"), for: .normal)
-        $0.tintColor = .gray
+        $0.tintColor = .grey500
     }
     
     var deleteAction: (() -> Void)?
@@ -74,16 +74,10 @@ class RecentSearchCell: UITableViewCell {
     func configure(with keyword: String, at index: Int, deleteAction: @escaping () -> Void) {
         keywordLabel.text = keyword
         self.deleteAction = deleteAction
-
+        
         containerView.snp.remakeConstraints {
             $0.width.equalTo(180)
-            if index == 0 {
-                $0.left.equalToSuperview().offset(20) // 첫 번째 검색어 왼쪽 정렬
-                deleteButton.isHidden = true // X 버튼 숨김
-            } else {
-                $0.right.equalToSuperview().offset(-20) // 나머지는 오른쪽 정렬
-                deleteButton.isHidden = false
-            }
+            $0.right.equalToSuperview().offset(-20)
             $0.top.bottom.equalToSuperview().inset(4)
         }
     }

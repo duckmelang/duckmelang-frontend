@@ -32,12 +32,11 @@ class SearchView: UIView {
         $0.rightViewMode = .always
     }
     
-    let recentSearchView0 = UIView().then {
-        $0.backgroundColor = .clear
-    }
-    
-    let recentSearchView1 = UIView().then {
-        $0.backgroundColor = .clear
+    let recentSearchLabel = UILabel().then {
+        $0.text = "최근 검색어"
+        $0.font = .ptdRegularFont(ofSize: 15)
+        $0.textColor = .grey700
+        $0.textAlignment = .left
     }
     
     let recentSearchTableView = UITableView().then {
@@ -45,7 +44,22 @@ class SearchView: UIView {
         $0.separatorStyle = .none
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = 44
+        $0.allowsSelection = false
+        $0.tag = 0
     }
+    
+    lazy var searchDataTableView = UITableView().then {
+        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
+        $0.separatorStyle = .none
+        $0.rowHeight = 106
+        $0.tableFooterView = loadingIndicator
+        $0.isHidden = true
+        $0.tag = 1
+    }
+    
+    let loadingIndicator = LoadingIndicator()
+    
+    lazy var empty = emptyLabel(text: "검색 결과가 존재하지 않습니다")
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -60,8 +74,10 @@ class SearchView: UIView {
     private func setupView() {
         [
             searchTextField,
-            recentSearchView0,
-            recentSearchView1
+            recentSearchLabel,
+            recentSearchTableView,
+            searchDataTableView,
+            empty
         ].forEach {
             addSubview($0)
         }
@@ -73,24 +89,28 @@ class SearchView: UIView {
             $0.height.equalTo(40)
         }
         
-        recentSearchView0.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(20)
-            $0.top.equalTo(searchTextField.snp.bottom).offset(10)
+        recentSearchLabel.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(25)
+            $0.top.equalTo(searchTextField.snp.bottom).offset(15)
             $0.width.equalTo(180)
             $0.height.equalTo(40)
         }
-
-        recentSearchView1.snp.makeConstraints {
-            $0.trailing.equalToSuperview().offset(-16)
-            $0.top.equalTo(searchTextField.snp.bottom).offset(10)
-            $0.width.equalTo(190)
-            $0.height.equalTo(300)
+        
+        recentSearchTableView.snp.makeConstraints {
+            $0.leading.equalTo(recentSearchLabel.snp.trailing).offset(5)
+            $0.trailing.equalToSuperview()
+            $0.top.equalTo(searchTextField.snp.bottom).offset(15)
+            $0.bottom.equalToSuperview()
         }
         
-        recentSearchView1.addSubview(recentSearchTableView)
-        recentSearchTableView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview()
-            $0.top.bottom.equalToSuperview()
+        searchDataTableView.snp.makeConstraints {
+            $0.top.equalTo(searchTextField.snp.bottom).offset(10)
+            $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        empty.snp.makeConstraints {
+            $0.top.equalTo(searchTextField.snp.bottom).offset(30)
+            $0.horizontalEdges.equalToSuperview()
         }
     }
 }
