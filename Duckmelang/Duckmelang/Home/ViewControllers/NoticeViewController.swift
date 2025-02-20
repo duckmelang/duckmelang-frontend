@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import Moya
 
 class NoticeViewController: UIViewController {
-    
-    private var notices: [NoticeModel] = []
+    private let provider = MoyaProvider<NotificationAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private var notices: [NotificationModel] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,7 +18,7 @@ class NoticeViewController: UIViewController {
         self.navigationController?.isNavigationBarHidden = false
         setupNavigationBar()
         setupTableView()
-        loadNotices()
+        getNotificationsAPI()
     }
         
     private lazy var noticeView: NoticeView = {
@@ -26,8 +27,6 @@ class NoticeViewController: UIViewController {
     }()
     
     private func setupNavigationBar() {
-        self.navigationController?.navigationBar.backgroundColor = .white
-        
         self.navigationItem.title = "알림"
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
         
@@ -37,23 +36,56 @@ class NoticeViewController: UIViewController {
         }
         
     @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
+        if navigationController?.viewControllers.count == 1 {
+            // 네비게이션 스택에 다른 화면이 없으면 baseVC를 새로 생성
+            let baseVC = BaseViewController()
+            navigationController?.navigationBar.isHidden = true
+            navigationController?.setViewControllers([baseVC], animated: true)
+        } else {
+            // 기존 네비게이션 스택에서 뒤로가기
+            navigationController?.popViewController(animated: true)
         }
+    }
     
     private func setupTableView() {
-            noticeView.noticeTableView.delegate = self
-            noticeView.noticeTableView.dataSource = self
+        noticeView.noticeTableView.delegate = self
+        noticeView.noticeTableView.dataSource = self
+    }
+    
+    private func getNotificationsAPI() {
+        provider.request(.getNotifications) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<NotificationResponse>.self)
+                guard let result = response?.result?.notificationList else { return }
+                self.notices = result
+                self.notices = self.notices.reversed()
+                print("알림 목록: \(self.notices)")
+                
+                DispatchQueue.main.async {
+                    self.noticeView.noticeTableView.reloadData()
+                }
+            case .failure(let error):
+                print(error)
+            }
         }
-
-        private func loadNotices() {
-            let scrapped = NoticeModel.dummyScrapped()
-            let accompanyAccept = NoticeModel.dummyAccompanyAccept()
-            let accompanyRequest = NoticeModel.dummyAccompanyRequest()
-
-            notices = scrapped + accompanyAccept + accompanyRequest
-            noticeView.noticeTableView.reloadData()
+    }
+    
+    private func patchReadAPI(_ notificationId: Int) {
+        provider.request(.patchNotifications(notificationId: notificationId)) { result in
+            switch result {
+            case .success(let response):
+                print("알림 읽음: \(response)")
+                
+                DispatchQueue.main.async {
+                    self.getNotificationsAPI()
+                    self.noticeView.noticeTableView.reloadData()
+                }
+            case .failure(let error):
+                print(error)
+            }
         }
-
+    }
 }
 
 // MARK: - UITableView Delegate & DataSource
@@ -67,11 +99,16 @@ extension NoticeViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         let notice = notices[indexPath.row]
-        cell.configure(with: notice, isNew: indexPath.row < 2) // 상위 2개는 새로운 알림으로 처리
+        cell.configure(with: notice)
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let notificationId = notices[indexPath.row].id
+        patchReadAPI(notificationId)
     }
 }
