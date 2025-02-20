@@ -27,8 +27,6 @@ class NoticeViewController: UIViewController {
     }()
     
     private func setupNavigationBar() {
-        self.navigationController?.navigationBar.backgroundColor = .white
-        
         self.navigationItem.title = "알림"
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
         
@@ -38,8 +36,16 @@ class NoticeViewController: UIViewController {
         }
         
     @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
+        if navigationController?.viewControllers.count == 1 {
+            // 네비게이션 스택에 다른 화면이 없으면 baseVC를 새로 생성
+            let baseVC = BaseViewController()
+            navigationController?.navigationBar.isHidden = true
+            navigationController?.setViewControllers([baseVC], animated: true)
+        } else {
+            // 기존 네비게이션 스택에서 뒤로가기
+            navigationController?.popViewController(animated: true)
         }
+    }
     
     private func setupTableView() {
         noticeView.noticeTableView.delegate = self
