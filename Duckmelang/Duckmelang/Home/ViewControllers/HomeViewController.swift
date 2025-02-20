@@ -6,47 +6,40 @@
 //
 
 import UIKit
+import Moya
 
 class HomeViewController: UIViewController {
+    private let provider = MoyaProvider<HomeAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
-    //FIXME: - 동적 모델로 수정 필요
-    let celebData1 = PostModel.dummyBlackPink()
-    let celebData2 = PostModel.dummyRiize()
-    let celebData3 = PostModel.dummyNewJeans()
-    
-    private var currentPostsData: [PostModel] = []
+    // MARK: - 홈에 띄우는 게시물 데이터
+    private var currentPostsData: [PostDTO] = []
 
     private lazy var homeView: HomeView = {
         let view = HomeView()
         return view
     }()
     
-    private var selectedCeleb: Celeb?
-    private var isSelectionOpen = false
+    private var celebs: [idolDTO]?
+    private var selectedCeleb: idolDTO?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = homeView
+        
         setupDelegate()
         setupActions()
-        
-        //FIXME: - 기본 아이돌 설정 (현재:블랙핑크)
-        selectedCeleb = Celeb.dummy1().first
-        homeView.celebNameLabel.text = selectedCeleb?.name
-                
-        updatePostsData()
+        getIdolsAPI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if let selectedCeleb = selectedCeleb {
-            homeView.celebNameLabel.text = selectedCeleb.name
+            homeView.celebNameLabel.text = selectedCeleb.idolName
         }
         self.navigationController?.isNavigationBarHidden = true
         homeView.postsTableView.isHidden = false
         homeView.postsTableView.reloadData() // 데이터를 다시 불러오기
-        
-        updatePostsData()
+        getIdolsAPI()
     }
     
     private func setupDelegate() {
@@ -56,28 +49,26 @@ class HomeViewController: UIViewController {
     
     private func setupActions() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showCelebSelection))
-        homeView.celebNameLabel.addGestureRecognizer(tapGesture)
+        homeView.celebStack.addGestureRecognizer(tapGesture)
         
         homeView.bellIcon.addTarget(self, action: #selector(bellIconTapped), for: .touchUpInside)
         homeView.findIcon.addTarget(self, action: #selector(findIconTapped), for: .touchUpInside)
         homeView.writeButton.addTarget(self, action: #selector(writeButtonTapped), for: .touchUpInside)
-        }
-
+    }
+    
     @objc private func showCelebSelection() {
-        let selectionVC = CelebSelectionViewController(
-            celebs: homeView.celebs,
-            selectedCeleb: selectedCeleb
-        )
-        selectionVC.delegate = self
-        selectionVC.modalPresentationStyle = .pageSheet
+        let celebSelectionVC = CelebSelectionViewController(celebs: self.celebs ?? [], selectedCeleb: self.selectedCeleb)
 
-        if let sheet = selectionVC.sheetPresentationController {
+        celebSelectionVC.delegate = self
+        celebSelectionVC.modalPresentationStyle = .pageSheet
+        
+        if let sheet = celebSelectionVC.sheetPresentationController {
             sheet.prefersGrabberVisible = true
             sheet.detents = [.medium(), .large()]
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
         }
         
-        present(selectionVC, animated: true)
+        present(celebSelectionVC, animated: true)
     }
     
     @objc private func bellIconTapped() {
@@ -110,33 +101,70 @@ class HomeViewController: UIViewController {
         navigationController?.pushViewController(searchVC, animated: true)
     }
     
-    //FIXME: - post data 동적 수정 필요
-    private func updatePostsData() {
-        guard let selectedCeleb = selectedCeleb else { return }
-
-        if selectedCeleb.name == "블랙핑크" {
-            currentPostsData = celebData1
-        } else if selectedCeleb.name == "라이즈" {
-            currentPostsData = celebData2
-        } else if selectedCeleb.name == "뉴진스" {
-            currentPostsData = celebData3
-        } else {
-            currentPostsData = [] // 다른 아이돌 선택 시 빈 배열
+    private func getIdolsAPI() {
+        provider.request(.getIdols) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<idolResponse>.self)
+                guard let result = response?.result?.idolList else { return }
+                
+                self.celebs = result
+                self.selectedCeleb = self.celebs?.first
+                self.homeView.celebNameLabel.text = self.selectedCeleb?.idolName
+                
+                self.fetchPosts()
+            case .failure(let error):
+                print(error)
+            }
         }
-        
-        homeView.postsTableView.reloadData()
+    }
+    
+    private func fetchPosts() {
+        if let selectedCeleb = selectedCeleb {
+            getIdolsPosts(selectedCeleb.idolId)
+        } else {
+            getPosts()
+        }
+    }
+    
+    private func getPosts() {
+        provider.request(.getHomePosts(page: 0)) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<PostResponse>.self)
+                guard let result = response?.result?.postList else { return }
+                self.currentPostsData = result
+                print("홈 게시글: \(self.currentPostsData)")
+                
+                DispatchQueue.main.async {
+                    self.homeView.postsTableView.reloadData()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    private func getIdolsPosts(_ idolId: Int) {
+        provider.request(.getIdolPosts(idolId: idolId, page: 0)) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<PostResponse>.self)
+                guard let result = response?.result?.postList else { return }
+                self.currentPostsData = result
+                print("홈 게시글 데이터들: \(self.currentPostsData)")
+                
+                DispatchQueue.main.async {
+                    self.homeView.postsTableView.reloadData()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
     }
 }
 
 // MARK: - Delegate
-extension HomeViewController: CelebSelectionDelegate {
-    func didSelectCeleb(_ celeb: Celeb) {
-        selectedCeleb = celeb
-        homeView.celebNameLabel.text = celeb.name
-        updatePostsData()
-    }
-}
-
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return currentPostsData.count
@@ -151,13 +179,20 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+extension HomeViewController: CelebSelectionDelegate {
+    func didSelectCeleb(_ celeb: idolDTO) {
+        selectedCeleb = celeb
+        homeView.celebNameLabel.text = celeb.idolName
+        fetchPosts()
+    }
+}
 
 extension HomeViewController: WriteViewControllerDelegate {
-    func didUpdateSelectedCeleb(_ celeb: Celeb?) {
+    func didUpdateSelectedCeleb(_ celeb: idolDTO?) {
         if let celeb = celeb {
             selectedCeleb = celeb
-            homeView.celebNameLabel.text = celeb.name
-            updatePostsData()
+            homeView.celebNameLabel.text = celeb.idolName
+            fetchPosts()
         }
     }
 }

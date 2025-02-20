@@ -68,4 +68,14 @@ class CelebCell: UICollectionViewCell {
         checkmarkIcon.isHidden = !isSelected
         contentView.layer.borderColor = isSelected ? UIColor.grey200!.cgColor : UIColor.clear.cgColor
     }
+
+    func configure(with celeb: idolDTO, isSelected: Bool) {
+        if let idolImageUrl = URL(string: celeb.idolImage) {
+            self.profileImageView.kf.setImage(with: idolImageUrl, placeholder: UIImage())
+        }
+        nameLabel.text = celeb.idolName
+        nameLabel.textColor = isSelected ? .black : .grey400
+        checkmarkIcon.isHidden = !isSelected
+        contentView.layer.borderColor = isSelected ? UIColor.grey200!.cgColor : UIColor.clear.cgColor
+    }
 }
