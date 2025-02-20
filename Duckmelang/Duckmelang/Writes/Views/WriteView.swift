@@ -26,16 +26,14 @@ class WriteView: UIView {
         
     private let contentView = UIView()
     
-    private let backgroundView = UIView().then {
+    let backgroundView = UIImageView().then {
         $0.backgroundColor = .grey200
+        $0.contentMode = .scaleAspectFill
     }
     
-    private let uploadImageView = UIButton().then {
+    let uploadImageView = UIButton().then {
         $0.setImage(UIImage(systemName: "camera.fill"), for: .normal)
         $0.tintColor = .lightGray
-        $0.backgroundColor = UIColor(white: 0.95, alpha: 1)
-        $0.layer.cornerRadius = 8
-        $0.imageView?.contentMode = .scaleAspectFit
     }
     
     private let imageCountLabel = UILabel().then {
@@ -141,13 +139,7 @@ class WriteView: UIView {
         $0.distribution = .fillEqually
     }
     
-    private let uploadButton = UIButton().then {
-        $0.setTitle("업로드", for: .normal)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .lightGray
-        $0.layer.cornerRadius = 22
-        $0.isEnabled = false
-    }
+    let uploadButton = longCustomBtn(title: "업로드")
     
     override init(frame: CGRect) {
         super.init(frame: frame)

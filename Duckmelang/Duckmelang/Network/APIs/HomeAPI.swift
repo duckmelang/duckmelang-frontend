@@ -18,6 +18,7 @@ public enum HomeAPI {
     case getHomePosts(page: Int)
     case getIdolPosts(idolId: Int, page: Int)
     case getIdols
+    case postPosts(postRequest: PostRequest, images: UIImage)
 }
 
 extension HomeAPI: TargetType {
@@ -42,6 +43,8 @@ extension HomeAPI: TargetType {
             return "/idols/\(idolId)"
         case .getIdols:
             return "/idols"
+        case .postPosts:
+            return ""
         }
     }
     
@@ -49,6 +52,8 @@ extension HomeAPI: TargetType {
         // 가장 많이 호출되는 get을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
+        case .postPosts:
+            return .post
         default:
             return .get
         }
@@ -59,6 +64,26 @@ extension HomeAPI: TargetType {
         switch self {
         case .getHomePosts(let page), .getIdolPosts(_, let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+        case .postPosts(let postRequest, let image):
+            var formData: [MultipartFormData] = []
+
+            // ✅ JSON 데이터 변환하여 multipart 추가
+            if let jsonData = try? JSONEncoder().encode(postRequest) {
+                let jsonPart = MultipartFormData(provider: .data(jsonData),
+                                                name: "request",
+                                                mimeType: "application/json")
+                formData.append(jsonPart)
+            }
+
+            if let imageData = image.jpegData(compressionQuality: 0.8) {
+               let imagePart = MultipartFormData(provider: .data(imageData),
+                                                 name: "images",
+                                                 fileName: "image\(index).jpg",
+                                                 mimeType: "image/jpeg")
+               formData.append(imagePart)
+            }
+
+            return .uploadMultipart(formData)
         case .getIdols:
             return .requestPlain
         }

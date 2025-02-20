@@ -6,23 +6,32 @@
 //
 
 import UIKit
+import Moya
 
 protocol WriteViewControllerDelegate: AnyObject {
     func didUpdateSelectedCeleb(_ celeb: idolDTO?)
 }
 
-class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDelegate, EventSelectionDelegate {
-
+class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDelegate, EventSelectionDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    private let provider = MoyaProvider<HomeAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    
     weak var delegate: WriteViewControllerDelegate?
     
+    var celebs: [idolDTO]?
+    
+    private var selectedImage: UIImage?
+    private var selectedTitle: String = ""
+    private var selectedContent: String = ""
     private var selectedCeleb: idolDTO?
     private var selectedEvent: Event?
+    private var selectedDate: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = writeView
         self.navigationController?.isNavigationBarHidden = false
         setupNavigationBar()
+        writeView.uploadButton.setEnabled(true)
     }
     
     private lazy var writeView: WriteView = {
@@ -32,6 +41,8 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         view.idolSelectButton.addTarget(self, action: #selector(didTapIdolSelectButton), for: .touchUpInside)
         view.eventTypeSelectButton.addTarget(self, action: #selector(didTapEventTypeSelectButton), for: .touchUpInside)
         view.eventDateSelectButton.addTarget(self, action: #selector(didTapEventDateSelectButton), for: .touchUpInside)
+        view.uploadImageView.addTarget(self, action: #selector(didTapImageView), for: .touchUpInside)
+        view.uploadButton.addTarget(self, action: #selector(didTapPostButton), for: .touchUpInside)
         
         return view
     }()
@@ -66,7 +77,7 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
     }
 
     @objc func didTapIdolSelectButton() {
-        let selectVC = CelebSelectionViewController(celebs: [], selectedCeleb: self.selectedCeleb)
+        let selectVC = CelebSelectionViewController(celebs: celebs ?? [], selectedCeleb: self.selectedCeleb)
         selectVC.delegate = self
         presentBottomSheet(selectVC)
     }
@@ -91,6 +102,27 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
         }
         present(viewController, animated: true)
+    }
+    
+    @objc private func didTapImageView() {
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .photoLibrary
+        present(imagePicker, animated: true)
+    }
+
+    // ✅ 사용자가 사진을 선택했을 때 호출되는 메서드
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let selectedImage = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
+            self.selectedImage = selectedImage
+            writeView.backgroundView.image = selectedImage // ✅ 이미지뷰에 표시
+        }
+        picker.dismiss(animated: true)
+    }
+
+    // ✅ 사용자가 사진 선택을 취소했을 때
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
     }
     
     private func showDatePicker() {
@@ -124,6 +156,52 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         writeView.eventDateSelectButton.setTitle(selectedDate, for: .normal)
         writeView.eventDateSelectButton.setTitleColor(.black, for: .normal)
         writeView.eventDateSelectButton.layer.borderColor = UIColor.black!.cgColor
+        
+        self.selectedDate = selectedDate
+    }
+    
+    private func updatePostButtonState() {
+        let isFormComplete = selectedImage != nil &&
+                             !selectedTitle.isEmpty &&
+                             !selectedContent.isEmpty &&
+                             selectedCeleb != nil &&
+                             selectedEvent != nil &&
+                             selectedDate != nil
+                             
+        writeView.uploadButton.setEnabled(isFormComplete)
+    }
+    
+    @objc private func didTapPostButton() {
+        guard let celeb = selectedCeleb,
+              let event = selectedEvent,
+              let date = selectedDate,
+              let image = selectedImage else {
+            print("선택되지않음")
+            print(selectedCeleb)
+            print(selectedEvent)
+            print(selectedDate)
+            print(selectedImage)
+            return
+        }
+
+        let postRequest = PostRequest(
+            title: selectedTitle,
+            content: selectedContent,
+            idolIds: [celeb.idolId],
+            categoryId: event.id,
+            date: date,
+            imageInfos: [ImageInfo(orderNumber: 0, description: "example")]
+        )
+
+        provider.request(.postPosts(postRequest: postRequest, images: image)) { result in
+            switch result {
+            case .success:
+                print("✅ 게시물 등록 성공")
+                self.navigationController?.popViewController(animated: true)
+            case .failure(let error):
+                print("❌ 게시물 등록 실패: \(error.localizedDescription)")
+            }
+        }
     }
 
     func didSelectCeleb(_ celeb: idolDTO) {

@@ -84,6 +84,7 @@ class HomeViewController: UIViewController {
     @objc private func writeButtonTapped() {
         print("📝 Write button tapped!")
         let writeVC = WriteViewController()
+        writeVC.celebs = self.celebs
         writeVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(writeVC, animated: true)
     }
