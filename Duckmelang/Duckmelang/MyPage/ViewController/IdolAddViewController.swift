@@ -10,7 +10,7 @@ import Moya
 
 class IdolAddViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     private var searchResults: [IdolListDTO] = []  // 검색 결과
     private var selectedIdols: Set<Int> = []  // 선택된 아이돌의 ID

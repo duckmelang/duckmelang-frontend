@@ -16,7 +16,7 @@ class FeedManagementViewController: UIViewController {
     
     private var pendingDeletes: [(postId: Int, indexPath: IndexPath)] = [] // 삭제 대기 중인 게시물 저장
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(),NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
 
     private var posts: [PostDTO] = []
 

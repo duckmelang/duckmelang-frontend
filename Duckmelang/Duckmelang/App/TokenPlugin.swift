@@ -99,25 +99,25 @@ final class TokenPlugin: PluginType {
         }
     }
     
-    private func logout() {
+    public func logout() {
         DispatchQueue.main.async {
             // ✅ Keychain에서 저장된 토큰 삭제
             KeychainManager.shared.delete(key: "accessToken")
             KeychainManager.shared.delete(key: "refreshToken")
 
-//            // ✅ UIWindowScene 가져오기
-//            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-//                  let window = scene.windows.first else {
-//                print("❌ 윈도우 찾기 실패")
-//                return
-//            }
-//
-//            // ✅ OnBoardingViewController를 새로운 루트 뷰 컨트롤러로 설정
-//            let onboardingVC = OnBoardingViewController()
-//            let navController = UINavigationController(rootViewController: onboardingVC) // ✅ 네비게이션 포함
-//
-//            window.rootViewController = navController
-//            window.makeKeyAndVisible()
+           // ✅ UIWindowScene 가져오기
+           guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                 let window = scene.windows.first else {
+               print("❌ 윈도우 찾기 실패")
+              return
+        }
+
+           // ✅ OnBoardingViewController를 새로운 루트 뷰 컨트롤러로 설정
+           let onboardingVC = OnBoardingViewController()
+           let navController = UINavigationController(rootViewController: onboardingVC) // ✅ 네비게이션 포함
+
+        window.rootViewController = navController
+        window.makeKeyAndVisible()
         }
         print("🔐 로그아웃되었습니다")
     }

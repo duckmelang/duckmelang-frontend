@@ -15,7 +15,6 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum MyPageAPI {
-    case getProfileImage(page: Int)
     case getProfile
     case patchProfile(profileData: EditProfileRequest)
     case getMyPosts(page: Int)
@@ -37,6 +36,8 @@ public enum MyPageAPI {
     case patchNotificationsSetting([String: Bool])
     case getNotificationsSetting
     case getMyPageLogin
+    case getMyProfileImage(page: Int)
+    case deleteAccount
 }
 
 extension MyPageAPI: TargetType {
@@ -65,8 +66,8 @@ extension MyPageAPI: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
-        case .getProfileImage:
-            return "/profile/image/"
+        case .getMyProfileImage:
+            return "/profile/image"
         case .getProfile:
             return "/profile"
         case .patchProfile, .getProfileEdit:
@@ -97,6 +98,8 @@ extension MyPageAPI: TargetType {
             return "/setting"
         case .getMyPageLogin:
             return "/info"
+        case .deleteAccount:
+            return "/account/delete"
         }
     }
     
@@ -108,7 +111,7 @@ extension MyPageAPI: TargetType {
             return .patch
         case .postProfileImage, .postIdol, .postLandmines, .postFilters:
             return .post
-        case .deletePost, .deleteIdol, .deleteLandmines:
+        case .deletePost, .deleteIdol, .deleteLandmines, .deleteAccount:
             return .delete
         default:
             return .get
@@ -118,9 +121,9 @@ extension MyPageAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getProfileImage(let page), .getMyPosts(let page):
+        case .getMyPosts(let page), .getMyProfileImage(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting, .deleteAccount:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
@@ -142,9 +145,7 @@ extension MyPageAPI: TargetType {
     public var headers: [String : String]? {
         switch self {
         default :
-            return ["Content-Type": "application/json",
-                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDYzNjY0LCJleHAiOjE3NDAwNjcyNjR9.gunMvdm5YpHWuqg_IgeK2ISxQml-V4g4Ms3QISIxxMA"]
-            
+            return ["Content-Type": "application/json"]
         }
     }
 }

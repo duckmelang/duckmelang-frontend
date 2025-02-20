@@ -83,6 +83,7 @@ class ProfileTopView: UIView {
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
     lazy var profileImage = UIImageView().then {
+        $0.isUserInteractionEnabled = true
         $0.image = .profile
         $0.layer.cornerRadius = 32
         $0.clipsToBounds = true

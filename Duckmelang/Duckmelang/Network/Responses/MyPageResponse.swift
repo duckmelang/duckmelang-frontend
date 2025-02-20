@@ -136,3 +136,17 @@ struct myPageLoginResponse: Codable {
     var kakaoLinked: Bool
     var googleLinked: Bool
 }
+
+public struct myProfileImageResponse: Codable {
+    let profileImageList: [ProfileImageData]
+    let listSize: Int
+    let totalPage: Int
+    let totalElements: Int
+    let isFirst: Bool
+    let isLast: Bool
+}
+
+public struct ProfileImageData: Codable {
+    let memberProfileImageUrl: String
+    let createdAt: String
+}

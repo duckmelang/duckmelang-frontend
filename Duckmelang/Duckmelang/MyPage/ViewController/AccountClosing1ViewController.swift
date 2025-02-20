@@ -31,6 +31,6 @@ class AccountClosing1ViewController: UIViewController {
     private func outBtnDidTap() {
         let out2VC = UINavigationController(rootViewController: AccountClosing2ViewController())
         out2VC.modalPresentationStyle = .fullScreen
-        present(out2VC, animated: false)
+        present(out2VC, animated: true)
     }
 }
