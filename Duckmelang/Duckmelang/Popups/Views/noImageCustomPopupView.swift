@@ -103,12 +103,12 @@ class noImageCustomPopupView: UIView {
         }
 
         self.textStackView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(32)
+            $0.top.equalToSuperview().offset(36)
             $0.centerX.equalToSuperview()
         }
         
         self.btnStackView.snp.makeConstraints {
-            $0.top.equalTo(textStackView.snp.bottom).offset(32)
+            $0.top.equalTo(textStackView.snp.bottom).offset(16)
             $0.centerX.equalToSuperview()
         }
     }
