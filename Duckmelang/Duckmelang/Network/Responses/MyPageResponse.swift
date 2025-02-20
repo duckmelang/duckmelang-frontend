@@ -70,6 +70,7 @@ struct MyPostDetailResponse: Codable {
     let title: String
     let content: String
     let wanted: Int
+    let chatCount: Int
     let idol: [String]
     let category: String
     let date: String
@@ -113,3 +114,10 @@ struct LandmineModel: Codable {
     let landmineId: Int
     let content: String
 }
+
+struct UpdatePostStatusResponse: Codable {
+    let id: Int
+    let title: String
+    let wanted: Int
+}
+

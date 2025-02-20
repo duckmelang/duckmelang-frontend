@@ -181,6 +181,7 @@ class ProfileViewController: UIViewController{
         
         let setBtnDidTap = UITapGestureRecognizer(target: self, action: #selector(viewDidTap))
         setBtnDidTap.numberOfTapsRequired = 1 // 단일 탭, 횟수 설정
+        setBtnDidTap.cancelsTouchesInView = false  // ✅ 터치 이벤트가 다른 뷰로 전달되도록 설정
         profileView.addGestureRecognizer(setBtnDidTap)
         
         let feedManagementDidTap = UITapGestureRecognizer(target: self, action: #selector(handleImageTap(_:)))
@@ -298,10 +299,8 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
             // PostDetailViewController로 postId 전달
             let postDetailVC = PostDetailViewController()
             postDetailVC.postId = post.postId  // PostDetailViewController에 postId 설정
-            postDetailVC.modalPresentationStyle = .fullScreen
-            
-            // 화면 전환
-            present(postDetailVC, animated: true)
+            // ✅ 네비게이션 스택을 사용하여 푸시 (기존 present 방식에서 변경)
+            self.navigationController?.pushViewController(postDetailVC, animated: true)
         }
     }
 

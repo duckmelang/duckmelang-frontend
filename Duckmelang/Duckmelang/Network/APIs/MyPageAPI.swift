@@ -33,6 +33,7 @@ public enum MyPageAPI {
     case deleteLandmines(landmineId: Int)
     case getFilters
     case postFilters(FilterRequest: FilterRequest)
+    case patchPostStatus(postId: Int)
 }
 
 extension MyPageAPI: TargetType {
@@ -40,7 +41,7 @@ extension MyPageAPI: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
-        case.getMyPostDetail:
+        case.getMyPostDetail, .patchPostStatus:
             guard let url = URL(string: API.postURL) else {
                 fatalError("mypageURL 오류")
             }
@@ -67,7 +68,7 @@ extension MyPageAPI: TargetType {
         case .getReviews:
             return "/reviews"
         case .getMyPostDetail(postId: let postId), .deletePost(postId: let postId):
-            return "/posts/\(postId)"
+            return "/\(postId)"
         case .postProfileImage:
             return "/profile/image/edit"
         case .getIdolList:
@@ -82,6 +83,8 @@ extension MyPageAPI: TargetType {
             return "/landmines/\(landmineId)"
         case .getFilters, .postFilters:
             return "/filters"
+        case .patchPostStatus(postId: let postId):
+            return "/\(postId)/status"
         }
     }
     
@@ -89,7 +92,7 @@ extension MyPageAPI: TargetType {
         // 가장 많이 호출되는 get을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .patchProfile:
+        case .patchProfile, .patchPostStatus:
             return .patch
         case .postProfileImage, .postIdol, .postLandmines, .postFilters:
             return .post
@@ -105,7 +108,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getProfileImage(let page), .getMyPosts(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .patchPostStatus:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
@@ -124,7 +127,7 @@ extension MyPageAPI: TargetType {
         switch self {
         default :
             return ["Content-Type": "application/json",
-                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTU0MDUwLCJleHAiOjE3Mzk5NTc2NTB9.uUlLziRUE59uFhZ_BDHVJjUZm5QVbnvs7Pi7cG249gQ"]
+                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDI0NjE3LCJleHAiOjE3NDAwMjgyMTd9.Zer9cnOn6jDxFGcDwnOMh17oFNjOpxwkJdSkFrVsXLE"]
         }
     }
 }

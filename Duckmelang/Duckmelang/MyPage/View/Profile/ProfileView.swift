@@ -253,7 +253,7 @@ class ProfileBottomView: UIView {
         $0.separatorStyle = .none
         $0.rowHeight = 106
         $0.isHidden = false
-        $0.isUserInteractionEnabled = true
+        $0.allowsSelection = true
     }
     
     //변경 예정
