@@ -11,12 +11,10 @@ import Moya
 class OtherProfileViewController: UIViewController {
     private let provider = MoyaProvider<OtherPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
-    var selectedTag: Int = 0
+    private var currentViewController: UIViewController?
     
     var oppositeId: Int?
     var profileData: OtherProfileData?
-    var otherPostsData: [PostDTO] = []
-    var otherReviewsData: [OtherReviewDTO] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,14 +23,12 @@ class OtherProfileViewController: UIViewController {
         
         navigationController?.isNavigationBarHidden = true
         self.tabBarController?.tabBar.isHidden = false
-        otherProfileView.otherProfileBottomView.cosmosView.isHidden = true
-        otherProfileView.otherProfileBottomView.cosmosStack.isHidden = true
         
         setupAction()
-        setupDelegate()
         getProfileInfo()
-        getOtherPosts()
-        getOtherReviews()
+        segmentedControlValueChanged(
+            segment: otherProfileView.otherProfileBottomView.segmentedControl
+        )
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -41,30 +37,16 @@ class OtherProfileViewController: UIViewController {
         self.view = otherProfileView
         
         navigationController?.isNavigationBarHidden = true
-        otherProfileView.otherProfileBottomView.cosmosView.isHidden = true
-        otherProfileView.otherProfileBottomView.cosmosStack.isHidden = true
+        self.tabBarController?.tabBar.isHidden = false
         
         setupAction()
-        setupDelegate()
         getProfileInfo()
-        getOtherPosts()
-        getOtherReviews()
+        segmentedControlValueChanged(
+            segment: otherProfileView.otherProfileBottomView.segmentedControl
+        )
     }
 
     private lazy var otherProfileView = OtherProfileView()
-    
-    @objc
-    private func backBtnDidTap() {
-        self.navigationController?.popViewController(animated: true)
-    }
-
-    private func setupDelegate() {
-        otherProfileView.otherProfileBottomView.uploadPostView.dataSource = self
-        otherProfileView.otherProfileBottomView.uploadPostView.delegate = self
-        
-        otherProfileView.otherProfileBottomView.reviewTableView.dataSource = self
-        otherProfileView.otherProfileBottomView.reviewTableView.delegate = self
-    }
     
     private func setupAction() {
         otherProfileView.otherProfileTopView.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
@@ -77,25 +59,59 @@ class OtherProfileViewController: UIViewController {
         otherProfileView.otherProfileTopView.profileImage.addGestureRecognizer(tapGesture)
     }
     
+    @objc
+    private func backBtnDidTap() {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
     @objc private func segmentedControlValueChanged(segment: UISegmentedControl) {
-        if segment.selectedSegmentIndex == 0 {
-            otherProfileView.otherProfileBottomView.uploadPostView.isHidden = false
-            otherProfileView.otherProfileBottomView.reviewTableView.isHidden = true
-            otherProfileView.otherProfileBottomView.cosmosView.isHidden = true
-            otherProfileView.otherProfileBottomView.cosmosStack.isHidden = true
-        } else {
-            otherProfileView.otherProfileBottomView.uploadPostView.isHidden = true
-            otherProfileView.otherProfileBottomView.reviewTableView.isHidden = false
-            otherProfileView.otherProfileBottomView.cosmosView.isHidden = false
-            otherProfileView.otherProfileBottomView.cosmosStack.isHidden = false
+        let selectedIndex = segment.selectedSegmentIndex
+        let newViewController: UIViewController
+        
+        switch selectedIndex {
+        case 0:
+            let postsVC = OtherPostsViewController()
+            postsVC.oppositeId = self.oppositeId
+            newViewController = postsVC
+        case 1:
+            let otherReviewsVC = OtherReviewsViewController()
+            otherReviewsVC.oppositeId = self.oppositeId
+            newViewController = otherReviewsVC
+        default:
+            return
         }
         
+        moveUnderline()
+        switchToViewController(newViewController)
+    }
+    
+    private func moveUnderline() {
+        // 세그먼트 컨트롤 하단바 이동
         let width = otherProfileView.otherProfileBottomView.segmentedControl.frame.width / CGFloat(otherProfileView.otherProfileBottomView.segmentedControl.numberOfSegments)
         let xPosition = otherProfileView.otherProfileBottomView.segmentedControl.frame.origin.x + (width * CGFloat(otherProfileView.otherProfileBottomView.segmentedControl.selectedSegmentIndex))
         
         UIView.animate(withDuration: 0.2) {
             self.otherProfileView.otherProfileBottomView.underLineView.frame.origin.x = xPosition
         }
+    }
+    
+    private func switchToViewController(_ newViewController: UIViewController) {
+        if let currentVC = currentViewController {
+            currentVC.view.removeFromSuperview()
+            currentVC.removeFromParent()
+        }
+        
+        addChild(newViewController)
+        newViewController.view.frame = otherProfileView.bounds
+        otherProfileView.addSubview(newViewController.view)
+        newViewController.didMove(toParent: self)
+        
+        newViewController.view.snp.makeConstraints {
+            $0.top.equalTo(otherProfileView.otherProfileBottomView.underLineView.snp.bottom)
+            $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        currentViewController = newViewController
     }
     
     @objc private func userImageTapped() {
@@ -126,76 +142,5 @@ class OtherProfileViewController: UIViewController {
     
     private func updateUI(_ profileData: OtherProfileData) {
         self.otherProfileView.otherProfileTopView.profileData = profileData
-    }
-    
-    // 게시글 가져오기
-    private func getOtherPosts() {
-        provider.request(.getOtherPosts(memberId: self.oppositeId!, page: 0)) { result in
-            switch result {
-            case .success(let response):
-                self.otherPostsData.removeAll()
-                let response = try? response.map(ApiResponse<PostResponse>.self)
-                guard let result = response?.result?.postList else { return }
-                self.otherPostsData = result
-                
-                print("다른 사람 게시글: \(self.otherPostsData)")
-                DispatchQueue.main.async {
-                    self.otherProfileView.otherProfileBottomView.uploadPostView.reloadData()
-                }
-            case .failure(let error):
-                print("게시글 불러오기 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    // 후기 가져오기
-    private func getOtherReviews() {
-        provider.request(.getOtherReviews(memberId: self.oppositeId!)) { result in
-            switch result {
-            case .success(let response):
-                self.otherReviewsData.removeAll()
-                let response = try? response.map(ApiResponse<OtherReviewResponse>.self)
-                guard let result = response?.result else { return }
-                self.otherReviewsData = result.reviewList
-                
-                print("다른 사람 후기: \(self.otherReviewsData)")
-                DispatchQueue.main.async {
-                    self.otherProfileView.otherProfileBottomView.cosmosView.rating = result.average
-                    self.otherProfileView.otherProfileBottomView.cosmosCount.text = "\(result.average)"
-                    self.otherProfileView.otherProfileBottomView.reviewTableView.reloadData()
-                }
-            case .failure(let error):
-                print("후기 불러오기 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-}
-
-extension OtherProfileViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if (tableView == otherProfileView.otherProfileBottomView.uploadPostView) {
-            return otherPostsData.count
-        } else if (tableView == otherProfileView.otherProfileBottomView.reviewTableView) {
-            return otherReviewsData.count
-        }
-        return 0
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if (tableView == otherProfileView.otherProfileBottomView.uploadPostView) {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
-                return UITableViewCell()
-            }
-            cell.configure(model: otherPostsData[indexPath.row])
-            return cell
-            
-        } else if (tableView == otherProfileView.otherProfileBottomView.reviewTableView) {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: ReviewCell.identifier, for: indexPath) as? ReviewCell else {
-                return UITableViewCell()
-            }
-            cell.configure(model: otherReviewsData[indexPath.row])
-            return cell
-        }
-        return UITableViewCell()
     }
 }
