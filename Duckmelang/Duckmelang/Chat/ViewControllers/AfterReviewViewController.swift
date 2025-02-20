@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class AfterReviewViewController: UIViewController {
-    private let provider = MoyaProvider<ReviewAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<ReviewAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     var oppositeId: Int?
     var postId: Int?

@@ -95,8 +95,7 @@ extension MyAccompanyAPI: TargetType {
         switch self {
         default :
             return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTc1NDUyLCJleHAiOjE3Mzk5NzkwNTJ9.BxOx3ezrGxMH7Bd5pbyd5nAFF7MYO1Kehg8GgNff7Ww"
+                "Content-Type": "application/json"
             ]
         }
     }

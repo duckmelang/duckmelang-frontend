@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class ChatViewController: UIViewController {
-    private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     var chatData: [ChatDTO] = []
     

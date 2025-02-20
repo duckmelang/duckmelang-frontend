@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class OtherProfileViewController: UIViewController {
-    private let provider = MoyaProvider<OtherPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<OtherPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     var selectedTag: Int = 0
     

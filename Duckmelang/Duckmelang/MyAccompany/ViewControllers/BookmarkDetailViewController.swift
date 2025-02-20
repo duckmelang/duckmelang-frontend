@@ -17,7 +17,7 @@ class BookmarkDetailViewController: UIViewController {
     
     private var currentState: PostProgressState = .inProgress
     
-    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     override func viewDidLoad() {
         super.viewDidLoad()
