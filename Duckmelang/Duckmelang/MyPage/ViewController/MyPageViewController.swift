@@ -75,9 +75,7 @@ class MyPageViewController: UIViewController {
         let profileVC = ProfileViewController()
         profileVC.profileData = myPageView.myPageTopView.profileData // 데이터 전달
         
-        let navigationVC = UINavigationController(rootViewController: profileVC)
-        navigationVC.modalPresentationStyle = .fullScreen
-        present(navigationVC, animated: true)
+        navigationController?.pushViewController(profileVC, animated: true)
     }
 
     @objc
