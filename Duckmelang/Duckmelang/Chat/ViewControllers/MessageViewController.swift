@@ -6,9 +6,14 @@
 //
 
 import UIKit
+import Moya
 
 class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate {
-    var data = MessageModel.dummy()
+    private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let socketManager = SocketManager()
+    
+    var chat: ChatDTO?
+    private var messageData: [MessageModel] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +30,10 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         DispatchQueue.main.async {
             self.scrollToLastItem()
         }
+        
+        getMessagesAPI()
+        connectWebSocket()
+        getDetailChatroomsAPI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -36,6 +45,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         DispatchQueue.main.async {
             self.scrollToLastItem()
         }
+        setupNavigationBar()
     }
     
     private lazy var messageView: MessageView = {
@@ -43,10 +53,136 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         return view
     }()
     
+    private func getMessagesAPI() {
+        provider.request(.getMessages(chatRoomId: chat?.chatRoomId ?? 0, size: 20)) { result in
+            switch result {
+            case .success(let response):
+                self.messageData.removeAll()
+                let response = try? response.map(ApiResponse<MessageResponse>.self)
+                guard let results = response?.result?.chatMessageList else { return }
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+                dateFormatter.locale = Locale(identifier: "ko_KR")
+                
+                results.forEach { result in
+                    let newChatType: ChatType = result.receiverId == 1 ? .receive : .send
+                    var newDate = Date()
+                    
+                    if let date = dateFormatter.date(from: result.createdAt) {
+                        print("Converted Date: \(date)")
+                        newDate = date
+                    } else {
+                        print("Failed to convert date")
+                    }
+                    
+                    let message = MessageModel(
+                        text: result.text ?? "",
+                        chatType: newChatType,
+                        date: newDate
+                    )
+                    self.messageData.append(message)
+                }
+                
+                print("메세지: \(self.messageData)")
+                self.messageData = self.messageData.reversed()
+                DispatchQueue.main.async {
+                    self.reloadMessage()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    private func connectWebSocket() {
+        let url = URL(string: "wss://13.125.217.231.nip.io/wss/chat")!
+
+        socketManager.connect(to: url)
+        
+        // 연결 후 받은 메세지 받아오기
+        socketManager.receiveMessage { result in
+            switch result {
+            case .success(let response):
+                let newChatType: ChatType = response.receiverId == 1 ? .receive : .send
+                          
+                let message = MessageModel(
+                    text: response.text,
+                    chatType: newChatType,
+                    date: Date()
+                )
+                
+                self.messageData.append(message)
+                DispatchQueue.main.async {
+                    self.reloadMessage()
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func getDetailChatroomsAPI() {
+        provider.request(.getDetailChatroom(chatRoomId: self.chat?.chatRoomId ?? 0)) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<DetailChatroomResponse>.self)
+                guard let result = response?.result else { return }
+                print("채팅 상세 정보: \(result)")
+                
+                DispatchQueue.main.async {
+                    self.messageView.detailChatroomResponse = result
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    @objc private func sendNewMessage() {
+        if (messageView.bottomMessageView.messageTextField.text == "") {
+            return
+        }
+        
+        if let text = messageView.bottomMessageView.messageTextField.text {
+            sendMessage(with: text)
+        }
+    }
+    
+    private func sendMessage(with text: String) {
+        let newMessage = MessageRequest(
+            senderId: 1,
+            receiverId: 2,
+            postId: 2,
+            messageType: "TEXT",
+            text: text
+        )
+        
+        let newMessageModel = MessageModel(text: text, chatType: .send, date: Date())
+        
+        socketManager.sendMessage(messageRequest: newMessage) { [weak self] result in
+            switch result {
+            case .success(_):
+                DispatchQueue.main.async {
+                    self?.messageData.append(newMessageModel)
+                    self?.reloadMessage()
+                    self?.messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func reloadMessage() {
+        self.messageView.messageCollectionView.reloadData()
+        self.scrollToLastItem()
+    }
+    
     private func setupNavigationBar() {
         self.navigationController?.navigationBar.backgroundColor = .white
         
-        self.navigationItem.title = "유저네임"
+        self.navigationItem.title = chat?.oppositeNickname
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
         
         let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
@@ -67,35 +203,26 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     private func setupAction() {
         messageView.topMessageView.confirmBtn.addTarget(self, action: #selector(openConfirmPopup), for: .touchUpInside)
         messageView.topMessageView.reviewBtn.addTarget(self, action: #selector(openReview), for: .touchUpInside)
-        messageView.bottomMessageView.sendBtn.addTarget(self, action: #selector(appendNewMessage), for: .touchUpInside)
+        messageView.bottomMessageView.sendBtn.addTarget(self, action: #selector(sendNewMessage), for: .touchUpInside)
     }
     
     @objc private func openConfirmPopup() {
         let popupVC = ConfirmPopupViewController()
         popupVC.modalPresentationStyle = .overFullScreen
+        
+        popupVC.postId = chat?.postId
+        popupVC.oppositeNickname = chat?.oppositeNickname
+        popupVC.oppositeProfileImage = chat?.oppositeProfileImage
+        
         popupVC.delegate = self
         present(popupVC, animated: false)
     }
     
     @objc private func openReview() {
         let afterReviewVC = AfterReviewViewController()
+        afterReviewVC.oppositeId = chat?.oppositeId
+        afterReviewVC.postId = chat?.postId
         navigationController?.pushViewController(afterReviewVC, animated: true)
-    }
-    
-    @objc private func appendNewMessage() {
-        if (messageView.bottomMessageView.messageTextField.text == "") {
-            return
-        }
-        
-        let newMessage = MessageModel(text: messageView.bottomMessageView.messageTextField.text ?? "", chatType: .send, date: Date())
-        data.append(newMessage)
-        messageView.messageCollectionView.reloadData()
-        
-        DispatchQueue.main.async {
-            self.scrollToLastItem()
-        }
-        
-        messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
     }
     
     private func scrollToLastItem() {
@@ -116,7 +243,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
 
 extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return data.count
+        return messageData.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -140,14 +267,14 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
         dateFormatter.locale = Locale(identifier: "ko_KR")
         dateFormatter.dateFormat = "yyyy년 MM월 dd일"
 
-        header.configure(date: dateFormatter.string(from: data[indexPath.section].date))
+        header.configure(date: dateFormatter.string(from: messageData[indexPath.section].date))
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if section == 0 || !isSameDay(date1: data[section].date, date2: data[section - 1].date) {
+        if section == 0 || !isSameDay(date1: messageData[section].date, date2: messageData[section - 1].date) {
             return CGSize(width: collectionView.bounds.width, height: 24)
         } else {
             return CGSize(width: collectionView.bounds.width, height: 0)
@@ -155,7 +282,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let messageDate = data[indexPath.section]
+        let messageDate = messageData[indexPath.section]
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")
         dateFormatter.dateFormat = "a hh:mm"
@@ -178,7 +305,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
                 return UICollectionViewCell()
             }
             
-            cell.configure(userImage: UIImage(), text: messageDate.text, date: dateFormatter.string(from: messageDate.date))
+            cell.configure(userImage: chat?.oppositeProfileImage ?? "", text: messageDate.text, date: dateFormatter.string(from: messageDate.date))
             cell.delegate = self
             return cell
         }
@@ -193,13 +320,14 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func didTapUserImage(in cell: OtherMessageCell) {
         let otherProfileVC = OtherProfileViewController()
+        otherProfileVC.oppositeId = chat?.oppositeId
         navigationController?.pushViewController(otherProfileVC, animated: true)
     }
 }
 
 extension MessageViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        appendNewMessage()
+        sendNewMessage()
         return true
     }
 }

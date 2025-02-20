@@ -49,3 +49,18 @@ class paddingLabel: UILabel {
         return CGSize(width: size.width + textInsets.left + textInsets.right, height: size.height + textInsets.top + textInsets.bottom)
     }
 }
+
+class emptyLabel: UILabel {
+    init(text: String?){
+        super.init(frame: .zero)
+        self.text = text
+        self.font = .ptdMediumFont(ofSize: 14)
+        self.textColor = .grey600
+        self.textAlignment = .center
+        self.isHidden = true
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}

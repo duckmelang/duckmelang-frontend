@@ -15,8 +15,8 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum ReviewAPI {
-    case postReviews(memberId: Int, reviewData: ReviewRequest)
-    case getReviewsInformation(memberId: Int, myId: Int)
+    case postReviews(reviewData: ReviewRequest)
+    case getReviewsInformation(memberId: Int, postId: Int)
 }
 
 extension ReviewAPI: TargetType {
@@ -38,7 +38,7 @@ extension ReviewAPI: TargetType {
         case .postReviews:
             return ""
         case .getReviewsInformation:
-            return "/information"
+            return "/chat/information"
         }
     }
     
@@ -56,20 +56,20 @@ extension ReviewAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .postReviews(let memberId, let reviewData):
-            guard let jsonData = try? JSONEncoder().encode(reviewData) else {
-                return .requestPlain
-            }
-            return .requestCompositeData(bodyData: jsonData, urlParameters: ["memberId": memberId])
-        case .getReviewsInformation(let memberId, let myId):
-            return .requestParameters(parameters: ["memberId": memberId, "myId": myId], encoding: URLEncoding.queryString)
+        case .postReviews(let reviewData):
+            return .requestJSONEncodable(reviewData)
+        case .getReviewsInformation(let memberId, let postId):
+            return .requestParameters(parameters: ["memberId": memberId, "postId": postId], encoding: URLEncoding.queryString)
         }
     }
     
     public var headers: [String : String]? {
         switch self {
         default :
-            return ["Content-Type": "application/json"]
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTc1NDUyLCJleHAiOjE3Mzk5NzkwNTJ9.BxOx3ezrGxMH7Bd5pbyd5nAFF7MYO1Kehg8GgNff7Ww"
+            ]
         }
     }
 }

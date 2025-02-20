@@ -15,7 +15,7 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum OtherPageAPI {
-    case getOtherProfile(memberId: Int, page: Int)
+    case getOtherProfile(memberId: Int)
     case getOtherProfileImage(memberId: Int, page: Int)
     case getOtherPosts(memberId: Int, page: Int)
     case getOtherReviews(memberId: Int)
@@ -37,7 +37,7 @@ extension OtherPageAPI: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
-        case .getOtherProfile(let memberId, _):
+        case .getOtherProfile(let memberId):
             return "/\(memberId)"
         case .getOtherProfileImage(let memberId, _):
             return "/\(memberId)/images"
@@ -60,9 +60,9 @@ extension OtherPageAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getOtherProfile(_, let page), .getOtherProfileImage(_, let page), .getOtherPosts(_, let page):
+        case .getOtherProfileImage(_, let page), .getOtherPosts(_, let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getOtherReviews:
+        case .getOtherProfile, .getOtherReviews:
             return .requestPlain
         }
     }
@@ -70,7 +70,10 @@ extension OtherPageAPI: TargetType {
     public var headers: [String : String]? {
         switch self {
         default :
-            return ["Content-Type": "application/json"]
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5OTc1NDUyLCJleHAiOjE3Mzk5NzkwNTJ9.BxOx3ezrGxMH7Bd5pbyd5nAFF7MYO1Kehg8GgNff7Ww"
+            ]
         }
     }
 }

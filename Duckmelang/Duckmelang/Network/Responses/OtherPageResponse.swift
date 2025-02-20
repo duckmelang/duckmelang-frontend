@@ -39,7 +39,7 @@ public struct OtherReviewDTO: Codable {
     let gender: String
     let age: Int
     let content: String
-    let score: Int
+    let score: Double
 }
 
 // API 응답 구조체 (리뷰 리스트 포함)

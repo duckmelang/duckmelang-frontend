@@ -12,6 +12,8 @@ class OtherImageViewController: UIViewController, UITableViewDelegate, UITableVi
     private let provider = MoyaProvider<OtherPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     private var profileImageData: [OtherImageData] = []
+    
+    var oppositeId: Int?
     var profileData: OtherProfileData?
     
     override func viewDidLoad() {
@@ -48,7 +50,7 @@ class OtherImageViewController: UIViewController, UITableViewDelegate, UITableVi
     }
 
     private func getOtherProfileImageAPI() {
-        provider.request(.getOtherProfileImage(memberId: 1, page: 0)) { result in
+        provider.request(.getOtherProfileImage(memberId: self.oppositeId!, page: 0)) { result in
             switch result {
             case .success(let response):
                 self.profileImageData.removeAll()
@@ -82,13 +84,13 @@ class OtherImageViewController: UIViewController, UITableViewDelegate, UITableVi
         return cell
     }
     
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let spacerView = UIView()
         spacerView.backgroundColor = .grey200
         return spacerView
     }
 
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return section == tableView.numberOfSections - 1 ? 0 : 10
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return section == 0 ? 0 : 10
     }
 }
