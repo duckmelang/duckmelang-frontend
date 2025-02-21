@@ -45,7 +45,7 @@ class MyPageView: UIView {
         config.attributedTitle = AttributedString("계정 탈퇴", attributes: AttributeContainer([.font: UIFont.ptdRegularFont(ofSize: 16), .foregroundColor: UIColor.errorPrimary!]))
         $0.configuration = config
     }
-
+    
     private lazy var topBtnStack = Stack(axis: .vertical, spacing: 20)
     private lazy var bottomBtnStack = Stack(axis: .vertical, spacing: 20)
     private lazy var topStack = Stack(axis: .vertical, spacing: 22)
@@ -84,5 +84,6 @@ class MyPageView: UIView {
         bottomBtnStack.snp.makeConstraints{
             $0.leading.equalToSuperview().inset(8)
         }
+
     }
 }

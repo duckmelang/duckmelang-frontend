@@ -178,6 +178,19 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         cell.configure(model: currentPostsData[indexPath.row])
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("📌 didSelectRowAt 호출됨 - IndexPath: \(indexPath.row)")
+
+        let post = currentPostsData[indexPath.row]  // 선택한 게시물 가져오기
+           
+        // PostDetailViewController로 postId 전달
+        let VC = OtherPostDetailViewController()
+        VC.postId = post.postId
+        VC.modalPresentationStyle = .overFullScreen
+        // ✅ 네비게이션 스택을 사용하여 푸시 (기존 present 방식에서 변경)
+        present(VC, animated: true)
+    }
 }
 
 extension HomeViewController: CelebSelectionDelegate {
