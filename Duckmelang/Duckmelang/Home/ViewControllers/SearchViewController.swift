@@ -228,6 +228,8 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
 extension SearchViewController: UITextFieldDelegate {
     // MARK: - TextField에서 엔터를 입력했을 때 실행되는 함수
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        
         guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else {
             updateSearchResults()
             

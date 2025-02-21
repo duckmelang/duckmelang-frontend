@@ -38,6 +38,7 @@ class XKeywordChangeView: UIView {
         $0.configLabel(text: "", font: .ptdRegularFont(ofSize: 15), color: .grey900!)
         $0.configTextField(placeholder: "텍스트 입력", leftView: UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0)), leftViewMode: .always, interaction: true)
         $0.configLayer(layerBorderWidth: 1, layerCornerRadius: 5, layerColor: .grey400)
+        $0.returnKeyType = .done
     }
     
     lazy var searchIcon = UIButton().then {

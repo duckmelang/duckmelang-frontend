@@ -181,3 +181,10 @@ extension XKeywordChangeViewController: UICollectionViewDataSource {
 }
 
 extension XKeywordChangeViewController: UICollectionViewDelegate { }
+
+extension XKeywordChangeViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder() // ✅ "완료" 버튼 클릭 시 키보드 내리기
+        return true
+    }
+}

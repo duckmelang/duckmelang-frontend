@@ -38,6 +38,7 @@ class BottomMessageView: UIView {
         $0.leftViewMode = .always
         $0.rightView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 30, height: 0.0))
         $0.rightViewMode = .always
+        $0.returnKeyType = .done
     }
     
     let sendBtn = UIButton().then {

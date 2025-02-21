@@ -396,6 +396,7 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
 
 extension MessageViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
         sendNewMessage()
         return true
     }
