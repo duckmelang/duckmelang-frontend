@@ -32,6 +32,14 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         self.navigationController?.isNavigationBarHidden = false
         setupNavigationBar()
         writeView.uploadButton.setEnabled(true)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false // ✅ 다른 터치 이벤트도 가능하게 설정
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true) // 현재 편집 중인 뷰의 키보드를 내림
     }
     
     private lazy var writeView: WriteView = {
