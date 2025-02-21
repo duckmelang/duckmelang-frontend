@@ -67,9 +67,12 @@ class SetIntroductionViewController: UIViewController, MoyaErrorHandlerDelegate,
     }
     
     func handleNextStep(completion: @escaping () -> Void) {
-        print("📌 handleNextStep 실행됨 - 입력된 자기소개: '\(introductionText)'")
-        patchMemberIntroduction(introduction: introductionText) { // ✅ 최신 값 전달
-            completion() // ✅ 서버 요청이 끝난 후 completion 호출
+        let latestIntroductionText = setIntroductionView.introductionTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        print("📌 handleNextStep 실행됨 - 최신 입력된 자기소개: '\(latestIntroductionText)'")
+        
+        patchMemberIntroduction(introduction: latestIntroductionText) {
+            completion()
         }
     }
     
@@ -82,7 +85,9 @@ class SetIntroductionViewController: UIViewController, MoyaErrorHandlerDelegate,
     
     private func patchMemberIntroduction(introduction: String, completion: @escaping () -> Void) {
         
-        provider.request(.patchMemberIntroduction(memberId: memberId, introduction: introduction)) { result in
+        print("📡 API 요청 - 입력된 자기소개: '\(introduction)'")
+        
+        provider.request(.patchMemberIntroduction(memberId: memberId, introduction: introductionText)) { result in
             switch result {
             case .success(let response):
                 do {
