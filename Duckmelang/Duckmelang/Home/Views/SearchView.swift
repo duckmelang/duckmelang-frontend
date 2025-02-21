@@ -31,7 +31,7 @@ class SearchView: UIView {
         $0.rightView = rightPaddingView
         $0.rightViewMode = .always
     }
-    
+
     let recentSearchLabel = UILabel().then {
         $0.text = "최근 검색어"
         $0.font = .ptdRegularFont(ofSize: 15)

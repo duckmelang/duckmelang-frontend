@@ -50,11 +50,7 @@ class OtherPostDetailViewController: UIViewController {
             dismiss(animated: true) // ✅ 네비게이션이 없으면 dismiss
         }
     }
-    
-    @objc private func profileSeeBtnDidTap() {
-     
-    }
-
+ 
     private func setupDelegate() {
         otherPostDetailView.postDetailBottomView.tableView.delegate = self
         otherPostDetailView.postDetailBottomView.tableView.dataSource = self
