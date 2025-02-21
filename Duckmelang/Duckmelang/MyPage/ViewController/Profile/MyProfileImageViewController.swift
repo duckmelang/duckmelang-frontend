@@ -16,6 +16,10 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     var oppositeId: Int?
     var profileData: ProfileData?
     
+    var isLoading = false   // 중복 로딩 방지
+    var isLastPage = false  // 마지막 페이지인지 여부
+    var currentPage = 0     // 현재 페이지 번호
+    
     override func viewDidLoad() {
         super.viewDidLoad()
    
@@ -25,7 +29,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
         
         setupDelegate()
         setupNavigationBar()
-        getProfileDataAPI()
+        getMyProfileImageAPI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -56,47 +60,37 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     @objc private func goBack() {
         self.navigationController?.popViewController(animated: true)
     }
-
-    private func getProfileDataAPI() {
-        provider.request(.getProfile) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<ProfileData>.self)
-                    if decodedResponse.isSuccess, let profileData = decodedResponse.result {
-                        self.profileData = profileData
-                        print("✅ 프로필 데이터 가져오기 성공: \(profileData)")
-
-                        // ✅ 프로필 데이터를 성공적으로 가져오면 이미지 API 호출
-                        self.getMyProfileImageAPI()
-                    } else {
-                        print("❌ 프로필 데이터를 가져오는 데 실패했습니다: \(decodedResponse.message)")
-                    }
-                } catch {
-                    print("❌ 프로필 데이터 JSON 디코딩 오류: \(error.localizedDescription)")
-                }
-            case .failure(let error):
-                print("❌ 프로필 데이터 요청 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-
     
     private func getMyProfileImageAPI() {
-        provider.request(.getMyProfileImage(page: 0)) { result in
+        guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
+        isLoading = true
+        myProfileImageView.loadingIndicator.startLoading()
+        
+        provider.request(.getMyProfileImage(page: currentPage)) { result in
             switch result {
             case .success(let response):
-                self.profileImageData.removeAll()
-                let response = try? response.map(ApiResponse<myProfileImageResponse>.self)
-                guard let result = response?.result?.profileImageList else { return }
-                self.profileImageData = result
-                print("이미지: \(self.profileImageData)")
-                
-                DispatchQueue.main.async {
-                    self.myProfileImageView.imageTableView.reloadData()
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+                    let response = try? response.map(ApiResponse<myProfileImageResponse>.self)
+                    guard let result = response?.result?.profileImageList else { return }
+                    guard let isLast = response?.result?.isLast else { return }
+                    self.profileImageData.append(contentsOf: result)
+                    print("이미지: \(self.profileImageData)")
+                    
+                    DispatchQueue.main.async {
+                        self.isLastPage = isLast
+                        self.isLoading = false
+                        self.myProfileImageView.loadingIndicator.stopLoading()
+                        self.myProfileImageView.imageTableView.reloadData()
+                        
+                        if isLast {
+                            self.myProfileImageView.imageTableView.tableFooterView = nil
+                        }
+                    }
                 }
             case .failure(let error):
                 print(error)
+                self.isLoading = false
+                self.myProfileImageView.loadingIndicator.stopLoading()
             }
         }
     }
@@ -133,6 +127,19 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return section == 0 ? 0 : 10
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let tableViewHeight = scrollView.frame.size.height
+
+        if offsetY > contentHeight - tableViewHeight * 2 {
+            if !isLoading && !isLastPage {
+                currentPage += 1
+                getMyProfileImageAPI()
+            }
+        }
     }
 }
 

@@ -19,11 +19,14 @@ class MyProfileImageView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    let imageTableView = UITableView().then {
+    lazy var imageTableView = UITableView().then {
         $0.register(ProfileImageCell.self, forCellReuseIdentifier: ProfileImageCell.identifier)
         $0.rowHeight = 470
         $0.separatorStyle = .none
+        $0.tableFooterView = loadingIndicator
     }
+    
+    lazy var loadingIndicator = LoadingIndicator()
     
     private func setupView() {
         [

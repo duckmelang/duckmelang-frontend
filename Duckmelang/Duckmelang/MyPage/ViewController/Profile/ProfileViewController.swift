@@ -160,6 +160,7 @@ class ProfileViewController: UIViewController{
     @objc
     private func profileDidTap() {
         let VC = MyProfileImageViewController()
+        VC.profileData = self.profileData
         self.navigationController?.pushViewController(VC, animated: true)
     }
     
