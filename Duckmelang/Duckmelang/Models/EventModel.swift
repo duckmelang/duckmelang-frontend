@@ -18,17 +18,17 @@ enum EventTag: String, Codable, CaseIterable {
 
 /// 이벤트 데이터 모델 (단일 선택)
 struct Event: Identifiable, Codable {
-    var id: UUID = UUID()  // 고유 ID
+    var id: Int
     var tag: EventTag      // 단일 선택 태그
     
     /// 샘플 데이터
         static let sampleEvents: [Event] = [
-            Event(tag: .콘서트),
-            Event(tag: .팬미팅),
-            Event(tag: .전시회),
-            Event(tag: .대학축제),
-            Event(tag: .팬사인회),
-            Event(tag: .해외투어),
-            Event(tag: .생일카페)
+            Event(id: 0, tag: .콘서트),
+            Event(id: 1, tag: .팬미팅),
+            Event(id: 2, tag: .전시회),
+            Event(id: 3, tag: .대학축제),
+            Event(id: 4, tag: .팬사인회),
+            Event(id: 5, tag: .해외투어),
+            Event(id: 6, tag: .생일카페)
         ]
 }

@@ -37,13 +37,14 @@ class MakeProfilesViewController: UIViewController, NextButtonUpdatable {
         selectFavoriteCelebVC.nextButtonDelegate = self
         let filterKeywordsVC = FilterKeywordsViewController(memberId: memberId)
         filterKeywordsVC.nextButtonDelegate = self
+        let selectEventVC = SelectEventViewController(memberId: memberId)
+        selectEventVC.nextButtonDelegate = self
         
         self.stepVCs = [
             setupNickBirthVC,
             selectFavoriteCelebVC,
-            filterKeywordsVC,
-            //FIXME: - 이벤트뷰를 맨마지막에 처리할거라 맨 마지막에 두었음!
-            SelectEventViewController()
+            selectEventVC,
+            filterKeywordsVC
         ]
     }
 

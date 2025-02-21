@@ -18,6 +18,7 @@ public enum HomeAPI {
     case getHomePosts(page: Int)
     case getIdolPosts(idolId: Int, page: Int)
     case getIdols
+    case postPosts(formData: [MultipartFormData])
     case postBookmark(postId: Int)
 }
 
@@ -43,6 +44,8 @@ extension HomeAPI: TargetType {
             return "/idols/\(idolId)"
         case .getIdols:
             return "/idols"
+        case .postPosts:
+            return ""
         case .postBookmark(postId: let postId):
             return "/\(postId)/bookmarks"
         }
@@ -52,7 +55,7 @@ extension HomeAPI: TargetType {
         // 가장 많이 호출되는 get을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .postBookmark:
+        case .postPosts, .postBookmark:
             return .post
         default:
             return .get
@@ -64,6 +67,8 @@ extension HomeAPI: TargetType {
         switch self {
         case .getHomePosts(let page), .getIdolPosts(_, let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+        case .postPosts(let formData):
+            return .uploadMultipart(formData)
         case .getIdols, .postBookmark:
             return .requestPlain
         }
@@ -71,6 +76,10 @@ extension HomeAPI: TargetType {
     
     public var headers: [String : String]? {
         switch self {
+        case .postPosts:
+            return [
+                "Content-Type": "multipart/form-data"
+            ]
         default :
             return [
                 "Content-Type": "application/json"

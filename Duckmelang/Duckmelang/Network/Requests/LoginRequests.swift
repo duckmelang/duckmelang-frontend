@@ -53,6 +53,11 @@ public struct SelectFavoriteIdolRequest: Encodable {
     let idolCategoryIds: [Int]
 }
 
+//관심 행사 요청 모델
+public struct SelectFavoriteEventRequest: Encodable {
+    let eventCategoryIds: [Int]
+}
+
 //지뢰 키워드 설정 모델
 public struct SetLandmineKeywordRequest: Encodable {
     let landmineContents: [String]
