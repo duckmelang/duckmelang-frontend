@@ -176,3 +176,16 @@ struct LandmineResult: Decodable {
     let memberId: Int
     let landmineContents: [String]
 }
+
+//자기소개 설정 응답모델
+struct SetIntroIntroductionResponse: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: IntroResult
+}
+
+struct IntroResult: Decodable {
+    let memberId: Int
+    let introContent: String
+}

@@ -32,6 +32,7 @@ public enum LoginAPI {
     case getAllEvents
     case postMemberInterestEvent(memberId: Int, eventNums: SelectFavoriteEventRequest)
     case postLandMines(memberId: Int, landmineString: SetLandmineKeywordRequest)
+    case patchMemberIntroduction(memberId: Int, introduction: String)
     case postLogout
 }
 
@@ -120,6 +121,11 @@ extension LoginAPI: TargetType {
                 fatalError("memberURL 오류")
             }
             return url
+        case .patchMemberIntroduction(memberId : _):
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
         }
     }
     
@@ -156,6 +162,8 @@ extension LoginAPI: TargetType {
             return "/\(memberId)/events"
         case .postLandMines(let memberId, _):
             return "/\(memberId)/landmines"
+        case .patchMemberIntroduction(let memberId, _):
+            return "/\(memberId)/introduction"
         case .postLogout:
             return "/logout"
         }
@@ -169,7 +177,7 @@ extension LoginAPI: TargetType {
             return .get
         case .getMemberNicknameCheck, .getAllIdols, .getAllEvents:
             return .get
-        case .patchMemberProfile:
+        case .patchMemberProfile, .patchMemberIntroduction:
             return .patch
         default:
             return .post
@@ -229,6 +237,9 @@ extension LoginAPI: TargetType {
             
         case .kakaoLogin, .googleLogin, .postLogout:
             return .requestPlain
+        
+        case .patchMemberIntroduction(_, let SetIntroductionRequest):
+            return .requestJSONEncodable(SetIntroductionRequest)
         }
     }
     

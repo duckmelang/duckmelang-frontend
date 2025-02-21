@@ -68,3 +68,8 @@ public struct SelectFavoriteEventRequest: Encodable {
 public struct SetLandmineKeywordRequest: Encodable {
     let landmineContents: [String]
 }
+
+//자기소개 설정 모델
+public struct SetIntroductionRequest: Encodable {
+    let introduction: String
+}
