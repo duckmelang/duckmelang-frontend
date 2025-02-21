@@ -79,15 +79,22 @@ class SignUpViewController: UIViewController, MoyaErrorHandlerDelegate {
             switch result {
             case .success(let response):
                 do {
-                    // JSON 디코딩
-                    let signUpResponse = try JSONDecoder().decode(SocialLoginResponse.self, from: response.data)
+                    // ✅ 올바른 구조체로 디코딩
+                    let signUpResponse = try JSONDecoder().decode(SignupResponse.self, from: response.data)
                     
                     if signUpResponse.isSuccess {
                         let memberId = signUpResponse.result.memberId
-                        print("✅ 회원가입 성공 - memberId: \(memberId)")
-                        
-                        // 🔥 회원가입 성공 시 MakeProfilesViewController로 이동
-                        self.navigateToMakeProfileView(memberId: memberId)
+                        let profileComplete = signUpResponse.result.profileComplete
+
+                        print("✅ 회원가입 성공 - memberId: \(memberId), profileComplete: \(profileComplete)")
+
+                        if profileComplete {
+                            print("🎉 프로필이 이미 완성된 계정입니다!")
+                            // ✅ 프로필이 이미 완료된 경우 (추가 액션 필요하면 여기에!)
+                        } else {
+                            print("➡️ 프로필 설정 화면으로 이동")
+                            self.navigateToMakeProfileView(memberId: memberId)
+                        }
                     } else {
                         print("❌ 회원가입 실패: \(signUpResponse.message)")
                         self.showErrorPopup(message: signUpResponse.message)

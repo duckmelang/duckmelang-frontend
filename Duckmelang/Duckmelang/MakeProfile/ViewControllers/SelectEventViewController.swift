@@ -22,10 +22,6 @@ class SelectEventViewController: UIViewController, MoyaErrorHandlerDelegate, Nex
     
     weak var nextButtonDelegate: NextButtonUpdatable?
     
-    func updateNextButtonState(isEnabled: Bool) {
-        nextButtonDelegate?.updateNextButtonState(isEnabled: true)
-    }
-    
     private func showConfirmationAlert() {
         let alert = UIAlertController(title: "확인", message: "다음 단계로 이동하시겠습니까?", preferredStyle: .alert)
         
@@ -67,7 +63,11 @@ class SelectEventViewController: UIViewController, MoyaErrorHandlerDelegate, Nex
         fetchEventList()
         
         selectEventView.delegate = self
-        nextButtonDelegate?.updateNextButtonState(isEnabled: true)
+        DispatchQueue.main.async {
+            self.nextButtonDelegate?.updateNextButtonState(isEnabled: true)
+        }
+        
+        print("✅ SelectEventView가 화면에 추가되었는지 확인: \(selectEventView.superview != nil)")
     }
     
     private func setupUI() {

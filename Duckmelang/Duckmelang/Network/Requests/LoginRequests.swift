@@ -37,6 +37,12 @@ struct VerifyCode: Codable {
     let certificationCode: String
 }
 
+//프로필사진 설정 모델
+public struct SetProfileImage: Encodable {
+    let memberId: Int
+    let imageUrl: String
+}
+
 //닉네임, 생년월일, 성별 설정 모델
 public struct PatchMemberProfileRequest: Encodable {
     let nickname: String
@@ -61,4 +67,9 @@ public struct SelectFavoriteEventRequest: Encodable {
 //지뢰 키워드 설정 모델
 public struct SetLandmineKeywordRequest: Encodable {
     let landmineContents: [String]
+}
+
+//자기소개 설정 모델
+public struct SetIntroductionRequest: Encodable {
+    let introduction: String
 }

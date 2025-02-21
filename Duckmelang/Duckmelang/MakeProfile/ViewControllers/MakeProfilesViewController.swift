@@ -39,14 +39,19 @@ class MakeProfilesViewController: UIViewController, NextButtonUpdatable {
         filterKeywordsVC.nextButtonDelegate = self
         let selectEventVC = SelectEventViewController(memberId: memberId)
         selectEventVC.nextButtonDelegate = self
+        let setIntroductionVC = SetIntroductionViewController(memberId: memberId)
+        setIntroductionVC.nextButtonDelegate = self
         
         self.stepVCs = [
             setupNickBirthVC,
             selectFavoriteCelebVC,
             selectEventVC,
-            filterKeywordsVC
+            filterKeywordsVC,
+            setIntroductionVC
         ]
     }
+    
+    private var setIntroductionVC: SetIntroductionViewController?
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -86,9 +91,7 @@ class MakeProfilesViewController: UIViewController, NextButtonUpdatable {
             currentStep -= 1
             showStep(step: currentStep)
             progressBarView.moveToPreviousStep()
-            //FIXME: - api수정 후 완료버튼 활성화 수정하기
-//            nextButton.setEnabled(true)
-            nextButton.setEnabled(false)
+            nextButton.setEnabled(true)
         } else {
             self.dismiss(animated: true, completion: nil)
         }
@@ -149,11 +152,32 @@ class MakeProfilesViewController: UIViewController, NextButtonUpdatable {
         if currentStep < stepVCs.count - 1 {
             currentStep += 1
             showStep(step: currentStep)
-            progressBarView.moveToNextStep()
+            if currentStep == stepVCs.count - 1 {
+                showSetIntroductionView()
+            } else {
+                showStep(step: currentStep)
+                progressBarView.moveToNextStep()
+            }
             nextButton.setEnabled(false)
         } else {
             navigateToNextScreen()
         }
+    }
+    
+    private func showSetIntroductionView() {
+        containerView.subviews.forEach { $0.removeFromSuperview() }
+        progressBarView.isHidden = true  // ✅ progressBar 숨기기
+        setupNavigationBar()
+
+        let introVC = SetIntroductionViewController(memberId: memberId)
+        introVC.nextButtonDelegate = self
+        addChild(introVC)
+        containerView.addSubview(introVC.view)
+        introVC.view.translatesAutoresizingMaskIntoConstraints = false
+        introVC.view.snp.makeConstraints { $0.edges.equalToSuperview() }
+        introVC.didMove(toParent: self)
+
+        print("✅ SetIntroductionViewController 화면 표시 완료")
     }
 
     private func navigateToNextScreen() {

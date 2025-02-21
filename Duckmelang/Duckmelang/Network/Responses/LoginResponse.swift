@@ -59,6 +59,19 @@ public struct VerifyCodeResponse: Codable {
     let result: String?
 }
 
+public struct SignupResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: SignupResponseResult
+}
+
+struct SignupResponseResult: Codable {
+    let memberId: Int
+    let createdAt: String
+    let profileComplete: Bool
+}
+
 //닉네임 중복 확인 응답 모델
 struct NicknameCheckResponse: Decodable {
     let isSuccess: Bool
@@ -162,4 +175,17 @@ struct MakeProfileLandmineResponse: Decodable {
 struct LandmineResult: Decodable {
     let memberId: Int
     let landmineContents: [String]
+}
+
+//자기소개 설정 응답모델
+struct SetIntroIntroductionResponse: Decodable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: IntroResult
+}
+
+struct IntroResult: Decodable {
+    let memberId: Int
+    let introContent: String
 }

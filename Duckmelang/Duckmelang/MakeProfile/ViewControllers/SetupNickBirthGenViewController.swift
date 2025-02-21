@@ -8,7 +8,7 @@
 import UIKit
 import Moya
 
-class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextButtonUpdatable, MoyaErrorHandlerDelegate{
+class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextButtonUpdatable, MoyaErrorHandlerDelegate, UIImagePickerControllerDelegate & UINavigationControllerDelegate{
     
     weak var nextButtonDelegate: NextButtonUpdatable?
     
@@ -59,7 +59,7 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
     private let setupNickBirthGenView = SetupNickBirthGenView()
     private var isNicknameAvailable: Bool = false
     
-
+    private var uploadedImageURL: String?
     
     var onProfileUpdateSuccess: (() -> Void)? // 프로필 설정 성공 시 호출될 콜백
     
@@ -83,6 +83,7 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
         view.backgroundColor = .white
         setupUI()
         resetBirthdateField()
+        setupNickBirthGenView.profileImageButton.addTarget(self, action: #selector(didTapProfileImgSet), for: .touchUpInside)
         setupNickBirthGenView.maleButton.addTarget(self, action: #selector(didTapMale), for: .touchUpInside)
         setupNickBirthGenView.femaleButton.addTarget(self, action: #selector(didTapFemale), for: .touchUpInside)
         setupNickBirthGenView.nickCheckButton.addTarget(self, action: #selector(didTapNickCheck), for: .touchUpInside)
@@ -123,6 +124,33 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
         formatter.dateFormat = "yyyy-MM-dd"
         
         return formatter.string(from: date)
+    }
+    
+    @objc private func didTapProfileImgSet() {
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .photoLibrary  // 사진 라이브러리에서 선택
+        imagePicker.allowsEditing = true
+        present(imagePicker, animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+
+        // 선택한 이미지 가져오기
+        if let selectedImage = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
+            print("✅ 이미지 선택 완료")
+            
+            setupNickBirthGenView.profileImageButton.setImage(selectedImage, for: .normal)
+
+            // ✅ 3. UIImage -> Data 변환 (JPEG)
+            if let imageData = selectedImage.jpegData(compressionQuality: 0.8) {
+                // ✅ 4. 서버에 업로드
+                uploadProfileImage(imageData)
+            } else {
+                print("❌ 이미지 변환 실패")
+            }
+        }
     }
 
     @objc private func didTapMale() {
@@ -198,6 +226,22 @@ class SetupNickBirthGenViewController: UIViewController, NextStepHandler, NextBu
             case .failure(let error):
                 self.isNicknameAvailable = false
                 self.showAlert(title: "네트워크 오류", message: error.localizedDescription)
+            }
+        }
+    }
+    
+    private func uploadProfileImage(_ imageData: Data) {
+        let formData = MultipartFormData(provider: .data(imageData), name: "profileImage", fileName: "profile.jpg", mimeType: "image/jpeg")
+        
+        provider.request(.postMemberProfileImage(memberId: memberId, profileImage: [formData])) { result in
+            switch result {
+            case .success(let response):
+                let decodedResponse = try? response.map(ApiResponse<ProfileImageResponse>.self)
+                if let imageUrl = decodedResponse?.result?.memberProfileImageUrl {
+                    self.uploadedImageURL = imageUrl
+                }
+            case .failure(let error):
+                print("❌ 이미지 업로드 실패: \(error.localizedDescription)")
             }
         }
     }
