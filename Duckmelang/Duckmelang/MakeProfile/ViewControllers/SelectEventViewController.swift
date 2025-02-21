@@ -9,18 +9,21 @@
 import UIKit
 import Moya
 
-class SelectEventViewController: UIViewController, MoyaErrorHandlerDelegate, NextButtonUpdatable, NextStepHandler {
-    func handleNextStep(completion: @escaping () -> Void) {
-        nextButtonDelegate?.updateNextButtonState(isEnabled: true)
-        showConfirmationAlert()
-        completion()
+class SelectEventViewController: UIViewController, MoyaErrorHandlerDelegate, NextStepHandler, UICollectionViewDelegate, SelectEventViewDelegate {
+    func selectedEventsDidChange(_ selectedEvents: Set<Int>) {
+        self.selectedEventIds = selectedEvents
+        print("🟢 View에서 받은 선택된 이벤트 목록: \(selectedEventIds)")
     }
     
+    func handleNextStep(completion: @escaping () -> Void) {
+        nextButtonDelegate?.updateNextButtonState(isEnabled: true)
+        postSelectedEvents {completion()}
+    }
     
     weak var nextButtonDelegate: NextButtonUpdatable?
     
     func updateNextButtonState(isEnabled: Bool) {
-        nextButtonDelegate?.updateNextButtonState(isEnabled: isEnabled)
+        nextButtonDelegate?.updateNextButtonState(isEnabled: true)
     }
     
     private func showConfirmationAlert() {
@@ -45,6 +48,7 @@ class SelectEventViewController: UIViewController, MoyaErrorHandlerDelegate, Nex
     private let memberId: Int
     
     private var events: [EventCategoryList] = []
+    private var selectedEventIds: Set<Int> = []
     
     init(memberId: Int) {
         self.memberId = memberId
@@ -61,6 +65,9 @@ class SelectEventViewController: UIViewController, MoyaErrorHandlerDelegate, Nex
         super.viewDidLoad()
         setupUI()
         fetchEventList()
+        
+        selectEventView.delegate = self
+        nextButtonDelegate?.updateNextButtonState(isEnabled: true)
     }
     
     private func setupUI() {
@@ -102,6 +109,13 @@ class SelectEventViewController: UIViewController, MoyaErrorHandlerDelegate, Nex
     
     private func postSelectedEvents(completion: @escaping () -> Void) {
         let selectedEventIds = selectEventView.getSelectedEventIds()
+        
+        if selectedEventIds.isEmpty {
+            print("❌ 선택된 이벤트 없음. 요청을 보내지 않음.")
+            return
+        }
+        
+        print("🟢 선택된 이벤트 ID: \(selectedEventIds) → 서버로 전송")
 
         let request = SelectFavoriteEventRequest(eventCategoryIds: selectedEventIds)
 
@@ -113,7 +127,6 @@ class SelectEventViewController: UIViewController, MoyaErrorHandlerDelegate, Nex
                 do {
                     let responseJSON = try JSONSerialization.jsonObject(with: response.data, options: [])
                     print("✅ 이벤트 선택 전송 성공: \(responseJSON)")
-                    
                     completion()
                 } catch {
                     self.showAlert(title: "오류", message: "응답을 처리하는 중 오류가 발생했습니다.")

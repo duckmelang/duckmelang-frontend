@@ -41,10 +41,9 @@ class MakeProfilesViewController: UIViewController, NextButtonUpdatable {
         selectEventVC.nextButtonDelegate = self
         
         self.stepVCs = [
-            //FIXME: - 지금 처리하는 VC가 맨 위에
-            selectEventVC,
             setupNickBirthVC,
             selectFavoriteCelebVC,
+            selectEventVC,
             filterKeywordsVC
         ]
     }

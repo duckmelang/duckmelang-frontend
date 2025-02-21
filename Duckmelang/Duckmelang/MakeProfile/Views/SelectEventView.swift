@@ -11,6 +11,7 @@ import SnapKit
 
 class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
     
+    weak var delegate: SelectEventViewDelegate?
     
     private let titleLabel = UILabel().then {
         $0.text = "자주 가는 행사를 알려주세요!"
@@ -25,14 +26,18 @@ class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDeleg
     }
     
     private var eventsView: [EventCategoryList] = []
-    public var selectedEvents: Set<Int> = []
+    public var selectedEvents: Set<Int> = [] {
+        didSet {
+            delegate?.selectedEventsDidChange(selectedEvents) // ✅ 값이 변경될 때 VC로 전달
+        }
+    }
     
     private lazy var eventCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.minimumInteritemSpacing = 10  // 좌우 간격
-        layout.minimumLineSpacing = 12  // 위아래 간격
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize  // **버튼 크기 자동 조절**
-        
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        layout.minimumInteritemSpacing = 14  // 좌우 간격
+        layout.minimumLineSpacing = 20  // 위아래 간격
+
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.register(EventCollectionViewCell.self, forCellWithReuseIdentifier: EventCollectionViewCell.identifier)
         cv.backgroundColor = .clear
@@ -45,6 +50,12 @@ class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDeleg
         super.init(frame: frame)
         self.backgroundColor = .white
         setupView()
+        
+        eventCollectionView.allowsSelection = true
+        eventCollectionView.isUserInteractionEnabled = true
+        
+        eventCollectionView.delegate = self
+        eventCollectionView.dataSource = self
     }
     
     required init?(coder: NSCoder) {
@@ -91,7 +102,8 @@ class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDeleg
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EventCollectionViewCell.identifier, for: indexPath) as! EventCollectionViewCell
         
         let event = eventsView[indexPath.row]
-        cell.configure(title: event.eventName, isSelected: selectedEvents.contains(event.eventID))
+        cell.prepareForReuse()
+        cell.configureEventButton(title: event.eventName, isSelected: selectedEvents.contains(event.eventID))
         
         return cell
     }
@@ -109,7 +121,13 @@ class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDeleg
         }
 
         print("📌 현재 선택된 이벤트 ID 목록: \(Array(selectedEvents))")
+        
+        delegate?.selectedEventsDidChange(selectedEvents)
 
         collectionView.reloadItems(at: [indexPath])
     }
+}
+
+protocol SelectEventViewDelegate: AnyObject {
+    func selectedEventsDidChange(_ selectedEvents: Set<Int>)
 }

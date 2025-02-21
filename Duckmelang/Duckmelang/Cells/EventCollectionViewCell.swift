@@ -14,29 +14,42 @@ class EventCollectionViewCell: UICollectionViewCell {
     
     
     
-    public let button = UIButton().then {
-        $0.titleLabel?.font = .ptdSemiBoldFont(ofSize: 14)
-        $0.layer.cornerRadius = 15
-        $0.layer.borderWidth = 1
-        $0.translatesAutoresizingMaskIntoConstraints = false
-    }
+    public let eventButton = UIButton()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.addSubview(button)
+        contentView.addSubview(eventButton)
         
-        button.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+        eventButton.snp.makeConstraints {
+            $0.height.equalTo(30)
         }
+        
+        eventButton.isUserInteractionEnabled = false
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-        func configure(title: String, isSelected: Bool) {
-            button.setTitle(title, for: .normal)
-            button.setTitleColor(isSelected ? .white : .grey400, for: .normal)
-            button.backgroundColor = isSelected ? .dmrBlue : .white
-            button.layer.borderColor = isSelected ? UIColor.dmrBlue!.cgColor : UIColor.grey400!.cgColor
-        }
+    
+    func configureEventButton(title: String, isSelected: Bool) {
+        var config = UIButton.Configuration.filled()
+        config.title = title
+        eventButton.titleLabel?.numberOfLines = 1
+        eventButton.titleLabel?.textAlignment = .center
+        config.baseForegroundColor = isSelected ? .white : .grey400
+        config.baseBackgroundColor = isSelected ? .dmrBlue : .white
+        config.attributedTitle?.font = .ptdSemiBoldFont(ofSize: 14)
+        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16) // 내부 패딩
+
+        eventButton.configuration = config
+        eventButton.layer.cornerRadius = 15
+        eventButton.layer.borderWidth = 1
+        eventButton.layer.borderColor = isSelected ? UIColor.dmrBlue!.cgColor : UIColor.grey400!.cgColor
+        eventButton.clipsToBounds = true
+    }
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        self.isUserInteractionEnabled = true
+    }
     }
