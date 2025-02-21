@@ -22,6 +22,8 @@ class EventCollectionViewCell: UICollectionViewCell {
         
         eventButton.snp.makeConstraints {
             $0.height.equalTo(30)
+            $0.top.bottom.equalToSuperview().offset(10)
+            $0.leading.trailing.equalToSuperview().offset(12)
         }
         
         eventButton.isUserInteractionEnabled = false
@@ -52,4 +54,4 @@ class EventCollectionViewCell: UICollectionViewCell {
         super.awakeFromNib()
         self.isUserInteractionEnabled = true
     }
-    }
+}
