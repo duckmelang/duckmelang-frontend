@@ -18,7 +18,7 @@ public enum HomeAPI {
     case getHomePosts(page: Int)
     case getIdolPosts(idolId: Int, page: Int)
     case getIdols
-    case postPosts(postRequest: PostRequest, images: UIImage)
+    case postPosts(formData: [MultipartFormData])
 }
 
 extension HomeAPI: TargetType {
@@ -64,25 +64,7 @@ extension HomeAPI: TargetType {
         switch self {
         case .getHomePosts(let page), .getIdolPosts(_, let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .postPosts(let postRequest, let image):
-            var formData: [MultipartFormData] = []
-
-            // ✅ JSON 데이터 변환하여 multipart 추가
-            if let jsonData = try? JSONEncoder().encode(postRequest) {
-                let jsonPart = MultipartFormData(provider: .data(jsonData),
-                                                name: "request",
-                                                mimeType: "application/json")
-                formData.append(jsonPart)
-            }
-
-            if let imageData = image.jpegData(compressionQuality: 0.8) {
-               let imagePart = MultipartFormData(provider: .data(imageData),
-                                                 name: "images",
-                                                 fileName: "image\(index).jpg",
-                                                 mimeType: "image/jpeg")
-               formData.append(imagePart)
-            }
-
+        case .postPosts(let formData):
             return .uploadMultipart(formData)
         case .getIdols:
             return .requestPlain
@@ -91,6 +73,10 @@ extension HomeAPI: TargetType {
     
     public var headers: [String : String]? {
         switch self {
+        case .postPosts:
+            return [
+                "Content-Type": "multipart/form-data"
+            ]
         default :
             return [
                 "Content-Type": "application/json"

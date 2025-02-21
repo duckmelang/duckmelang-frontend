@@ -150,7 +150,7 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
 
     private func updateSelectedDate(_ date: Date) {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy년 MM월 dd일"
+        dateFormatter.dateFormat = "yyyy-MM-dd"
         let selectedDate = dateFormatter.string(from: date)
 
         writeView.eventDateSelectButton.setTitle(selectedDate, for: .normal)
@@ -160,27 +160,15 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         self.selectedDate = selectedDate
     }
     
-    private func updatePostButtonState() {
-        let isFormComplete = selectedImage != nil &&
-                             !selectedTitle.isEmpty &&
-                             !selectedContent.isEmpty &&
-                             selectedCeleb != nil &&
-                             selectedEvent != nil &&
-                             selectedDate != nil
-                             
-        writeView.uploadButton.setEnabled(isFormComplete)
-    }
-    
     @objc private func didTapPostButton() {
+        selectedTitle = writeView.titleTextField.text ?? ""
+        selectedContent = writeView.contentTextView.text ?? ""
+        
         guard let celeb = selectedCeleb,
               let event = selectedEvent,
               let date = selectedDate,
               let image = selectedImage else {
             print("선택되지않음")
-            print(selectedCeleb)
-            print(selectedEvent)
-            print(selectedDate)
-            print(selectedImage)
             return
         }
 
@@ -190,16 +178,35 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
             idolIds: [celeb.idolId],
             categoryId: event.id,
             date: date,
-            imageInfos: [ImageInfo(orderNumber: 0, description: "example")]
+            imageInfos: [ImageInfo(orderNumber: 1, description: "example")]
         )
+        
+        var formData: [MultipartFormData] = []
 
-        provider.request(.postPosts(postRequest: postRequest, images: image)) { result in
+        // ✅ JSON 데이터 변환하여 `multipart/form-data`로 추가
+        if let jsonData = try? JSONEncoder().encode(postRequest) {
+            let jsonPart = MultipartFormData(provider: .data(jsonData),
+                                             name: "request", // ✅ 서버에서 기대하는 키 이름 확인 필요
+                                             mimeType: "application/json")
+            formData.append(jsonPart)
+        }
+
+        // ✅ 이미지 추가 (여러 장 가능하도록 설정)
+        if let imageData = image.jpegData(compressionQuality: 0.1) {
+            let imagePart = MultipartFormData(provider: .data(imageData),
+                                              name: "images", // ✅ 서버에서 기대하는 키 확인
+                                              fileName: "image.jpg",
+                                              mimeType: "image/jpeg")
+            formData.append(imagePart)
+        }
+            
+        provider.request(.postPosts(formData: formData)) { result in
             switch result {
-            case .success:
-                print("✅ 게시물 등록 성공")
+            case .success(let response):
+                print("✅ 성공: \(response.statusCode)")
                 self.navigationController?.popViewController(animated: true)
             case .failure(let error):
-                print("❌ 게시물 등록 실패: \(error.localizedDescription)")
+                print("❌ 실패: \(error.localizedDescription)")
             }
         }
     }

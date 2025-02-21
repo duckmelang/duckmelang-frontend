@@ -15,7 +15,7 @@ protocol WriteViewDelegate: AnyObject {
     func didTapEventDateSelectButton()
 }
 
-class WriteView: UIView {
+class WriteView: UIView, UITextViewDelegate {
     
     weak var delegate: WriteViewDelegate?
     
@@ -42,7 +42,7 @@ class WriteView: UIView {
         $0.font = .ptdRegularFont(ofSize: 12)
     }
     
-    private let titleTextField = UITextField().then {
+    let titleTextField = UITextField().then {
         $0.placeholder = "게시글 제목"
         $0.borderStyle = .none
         $0.layer.cornerRadius = 8
@@ -55,19 +55,34 @@ class WriteView: UIView {
         $0.heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
     
-    private let contentTextView = UITextView().then {
+    lazy var textViewPlaceHolder = "본문"
+    
+    lazy var contentTextView = UITextView().then {
         $0.layer.cornerRadius = 8
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.systemGray3.cgColor
         $0.font = .ptdRegularFont(ofSize: 15)
         $0.textColor = .black
+        $0.textAlignment = .left
         $0.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        
+        $0.text = textViewPlaceHolder
+        $0.textColor = .grey500
+        $0.delegate = self
     }
     
-    private let placeholderLabel = UILabel().then {
-        $0.text = "본문"
-        $0.textColor = UIColor.systemGray3
-        $0.font = .ptdRegularFont(ofSize: 15)
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.text == textViewPlaceHolder {
+            textView.text = nil
+            textView.textColor = .black
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            textView.text = textViewPlaceHolder
+            textView.textColor = .grey500
+        }
     }
     
     private let companionInfoLabel = UILabel().then {
@@ -164,7 +179,6 @@ class WriteView: UIView {
             contentView.addSubview($0)
         }
         
-        contentTextView.addSubview(placeholderLabel)
         setupConstraints()
     }
     
@@ -204,10 +218,6 @@ class WriteView: UIView {
             $0.top.equalTo(titleTextField.snp.bottom).offset(10)
             $0.left.right.equalToSuperview().inset(16)
             $0.height.equalTo(150)
-        }
-        
-        placeholderLabel.snp.makeConstraints {
-            $0.top.left.equalTo(contentTextView).offset(10)
         }
         
         companionInfoLabel.snp.makeConstraints {
