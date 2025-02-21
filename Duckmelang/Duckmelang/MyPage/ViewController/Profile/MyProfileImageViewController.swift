@@ -87,19 +87,32 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
             switch result {
             case .success(let response):
                 self.profileImageData.removeAll()
-                let response = try? response.map(ApiResponse<myProfileImageResponse>.self)
-                guard let result = response?.result?.profileImageList else { return }
-                self.profileImageData = result
-                print("이미지: \(self.profileImageData)")
-                
-                DispatchQueue.main.async {
-                    self.myProfileImageView.imageTableView.reloadData()
+                do {
+                    let decodedResponse = try response.map(ApiResponse<myProfileImageResponse>.self)
+                    guard let imageList = decodedResponse.result?.profileImageList, !imageList.isEmpty else {
+                        print("❌ 프로필 이미지 없음")
+                        return
+                    }
+
+                    // ✅ 최신순 정렬 (createdAt 기준 내림차순)
+                    let sortedImageList = imageList.sorted { $0.createdAt > $1.createdAt }
+                    
+                    self.profileImageData = sortedImageList
+                    print("✅ 최신순 정렬된 이미지 리스트: \(self.profileImageData)")
+
+                    DispatchQueue.main.async {
+                        self.myProfileImageView.imageTableView.reloadData()
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
                 }
             case .failure(let error):
-                print(error)
+                print("❌ 프로필 이미지 리스트 가져오기 실패: \(error.localizedDescription)")
             }
         }
     }
+    
+    
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return profileImageData.isEmpty ? 0 : profileImageData.count

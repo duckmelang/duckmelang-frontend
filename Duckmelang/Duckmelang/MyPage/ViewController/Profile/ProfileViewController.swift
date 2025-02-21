@@ -44,6 +44,13 @@ class ProfileViewController: UIViewController{
         NotificationCenter.default.addObserver(self, selector: #selector(PostDeleted(_:)), name: NSNotification.Name("PostDeleted"), object: nil)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        fetchProfileData()
+        fetchProfileImageList()
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -113,6 +120,44 @@ class ProfileViewController: UIViewController{
                 }
             case .failure(let error):
                 print("게시글 불러오기 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    private func fetchProfileImageList() {
+        provider.request(.getMyProfileImage(page: 0)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<myProfileImageResponse>.self)
+                    
+                    guard let imageList = decodedResponse.result?.profileImageList, !imageList.isEmpty else {
+                        print("❌ 프로필 이미지 없음")
+                        return
+                    }
+                    
+                    // ✅ 최신순 정렬 (createdAt 기준 내림차순)
+                    let sortedImageList = imageList.sorted { $0.createdAt > $1.createdAt }
+                    
+                    if let latestImageUrl = sortedImageList.first?.memberProfileImageUrl {
+                        if let imageUrl = URL(string: "\(latestImageUrl)?timestamp=\(Date().timeIntervalSince1970)") {
+                            DispatchQueue.main.async {
+                                self.profileView.profileTopView.profileImage.kf.setImage(
+                                    with: imageUrl,
+                                    options: [
+                                        .cacheMemoryOnly,  // ✅ 메모리 캐시만 사용
+                                        .forceRefresh      // ✅ 강제 새로고침
+                                    ]
+                                )
+                                print("✅ 최신 프로필 이미지 적용됨: \(latestImageUrl)")
+                            }
+                        }
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                print("❌ 프로필 이미지 리스트 가져오기 실패: \(error.localizedDescription)")
             }
         }
     }
