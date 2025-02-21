@@ -25,6 +25,7 @@ public enum LoginAPI {
     case getOAuthTokenKakao(memberId: Int)
     case getOAuthTokenGoogle(memberId: Int)
     case patchMemberProfile(memberId: Int, profile: PatchMemberProfileRequest)
+    case postMemberProfileImage(memberId: Int, profileImage: [MultipartFormData])
     case getMemberNicknameCheck(nickname: String)
     case getAllIdols
     case postMemberInterestCeleb(memberId: Int, idolNums: SelectFavoriteIdolRequest)
@@ -89,6 +90,11 @@ extension LoginAPI: TargetType {
                 fatalError("memberURL 오류")
             }
             return url
+        case .postMemberProfileImage(memberId : _):
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
         case .getAllIdols, .postLogout:
             guard let url = URL(string: API.baseURL) else {
                 fatalError("baseURL 오류")
@@ -130,6 +136,8 @@ extension LoginAPI: TargetType {
             return "/send"
         case .postVerifyCode:
             return "/verify"
+        case .postMemberProfileImage(let memberId, _):
+            return "/\(memberId)/profile/image"
         case .kakaoLogin, .getOAuthTokenKakao:
             return "/kakao"
         case .googleLogin, .getOAuthTokenGoogle:
@@ -189,6 +197,9 @@ extension LoginAPI: TargetType {
             return .requestJSONEncodable(
                 VerifyCode(phoneNum: phoneNum, certificationCode: code)
             )
+        case .postMemberProfileImage(_, let profileImage):
+            return .uploadMultipart(profileImage)
+        
         case .getOAuthTokenKakao(let memberId), .getOAuthTokenGoogle(let memberId):
             return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.default)
             

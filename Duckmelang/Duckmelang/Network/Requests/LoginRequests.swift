@@ -37,6 +37,12 @@ struct VerifyCode: Codable {
     let certificationCode: String
 }
 
+//프로필사진 설정 모델
+public struct SetProfileImage: Encodable {
+    let memberId: Int
+    let imageUrl: String
+}
+
 //닉네임, 생년월일, 성별 설정 모델
 public struct PatchMemberProfileRequest: Encodable {
     let nickname: String

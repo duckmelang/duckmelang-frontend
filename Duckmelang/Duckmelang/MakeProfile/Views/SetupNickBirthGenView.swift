@@ -17,7 +17,7 @@ class SetupNickBirthGenView: UIView {
         $0.textColor = .grey800
     }
     
-    private let profileImageButton = UIButton().then {
+    public let profileImageButton = UIButton().then {
         $0.setImage(UIImage(named: "profileAddPlaceholder"), for: .normal)
         $0.backgroundColor = .grey300
         $0.layer.cornerRadius = 45
