@@ -13,20 +13,20 @@ protocol EventSelectionViewDelegate: AnyObject {
 }
 
 class EventSelectionView: UIViewController {
-
-    weak var delegate: EventSelectionViewDelegate?
     
+    weak var delegate: EventSelectionViewDelegate?
     private var selectedEvent: Event?
     
     private lazy var eventStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.spacing = 16
+        stackView.alignment = .leading // ✅ 버튼을 가운데 정렬
         return stackView
     }()
     
-    let completeButton = smallFilledCustomBtn(title: "완료").then{
-        $0.addTarget(self,action: #selector(didTapCompleteButton),for: .touchUpInside)
+    let completeButton = smallFilledCustomBtn(title: "완료").then {
+        $0.addTarget(self, action: #selector(didTapCompleteButton), for: .touchUpInside)
     }
 
     init(selectedEvent: Event?) {
@@ -45,12 +45,19 @@ class EventSelectionView: UIViewController {
     
     private func setupView() {
         view.backgroundColor = .white
+        
+        view.addSubview(eventStackView)
+        eventStackView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(20)
+            $0.leading.trailing.equalToSuperview().inset(20)
+        }
+
         setupEventTags()
 
-        // 완료 버튼 추가
+        // ✅ 완료 버튼 추가
         view.addSubview(completeButton)
         completeButton.snp.makeConstraints {
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(20) // 하단 고정
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(20)
             $0.centerX.equalToSuperview()
             $0.height.equalTo(44)
         }
@@ -58,47 +65,23 @@ class EventSelectionView: UIViewController {
 
     private func setupEventTags() {
         let allTags = EventTag.allCases
-        var buttons: [smallStorkeCustomBtn] = []
 
-        for tag in allTags {
+        for (index, tag) in allTags.enumerated() {
             let button = smallStorkeCustomBtn(
-                borderColor: selectedEvent?.tag == tag ? UIColor.grey400!.cgColor : UIColor.dmrBlue!.cgColor,
+                borderColor: selectedEvent?.tag == tag ? UIColor.dmrBlue!.cgColor : UIColor.grey400!.cgColor,
                 title: tag.rawValue,
-                titleColor: selectedEvent?.tag == tag ? .grey400! : .dmrBlue!,
+                titleColor: selectedEvent?.tag == tag ? .dmrBlue! : .grey400!,
                 radius: 10,
                 isEnabled: true
             )
-            button
-                .addTarget(
-                    self,
-                    action: #selector(didTapTagButton(_:)),
-                    for: .touchUpInside
-                )
-            button.tag = EventTag.allCases.firstIndex(of: tag) ?? 0
-            buttons.append(button)
-            view.addSubview(button)
-        }
 
-        // 버튼 위치 설정 (한 줄에 2개씩 배치)
-        for (index, button) in buttons.enumerated() {
+            button.tag = index // ✅ 버튼 태그 설정 (index와 동일하게)
+            button.addTarget(self, action: #selector(didTapTagButton(_:)), for: .touchUpInside)
+
+            // ✅ 버튼을 UIStackView에 추가
+            eventStackView.addArrangedSubview(button)
+
             button.snp.makeConstraints {
-                if index % 2 == 0 { // 왼쪽 버튼
-                    $0.leading.equalToSuperview().inset(20)
-                } else { // 오른쪽 버튼
-                    let prevButton = buttons[index - 1]
-                    $0.leading.equalTo(prevButton.snp.trailing).offset(10)
-                }
-                
-                if index < 2 { // 첫 번째 줄
-                    $0.top.equalTo(view.safeAreaLayoutGuide).offset(20)
-                } else if index % 2 == 0 { // 새로운 줄 (왼쪽 버튼)
-                    let prevRowButton = buttons[index - 2]
-                    $0.top.equalTo(prevRowButton.snp.bottom).offset(10)
-                } else { // 오른쪽 버튼은 왼쪽 버튼과 같은 Y축
-                    let prevButton = buttons[index - 1]
-                    $0.top.equalTo(prevButton.snp.top)
-                }
-                
                 $0.width.equalTo(140)
                 $0.height.equalTo(44)
             }
@@ -106,23 +89,26 @@ class EventSelectionView: UIViewController {
     }
 
     @objc private func didTapTagButton(_ sender: UIButton) {
-        let tag = EventTag.allCases[sender.tag]
-        selectedEvent = Event(tag: tag)
+        let selectedTag = EventTag.allCases[sender.tag]
+        selectedEvent = Event(id: sender.tag, tag: selectedTag)
 
-        for case let button as smallStorkeCustomBtn in view.subviews where button is smallStorkeCustomBtn {
+        // ✅ 모든 버튼의 UI 초기화
+        for case let button as smallStorkeCustomBtn in eventStackView.arrangedSubviews {
             button.borderColor = UIColor.grey400!
-            button.setTitleColor(UIColor.grey400, for: .normal)
+            button.setTitleColor(.grey400, for: .normal)
         }
 
-        // 선택된 버튼만 파란색으로 변경
+        // ✅ 선택된 버튼 UI 변경
         if let selectedButton = sender as? smallStorkeCustomBtn {
             selectedButton.borderColor = UIColor.dmrBlue!
-            selectedButton.setTitleColor(UIColor.dmrBlue, for: .normal)
+            selectedButton.setTitleColor(.dmrBlue, for: .normal)
         }
     }
 
     @objc private func didTapCompleteButton() {
-        guard let selectedEvent = selectedEvent else { return }
+        guard let selectedEvent = selectedEvent else {
+            return
+        }
         delegate?.didSelectEvent(selectedEvent)
         dismiss(animated: true)
     }

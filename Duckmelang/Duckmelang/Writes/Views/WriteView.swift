@@ -15,7 +15,7 @@ protocol WriteViewDelegate: AnyObject {
     func didTapEventDateSelectButton()
 }
 
-class WriteView: UIView {
+class WriteView: UIView, UITextViewDelegate {
     
     weak var delegate: WriteViewDelegate?
     
@@ -26,16 +26,14 @@ class WriteView: UIView {
         
     private let contentView = UIView()
     
-    private let backgroundView = UIView().then {
+    let backgroundView = UIImageView().then {
         $0.backgroundColor = .grey200
+        $0.contentMode = .scaleAspectFill
     }
     
-    private let uploadImageView = UIButton().then {
+    let uploadImageView = UIButton().then {
         $0.setImage(UIImage(systemName: "camera.fill"), for: .normal)
         $0.tintColor = .lightGray
-        $0.backgroundColor = UIColor(white: 0.95, alpha: 1)
-        $0.layer.cornerRadius = 8
-        $0.imageView?.contentMode = .scaleAspectFit
     }
     
     private let imageCountLabel = UILabel().then {
@@ -44,7 +42,7 @@ class WriteView: UIView {
         $0.font = .ptdRegularFont(ofSize: 12)
     }
     
-    private let titleTextField = UITextField().then {
+    let titleTextField = UITextField().then {
         $0.placeholder = "게시글 제목"
         $0.borderStyle = .none
         $0.layer.cornerRadius = 8
@@ -57,19 +55,34 @@ class WriteView: UIView {
         $0.heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
     
-    private let contentTextView = UITextView().then {
+    lazy var textViewPlaceHolder = "본문"
+    
+    lazy var contentTextView = UITextView().then {
         $0.layer.cornerRadius = 8
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.systemGray3.cgColor
         $0.font = .ptdRegularFont(ofSize: 15)
         $0.textColor = .black
+        $0.textAlignment = .left
         $0.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        
+        $0.text = textViewPlaceHolder
+        $0.textColor = .grey500
+        $0.delegate = self
     }
     
-    private let placeholderLabel = UILabel().then {
-        $0.text = "본문"
-        $0.textColor = UIColor.systemGray3
-        $0.font = .ptdRegularFont(ofSize: 15)
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.text == textViewPlaceHolder {
+            textView.text = nil
+            textView.textColor = .black
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            textView.text = textViewPlaceHolder
+            textView.textColor = .grey500
+        }
     }
     
     private let companionInfoLabel = UILabel().then {
@@ -141,13 +154,7 @@ class WriteView: UIView {
         $0.distribution = .fillEqually
     }
     
-    private let uploadButton = UIButton().then {
-        $0.setTitle("업로드", for: .normal)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .lightGray
-        $0.layer.cornerRadius = 22
-        $0.isEnabled = false
-    }
+    let uploadButton = longCustomBtn(title: "업로드")
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -172,7 +179,6 @@ class WriteView: UIView {
             contentView.addSubview($0)
         }
         
-        contentTextView.addSubview(placeholderLabel)
         setupConstraints()
     }
     
@@ -212,10 +218,6 @@ class WriteView: UIView {
             $0.top.equalTo(titleTextField.snp.bottom).offset(10)
             $0.left.right.equalToSuperview().inset(16)
             $0.height.equalTo(150)
-        }
-        
-        placeholderLabel.snp.makeConstraints {
-            $0.top.left.equalTo(contentTextView).offset(10)
         }
         
         companionInfoLabel.snp.makeConstraints {
