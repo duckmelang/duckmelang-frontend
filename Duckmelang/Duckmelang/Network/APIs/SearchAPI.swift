@@ -16,6 +16,8 @@ import Moya
 
 public enum SearchAPI {
     case getSearch(page: Int, searchKeyword: String)
+    case searchPosts(page: Int, keyword: String, gender: String?, minAge: Int?, maxAge: Int?)
+    case getFilters
 }
 
 extension SearchAPI: TargetType {
@@ -34,7 +36,7 @@ extension SearchAPI: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
-        case .getSearch:
+        case .getSearch, .getFilters, .searchPosts:
             return "/search"
         }
     }
@@ -53,6 +55,14 @@ extension SearchAPI: TargetType {
         switch self {
         case .getSearch(let page, let searchKeyword):
             return .requestParameters(parameters: ["page": page, "searchKeyword": searchKeyword], encoding: URLEncoding.queryString)
+        case .searchPosts(let page, let keyword, let gender, let minAge, let maxAge):
+            var parameters: [String: Any] = ["page": page, "searchKeyword": keyword]
+            if let gender = gender { parameters["gender"] = gender }
+            if let minAge = minAge { parameters["minAge"] = minAge }
+            if let maxAge = maxAge { parameters["maxAge"] = maxAge }
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+        case .getFilters:
+            return .requestPlain
         }
     }
     

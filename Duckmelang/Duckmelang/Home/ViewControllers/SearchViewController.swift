@@ -14,7 +14,7 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     private let provider = MoyaProvider<SearchAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let searchManager = SearchHistoryManager()
     
-    private let searchView = SearchView()
+    let searchView = SearchView()
     
     private var recentSearches: [String] = []
     private var searchData: [PostDTO] = []
@@ -22,6 +22,11 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var isLoading = false   // 중복 로딩 방지
     var isLastPage = false  // 마지막 페이지인지 여부
     var currentPage = 0     // 현재 페이지 번호
+    
+    var selectedGender: String?
+    var minAge: Int?
+    var maxAge: Int?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,10 +48,28 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
         let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
         leftBarButton.tintColor = .gray
         self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
+        
+        let rightBarButton = UIButton(type: .system)
+        rightBarButton.setImage(.filter, for: .normal)
+        rightBarButton.imageView?.contentMode = .scaleAspectFit
+        rightBarButton.addTarget(self, action: #selector(goFilter), for: .touchUpInside)
+        rightBarButton.tintColor = .grey500
+        
+        let btn = UIBarButtonItem(customView: rightBarButton)
+        btn.customView?.translatesAutoresizingMaskIntoConstraints = false
+        btn.customView?.widthAnchor.constraint(equalToConstant: 22).isActive = true
+        btn.customView?.heightAnchor.constraint(equalToConstant: 23).isActive = true
+        self.navigationItem.setRightBarButton(btn, animated: true)
     }
     
     @objc private func goBack() {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func goFilter() {
+        let VC = SearchFilterViewController()
+        VC.modalPresentationStyle = .fullScreen
+        present(VC, animated: true)
     }
     
     // MARK: - Delegate 설정
@@ -65,6 +88,38 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
         recentSearches = searchManager.getSearchHistory() // 최근 검색어 가져오기
         searchView.recentSearchTableView.reloadData() // 테이블 뷰 업데이트
     }
+    
+    // MARK: - 검색 API 요청
+      private func fetchSearchResults(keyword: String) {
+          guard !isLoading, !isLastPage, !keyword.isEmpty else { return }
+          isLoading = true
+          searchView.loadingIndicator.startLoading()
+          
+          provider.request(.searchPosts(page: currentPage, keyword: keyword, gender: selectedGender, minAge: minAge, maxAge: maxAge)) { result in
+              switch result {
+              case .success(let response):
+                  do {
+                      let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
+                      if let postList = decodedResponse.result?.postList {
+                          DispatchQueue.main.async {
+                              self.searchData.append(contentsOf: postList)
+                              self.isLastPage = decodedResponse.result?.isLast ?? false
+                              self.isLoading = false
+                              self.searchView.loadingIndicator.stopLoading()
+                              self.searchView.searchDataTableView.reloadData()
+                          }
+                      }
+                  } catch {
+                      print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                      self.isLoading = false
+                  }
+              case .failure(let error):
+                  print("❌ 검색 API 요청 실패: \(error.localizedDescription)")
+                  self.isLoading = false
+              }
+          }
+      }
+
     
     // MARK: - UITableView Delegate & DataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
