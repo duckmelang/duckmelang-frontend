@@ -8,13 +8,19 @@
 import UIKit
 import Moya
 
+protocol SearchFilterDelegate: AnyObject {
+    func didSelectFilter(gender: String?, minAge: Int?, maxAge: Int?)
+}
+
 class SearchFilterViewController: UIViewController {
+  
+    weak var delegate: SearchFilterDelegate?
 
     private let provider = MoyaProvider<SearchAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
-    private var selectedGender: String? = nil
-    private var minAge: Int? = nil
-    private var maxAge: Int? = nil
+    var selectedGender: String? = nil
+    var minAge: Int? = nil
+    var maxAge: Int? = nil
     private var expandedSection: Int? = nil
 
     override func viewDidLoad() {
@@ -40,7 +46,7 @@ class SearchFilterViewController: UIViewController {
     @objc private func backBtnDidTap() {
         self.dismiss(animated: true)
     }
-    
+   
     /// ✅ 필터 데이터를 서버에서 불러오기 (GET 요청)
       private func fetchFilterSettings() {
           provider.request(.getFilters) { result in
@@ -69,11 +75,8 @@ class SearchFilterViewController: UIViewController {
       
       /// ✅ 필터 적용 후 검색 결과 화면으로 이동
       @objc private func saveFilterSettings() {
-          let searchVC = SearchViewController()
-          searchVC.selectedGender = selectedGender
-          searchVC.minAge = minAge
-          searchVC.maxAge = maxAge
-          navigationController?.pushViewController(searchVC, animated: true)
+          delegate?.didSelectFilter(gender: selectedGender, minAge: minAge, maxAge: maxAge)
+          self.dismiss(animated: true)
       }
         
     @objc private func handleSectionTap(_ sender: UITapGestureRecognizer) {

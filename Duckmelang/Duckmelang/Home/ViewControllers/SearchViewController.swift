@@ -11,6 +11,7 @@ import SnapKit
 import Moya
 
 class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
     private let provider = MoyaProvider<SearchAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let searchManager = SearchHistoryManager()
     
@@ -67,9 +68,14 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     @objc private func goFilter() {
-        let VC = SearchFilterViewController()
-        VC.modalPresentationStyle = .fullScreen
-        present(VC, animated: true)
+        let filterVC = SearchFilterViewController()
+        filterVC.delegate = self // ✅ 필터 데이터 받도록 설정
+        filterVC.selectedGender = self.selectedGender
+        filterVC.minAge = self.minAge
+        filterVC.maxAge = self.maxAge
+        
+        filterVC.modalPresentationStyle = .fullScreen
+        present(filterVC, animated: true)
     }
     
     // MARK: - Delegate 설정
@@ -94,6 +100,12 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
           guard !isLoading, !isLastPage, !keyword.isEmpty else { return }
           isLoading = true
           searchView.loadingIndicator.startLoading()
+          
+          if currentPage == 0 {
+              searchData.removeAll()
+          }
+          
+          print("키워드: \(keyword), 성별: \(selectedGender ?? "모두"), 나이: \(minAge ?? 0)~\(maxAge ?? 0)")
           
           provider.request(.searchPosts(page: currentPage, keyword: keyword, gender: selectedGender, minAge: minAge, maxAge: maxAge)) { result in
               switch result {
@@ -251,7 +263,27 @@ extension SearchViewController: UITextFieldDelegate {
         // 최근 검색어에 값을 저장하고 검색을 실행
         searchView.loadingIndicator.startLoading()
         searchManager.saveSearchQuery(text)
-        getSearchData(text)
+        fetchSearchResults(keyword: text)
         return true
+    }
+}
+
+// ✅ 필터 데이터 적용을 위한 Delegate 확장
+extension SearchViewController: SearchFilterDelegate {
+    func didSelectFilter(gender: String?, minAge: Int?, maxAge: Int?) {
+        // ✅ 필터 값 업데이트
+        self.selectedGender = gender
+        self.minAge = minAge
+        self.maxAge = maxAge
+
+        print("✅ 필터 적용됨 - 성별: \(gender ?? "모두"), 나이: \(minAge ?? 0) ~ \(maxAge ?? 0)")
+
+        // ✅ 새로운 필터 기준으로 검색 결과 갱신
+        searchData.removeAll()
+        currentPage = 0
+        isLastPage = false
+        searchView.searchDataTableView.reloadData()
+
+        fetchSearchResults(keyword: searchView.searchTextField.text ?? "")
     }
 }
