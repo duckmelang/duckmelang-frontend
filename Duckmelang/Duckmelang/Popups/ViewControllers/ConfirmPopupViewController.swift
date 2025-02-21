@@ -19,7 +19,7 @@ class ConfirmPopupViewController: UIViewController {
         func hideConfirmBtn()
     }
     
-    private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     override func viewDidLoad() {
         super.viewDidLoad()

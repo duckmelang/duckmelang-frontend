@@ -60,3 +60,11 @@ public struct DetailChatroomResponse: Codable {
     let reviewId: Int
     let postOwner: Bool
 }
+
+public struct MyPageReponse: Codable {
+    let memberId: Int
+    let nickname: String
+    let gender: String
+    let age: Int
+    let latestPublicMemberProfileImage: String
+}

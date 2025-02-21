@@ -287,7 +287,7 @@ class RangeSlider: UIControl {
     func updateLayerFrames() {
         let trackHeight: CGFloat = 4
         let thumbSize: CGFloat = 24
-        let availableWidth = bounds.width
+        let availableWidth = bounds.width - thumbSize
         
         let lowerThumbCenter = CGFloat((lowerValue - minValue) / (maxValue - minValue)) * availableWidth + thumbSize / 2
         let upperThumbCenter = CGFloat((upperValue - minValue) / (maxValue - minValue)) * availableWidth + thumbSize / 2

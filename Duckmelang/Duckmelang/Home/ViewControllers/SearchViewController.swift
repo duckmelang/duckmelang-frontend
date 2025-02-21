@@ -11,7 +11,7 @@ import SnapKit
 import Moya
 
 class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let provider = MoyaProvider<SearchAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<SearchAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let searchManager = SearchHistoryManager()
     
     private let searchView = SearchView()

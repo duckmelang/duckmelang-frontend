@@ -84,7 +84,7 @@ class PostDetailView: UIView {
         // 이미지 로드 (첫 번째 이미지)
         if let firstImageUrlString = data.postImageUrl.first,
            let imageUrl = URL(string: firstImageUrlString) {
-            loadImage(from: imageUrl, into: postDetailTopView.imageView)
+            postDetailTopView.updateImage(with: imageUrl) // ✅ 이미지 로드 후 그라데이션 추가
         }
         
         // 상단 프로필 정보 업데이트
@@ -103,21 +103,6 @@ class PostDetailView: UIView {
         postDetailBottomView.text3.text = "| 조회 \(data.viewCount)"
         
         postDetailBottomView.tableView.reloadData()
-    }
-    
-    // **이미지 로드 함수 (비동기)**
-    func loadImage(from url: URL, into scrollView: UIScrollView) {
-        DispatchQueue.global().async {
-            if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    let imageView = UIImageView(image: image)
-                    imageView.contentMode = .scaleAspectFill
-                    imageView.clipsToBounds = true
-                    imageView.frame = scrollView.bounds
-                    scrollView.addSubview(imageView)
-                }
-            }
-        }
     }
 }
 
@@ -141,7 +126,10 @@ class PostDetailTopView: UIView {
         $0.isPagingEnabled = true
     }
     
-    private lazy var imageViews: [UIImageView] = []
+    private lazy var imageViews = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
+        $0.clipsToBounds = true
+    }
     
     lazy var profileImage = UIImageView().then {
         $0.image = .profile
@@ -213,9 +201,21 @@ class PostDetailTopView: UIView {
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6, alignment: .leading)
     lazy var profileInfo = Stack(axis: .horizontal, spacing: 16, alignment: .center)
     
-    private func addGradientLayer() {
+    /// ✅ Kingfisher 이미지 로드 후 그라데이션 추가
+    func updateImage(with url: URL?) {
+        guard let url = url else { return }
+        imageViews.kf.setImage(with: url, placeholder: UIImage(), completionHandler: { _ in
+            DispatchQueue.main.async {
+                self.addGradientLayer()
+                self.imageViews.contentMode = .scaleAspectFill
+                self.imageViews.clipsToBounds = true
+            }
+        })
+    }
+    
+    func addGradientLayer() {
         let gradientLayer = CAGradientLayer()
-        gradientLayer.frame = imageView.bounds
+        gradientLayer.frame = imageViews.bounds
 
         //그라데이션 색상 설정 (위는 투명, 아래는 검정)
         gradientLayer.colors = [
@@ -228,7 +228,7 @@ class PostDetailTopView: UIView {
         gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
 
         //`imageView`의 `layer`에 추가
-        imageView.layer.addSublayer(gradientLayer)
+        imageViews.layer.addSublayer(gradientLayer)
     }
     
     private func addStack(){
@@ -240,10 +240,18 @@ class PostDetailTopView: UIView {
     private func setupView(){
         [imageView, profileInfo, progressBtn, progressTapBtn, endBtn].forEach{addSubview($0)}
     
+        imageView.addSubview(imageViews)
+
         imageView.snp.makeConstraints{
             $0.top.equalToSuperview().offset(-(UIApplication.shared.windows.first?.safeAreaInsets.top)!) //Safe Area 고려하여 확장\
-            $0.leading.trailing.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
+        }
+        
+        imageViews.snp.makeConstraints {
+            $0.edges.equalTo(imageView)
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(imageView)
         }
         
         //그라데이션 추가

@@ -121,3 +121,32 @@ struct UpdatePostStatusResponse: Codable {
     let wanted: Int
 }
 
+struct NotificationsSettingResponse: Codable {
+    let notificationSettingId: Int
+    let memberId: Int
+    var chatNotificationEnabled: Bool
+    var requestNotificationEnabled: Bool
+    var reviewNotificationEnabled: Bool
+    var bookmarkNotificationEnabled: Bool
+}
+
+struct myPageLoginResponse: Codable {
+    let nickname: String
+    let email: String
+    var kakaoLinked: Bool
+    var googleLinked: Bool
+}
+
+public struct myProfileImageResponse: Codable {
+    let profileImageList: [ProfileImageData]
+    let listSize: Int
+    let totalPage: Int
+    let totalElements: Int
+    let isFirst: Bool
+    let isLast: Bool
+}
+
+public struct ProfileImageData: Codable {
+    let memberProfileImageUrl: String
+    let createdAt: String
+}

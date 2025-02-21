@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private var myPostsData: [PostDTO] = []
     
     var isLoading = false   // 중복 로딩 방지

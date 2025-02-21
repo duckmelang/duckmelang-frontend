@@ -24,7 +24,7 @@ class PostDetailViewController: UIViewController {
     
     private var currentState: PostProgressState = .inProgress
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -80,11 +80,21 @@ class PostDetailViewController: UIViewController {
         switch state {
         case .inProgress:
             postDetailView.postDetailTopView.progressBtn.isHidden = false
+            if (postDetailView.postDetailTopView.progressBtn.titleLabel?.text == "진행 중") {
+                patchPostStatus(wanted: 1)
+            } else {
+                patchPostStatus(wanted: 0)
+            }
         case .progressTap(let progressing):
             postDetailView.postDetailTopView.progressTapBtn.isHidden = false
             updateProgressTapButtonStyle(progressing: progressing)
         case .completed:
             postDetailView.postDetailTopView.endBtn.isHidden = false
+            if (postDetailView.postDetailTopView.endBtn.titleLabel?.text == "진행 중") {
+                patchPostStatus(wanted: 1)
+            } else {
+                patchPostStatus(wanted: 0)
+            }
         }
     }
     
@@ -165,6 +175,7 @@ class PostDetailViewController: UIViewController {
                         DispatchQueue.main.async {
                             self.postDetailView.updateUI(with: postDetail)
                             self.updateAccompanyData(with: postDetail)
+                            self.updateBtn(with: postDetail)
                         }
                         // ✅ 성공 시 데이터 출력
                         print("Post Detail: \(String(describing: decodedResponse.result))")
@@ -180,29 +191,23 @@ class PostDetailViewController: UIViewController {
         }
     }
     
-    private func patchPostStatus() {
+    private func patchPostStatus(wanted: Int) {
         guard let postId = postId else {
             print("❌ postId가 없습니다.")
             return
         }
-        
-        provider.request(.patchPostStatus(postId: postId)) { result in
+
+        provider.request(.patchPostStatus(postId: postId, wanted: wanted)) { result in
             switch result {
             case .success(let response):
-                // ✅ 서버 응답 로그 출력
-                if let responseString = String(data: response.data, encoding: .utf8) {
-                    print("📌 [DEBUG] 서버 응답 바디: \(responseString)")
-                }
-
                 do {
-                    // ✅ `ApiResponse<UpdatePostStatusResponse>`으로 디코딩
                     let decodedResponse = try response.map(ApiResponse<UpdatePostStatusResponse>.self)
                     
                     if decodedResponse.isSuccess, let updatedPost = decodedResponse.result {
                         print("✅ 게시글 상태 변경 성공: \(decodedResponse.message)")
-                        print("📝 변경된 상태 - ID: \(updatedPost.id), 제목: \(updatedPost.title), 모집 상태: \(updatedPost.wanted)")
+                        print("📝 변경된 상태 - ID: \(updatedPost.id), 모집 상태: \(updatedPost.wanted)")
 
-                        // ✅ 변경된 상태를 UI에 반영
+                        // ✅ UI 업데이트
                         /*DispatchQueue.main.async {
                             self.updateBtn(with: updatedPost)
                         }*/
@@ -218,7 +223,6 @@ class PostDetailViewController: UIViewController {
         }
     }
 
-
     
     // 동행 정보 데이터 가공
     private func updateAccompanyData(with detail: MyPostDetailResponse) {
@@ -232,11 +236,16 @@ class PostDetailViewController: UIViewController {
         self.postDetailView.postDetailBottomView.tableView.reloadData()
     }
     
-    /*private func updateBtn(with data: UpdatePostStatusResponse) {
+    private func updateBtn(with data: UpdatePostStatusResponse) {
         // wanted == 0 → 모집 완료, wanted == 1 → 모집 중
         let state = data.wanted == 0 ? PostProgressState.completed : PostProgressState.inProgress
         updateButtonVisibility(state: state)
-    }*/
+    }
+    
+    private func updateBtn(with data: MyPostDetailResponse) {
+        let state = data.wanted == 0 ? PostProgressState.completed : PostProgressState.inProgress
+        updateButtonVisibility(state: state)
+    }
 }
 
 extension PostDetailViewController: UITableViewDataSource, UITableViewDelegate {

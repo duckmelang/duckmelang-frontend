@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Cosmos
 
 class OtherProfileView: UIView {
     override init(frame: CGRect) {
@@ -210,7 +209,6 @@ class OtherProfileBottomView: UIView {
         super.init(frame: frame)
         self.backgroundColor = .white
         
-        addStack()
         setupView()
     }
     
@@ -240,46 +238,8 @@ class OtherProfileBottomView: UIView {
         $0.backgroundColor = .black
     }
     
-    lazy var uploadPostView = UITableView().then {
-        $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
-        $0.separatorStyle = .none
-        $0.rowHeight = 106
-        $0.isHidden = false
-    }
-    
-    //변경 예정
-    lazy var reviewTableView = UITableView().then {
-        $0.register(ReviewCell.self, forCellReuseIdentifier: ReviewCell.identifier)
-        $0.separatorStyle = .none
-        $0.rowHeight = 72
-        $0.isHidden = true
-    }
-    
-    lazy var cosmosView = CosmosView().then {
-        $0.rating = 4.8 // 평점
-        $0.settings.updateOnTouch = false // 터치 비활성화 옵션
-        $0.settings.fillMode = .precise // 별 채우기 모드 full(완전히), half(절반), precise(터치 및 입력한 곳까지 소수점으로)
-        $0.settings.starSize = 25 // 별 크기
-        $0.settings.starMargin = 6.4 // 별 간격
-        
-        // 이미지 변경
-        // 이미지를 변경할 경우 색상은 적용되지 않는다. (색상이 들어간 이미지를 사용해야 한다.)
-        $0.settings.filledImage = UIImage(resource: .star)
-        $0.settings.emptyImage = UIImage(resource: .emptyStar)
-    }
-    
-    lazy var cosmosCount = Label(text: String(cosmosView.rating), font: .ptdSemiBoldFont(ofSize: 17), color: .mainColor)
-    
-    private lazy var cosmosFive = Label(text: "/ 5", font: .ptdRegularFont(ofSize: 17), color: .grey600)
-    
-    lazy var cosmosStack = Stack(axis: .horizontal, spacing: 3)
-    
-    private func addStack(){
-        [cosmosCount, cosmosFive].forEach{cosmosStack.addArrangedSubview($0)}
-    }
-    
     private func setupView(){
-        [segmentedControl, underLineView, uploadPostView, reviewTableView, cosmosView, cosmosStack].forEach{addSubview($0)}
+        [segmentedControl, underLineView].forEach{addSubview($0)}
         
         segmentedControl.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(20)
@@ -293,31 +253,6 @@ class OtherProfileBottomView: UIView {
             $0.leading.equalTo(segmentedControl.snp.leading)
             $0.width.equalTo(segmentedControl.snp.width).multipliedBy(0.5)
             $0.height.equalTo(1)
-        }
-        
-        uploadPostView.snp.makeConstraints {
-            $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
-            $0.left.equalToSuperview().offset(-15)
-            $0.right.equalToSuperview().offset(10)
-            $0.height.equalTo(500)
-        }
-        
-        cosmosView.snp.makeConstraints{
-            $0.top.equalTo(segmentedControl.snp.bottom).offset(16)
-            $0.centerX.equalToSuperview()
-            $0.height.equalTo(25)
-        }
-        
-        cosmosStack.snp.makeConstraints{
-            $0.top.equalTo(cosmosView.snp.bottom).offset(8)
-            $0.centerX.equalToSuperview()
-            $0.height.equalTo(25)
-        }
-        
-        reviewTableView.snp.makeConstraints{
-            $0.top.equalTo(cosmosStack.snp.bottom).offset(18)
-            $0.horizontalEdges.bottom.equalToSuperview()
-            $0.height.equalTo(500)
         }
     }
 }

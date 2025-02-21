@@ -26,12 +26,18 @@ class HomeView: UIView {
         $0.tintColor = .black
         $0.contentMode = .scaleAspectFit
     }
+    
+    lazy var celebStack = UIStackView().then {
+        $0.axis = .horizontal
+        $0.distribution = .fill
+        $0.spacing = 8
+    }
 
     // 알림 아이콘
     let bellIcon: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "bell"), for: .normal)
-        button.tintColor = .black
+        button.tintColor = .grey600
         return button
     }()
     
@@ -39,7 +45,7 @@ class HomeView: UIView {
     let findIcon: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "find"), for: .normal)
-        button.tintColor = .black
+        button.tintColor = .grey600
         return button
     }()
     
@@ -64,10 +70,11 @@ class HomeView: UIView {
     }
 
     private func setupView() {
+        celebStack.addArrangedSubview(chevronIcon)
+        celebStack.addArrangedSubview(celebNameLabel)
         
         [
-            chevronIcon,
-            celebNameLabel,
+            celebStack,
             bellIcon,
             findIcon,
             postsTableView,
@@ -76,15 +83,13 @@ class HomeView: UIView {
             addSubview($0)
         }
 
-        chevronIcon.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(20)
-            $0.centerY.equalTo(celebNameLabel)
-            $0.width.height.equalTo(18)
+        celebStack.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide).offset(8)
+            $0.leading.equalToSuperview().offset(16)
         }
-        
-        celebNameLabel.snp.makeConstraints {
-            $0.leading.equalTo(chevronIcon.snp.trailing).offset(8)
-            $0.top.equalToSuperview().offset(65)
+
+        chevronIcon.snp.makeConstraints {
+            $0.width.height.equalTo(18)
         }
         
         // 아이콘 컨테이너 뷰 생성

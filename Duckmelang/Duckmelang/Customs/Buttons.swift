@@ -22,11 +22,15 @@ class myPageBtn: UIButton {
 
 class CustomToggleButton: UIButton {
     
-    private var isOn: Bool = false
+    var isOn: Bool = false {
+        didSet {
+            updateImage()
+        }
+    }
     
     // ON/OFF 상태에 따라 사용할 이미지
-    private let onImage = UIImage(resource: .toggle2) // ✅ ON 상태 이미지
-    private let offImage = UIImage(resource: .toggle1) // ✅ OFF 상태 이미지
+    private let onImage = UIImage(named: "toggle2") // ✅ ON 상태 이미지
+    private let offImage = UIImage(named: "toggle1") // ✅ OFF 상태 이미지
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -45,13 +49,18 @@ class CustomToggleButton: UIButton {
     
     @objc private func toggleButtonTapped() {
         isOn.toggle() // 상태 변경
-        let newImage = isOn ? onImage : offImage
-        self.setImage(newImage, for: .normal) // 이미지 변경
+        updateImage()
+        sendActions(for: .valueChanged) // ✅ 변경 이벤트 발생 (외부에서 감지 가능)
     }
     
     // 외부에서 상태를 변경할 수 있도록 설정
     func setToggleState(isOn: Bool) {
         self.isOn = isOn
-        self.setImage(isOn ? onImage : offImage, for: .normal)
+        updateImage()
+    }
+    
+    private func updateImage() {
+        let newImage = isOn ? onImage : offImage
+        self.setImage(newImage, for: .normal)
     }
 }

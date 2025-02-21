@@ -55,7 +55,7 @@ class ReviewCell: UITableViewCell {
         $0.lineBreakMode = .byCharWrapping
     }
     
-    let genderAndAgeStack = Stack(axis: .horizontal, spacing: -3)
+    let genderAndAgeStack = Stack(axis: .horizontal, spacing: -13, distribution: .equalSpacing)
 
     let nicknameAndInfr = Stack(axis: .vertical, spacing: 5, alignment: .leading)
 
@@ -71,7 +71,7 @@ class ReviewCell: UITableViewCell {
             $0.height.equalTo(40)
             $0.top.equalToSuperview().inset(15)
             $0.leading.equalToSuperview().inset(16)
-            $0.width.equalTo(80)
+            $0.width.equalTo(100)
         }
         
         review.snp.makeConstraints{

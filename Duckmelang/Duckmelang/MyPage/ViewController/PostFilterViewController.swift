@@ -10,7 +10,7 @@ import Moya
 
 class PostFilterViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
 
     // 필터 데이터
     private var selectedGender: String? = nil // "MALE" / "FEMALE"

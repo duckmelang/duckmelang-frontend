@@ -31,6 +31,7 @@ public enum LoginAPI {
     case getAllEvents
     case postMemberInterestEvent(memberId: Int, eventNums: SelectFavoriteEventRequest)
     case postLandMines(memberId: Int, landmineString: SetLandmineKeywordRequest)
+    case postLogout
 }
 
 extension LoginAPI: TargetType {
@@ -88,7 +89,7 @@ extension LoginAPI: TargetType {
                 fatalError("memberURL 오류")
             }
             return url
-        case .getAllIdols:
+        case .getAllIdols, .postLogout:
             guard let url = URL(string: API.baseURL) else {
                 fatalError("baseURL 오류")
             }
@@ -147,6 +148,8 @@ extension LoginAPI: TargetType {
             return "/\(memberId)/events"
         case .postLandMines(let memberId, _):
             return "/\(memberId)/landmines"
+        case .postLogout:
+            return "/logout"
         }
     }
     
@@ -213,7 +216,7 @@ extension LoginAPI: TargetType {
         case .postLandMines(_, let SetLandmineKeywordRequest):
             return .requestJSONEncodable(SetLandmineKeywordRequest)
             
-        case .kakaoLogin, .googleLogin:
+        case .kakaoLogin, .googleLogin, .postLogout:
             return .requestPlain
         }
     }

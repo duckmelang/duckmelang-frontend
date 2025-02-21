@@ -107,4 +107,72 @@ class NoticeCell: UITableViewCell {
         profileImageView.alpha = alphaValue
         newBadge.alpha = alphaValue
     }
+    
+    func configure(with notice: NotificationModel) {
+        noticeLabel.text = notice.content
+        
+        if let date = dateFromString(notice.createdAt) {
+            self.timeLabel.text = timeAgo(from: date)
+        } else {
+            self.timeLabel.text = "날짜 없음"
+        }
+        
+        newBadge.isHidden = notice.isRead
+        
+        if let extraDataUrl = URL(string: notice.extraData) {
+            self.profileImageView.kf.setImage(with: extraDataUrl, placeholder: UIImage())
+        }
+        
+        let alphaValue: CGFloat = !notice.isRead ? 1.0 : 0.6
+            
+        noticeLabel.alpha = alphaValue
+        timeLabel.alpha = alphaValue
+        profileImageView.alpha = alphaValue
+        newBadge.alpha = alphaValue
+    }
+    
+    func dateFromString(_ dateString: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        dateFormatter.timeZone = TimeZone.current
+        return dateFormatter.date(from: dateString)
+    }
+    
+    func timeAgo(from date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        let components = calendar.dateComponents(
+            [.year, .month, .weekOfYear, .day, .hour, .minute],
+            from: date,
+            to: now
+        )
+
+        if let year = components.year, year > 0 {
+            return "\(year)년 전"
+        }
+        
+        if let month = components.month, month > 0 {
+            return "\(month)달 전"
+        }
+        
+        if let week = components.weekOfYear, week > 0 {
+            return "\(week)주 전"
+        }
+        
+        if let day = components.day, day > 0 {
+            return "\(day)일 전"
+        }
+        
+        if let hour = components.hour, hour > 0 {
+            return "\(hour)시간 전"
+        }
+        
+        if let minute = components.minute, minute > 0 {
+            return "\(minute)분 전"
+        }
+        
+        return "방금 전"
+    }
 }

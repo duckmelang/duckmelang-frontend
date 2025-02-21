@@ -36,6 +36,9 @@ class MyAccompanyViewController: UIViewController {
     
     @objc private func clickBell() {
         print("알림 버튼 클릭")
+        let noticeVC = NoticeViewController()
+        noticeVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(noticeVC, animated: true)
     }
     
     private func setupAction() {

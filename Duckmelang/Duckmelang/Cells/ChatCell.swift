@@ -153,7 +153,7 @@ class ChatCell: UITableViewCell {
             self.sentTime.text = formattedString
         }
         
-        if (model.status == "TERMINEATED"){
+        if (model.status == "TERMINATED"){
             contentView.alpha = 0.4
             self.recentMessage.text = "완료된 채팅"
         } else {

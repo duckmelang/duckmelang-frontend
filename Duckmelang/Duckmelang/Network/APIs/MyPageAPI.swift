@@ -15,7 +15,6 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum MyPageAPI {
-    case getProfileImage(page: Int)
     case getProfile
     case patchProfile(profileData: EditProfileRequest)
     case getMyPosts(page: Int)
@@ -33,7 +32,12 @@ public enum MyPageAPI {
     case deleteLandmines(landmineId: Int)
     case getFilters
     case postFilters(FilterRequest: FilterRequest)
-    case patchPostStatus(postId: Int)
+    case patchPostStatus(postId: Int, wanted: Int)
+    case patchNotificationsSetting([String: Bool])
+    case getNotificationsSetting
+    case getMyPageLogin
+    case getMyProfileImage(page: Int)
+    case deleteAccount
 }
 
 extension MyPageAPI: TargetType {
@@ -43,6 +47,11 @@ extension MyPageAPI: TargetType {
         switch self {
         case.getMyPostDetail, .patchPostStatus:
             guard let url = URL(string: API.postURL) else {
+                fatalError("mypageURL 오류")
+            }
+            return url
+        case .patchNotificationsSetting, .getNotificationsSetting:
+            guard let url = URL(string: API.notificationURL) else {
                 fatalError("mypageURL 오류")
             }
             return url
@@ -57,8 +66,8 @@ extension MyPageAPI: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
-        case .getProfileImage:
-            return "/profile/image/"
+        case .getMyProfileImage:
+            return "/profile/image"
         case .getProfile:
             return "/profile"
         case .patchProfile, .getProfileEdit:
@@ -83,8 +92,14 @@ extension MyPageAPI: TargetType {
             return "/landmines/\(landmineId)"
         case .getFilters, .postFilters:
             return "/filters"
-        case .patchPostStatus(postId: let postId):
+        case .patchPostStatus(postId: let postId, wanted: let wanted):
             return "/\(postId)/status"
+        case .patchNotificationsSetting, .getNotificationsSetting:
+            return "/setting"
+        case .getMyPageLogin:
+            return "/info"
+        case .deleteAccount:
+            return "/account/delete"
         }
     }
     
@@ -92,11 +107,11 @@ extension MyPageAPI: TargetType {
         // 가장 많이 호출되는 get을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .patchProfile, .patchPostStatus:
+        case .patchProfile, .patchPostStatus, .patchNotificationsSetting:
             return .patch
         case .postProfileImage, .postIdol, .postLandmines, .postFilters:
             return .post
-        case .deletePost, .deleteIdol, .deleteLandmines:
+        case .deletePost, .deleteIdol, .deleteLandmines, .deleteAccount:
             return .delete
         default:
             return .get
@@ -106,9 +121,9 @@ extension MyPageAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getProfileImage(let page), .getMyPosts(let page):
+        case .getMyPosts(let page), .getMyProfileImage(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .patchPostStatus:
+        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting, .deleteAccount:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
@@ -120,15 +135,17 @@ extension MyPageAPI: TargetType {
             return .requestParameters(parameters: ["content" : content], encoding: JSONEncoding.default)
         case .postFilters(FilterRequest: let FilterRequest):
             return .requestJSONEncodable(FilterRequest)
+        case .patchNotificationsSetting(let parameters):
+            return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
+        case .patchPostStatus(let postId, let wanted):
+            return .requestParameters(parameters: ["wanted": wanted], encoding: URLEncoding.queryString)
         }
     }
     
     public var headers: [String : String]? {
         switch self {
         default :
-            return ["Content-Type": "application/json",
-                    "Authorization": "Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQwMDI0NjE3LCJleHAiOjE3NDAwMjgyMTd9.Zer9cnOn6jDxFGcDwnOMh17oFNjOpxwkJdSkFrVsXLE"]
-
+            return ["Content-Type": "application/json"]
         }
     }
 }

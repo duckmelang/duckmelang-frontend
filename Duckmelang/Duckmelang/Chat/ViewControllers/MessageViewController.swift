@@ -9,11 +9,15 @@ import UIKit
 import Moya
 
 class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate {
-    private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let socketManager = SocketManager()
     
     var chat: ChatDTO?
+    var myId: Int?
     private var messageData: [MessageModel] = []
+    
+    private var lastMessageId: String? // 페이지네이션을 위한 lastMessageId
+    private var isFetching = false  // 중복 요청 방지
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,9 +35,10 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
             self.scrollToLastItem()
         }
         
-        getMessagesAPI()
+        getMessagesAPI(lastMessageId: nil)
         connectWebSocket()
         getDetailChatroomsAPI()
+        getMyId()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -53,24 +58,37 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         return view
     }()
     
-    private func getMessagesAPI() {
-        provider.request(.getMessages(chatRoomId: chat?.chatRoomId ?? 0, size: 20)) { result in
+    private func getMessagesAPI(lastMessageId: String?) {
+        guard !isFetching else { return } // 중복 요청 방지
+        isFetching = true
+        
+        provider.request(
+            .getMessages(
+                chatRoomId: chat?.chatRoomId ?? 0,
+                lastMessageId: lastMessageId,
+                size: 20
+            )
+        ) { result in
             switch result {
             case .success(let response):
-                self.messageData.removeAll()
                 let response = try? response.map(ApiResponse<MessageResponse>.self)
                 guard let results = response?.result?.chatMessageList else { return }
+                
+                if let lastMessageId = response?.result?.lastMessageId {
+                    self.lastMessageId = lastMessageId
+                }
+                
+                var newMessages: [MessageModel] = []
                 
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                 dateFormatter.locale = Locale(identifier: "ko_KR")
                 
                 results.forEach { result in
-                    let newChatType: ChatType = result.receiverId == 1 ? .receive : .send
+                    let newChatType: ChatType = result.receiverId == self.myId ? .receive : .send
                     var newDate = Date()
                     
                     if let date = dateFormatter.date(from: result.createdAt) {
-                        print("Converted Date: \(date)")
                         newDate = date
                     } else {
                         print("Failed to convert date")
@@ -81,16 +99,28 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
                         chatType: newChatType,
                         date: newDate
                     )
-                    self.messageData.append(message)
+                    newMessages.append(message)
                 }
                 
-                print("메세지: \(self.messageData)")
-                self.messageData = self.messageData.reversed()
-                DispatchQueue.main.async {
-                    self.reloadMessage()
+                if lastMessageId == nil {
+                    self.messageData = newMessages
+                    self.messageData = self.messageData.reversed()
+                    DispatchQueue.main.async {
+                        self.reloadMessage()
+                    }
+                } else {
+                    newMessages = newMessages.reversed()
+                    self.messageData.insert(contentsOf: newMessages, at: 0)
+                    DispatchQueue.main.async {
+                        self.messageView.messageCollectionView.reloadData()
+                        self.scrollToLastMessages()
+                    }
                 }
+                self.isFetching = false
+                print("메세지: \(self.messageData)")
             case .failure(let error):
                 print(error)
+                self.isFetching = false
             }
         }
     }
@@ -139,6 +169,21 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         }
     }
     
+    private func getMyId() {
+        provider.request(.getMemberId) { result in
+            switch result {
+            case .success(let response):
+                let response = try? response.map(ApiResponse<MyPageReponse>.self)
+                guard let memberId = response?.result?.memberId else { return }
+                print("멤버아이디 상세 정보: \(result)")
+                
+                self.myId = memberId
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
     @objc private func sendNewMessage() {
         if (messageView.bottomMessageView.messageTextField.text == "") {
             return
@@ -150,10 +195,13 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     }
     
     private func sendMessage(with text: String) {
+        guard let chat = chat else { return }
+        guard let myId = myId else { return }
+        
         let newMessage = MessageRequest(
-            senderId: 1,
-            receiverId: 2,
-            postId: 2,
+            senderId: myId,
+            receiverId: chat.oppositeId,
+            postId: chat.postId,
             messageType: "TEXT",
             text: text
         )
@@ -236,6 +284,17 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         messageView.messageCollectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
     }
     
+    private func scrollToLastMessages(count: Int = 20) {
+        let totalItems = messageView.messageCollectionView.numberOfSections
+        
+        guard totalItems > 0 else { return }
+        
+        let targetIndex = max(totalItems - count, 0) // ✅ 최근 20개의 메시지가 보이도록 설정
+        let indexPath = IndexPath(item: 0, section: targetIndex)
+
+        messageView.messageCollectionView.scrollToItem(at: indexPath, at: .top, animated: false)
+    }
+    
     func hideConfirmBtn() {
         messageView.topMessageView.confirmBtn.isHidden = true
     }
@@ -311,6 +370,16 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
         }
         
         return UICollectionViewCell()
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let insetTop = scrollView.adjustedContentInset.top // ✅ 상단 inset 고려
+
+        // ✅ 스크롤이 최상단 근처에 도달했을 때 로드
+        if offsetY <= insetTop - 50, let lastMessageId = lastMessageId, !isFetching {
+            getMessagesAPI(lastMessageId: lastMessageId)
+        }
     }
 
     private func isSameDay(date1: Date, date2: Date) -> Bool {

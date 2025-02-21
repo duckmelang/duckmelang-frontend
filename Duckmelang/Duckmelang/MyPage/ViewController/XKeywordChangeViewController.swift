@@ -14,7 +14,7 @@ enum ActionType {
 
 class XKeywordChangeViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     private var filters: [LandmineModel] = []  // 서버에서 가져온 키워드 리스트
     private var pendingAddQueue: Set<String> = []  // 새로 추가할 키워드 큐

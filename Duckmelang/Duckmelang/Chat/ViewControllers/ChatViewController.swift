@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class ChatViewController: UIViewController {
-    private let provider = MoyaProvider<ChatAPI>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     var chatData: [ChatDTO] = []
     
@@ -94,6 +94,9 @@ class ChatViewController: UIViewController {
     
     @objc private func clickBell() {
         print("알림 버튼 클릭")
+        let noticeVC = NoticeViewController()
+        noticeVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(noticeVC, animated: true)
     }
     
     private func setupDelegate() {

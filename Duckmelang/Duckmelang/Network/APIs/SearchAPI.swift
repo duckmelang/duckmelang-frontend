@@ -60,8 +60,7 @@ extension SearchAPI: TargetType {
         switch self {
         default :
             return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0IiwiaWF0IjoxNzQwMDE5NDQxLCJleHAiOjE3NDAwMjMwNDF9.hBjQ0_0FSeVpj6mqh78JQkeAntyXHDmnyT5T-Q3fSiE"
+                "Content-Type": "application/json"
             ]
         }
     }
