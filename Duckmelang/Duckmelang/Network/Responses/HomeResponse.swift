@@ -14,3 +14,16 @@ public struct idolDTO: Codable {
 public struct idolResponse: Codable {
     let idolList: [idolDTO]
 }
+
+struct BookmarkResponse: Codable {
+    let isSuccess: Bool
+    let code: String
+    let message: String
+    let result: BookmarkResult?
+}
+
+struct BookmarkResult: Codable {
+    let bookmarkId: Int
+    let memberId: Int
+    let postId: Int
+}

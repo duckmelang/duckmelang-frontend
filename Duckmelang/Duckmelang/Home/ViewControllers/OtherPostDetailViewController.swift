@@ -8,8 +8,6 @@
 import UIKit
 import Moya
 
-//버튼 상태
-
 class OtherPostDetailViewController: UIViewController {
     var postId: Int?  // 전달받을 게시물 ID
     
@@ -18,6 +16,10 @@ class OtherPostDetailViewController: UIViewController {
     private var accompanyData: [PostDetailAccompanyModel] = [] // 동행 정보 데이터
 
     private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let providerHome = MoyaProvider<HomeAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let providerOther = MoyaProvider<OtherPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    
+    private lazy var isBookmarked: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,6 +40,7 @@ class OtherPostDetailViewController: UIViewController {
     
     private lazy var otherPostDetailView = OtherPostDetailView().then {
         $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
+        $0.tabBar.scrapBtn.addTarget(self, action: #selector(scrapBtnDidTap), for: .touchUpInside)
     }
 
     @objc private func backBtnDidTap() {
@@ -46,6 +49,10 @@ class OtherPostDetailViewController: UIViewController {
         } else {
             dismiss(animated: true) // ✅ 네비게이션이 없으면 dismiss
         }
+    }
+    
+    @objc private func profileSeeBtnDidTap() {
+     
     }
 
     private func setupDelegate() {
@@ -64,6 +71,9 @@ class OtherPostDetailViewController: UIViewController {
                         DispatchQueue.main.async {
                             self.otherPostDetailView.updateUI(with: postDetail)
                             self.updateAccompanyData(with: postDetail)
+                            self.updateBookmarkState(isBookmarked: postDetail.bookmarkCount > 0) // ✅ 북마크 상태 업데이트
+                            self.updateScore(averageScore: postDetail.averageScore) // ✅ 점수 업데이트
+                            
                         }
                         // ✅ 성공 시 데이터 출력
                         print("Post Detail: \(String(describing: decodedResponse.result))")
@@ -79,7 +89,54 @@ class OtherPostDetailViewController: UIViewController {
         }
     }
     
-   
+    // ✅ 북마크 상태 업데이트 함수
+    private func updateBookmarkState(isBookmarked: Bool) {
+        self.isBookmarked = isBookmarked
+        let imageName = isBookmarked ? "bookmark.fill" : "bookmarks"
+        otherPostDetailView.tabBar.scrapBtn.setImage(UIImage(systemName: imageName), for: .normal)
+    }
+    
+    // ✅ 평균 점수 업데이트 함수
+    private func updateScore(averageScore: Double) {
+        otherPostDetailView.tabBar.score1.text = String(format: "%.1f", averageScore)
+    }
+    
+    // ✅ 북마크 버튼 클릭 시 API 요청
+    @objc private func scrapBtnDidTap() {
+        guard let postId = postId else { return }
+        
+        addBookmark(postId: postId) { success in
+            if success {
+                DispatchQueue.main.async {
+                    self.otherPostDetailView.tabBar.scrapBtn.setImage(UIImage(systemName: "bookmark.fill"), for: .normal)
+                }
+            }
+        }
+    }
+    
+    func addBookmark(postId: Int, completion: @escaping (Bool) -> Void) {
+        providerHome.request(.postBookmark(postId: postId)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try JSONDecoder().decode(BookmarkResponse.self, from: response.data)
+                    if decodedResponse.isSuccess {
+                        print("✅ 북마크 추가 성공 - 북마크 ID: \(decodedResponse.result?.bookmarkId ?? 0)")
+                        completion(true)
+                    } else {
+                        print("❌ 북마크 추가 실패: \(decodedResponse.message)")
+                        completion(false)
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                    completion(false)
+                }
+            case .failure(let error):
+                print("❌ 북마크 API 요청 실패: \(error.localizedDescription)")
+                completion(false)
+            }
+        }
+    }
     
     // 동행 정보 데이터 가공
     private func updateAccompanyData(with detail: MyPostDetailResponse) {
