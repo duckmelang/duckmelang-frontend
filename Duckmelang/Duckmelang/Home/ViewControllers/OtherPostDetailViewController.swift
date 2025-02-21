@@ -41,7 +41,6 @@ class OtherPostDetailViewController: UIViewController {
     private lazy var otherPostDetailView = OtherPostDetailView().then {
         $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         $0.tabBar.scrapBtn.addTarget(self, action: #selector(scrapBtnDidTap), for: .touchUpInside)
-        $0.postDetailTopView.profileSeeBtn.addTarget(self, action: #selector(profileSeeBtnDidTap), for: .touchUpInside)
     }
 
     @objc private func backBtnDidTap() {

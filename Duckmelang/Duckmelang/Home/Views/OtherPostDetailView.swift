@@ -162,12 +162,7 @@ class OtherPostDetailTopView: UIView {
     lazy var age = Label(text: "나이", font: .ptdRegularFont(ofSize: 13), color: .grey600).then {
         $0.textAlignment = .left
     }
-    
-    lazy var profileSeeBtn = UIButton().then {
-        $0.setImage(UIImage(systemName: "chevron.right"), for: .normal)
-        $0.tintColor = .grey500
-    }
-    
+
     lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -10, distribution: .equalCentering)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6, alignment: .leading)
     lazy var profileInfo = Stack(axis: .horizontal, spacing: 16, alignment: .center)
@@ -209,7 +204,7 @@ class OtherPostDetailTopView: UIView {
     }
     
     private func setupView(){
-        [imageView, profileInfo, profileSeeBtn].forEach{addSubview($0)}
+        [imageView, profileInfo].forEach{addSubview($0)}
     
         imageView.addSubview(imageViews)
 
@@ -238,12 +233,6 @@ class OtherPostDetailTopView: UIView {
             $0.top.equalTo(imageView.snp.bottom).offset(15)
             $0.leading.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
-        }
-        
-        profileSeeBtn.snp.makeConstraints{
-            $0.centerY.equalTo(profileInfo)
-            $0.trailing.equalToSuperview().inset(24)
-            $0.width.height.equalTo(24)
         }
     }
 }

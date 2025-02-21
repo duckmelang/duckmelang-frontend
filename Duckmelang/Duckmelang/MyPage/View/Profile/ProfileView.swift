@@ -119,7 +119,11 @@ class ProfileTopView: UIView {
         $0.layer.cornerRadius = 7
     }
     
-    private lazy var selfPR = Label(text: "메랑이 구해요!", font: .ptdRegularFont(ofSize: 12), color: .grey800)
+    private lazy var selfPR = Label(text: "메랑이 구해요!", font: .ptdRegularFont(ofSize: 12), color: .grey800).then {
+        $0.numberOfLines = 0
+        $0.lineBreakMode = .byWordWrapping
+        $0.textAlignment = .left
+    }
     
     lazy var setBtnImage = UIImageView().then {
         $0.image = UIImage(resource: .menu)
@@ -182,7 +186,7 @@ class ProfileTopView: UIView {
         
         selfPR.snp.makeConstraints{
             $0.centerY.equalToSuperview()
-            $0.left.equalToSuperview().inset(16)
+            $0.left.right.equalToSuperview().inset(16)
         }
         
         setBtnImage.snp.makeConstraints{
