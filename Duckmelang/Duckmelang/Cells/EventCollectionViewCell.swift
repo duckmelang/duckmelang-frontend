@@ -21,7 +21,6 @@ class EventCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(eventButton)
         
         eventButton.snp.makeConstraints {
-            $0.height.equalTo(30)
             $0.top.bottom.equalToSuperview().offset(10)
             $0.leading.trailing.equalToSuperview().offset(12)
         }
@@ -40,14 +39,21 @@ class EventCollectionViewCell: UICollectionViewCell {
         eventButton.titleLabel?.textAlignment = .center
         config.baseForegroundColor = isSelected ? .white : .grey400
         config.baseBackgroundColor = isSelected ? .dmrBlue : .white
-        config.attributedTitle?.font = .ptdSemiBoldFont(ofSize: 14)
-        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16) // 내부 패딩
+        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = UIFont.ptdSemiBoldFont(ofSize: 14)
+            return outgoing
+        }
 
         eventButton.configuration = config
         eventButton.layer.cornerRadius = 15
         eventButton.layer.borderWidth = 1
         eventButton.layer.borderColor = isSelected ? UIColor.dmrBlue!.cgColor : UIColor.grey400!.cgColor
         eventButton.clipsToBounds = true
+        
+        eventButton.setNeedsLayout()
+        eventButton.layoutIfNeeded()
     }
     
     override func awakeFromNib() {

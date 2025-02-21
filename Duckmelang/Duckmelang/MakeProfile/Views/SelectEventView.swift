@@ -34,7 +34,7 @@ class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDeleg
     
     private lazy var eventCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        layout.estimatedItemSize = CGSize(width: 80, height: 40)
         layout.minimumInteritemSpacing = 14  // 좌우 간격
         layout.minimumLineSpacing = 20  // 위아래 간격
 
@@ -102,7 +102,6 @@ class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDeleg
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EventCollectionViewCell.identifier, for: indexPath) as! EventCollectionViewCell
         
         let event = eventsView[indexPath.row]
-        cell.prepareForReuse()
         cell.configureEventButton(title: event.eventName, isSelected: selectedEvents.contains(event.eventID))
         
         return cell
@@ -125,6 +124,8 @@ class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDeleg
         delegate?.selectedEventsDidChange(selectedEvents)
 
         collectionView.reloadItems(at: [indexPath])
+        
+        collectionView.reloadData()
     }
 }
 
