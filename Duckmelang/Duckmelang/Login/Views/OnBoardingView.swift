@@ -193,7 +193,7 @@ class OnBoardingView: UIView {
         addSubviews(
             headerContainer,
             //FIXME: - 개발 종료 후 gohome 지우기 2
-            goHome,
+//            goHome,
             loginBtnsContainer,
             signinContainer
         )
@@ -209,13 +209,13 @@ class OnBoardingView: UIView {
             $0.bottom.equalTo(logoImageView.snp.bottom)
         }
         
-        //FIXME: - 개발 종료 후 gohome 지우기 3
-        goHome.snp.makeConstraints{
-            $0.top.equalTo(headerContainer.snp.bottom).offset(15)
-            $0.centerX.equalToSuperview()
-            $0.width.equalTo(200)
-            $0.height.equalTo(40)
-        }
+//        //FIXME: - 개발 종료 후 gohome 지우기 3
+//        goHome.snp.makeConstraints{
+//            $0.top.equalTo(headerContainer.snp.bottom).offset(15)
+//            $0.centerX.equalToSuperview()
+//            $0.width.equalTo(200)
+//            $0.height.equalTo(40)
+//        }
         
         loginBtnsContainer.snp.makeConstraints {
             $0.top.equalTo(headerContainer.snp.bottom).offset(165)

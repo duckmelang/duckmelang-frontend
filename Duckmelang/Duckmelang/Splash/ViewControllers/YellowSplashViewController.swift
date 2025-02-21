@@ -22,7 +22,7 @@ class YellowSplashViewController: UIViewController {
 
             // 2초 후 메인 화면으로 전환
             //FIXME: - 개발 완료 후 delay 0.5 -> 1.5 로 변경하기
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 self.transitionToMainScreen()
             }
         }

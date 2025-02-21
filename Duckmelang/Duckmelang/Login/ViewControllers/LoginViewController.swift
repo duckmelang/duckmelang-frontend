@@ -76,7 +76,14 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
     }
         
     @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
+        let vc = OnBoardingViewController()
+        let navController = UINavigationController(rootViewController: vc)
+        
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = scene.windows.first {
+            window.rootViewController = navController
+            window.makeKeyAndVisible()
+        }
     }
     
     @objc private func didTapLoginButton() {
