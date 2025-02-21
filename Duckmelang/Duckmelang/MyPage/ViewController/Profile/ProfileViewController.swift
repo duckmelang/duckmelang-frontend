@@ -149,7 +149,10 @@ class ProfileViewController: UIViewController{
 
     @objc
     private func backBtnDidTap() {
-        navigationController?.popViewController(animated: true)
+        if let VC = self.navigationController  {
+            self.hidesBottomBarWhenPushed = false
+            navigationController?.popViewController(animated: true)
+        }
     }
     
     @objc

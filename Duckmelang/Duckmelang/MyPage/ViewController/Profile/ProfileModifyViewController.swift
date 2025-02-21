@@ -33,7 +33,8 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
 
     // MARK: - Button Actions
     @objc private func backBtnDidTap() {
-        dismiss(animated: false)
+            self.dismiss(animated: true)
+            self.hidesBottomBarWhenPushed = false
     }
     
     @objc private func finishBtnDidTap() {
@@ -49,6 +50,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
 
         if let imageData = profileModifyView.profileImage.image?.jpegData(compressionQuality: 0.8) {
             uploadProfileImage(imageData) // 이미지 업로드
+            NotificationCenter.default.post(name: NSNotification.Name("PrpfileUpdated"), object: nil)
         } else {
             updateProfileInfo() // 이미지 없이 닉네임과 자기소개만 수정
         }
