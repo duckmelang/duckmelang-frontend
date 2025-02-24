@@ -180,6 +180,7 @@ class ProfileViewController: UIViewController{
                         self.reviews = myReviewList
                         self.profileView.profileBottomView.reviewTableView.reloadData() // ✅ 테이블뷰 갱신
                         self.profileView.profileBottomView.cosmosView.rating = averageRating // ✅ 평점 업데이트
+                        self.profileView.profileBottomView.cosmosCount.text = "\(averageRating)"
                         print("✅ [DEBUG] 리뷰 \(myReviewList.count)개 로드됨!")
                     }
                 } catch {
@@ -207,8 +208,10 @@ class ProfileViewController: UIViewController{
     private func profileDidTap() {
         let VC = MyProfileImageViewController()
         VC.profileData = self.profileData
-        self.modalPresentationStyle = .fullScreen
-        self.present(VC, animated: true)
+        
+        let vc = UINavigationController(rootViewController: VC)
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true)
     }
     
     // setBtn 창 떠 있는 상태에서 다른 뷰를 누를때
@@ -260,13 +263,13 @@ class ProfileViewController: UIViewController{
             // 윗부분 터치
             let profileModifyVC = ProfileModifyViewController()
             profileModifyVC.modalPresentationStyle = .fullScreen
-            present(profileModifyVC, animated: false)
+            present(profileModifyVC, animated: true)
             profileView.profileTopView.setBtnImage.isHidden = true
         } else {
             // 아랫부분 터치
             let feedVC = FeedManagementViewController()
             feedVC.modalPresentationStyle = .fullScreen
-            present(feedVC, animated: false)
+            present(feedVC, animated: true)
             profileView.profileTopView.setBtnImage.isHidden = true
         }
     }

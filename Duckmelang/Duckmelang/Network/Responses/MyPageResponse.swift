@@ -144,6 +144,10 @@ public struct myProfileImageResponse: Codable {
     let totalElements: Int
     let isFirst: Bool
     let isLast: Bool
+    
+    var sortedProfileImageList: [ProfileImageData] {
+        return profileImageList.reversed()
+    }
 }
 
 public struct ProfileImageData: Codable {

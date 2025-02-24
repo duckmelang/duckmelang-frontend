@@ -20,37 +20,21 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
         super.viewDidLoad()
         
         self.view = myProfileImageView
+        navigationController?.isNavigationBarHidden = true
         
         setupDelegate()
-        setupNavigationBar()
         getProfileDataAPI()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.setNavigationBarHidden(false, animated: true) // ✅ 현재 뷰에서만 보이도록 설정
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        self.navigationController?.setNavigationBarHidden(true, animated: true) // ✅ 원래 상태로 복구
-    }
-    
     private lazy var myProfileImageView = MyProfileImageView().then {
-        _ in
+        $0.backBtn.addTarget(self, action: #selector(goBack), for: .touchUpInside)
     }
 
     private func setupDelegate() {
         myProfileImageView.imageTableView.delegate = self
         myProfileImageView.imageTableView.dataSource = self
     }
-    
-    private func setupNavigationBar() {
-        let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
-        leftBarButton.tintColor = .grey600
-        self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
-    }
-    
+
     @objc private func goBack() {
         self.dismiss(animated: true)
     }
@@ -87,15 +71,12 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
                 self.profileImageData.removeAll()
                 do {
                     let decodedResponse = try response.map(ApiResponse<myProfileImageResponse>.self)
-                    guard let imageList = decodedResponse.result?.profileImageList, !imageList.isEmpty else {
+                    guard let imageList = decodedResponse.result?.sortedProfileImageList, !imageList.isEmpty else {
                         print("❌ 프로필 이미지 없음")
                         return
                     }
-
-                    // ✅ 최신순 정렬 (createdAt 기준 내림차순)
-                    let sortedImageList = imageList.sorted { $0.createdAt > $1.createdAt }
                     
-                    self.profileImageData = sortedImageList
+                    self.profileImageData = imageList
                     print("✅ 최신순 정렬된 이미지 리스트: \(self.profileImageData)")
 
                     DispatchQueue.main.async {

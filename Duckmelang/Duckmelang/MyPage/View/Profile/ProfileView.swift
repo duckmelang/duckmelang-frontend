@@ -282,7 +282,7 @@ class ProfileBottomView: UIView {
         $0.settings.emptyImage = UIImage(resource: .emptyStar)
     }
     
-    private lazy var cosmosCount = Label(text: String(cosmosView.rating), font: .ptdSemiBoldFont(ofSize: 17), color: .mainColor)
+    lazy var cosmosCount = Label(text: String(cosmosView.rating), font: .ptdSemiBoldFont(ofSize: 17), color: .mainColor)
     
     private lazy var cosmosFive = Label(text: "/ 5", font: .ptdRegularFont(ofSize: 17), color: .grey600)
     
