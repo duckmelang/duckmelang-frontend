@@ -1,22 +1,25 @@
 //
-//  MessageViewController.swift
+//  NewMessageViewController.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 1/21/25.
+//  Created by 주민영 on 2/21/25.
 //
 
 import UIKit
 import Moya
 
-class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate {
+class NewMessageViewController: UIViewController, OtherMessageCellDelegate, ConfirmPopupViewController.ModalDelegate {
+    func hideConfirmBtn() {
+        messageView.topMessageView.confirmBtn.isHidden = true
+    }
+    
     private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let socketManager = SocketManager()
     
     private var messageData: [MessageModel] = []
     
-    var chat: ChatDTO?
-    private var lastMessageId: String? // 페이지네이션을 위한 lastMessageId
-    private var isFetching = false  // 중복 요청 방지
+    var postId: Int?
+    var postDetail: MyPostDetailResponse?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,107 +34,16 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         setupAction()
         
         DispatchQueue.main.async {
+            self.messageView.myPostDetail = self.postDetail
             self.scrollToLastItem()
         }
-        
-        getMessagesAPI(lastMessageId: nil)
         connectWebSocket()
-        getDetailChatroomsAPI()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        self.navigationController?.isNavigationBarHidden = false
-        self.tabBarController?.tabBar.isHidden = true
-        
-        DispatchQueue.main.async {
-            self.scrollToLastItem()
-        }
-        setupNavigationBar()
     }
     
     private lazy var messageView: MessageView = {
         let view = MessageView()
         return view
     }()
-    
-    private func getMessagesAPI(lastMessageId: String?) {
-        guard !isFetching else { return } // 중복 요청 방지
-        isFetching = true
-        
-        provider.request(
-            .getMessages(
-                chatRoomId: chat?.chatRoomId ?? 0,
-                lastMessageId: lastMessageId,
-                size: 20
-            )
-        ) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<MessageResponse>.self)
-                guard let results = response?.result?.chatMessageList else { return }
-                
-                if let lastMessageId = response?.result?.lastMessageId {
-                    self.lastMessageId = lastMessageId
-                }
-                
-                var newMessages: [MessageModel] = []
-                
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-                dateFormatter.locale = Locale(identifier: "ko_KR")
-                
-                results.forEach { result in
-                    var newChatType: ChatType = .receive
-                    if let myId = KeychainManager.shared.load(key: "memberId") {
-                        if (result.receiverId == Int(myId)) {
-                            newChatType = .receive
-                        } else if (result.senderId == self.chat?.oppositeId) {
-                            newChatType = .send
-                        } else {
-                            return
-                        }
-                    }
-                    
-                    var newDate = Date()
-                    
-                    if let date = dateFormatter.date(from: result.createdAt) {
-                        newDate = date
-                    } else {
-                        print("Failed to convert date")
-                    }
-                    
-                    let message = MessageModel(
-                        text: result.text ?? "",
-                        chatType: newChatType,
-                        date: newDate
-                    )
-                    newMessages.append(message)
-                }
-                
-                if lastMessageId == nil {
-                    self.messageData = newMessages
-                    self.messageData = self.messageData.reversed()
-                    DispatchQueue.main.async {
-                        self.reloadMessage()
-                    }
-                } else {
-                    newMessages = newMessages.reversed()
-                    self.messageData.insert(contentsOf: newMessages, at: 0)
-                    DispatchQueue.main.async {
-                        self.messageView.messageCollectionView.reloadData()
-                        self.scrollToLastMessages()
-                    }
-                }
-                self.isFetching = false
-                print("메세지: \(self.messageData)")
-            case .failure(let error):
-                print(error)
-                self.isFetching = false
-            }
-        }
-    }
     
     private func connectWebSocket() {
         let url = URL(string: "wss://13.125.217.231.nip.io/wss/chat")!
@@ -146,13 +58,13 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
                 if let myId = KeychainManager.shared.load(key: "memberId") {
                     if (response.receiverId == Int(myId)) {
                         newChatType = .receive
-                    } else if (response.senderId == self.chat?.oppositeId) {
+                    } else if (response.senderId == self.postDetail?.memberId) {
                         newChatType = .send
                     } else {
                         return
                     }
                 }
-                
+                          
                 let message = MessageModel(
                     text: response.text,
                     chatType: newChatType,
@@ -169,23 +81,6 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         }
     }
     
-    private func getDetailChatroomsAPI() {
-        provider.request(.getDetailChatroom(chatRoomId: self.chat?.chatRoomId ?? 0)) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<DetailChatroomResponse>.self)
-                guard let result = response?.result else { return }
-                print("채팅 상세 정보: \(result)")
-                
-                DispatchQueue.main.async {
-                    self.messageView.detailChatroomResponse = result
-                }
-            case .failure(let error):
-                print(error)
-            }
-        }
-    }
-    
     @objc private func sendNewMessage() {
         if (messageView.bottomMessageView.messageTextField.text == "") {
             return
@@ -197,29 +92,28 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     }
     
     private func sendMessage(with text: String) {
-        guard let chat = chat else { return }
-        guard let myId = Int(KeychainManager.shared.load(key: "memberId") ?? "변환실패") else { return }
-        
-        let newMessage = MessageRequest(
-            senderId: myId,
-            receiverId: chat.oppositeId,
-            postId: chat.postId,
-            messageType: "TEXT",
-            text: text
-        )
-        
-        let newMessageModel = MessageModel(text: text, chatType: .send, date: Date())
-        
-        socketManager.sendMessage(messageRequest: newMessage) { [weak self] result in
-            switch result {
-            case .success(_):
-                DispatchQueue.main.async {
-                    self?.messageData.append(newMessageModel)
-                    self?.reloadMessage()
-                    self?.messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
+        if let myId = KeychainManager.shared.load(key: "memberId"),
+           let myId = Int(myId), let otherId = self.postDetail?.memberId, let postId = self.postId {
+            let newMessage = MessageRequest(
+                senderId: myId,
+                receiverId: otherId,
+                postId: postId,
+                messageType: "TEXT",
+                text: text
+            )
+            
+            socketManager.sendMessage(messageRequest: newMessage) { [weak self] result in
+                switch result {
+                case .success(_):
+                    DispatchQueue.main.async {
+                        let newMessageModel = MessageModel(text: text, chatType: .send, date: Date())
+                        self?.messageData.append(newMessageModel)
+                        self?.reloadMessage()
+                        self?.messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
+                    }
+                case .failure(let error):
+                    print(error.localizedDescription)
                 }
-            case .failure(let error):
-                print(error.localizedDescription)
             }
         }
     }
@@ -232,7 +126,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     private func setupNavigationBar() {
         self.navigationController?.navigationBar.backgroundColor = .white
         
-        self.navigationItem.title = chat?.oppositeNickname
+        self.navigationItem.title = postDetail?.nickname
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
         
         let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
@@ -252,7 +146,6 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     
     private func setupAction() {
         messageView.topMessageView.confirmBtn.addTarget(self, action: #selector(openConfirmPopup), for: .touchUpInside)
-        messageView.topMessageView.reviewBtn.addTarget(self, action: #selector(openReview), for: .touchUpInside)
         messageView.bottomMessageView.sendBtn.addTarget(self, action: #selector(sendNewMessage), for: .touchUpInside)
     }
     
@@ -260,19 +153,12 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         let popupVC = ConfirmPopupViewController()
         popupVC.modalPresentationStyle = .overFullScreen
         
-        popupVC.postId = chat?.postId
-        popupVC.oppositeNickname = chat?.oppositeNickname
-        popupVC.oppositeProfileImage = chat?.oppositeProfileImage
+        popupVC.postId = self.postId
+        popupVC.oppositeNickname = postDetail?.nickname
+        popupVC.oppositeProfileImage = postDetail?.latestPublicMemberProfileImage
         
         popupVC.delegate = self
         present(popupVC, animated: false)
-    }
-    
-    @objc private func openReview() {
-        let afterReviewVC = AfterReviewViewController()
-        afterReviewVC.oppositeId = chat?.oppositeId
-        afterReviewVC.postId = chat?.postId
-        navigationController?.pushViewController(afterReviewVC, animated: true)
     }
     
     private func scrollToLastItem() {
@@ -285,24 +171,9 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
         messageView.messageCollectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
     }
-    
-    private func scrollToLastMessages(count: Int = 20) {
-        let totalItems = messageView.messageCollectionView.numberOfSections
-        
-        guard totalItems > 0 else { return }
-        
-        let targetIndex = max(totalItems - count, 0) // ✅ 최근 20개의 메시지가 보이도록 설정
-        let indexPath = IndexPath(item: 0, section: targetIndex)
-
-        messageView.messageCollectionView.scrollToItem(at: indexPath, at: .top, animated: false)
-    }
-    
-    func hideConfirmBtn() {
-        messageView.topMessageView.confirmBtn.isHidden = true
-    }
 }
 
-extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension NewMessageViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return messageData.count
     }
@@ -366,37 +237,31 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
                 return UICollectionViewCell()
             }
             
-            cell.configure(userImage: chat?.oppositeProfileImage ?? "", text: messageDate.text, date: dateFormatter.string(from: messageDate.date))
-            cell.delegate = self
+            if let userImage = postDetail?.latestPublicMemberProfileImage {
+                cell.configure(userImage: userImage, text: messageDate.text, date: dateFormatter.string(from: messageDate.date))
+                cell.delegate = self
+            }
             return cell
         }
         
         return UICollectionViewCell()
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        let insetTop = scrollView.adjustedContentInset.top // ✅ 상단 inset 고려
-
-        // ✅ 스크롤이 최상단 근처에 도달했을 때 로드
-        if offsetY <= insetTop - 50, let lastMessageId = lastMessageId, !isFetching {
-            getMessagesAPI(lastMessageId: lastMessageId)
-        }
-    }
-
     private func isSameDay(date1: Date, date2: Date) -> Bool {
         let calendar = Calendar.current
         return calendar.isDate(date1, inSameDayAs: date2)
     }
     
     func didTapUserImage(in cell: OtherMessageCell) {
-        let otherProfileVC = OtherProfileViewController()
-        otherProfileVC.oppositeId = chat?.oppositeId
-        navigationController?.pushViewController(otherProfileVC, animated: true)
+        if let otherId = self.postDetail?.memberId {
+            let otherProfileVC = OtherProfileViewController()
+            otherProfileVC.oppositeId = otherId
+            navigationController?.pushViewController(otherProfileVC, animated: true)
+        }
     }
 }
 
-extension MessageViewController: UITextFieldDelegate {
+extension NewMessageViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         sendNewMessage()

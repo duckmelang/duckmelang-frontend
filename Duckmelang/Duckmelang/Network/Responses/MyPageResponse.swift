@@ -61,16 +61,17 @@ public struct ReviewResponse: Codable {
 }
 
 struct MyPostDetailResponse: Codable {
+    let memberId: Int
     let nickname: String
     let age: Int
     let gender: String
     let averageScore: Double
     let bookmarkCount: Int
     let viewCount: Int
+    let chatCount: Int
     let title: String
     let content: String
     let wanted: Int
-    let chatCount: Int
     let idol: [String]
     let category: String
     let date: String

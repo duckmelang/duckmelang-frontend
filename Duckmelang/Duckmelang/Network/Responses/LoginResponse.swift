@@ -49,6 +49,7 @@ struct LoginResponse: Codable {
 struct LoginResult: Codable {
     let accessToken: String
     let refreshToken: String
+    let memberId: Int
 }
 
 //인증번호 응답 모델

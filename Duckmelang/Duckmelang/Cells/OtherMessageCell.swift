@@ -61,6 +61,7 @@ class OtherMessageCell: UICollectionViewCell {
         
         $0.backgroundColor = .white
         $0.isEditable = false
+        $0.isSelectable = false
         $0.isScrollEnabled = false
         $0.textContainerInset = UIEdgeInsets(top: 8, left: 10, bottom: 8, right: 10)
     }
