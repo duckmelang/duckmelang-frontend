@@ -27,6 +27,14 @@ class MessageView: UIView {
         }
     }
     
+    var myPostDetail: MyPostDetailResponse? {
+        didSet {
+            if let myPostDetail = myPostDetail {
+                updateUI(with: myPostDetail)
+            }
+        }
+    }
+    
     func updateUI(with data: DetailChatroomResponse) {
         if let postImageUrl = URL(string: data.postImage) {
             self.topMessageView.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage())
@@ -90,6 +98,30 @@ class MessageView: UIView {
             messageCollectionView.snp.makeConstraints {
                 $0.top.equalTo(safeAreaLayoutGuide).offset(5)
             }
+        }
+    }
+    
+    func updateUI(with data: MyPostDetailResponse) {
+        guard let imageURL = data.postImageUrl.first else { return }
+        if let postImageUrl = URL(string: imageURL) {
+            self.topMessageView.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage())
+        }
+        self.topMessageView.postTitle.text = data.title
+        
+        // 진행 중인데 내가 쓴 글이 아님 -> 동행요청 버튼 활성화
+        topMessageView.confirmBtn.isHidden = false
+        topMessageView.reviewBtn.isHidden = true
+        
+        topMessageView.postTitle.snp.makeConstraints {
+            $0.trailing.equalTo(topMessageView.confirmBtn.snp.leading).offset(-8)
+        }
+        
+        topMessageView.inProgress.text = "진행 중"
+        topMessageView.isHidden = false
+        bottomMessageView.setupIncompleteView()
+        
+        messageCollectionView.snp.makeConstraints {
+            $0.top.equalTo(topMessageView.snp.bottom).offset(5)
         }
     }
     

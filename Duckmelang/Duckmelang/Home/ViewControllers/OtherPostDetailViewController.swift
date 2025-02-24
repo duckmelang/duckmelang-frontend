@@ -10,6 +10,7 @@ import Moya
 
 class OtherPostDetailViewController: UIViewController {
     var postId: Int?  // 전달받을 게시물 ID
+    var postDetail: MyPostDetailResponse?
     
     var data = PostDetailAccompanyModel.dummy()
     
@@ -38,9 +39,17 @@ class OtherPostDetailViewController: UIViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.isNavigationBarHidden = true
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    
     private lazy var otherPostDetailView = OtherPostDetailView().then {
         $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         $0.tabBar.scrapBtn.addTarget(self, action: #selector(scrapBtnDidTap), for: .touchUpInside)
+        $0.tabBar.chatBtn.addTarget(self, action: #selector(chatBtnDidTap), for: .touchUpInside)
     }
 
     @objc private func backBtnDidTap() {
@@ -64,12 +73,12 @@ class OtherPostDetailViewController: UIViewController {
                     let decodedResponse = try response.map(ApiResponse<MyPostDetailResponse>.self)
                     if decodedResponse.isSuccess {
                         guard let postDetail = decodedResponse.result else { return }
+                        self.postDetail = postDetail
                         DispatchQueue.main.async {
                             self.otherPostDetailView.updateUI(with: postDetail)
                             self.updateAccompanyData(with: postDetail)
                             self.updateBookmarkState(isBookmarked: postDetail.bookmarkCount > 0) // ✅ 북마크 상태 업데이트
                             self.updateScore(averageScore: postDetail.averageScore) // ✅ 점수 업데이트
-                            
                         }
                         // ✅ 성공 시 데이터 출력
                         print("Post Detail: \(String(describing: decodedResponse.result))")
@@ -88,7 +97,7 @@ class OtherPostDetailViewController: UIViewController {
     // ✅ 북마크 상태 업데이트 함수
     private func updateBookmarkState(isBookmarked: Bool) {
         self.isBookmarked = isBookmarked
-        let imageName = isBookmarked ? "bookmark.fill" : "bookmarks"
+        let imageName = isBookmarked ? "bookmark.fill" : "bookmark"
         otherPostDetailView.tabBar.scrapBtn.setImage(UIImage(systemName: imageName), for: .normal)
     }
     
@@ -108,6 +117,24 @@ class OtherPostDetailViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    // ✅ 채팅 버튼 클릭 시 화면전환
+    @objc private func chatBtnDidTap() {
+        if let myId = KeychainManager.shared.load(key: "memberId") {
+            if (postDetail?.memberId == Int(myId)) {
+                let alert = UIAlertController(title: "경고", message: "나의 게시글에는 채팅을 보낼 수 없습니다.", preferredStyle: .alert)
+                let okAction = UIAlertAction(title: "확인", style: .default, handler: nil)
+                
+                alert.addAction(okAction)
+                present(alert, animated: true, completion: nil)
+                return
+            }
+        }
+        let newMessageVC = NewMessageViewController()
+        newMessageVC.postId = postId
+        newMessageVC.postDetail = postDetail
+        navigationController?.pushViewController(newMessageVC, animated: true)
     }
     
     func addBookmark(postId: Int, completion: @escaping (Bool) -> Void) {

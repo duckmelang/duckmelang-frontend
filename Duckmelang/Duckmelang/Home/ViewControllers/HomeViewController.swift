@@ -37,6 +37,7 @@ class HomeViewController: UIViewController {
             homeView.celebNameLabel.text = selectedCeleb.idolName
         }
         self.navigationController?.isNavigationBarHidden = true
+        self.tabBarController?.tabBar.isHidden = false
         homeView.postsTableView.isHidden = false
         homeView.postsTableView.reloadData() // 데이터를 다시 불러오기
         getIdolsAPI()
@@ -187,9 +188,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         // PostDetailViewController로 postId 전달
         let VC = OtherPostDetailViewController()
         VC.postId = post.postId
-        VC.modalPresentationStyle = .overFullScreen
-        // ✅ 네비게이션 스택을 사용하여 푸시 (기존 present 방식에서 변경)
-        present(VC, animated: true)
+        navigationController?.pushViewController(VC, animated: true)
     }
 }
 
