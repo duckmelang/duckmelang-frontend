@@ -12,10 +12,9 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let socketManager = SocketManager()
     
-    var chat: ChatDTO?
-    var myId: Int?
     private var messageData: [MessageModel] = []
     
+    var chat: ChatDTO?
     private var lastMessageId: String? // 페이지네이션을 위한 lastMessageId
     private var isFetching = false  // 중복 요청 방지
     
@@ -38,7 +37,6 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         getMessagesAPI(lastMessageId: nil)
         connectWebSocket()
         getDetailChatroomsAPI()
-        getMyId()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -85,7 +83,17 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
                 dateFormatter.locale = Locale(identifier: "ko_KR")
                 
                 results.forEach { result in
-                    let newChatType: ChatType = result.receiverId == self.myId ? .receive : .send
+                    var newChatType: ChatType = .receive
+                    if let myId = KeychainManager.shared.load(key: "memberId") {
+                        if (result.receiverId == Int(myId)) {
+                            newChatType = .receive
+                        } else if (result.senderId == self.chat?.oppositeId) {
+                            newChatType = .send
+                        } else {
+                            return
+                        }
+                    }
+                    
                     var newDate = Date()
                     
                     if let date = dateFormatter.date(from: result.createdAt) {
@@ -134,8 +142,17 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         socketManager.receiveMessage { result in
             switch result {
             case .success(let response):
-                let newChatType: ChatType = response.receiverId == 1 ? .receive : .send
-                          
+                var newChatType: ChatType = .receive
+                if let myId = KeychainManager.shared.load(key: "memberId") {
+                    if (response.receiverId == Int(myId)) {
+                        newChatType = .receive
+                    } else if (response.senderId == self.chat?.oppositeId) {
+                        newChatType = .send
+                    } else {
+                        return
+                    }
+                }
+                
                 let message = MessageModel(
                     text: response.text,
                     chatType: newChatType,
@@ -169,21 +186,6 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         }
     }
     
-    private func getMyId() {
-        provider.request(.getMemberId) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<MyPageReponse>.self)
-                guard let memberId = response?.result?.memberId else { return }
-                print("멤버아이디 상세 정보: \(result)")
-                
-                self.myId = memberId
-            case .failure(let error):
-                print(error)
-            }
-        }
-    }
-    
     @objc private func sendNewMessage() {
         if (messageView.bottomMessageView.messageTextField.text == "") {
             return
@@ -196,7 +198,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     
     private func sendMessage(with text: String) {
         guard let chat = chat else { return }
-        guard let myId = myId else { return }
+        guard let myId = Int(KeychainManager.shared.load(key: "memberId") ?? "변환실패") else { return }
         
         let newMessage = MessageRequest(
             senderId: myId,
