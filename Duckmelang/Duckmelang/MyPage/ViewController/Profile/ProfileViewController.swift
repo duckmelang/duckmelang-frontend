@@ -194,10 +194,8 @@ class ProfileViewController: UIViewController{
 
     @objc
     private func backBtnDidTap() {
-        if let VC = self.navigationController  {
-            self.hidesBottomBarWhenPushed = false
-            navigationController?.popViewController(animated: true)
-        }
+        self.hidesBottomBarWhenPushed = false
+        navigationController?.popViewController(animated: true)
     }
     
     @objc
@@ -209,7 +207,8 @@ class ProfileViewController: UIViewController{
     private func profileDidTap() {
         let VC = MyProfileImageViewController()
         VC.profileData = self.profileData
-        self.navigationController?.pushViewController(VC, animated: true)
+        self.modalPresentationStyle = .fullScreen
+        self.present(VC, animated: true)
     }
     
     // setBtn 창 떠 있는 상태에서 다른 뷰를 누를때
@@ -259,13 +258,13 @@ class ProfileViewController: UIViewController{
         
         if touchPoint.y <= halfHeight {
             // 윗부분 터치
-            let profileModifyVC = UINavigationController(rootViewController: ProfileModifyViewController())
+            let profileModifyVC = ProfileModifyViewController()
             profileModifyVC.modalPresentationStyle = .fullScreen
             present(profileModifyVC, animated: false)
             profileView.profileTopView.setBtnImage.isHidden = true
         } else {
             // 아랫부분 터치
-            let feedVC = UINavigationController(rootViewController: FeedManagementViewController())
+            let feedVC = FeedManagementViewController()
             feedVC.modalPresentationStyle = .fullScreen
             present(feedVC, animated: false)
             profileView.profileTopView.setBtnImage.isHidden = true

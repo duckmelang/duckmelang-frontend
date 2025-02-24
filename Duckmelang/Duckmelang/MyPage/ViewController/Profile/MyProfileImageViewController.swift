@@ -18,8 +18,6 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     
     override func viewDidLoad() {
         super.viewDidLoad()
-   
-        self.tabBarController?.tabBar.isHidden = true
         
         self.view = myProfileImageView
         
@@ -54,7 +52,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
+        self.dismiss(animated: true)
     }
 
     private func getProfileDataAPI() {

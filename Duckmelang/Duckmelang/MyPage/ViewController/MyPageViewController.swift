@@ -66,7 +66,6 @@ class MyPageViewController: UIViewController {
     @objc private func profileSeeBtnDidTap() {
         let profileVC = ProfileViewController()
         profileVC.profileData = myPageView.myPageTopView.profileData // 데이터 전달
-        
         navigationController?.pushViewController(profileVC, animated: true)
     }
 

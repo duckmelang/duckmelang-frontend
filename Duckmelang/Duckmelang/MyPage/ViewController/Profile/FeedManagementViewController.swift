@@ -36,7 +36,7 @@ class FeedManagementViewController: UIViewController {
 
     @objc
     private func backBtnDidTap() {
-        self.presentingViewController?.dismiss(animated: false)
+        self.dismiss(animated: true)
     }
     
     /// ✅ 삭제 버튼 클릭: UI에서만 삭제 (서버 요청 X)
