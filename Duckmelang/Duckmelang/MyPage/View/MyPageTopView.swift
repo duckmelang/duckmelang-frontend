@@ -60,7 +60,7 @@ class MyPageTopView: UIView {
         $0.configuration = config
     }
 
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -13, distribution: .equalSpacing)
+    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -24, distribution: .equalSpacing)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var profileInfo = Stack(axis: .horizontal, spacing: 12, alignment: .center)
     

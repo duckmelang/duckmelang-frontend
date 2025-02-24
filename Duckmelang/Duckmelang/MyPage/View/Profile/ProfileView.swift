@@ -106,7 +106,7 @@ class ProfileTopView: UIView {
     
     private lazy var matchingCount = Label(text: "", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
     
-    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -13, distribution: .equalSpacing)
+    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -24, distribution: .equalSpacing)
     private lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var postStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
     private lazy var matchingStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
@@ -328,7 +328,7 @@ class ProfileBottomView: UIView {
         
         reviewTableView.snp.makeConstraints{
             $0.top.equalTo(cosmosStack.snp.bottom).offset(18)
-            $0.horizontalEdges.bottom.equalToSuperview().inset(16)
+            $0.horizontalEdges.bottom.equalToSuperview()
             $0.height.equalTo(400)
         }
     }
