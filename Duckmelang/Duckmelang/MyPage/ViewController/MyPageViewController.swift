@@ -8,17 +8,15 @@
 import UIKit
 import Moya
 
-class MyPageViewController: UIViewController {
+/*class MyPageViewController: UIViewController {
     
     private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.view = myPageView
-        
+        showLoading()
+        //self.view = myPageView
         navigationController?.isNavigationBarHidden = true
-        
         getProfileInfo()
         
         //NotificationCenter 등록
@@ -29,6 +27,15 @@ class MyPageViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
+    private var loadingVC = LoadingViewController()
+    
+    private func showLoading() {
+        let VC = LoadingViewController()
+        VC.modalPresentationStyle = .fullScreen
+        present(VC, animated: false)
+        self.loadingVC = VC
+    }
+   
     private lazy var myPageView = MyPageView().then {
         $0.myPageTopView.profileSeeBtn.addTarget(self, action: #selector(profileSeeBtnDidTap), for: .touchUpInside)
         $0.idolChange.addTarget(self, action: #selector(idolChangeDidTap), for: .touchUpInside)
@@ -146,6 +153,129 @@ class MyPageViewController: UIViewController {
             }
         }
     }
+}*/
+
+class MyPageViewController: UIViewController {
+    
+    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+
+    private lazy var myPageView = MyPageView()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        navigationController?.isNavigationBarHidden = true
+        
+        self.view = myPageView
+        
+        fetchData()
+
+        // NotificationCenter 등록
+        NotificationCenter.default.addObserver(self, selector: #selector(updateProfile(_:)), name: NSNotification.Name("ProfileUpdated"), object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func fetchData() {
+        LoadingViewManager.shared.show()
+        print("fetchData 실행됨")
+        
+        getProfileInfo {
+            print("fetchData 완료됨")
+            LoadingViewManager.shared.hide()
+        }
+    }
+
+    // MARK: - Notification Handling
+    @objc private func updateProfile(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let nickname = userInfo["nickname"] as? String,
+              let introduction = userInfo["introduction"] as? String,
+              let imageURLString = userInfo["imageURL"] as? String,
+              let imageURL = URL(string: imageURLString) else { return }
+        
+        print("📢 프로필 업데이트 알림 수신 - UI 갱신")
+        
+        DispatchQueue.main.async {
+            self.myPageView.myPageTopView.nickname.text = nickname
+            self.myPageView.myPageTopView.profileImage.kf.setImage(with: imageURL)
+            self.myPageView.myPageTopView.profileImage.contentMode = .scaleAspectFill
+        }
+    }
+
+    // MARK: - 프로필 정보 가져오기
+    private func getProfileInfo(completion: @escaping () -> Void ) {
+        provider.request(.getProfile) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResponse = try response.map(ApiResponse<ProfileData>.self)
+                    guard let profile = decodedResponse.result else {
+                        print("❌ ProfileData가 없습니다.")
+                        return
+                    }
+                    
+                    print("✅ 서버에서 받은 ProfileData: \(profile)")
+                    
+                    DispatchQueue.main.async {
+                        self.myPageView.myPageTopView.profileData = profile
+                        self.myPageView.myPageTopView.profileImage.contentMode = .scaleAspectFill
+                    }
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                    DispatchQueue.main.async { completion() }
+                }
+                
+            case .failure(let error):
+                print("❌ 프로필 불러오기 실패: \(error.localizedDescription)")
+                DispatchQueue.main.async { completion() }
+            }
+        }
+    }
+
+    // MARK: - 화면 이동 관련 액션
+    @objc private func profileSeeBtnDidTap() {
+        let profileVC = ProfileViewController()
+        profileVC.profileData = myPageView.myPageTopView.profileData // 데이터 전달
+        navigationController?.pushViewController(profileVC, animated: true)
+    }
+
+    @objc private func idolChangeDidTap() {
+        presentFullScreenVC(IdolChangeViewController())
+    }
+    
+    @objc private func xKeywordDidTap() {
+        presentFullScreenVC(XKeywordChangeViewController())
+    }
+    
+    @objc private func postFilterChangeDidTap() {
+        presentFullScreenVC(PostFilterViewController())
+    }
+    
+    @objc private func loginInfoDidTap() {
+        presentFullScreenVC(LoginInfoViewController())
+    }
+    
+    @objc private func pushDidTap() {
+        presentFullScreenVC(PushNotificationViewController())
+    }
+    
+    @objc private func outDidTap() {
+        presentFullScreenVC(AccountClosing1ViewController())
+    }
+    
+    @objc private func logoutDidTap() {
+        let logoutPopupVC = LogoutPopupViewController()
+        logoutPopupVC.modalPresentationStyle = .overFullScreen
+        present(logoutPopupVC, animated: false)
+    }
+
+    // ✅ 공통 풀스크린 전환 함수
+    private func presentFullScreenVC(_ vc: UIViewController) {
+        let navVC = UINavigationController(rootViewController: vc)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: false)
+    }
 }
-
-

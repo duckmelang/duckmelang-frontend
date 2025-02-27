@@ -10,6 +10,7 @@ import Then
 import SnapKit
 
 class MyPageView: UIView {
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
@@ -21,7 +22,7 @@ class MyPageView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+  
     lazy var myPageTopView = MyPageTopView()
     
     private lazy var myInfoChange = Label(text: "내 정보 변경", font: .ptdSemiBoldFont(ofSize: 16), color: .black)

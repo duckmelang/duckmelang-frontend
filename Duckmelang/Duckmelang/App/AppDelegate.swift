@@ -10,6 +10,8 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     var sseClient = SSEClient()
+    
+    static var window: UIWindow { (UIApplication.shared.delegate?.window!)! }
 
     func application(
         _ application: UIApplication,
