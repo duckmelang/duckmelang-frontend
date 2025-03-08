@@ -1,0 +1,18 @@
+{
+  "images" : [
+    {
+      "alignment-insets" : {
+        "bottom" : -8,
+        "left" : -8,
+        "right" : -8,
+        "top" : -9
+      },
+      "filename" : "Filter.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
