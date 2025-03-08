@@ -16,7 +16,7 @@ class HomeView: UIView {
 
     // 아이돌 이름 Label
     let celebNameLabel = UILabel().then {
-        $0.text = Celeb.dummy1().first?.name ?? "아이돌 이름"
+        $0.text = "아이돌 이름"
         $0.font = .aritaSemiBoldFont(ofSize: 18)
         $0.isUserInteractionEnabled = true // 터치 가능하도록 설정
     }
@@ -57,7 +57,17 @@ class HomeView: UIView {
     }
 
     // 글쓰기 버튼
-    let writeButton = smallFilledCustomBtn(title: "글쓰기")
+    let writeButton = UIButton().then {
+        $0.backgroundColor = .dmrBlue
+        $0.setTitle("글쓰기", for: .normal)
+        $0.setTitleColor(.grey0, for: .normal)
+        $0.titleLabel?.font = .ptdSemiBoldFont(ofSize: 14)
+        $0.layer.cornerRadius = 23
+        $0.setImage(UIImage(named: "Pencil"), for: .normal)
+        $0.tintColor = .grey0
+        $0.semanticContentAttribute = .forceRightToLeft
+        $0.imageEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -107,6 +117,7 @@ class HomeView: UIView {
         writeButton.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).offset(-20)
+            $0.width.equalTo(100)
             $0.height.equalTo(44)
         }
         

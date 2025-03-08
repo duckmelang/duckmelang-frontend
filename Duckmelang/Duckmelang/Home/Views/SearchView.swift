@@ -41,11 +41,11 @@ class SearchView: UIView {
     }
     
     let recentSearchTableView = UITableView().then {
-        $0.register(RecentSearchCell.self, forCellReuseIdentifier: "RecentSearchCell")
+        $0.register(RecentSearchCell.self, forCellReuseIdentifier: RecentSearchCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = 44
-        $0.allowsSelection = false
+        $0.allowsSelection = true
         $0.tag = 0
     }
     

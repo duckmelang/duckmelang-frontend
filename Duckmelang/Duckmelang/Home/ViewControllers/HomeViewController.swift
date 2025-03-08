@@ -26,6 +26,12 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         self.view = homeView
         
+        if let selectedCeleb = selectedCeleb {
+            homeView.celebNameLabel.text = selectedCeleb.idolName
+        } else {
+            homeView.celebNameLabel.text = "모든 게시물 보기"
+        }
+        
         setupDelegate()
         setupActions()
         getIdolsAPI()
@@ -35,6 +41,8 @@ class HomeViewController: UIViewController {
         super.viewWillAppear(animated)
         if let selectedCeleb = selectedCeleb {
             homeView.celebNameLabel.text = selectedCeleb.idolName
+        } else {
+            homeView.celebNameLabel.text = "모든 게시물 보기"
         }
         self.navigationController?.isNavigationBarHidden = true
         self.tabBarController?.tabBar.isHidden = false
@@ -111,9 +119,6 @@ class HomeViewController: UIViewController {
                 guard let result = response?.result?.idolList else { return }
                 
                 self.celebs = result
-                self.selectedCeleb = self.celebs?.first
-                self.homeView.celebNameLabel.text = self.selectedCeleb?.idolName
-                
                 self.fetchPosts()
             case .failure(let error):
                 print(error)
@@ -125,12 +130,12 @@ class HomeViewController: UIViewController {
         if let selectedCeleb = selectedCeleb {
             getIdolsPosts(selectedCeleb.idolId)
         } else {
-            getPosts()
+            getAllPosts()
         }
     }
     
-    private func getPosts() {
-        provider.request(.getHomePosts(page: 0)) { result in
+    private func getAllPosts() {
+        provider.request(.getAllPosts(page: 0)) { result in
             switch result {
             case .success(let response):
                 let response = try? response.map(ApiResponse<PostResponse>.self)

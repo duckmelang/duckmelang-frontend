@@ -15,9 +15,10 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum HomeAPI {
-    case getHomePosts(page: Int)
+    case getAllPosts(page: Int)
     case getIdolPosts(idolId: Int, page: Int)
     case getIdols
+    case getEvents
     case postPosts(formData: [MultipartFormData])
     case postBookmark(postId: Int)
 }
@@ -27,6 +28,11 @@ extension HomeAPI: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
+        case .getEvents:
+            guard let url = URL(string: API.memberURL) else {
+                fatalError("memberURL 오류")
+            }
+            return url
         default:
             guard let url = URL(string: API.postURL) else {
                 fatalError("postURL 오류")
@@ -38,12 +44,14 @@ extension HomeAPI: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
-        case .getHomePosts:
+        case .getAllPosts:
             return ""
         case .getIdolPosts(let idolId, _):
             return "/idols/\(idolId)"
         case .getIdols:
             return "/idols"
+        case .getEvents:
+            return "/events"
         case .postPosts:
             return ""
         case .postBookmark(postId: let postId):
@@ -65,11 +73,11 @@ extension HomeAPI: TargetType {
     public var task: Moya.Task {
         // 동일한 task는 한 case로 처리할 수 있음
         switch self {
-        case .getHomePosts(let page), .getIdolPosts(_, let page):
+        case .getAllPosts(let page), .getIdolPosts(_, let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .postPosts(let formData):
             return .uploadMultipart(formData)
-        case .getIdols, .postBookmark:
+        case .getIdols, .getEvents,.postBookmark:
             return .requestPlain
         }
     }

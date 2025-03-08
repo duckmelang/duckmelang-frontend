@@ -15,6 +15,16 @@ public struct idolResponse: Codable {
     let idolList: [idolDTO]
 }
 
+public struct EventDTO: Codable {
+    let eventId: Int
+    let eventName: String
+    let eventKind: String
+}
+
+public struct EventResponse: Codable {
+    let eventCategoryList: [EventDTO]
+}
+
 struct BookmarkResponse: Codable {
     let isSuccess: Bool
     let code: String

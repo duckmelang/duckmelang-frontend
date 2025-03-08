@@ -45,12 +45,12 @@ class WriteView: UIView, UITextViewDelegate {
     let titleTextField = UITextField().then {
         $0.placeholder = "게시글 제목"
         $0.borderStyle = .none
-        $0.layer.cornerRadius = 8
+        $0.layer.cornerRadius = 10
         $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.systemGray3.cgColor
+        $0.layer.borderColor = UIColor.grey300?.cgColor
         $0.font = .ptdRegularFont(ofSize: 16)
         $0.textColor = .black
-        $0.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 0))
+        $0.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         $0.leftViewMode = .always
         $0.heightAnchor.constraint(equalToConstant: 44).isActive = true
         $0.returnKeyType = .done
@@ -61,29 +61,14 @@ class WriteView: UIView, UITextViewDelegate {
     lazy var contentTextView = UITextView().then {
         $0.layer.cornerRadius = 8
         $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.systemGray3.cgColor
+        $0.layer.borderColor = UIColor.grey300?.cgColor
         $0.font = .ptdRegularFont(ofSize: 15)
         $0.textColor = .black
         $0.textAlignment = .left
-        $0.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        $0.textContainerInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         
         $0.text = textViewPlaceHolder
         $0.textColor = .grey500
-        $0.delegate = self
-    }
-    
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.text == textViewPlaceHolder {
-            textView.text = nil
-            textView.textColor = .black
-        }
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            textView.text = textViewPlaceHolder
-            textView.textColor = .grey500
-        }
     }
     
     private let companionInfoLabel = UILabel().then {
@@ -155,7 +140,7 @@ class WriteView: UIView, UITextViewDelegate {
         $0.distribution = .fillEqually
     }
     
-    let uploadButton = longCustomBtn(title: "업로드")
+    let uploadButton = longCustomBtn(title: "업로드", isEnabled: false)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
