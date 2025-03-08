@@ -10,6 +10,7 @@ import Then
 import SnapKit
 
 class RecentSearchCell: UITableViewCell {
+    static let identifier = "RecentSearchCell"
     
     private let containerView = UIView().then {
         $0.backgroundColor = .clear
@@ -31,6 +32,7 @@ class RecentSearchCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        self.selectionStyle = .none
         setupView()
         setupActions()
     }

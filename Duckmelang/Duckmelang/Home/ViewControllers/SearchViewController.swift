@@ -10,7 +10,7 @@ import Then
 import SnapKit
 import Moya
 
-class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class SearchViewController: UIViewController {
     private let provider = MoyaProvider<SearchAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let searchManager = SearchHistoryManager()
     
@@ -27,11 +27,10 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var minAge: Int?
     var maxAge: Int?
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = searchView
-        self.navigationController?.isNavigationBarHidden = false
+        
         setupNavigationBar()
         setupDelegate()
         updateSearchResults()
@@ -41,6 +40,8 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     // MARK: - 네비게이션 바 설정
     private func setupNavigationBar() {
+        self.navigationController?.isNavigationBarHidden = false
+        
         self.navigationController?.navigationBar.backgroundColor = .white
         self.navigationItem.title = "검색"
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .semibold)]
@@ -90,79 +91,33 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     // MARK: - 검색 API 요청
-      private func fetchSearchResults(keyword: String) {
-          guard !isLoading, !isLastPage, !keyword.isEmpty else { return }
-          isLoading = true
-          searchView.loadingIndicator.startLoading()
-          
-          provider.request(.searchPosts(page: currentPage, keyword: keyword, gender: selectedGender, minAge: minAge, maxAge: maxAge)) { result in
-              switch result {
-              case .success(let response):
-                  do {
-                      let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
-                      if let postList = decodedResponse.result?.postList {
-                          DispatchQueue.main.async {
-                              self.searchData.append(contentsOf: postList)
-                              self.isLastPage = decodedResponse.result?.isLast ?? false
-                              self.isLoading = false
-                              self.searchView.loadingIndicator.stopLoading()
-                              self.searchView.searchDataTableView.reloadData()
-                          }
+    private func fetchSearchResults(keyword: String) {
+        guard !isLoading, !isLastPage, !keyword.isEmpty else { return }
+        isLoading = true
+        searchView.loadingIndicator.startLoading()
+
+        provider.request(.searchPosts(page: currentPage, keyword: keyword, gender: selectedGender, minAge: minAge, maxAge: maxAge)) { result in
+          switch result {
+          case .success(let response):
+              do {
+                  let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
+                  if let postList = decodedResponse.result?.postList {
+                      DispatchQueue.main.async {
+                          self.searchData.append(contentsOf: postList)
+                          self.isLastPage = decodedResponse.result?.isLast ?? false
+                          self.isLoading = false
+                          self.searchView.loadingIndicator.stopLoading()
+                          self.searchView.searchDataTableView.reloadData()
                       }
-                  } catch {
-                      print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                      self.isLoading = false
                   }
-              case .failure(let error):
-                  print("❌ 검색 API 요청 실패: \(error.localizedDescription)")
+              } catch {
+                  print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
                   self.isLoading = false
               }
+          case .failure(let error):
+              print("❌ 검색 API 요청 실패: \(error.localizedDescription)")
+              self.isLoading = false
           }
-      }
-
-    
-    // MARK: - UITableView Delegate & DataSource
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if tableView.tag == 0 {
-            return recentSearches.count
-        } else {
-            return searchData.count
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if tableView.tag == 0 {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: "RecentSearchCell", for: indexPath) as? RecentSearchCell else {
-                return UITableViewCell()
-            }
-            
-            cell.configure(with: recentSearches[indexPath.row], at: indexPath.row, deleteAction: { [weak self] in
-                self?.deleteRecentSearch(at: indexPath)
-            })
-            
-            return cell
-        } else {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
-                return UITableViewCell()
-            }
-            
-            if indexPath.row < searchData.count {
-                cell.configure(model: searchData[indexPath.row])
-            }
-            return cell
-        }
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
-        let tableViewHeight = scrollView.frame.size.height
-        
-        if offsetY > contentHeight - tableViewHeight * 2 {
-            if !isLoading && !isLastPage {
-                currentPage += 1
-                getSearchData(searchView.searchTextField.text ?? "")
-            }
         }
     }
     
@@ -221,6 +176,61 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 self.isLoading = false
                 self.searchView.loadingIndicator.stopLoading()
             }
+        }
+    }
+}
+
+// MARK: - UITableView Delegate & DataSource
+extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if tableView.tag == 0 {
+            return recentSearches.count
+        } else {
+            return searchData.count
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if tableView.tag == 0 {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "RecentSearchCell", for: indexPath) as? RecentSearchCell else {
+                return UITableViewCell()
+            }
+            
+            cell.configure(with: recentSearches[indexPath.row], at: indexPath.row, deleteAction: { [weak self] in
+                self?.deleteRecentSearch(at: indexPath)
+            })
+            
+            return cell
+        } else {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell else {
+                return UITableViewCell()
+            }
+            
+            if indexPath.row < searchData.count {
+                cell.configure(model: searchData[indexPath.row])
+            }
+            return cell
+        }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let tableViewHeight = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - tableViewHeight * 2 {
+            if !isLoading && !isLastPage {
+                currentPage += 1
+                getSearchData(searchView.searchTextField.text ?? "")
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableView.tag == 0 {
+            let keyword = recentSearches[indexPath.row]
+            print(keyword)
+            searchView.searchTextField.text = keyword
         }
     }
 }
