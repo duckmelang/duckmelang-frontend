@@ -49,13 +49,13 @@ class ChatViewController: UIViewController {
                 var results: ChatResponse
                 switch selectedTag {
                 case 0:
-                    results = try await networkService.getChatrooms(page: currentPage[selectedTag])
+                    results = try await networkService.getChatrooms(page: startPage)
                 case 1:
-                    results = try await networkService.getOngoingChatrooms(page: currentPage[selectedTag])
+                    results = try await networkService.getOngoingChatrooms(page: startPage)
                 case 2:
-                    results = try await networkService.getConfirmedChatrooms(page: currentPage[selectedTag])
+                    results = try await networkService.getConfirmedChatrooms(page: startPage)
                 case 3:
-                    results = try await networkService.getTerminatedChatrooms(page: currentPage[selectedTag])
+                    results = try await networkService.getTerminatedChatrooms(page: startPage)
                 default:
                     return
                 }

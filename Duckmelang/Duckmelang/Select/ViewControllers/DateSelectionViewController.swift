@@ -36,7 +36,7 @@ class DateSelectionViewController: UIViewController {
     }
     
     @objc private func didTapCompleteButton() {
-        delegate?.updateSelectedDate(selectedDate!)
+        delegate?.updateSelectedDate(selectedDate ?? Date())
         dismiss(animated: true)
     }
 }

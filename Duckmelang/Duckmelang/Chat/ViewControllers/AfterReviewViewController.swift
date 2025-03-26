@@ -89,7 +89,7 @@ class AfterReviewViewController: UIViewController {
     private func postReview() {
         Task {
             do {
-                stopLoading()
+                startLoading()
                 guard let oppositeId = oppositeId, let applicationId = applicationId else { return }
                 
                 let newReview = networkService.makeReview(
