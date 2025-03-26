@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Moya
 
 class MyPostDetailViewController: UIViewController {
     var postId: Int?  // 전달받을 게시물 ID
@@ -17,7 +16,7 @@ class MyPostDetailViewController: UIViewController {
     
     private var currentState: PostProgressState = .inProgress
     
-    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyAccompanyService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -135,19 +134,22 @@ class MyPostDetailViewController: UIViewController {
     }
     
     private func getPostDetail(postId: Int) {
-        provider.request(.getPostDetail(postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<MyPostDetailResponse>.self)
-                guard let postDetail = response?.result else { return }
-                print("다른 사람 이미지: \(postDetail)")
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.getPostDetail(postId: postId)
                 
                 DispatchQueue.main.async {
-                    self.postDetailView.updateUI(with: postDetail)
-                    self.updateAccompanyData(with: postDetail)
+                    self.postDetailView.updateUI(with: result)
+                    self.updateAccompanyData(with: result)
                 }
-            case .failure(let error):
-                print(error)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

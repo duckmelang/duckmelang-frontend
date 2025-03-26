@@ -6,18 +6,17 @@
 //
 
 import UIKit
-import Moya
 
 class RequestViewController: UIViewController {
-    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyAccompanyService()
     
     private var requestData: [RequestDTO] = []
     
     var selectedTag: Int = 0
     var status: String = ""
     
-    var isLoading = false   // 중복 로딩 방지
-    var isLastPage = [false, false, false]  // 마지막 페이지인지 여부
+    var isLoading = false          // 중복 로딩 방지
+    var totalPage = [0, 0, 0]      // 마지막 페이지 번호
     var currentPage = [0, 0, 0]    // 현재 페이지 번호
     
     override func viewDidLoad() {
@@ -26,7 +25,7 @@ class RequestViewController: UIViewController {
         setupDelegate()
         setupAction()
         updateBtnSelected()
-        updateData()
+        fetchRequestAPI(startPage: 0)
     }
     
     private lazy var requestView: RequestView = {
@@ -48,7 +47,7 @@ class RequestViewController: UIViewController {
     @objc private func clickBtn(_ sender: UIButton) {
         selectedTag = sender.tag
         updateBtnSelected()
-        updateData()
+        fetchRequestAPI(startPage: 0)
     }
     
     private func updateBtnSelected() {
@@ -56,8 +55,6 @@ class RequestViewController: UIViewController {
         requestView.requestTableView.isHidden = false
         requestData.removeAll()
         requestView.requestTableView.reloadData()
-        
-        requestView.loadingIndicator.startLoading()
         
         for btn in [requestView.awaitingBtn, requestView.sentBtn, requestView.receivedBtn] {
             if btn.tag == selectedTag {
@@ -67,93 +64,86 @@ class RequestViewController: UIViewController {
             }
         }
     }
-
-    private func updateData() {
-        currentPage[selectedTag] = 0
-        isLastPage[selectedTag] = false
-        
-        switch selectedTag {
-        case 0:
-            status = "PENDING"
-            fetchRequestAPI(api: .getPendingRequests(page: currentPage[selectedTag]))
-        case 1:
-            status = "SENT"
-            fetchRequestAPI(api: .getSentRequests(page: currentPage[selectedTag]))
-        case 2:
-            status = "RECEIVED"
-            fetchRequestAPI(api: .getReceivedRequests(page: currentPage[selectedTag]))
-        default:
-            break
-        }
-    }
     
-    private func fetchRequestAPI(api: MyAccompanyAPI) {
-        guard !isLoading && !isLastPage[selectedTag] else { return } // 중복 호출 & 마지막 페이지 방지
-        isLoading = true
-        
-        provider.request(api) { result in
-            switch result {
-            case .success(let response):
-                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
-                    let response = try? response.map(ApiResponse<RequestResponse>.self)
-                    guard let result = response?.result?.applicationList else { return }
-                    guard let isLast = response?.result?.isLast else { return }
-                    
-                    DispatchQueue.main.async {
-                        if self.currentPage[self.selectedTag] == 0 {
-                            self.requestData = result // 첫 페이지면 초기화
-                        } else {
-                            self.requestData.append(contentsOf: result) // 페이지네이션: 데이터 추가
-                        }
-
-                        print("요청 목록: \(self.requestData)")
-                        
-                        if (self.isLastPage[self.selectedTag]) {
-                            self.requestView.requestTableView.tableFooterView = nil
-                        }
-
-                        self.requestView.empty.isHidden = !self.requestData.isEmpty
-                        self.isLastPage[self.selectedTag] = isLast // 마지막 페이지 여부 업데이트
-                        self.isLoading = false
-                        self.requestView.loadingIndicator.stopLoading()
-                        self.requestView.requestTableView.reloadData()
-                    }
+    private func fetchRequestAPI(startPage: Int) {
+        Task {
+            do {
+                startLoading()
+                self.isLoading = true
+                
+                var results: RequestResponse
+                switch selectedTag {
+                case 0:
+                    status = "PENDING"
+                    results = try await networkService.getPendingRequests(page: startPage)
+                case 1:
+                    status = "SENT"
+                    results = try await networkService.getSentRequests(page: startPage)
+                case 2:
+                    status = "RECEIVED"
+                    results = try await networkService.getReceivedRequests(page: startPage)
+                default:
+                    return
                 }
-            case .failure(let error):
-                print(error)
+                
+    //                if (results.currentPage == 0) {
+                    self.requestData.removeAll()
+                    self.totalPage[selectedTag] = results.totalPage
+    //                }
+                self.requestData = results.applicationList
+    //                self.currentPage[selectedTag] = results.currentPage
+                
+                DispatchQueue.main.async {
+                    self.requestView.empty.isHidden = !self.requestData.isEmpty
+                    self.requestView.requestTableView.reloadData()
+                }
+                
+                self.stopLoading()
                 self.isLoading = false
-                self.requestView.loadingIndicator.stopLoading()
+            } catch {
+                self.stopLoading()
+                self.isLoading = false
+                print(error.localizedDescription)
             }
         }
     }
     
     private func postSucceedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
-        provider.request(.postRequestSucceed(applicationId: applicationId)) { result in
-            switch result {
-            case .success(let response):
-                print("요청 수락 성공: \(response)")
+        Task {
+            do {
+                startLoading()
+                
+                let _ = try await networkService.postRequestSucceed(applicationId: applicationId)
                 
                 DispatchQueue.main.async {
                     cell.updateForRequest()
-                    self.updateData()
                 }
-            case .failure(let error):
-                print(error)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
+    
     private func postFailedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
-        provider.request(.postRequestFailed(applicationId: applicationId)) { result in
-            switch result {
-            case .success(let response):
-                print("요청 거절 성공: \(response)")
+        Task {
+            do {
+                startLoading()
+                
+                let _ = try await networkService.postRequestFailed(applicationId: applicationId)
                 
                 DispatchQueue.main.async {
                     cell.updateForRequest()
-                    self.updateData()
                 }
-            case .failure(let error):
-                print(error)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
@@ -186,29 +176,13 @@ extension RequestViewController: UITableViewDelegate, UITableViewDataSource, MyA
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if (isLastPage[selectedTag]) {
-            return
-        }
-        
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let tableViewHeight = scrollView.frame.size.height
 
-        if offsetY > contentHeight - tableViewHeight * 2 {
-            self.currentPage[self.selectedTag] += 1  // 페이지 증가
-            switch selectedTag {
-            case 0:
-                status = "PENDING"
-                fetchRequestAPI(api: .getPendingRequests(page: currentPage[0]))
-            case 1:
-                status = "SENT"
-                fetchRequestAPI(api: .getSentRequests(page: currentPage[1]))
-            case 2:
-                status = "RECEIVED"
-                fetchRequestAPI(api: .getReceivedRequests(page: currentPage[2]))
-            default:
-                break
-            }
+        if offsetY > contentHeight - tableViewHeight {
+            guard !isLoading, currentPage[selectedTag] + 1 < totalPage[selectedTag] else { return }
+            fetchRequestAPI(startPage: currentPage[selectedTag] + 1)
         }
     }
 }

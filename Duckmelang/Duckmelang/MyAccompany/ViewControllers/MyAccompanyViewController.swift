@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Moya
 
 class MyAccompanyViewController: UIViewController {
     private var currentViewController: UIViewController?

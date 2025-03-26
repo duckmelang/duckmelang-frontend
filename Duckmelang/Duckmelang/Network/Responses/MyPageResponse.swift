@@ -60,7 +60,7 @@ public struct ReviewResponse: Codable {
     let reviewList: [myReviewDTO] //리뷰 목록
 }
 
-struct MyPostDetailResponse: Codable {
+public struct MyPostDetailResponse: Codable {
     let memberId: Int
     let nickname: String
     let age: Int

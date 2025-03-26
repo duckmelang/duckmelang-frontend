@@ -6,21 +6,21 @@
 //
 
 import UIKit
-import Moya
 
 class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyAccompanyService()
+    
     private var myPostsData: [PostDTO] = []
     
     var isLoading = false   // 중복 로딩 방지
-    var isLastPage = false  // 마지막 페이지인지 여부
+    var totalPage = 0       // 마지막 페이지 번호
     var currentPage = 0     // 현재 페이지 번호
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = myPostsView
         setupDelegate()
-        getMyPostsAPI()
+        getMyPostsAPI(startPage: 0)
     }
     
     private lazy var myPostsView: MyPostsView = {
@@ -32,40 +32,35 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
         myPostsView.myPostsTableView.delegate = self
         myPostsView.myPostsTableView.dataSource = self
     }
-
-    private func getMyPostsAPI() {
-        guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
-        isLoading = true
-        myPostsView.loadingIndicator.startLoading()
-        
-        provider.request(.getMyPosts(page: currentPage)) { result in
-            switch result {
-            case .success(let response):
-                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
-                    let response = try? response.map(ApiResponse<PostResponse>.self)
-                    guard let result = response?.result?.postList else { return }
-                    guard let isLast = response?.result?.isLast else { return }
-                    self.myPostsData.append(contentsOf: result)
-                    print("내 게시글: \(self.myPostsData)")
-                    
-                    DispatchQueue.main.async {
-                        self.myPostsView.empty.isHidden = !result.isEmpty
-                        self.isLastPage = isLast
-                        self.isLoading = false
-                        self.myPostsView.loadingIndicator.stopLoading()
-                        self.myPostsView.myPostsTableView.reloadData()
-                        
-                        if isLast {
-                            self.myPostsView.myPostsTableView.tableFooterView = nil
-                        }
-                    }
+    
+    private func getMyPostsAPI(startPage: Int) {
+        Task {
+            do {
+                self.isLoading = true
+                startLoading()
+                
+                let result = try await networkService.getMyPosts(page: startPage)
+                
+                if (result.isFirst) {
+                    self.myPostsData = result.postList
+                    self.totalPage = result.totalPage
+                } else {
+                    self.myPostsData.append(contentsOf: result.postList)
                 }
-                print(self.isLoading)
-                print(self.isLastPage)
-            case .failure(let error):
-                print(error)
-                self.isLoading = false
-                self.myPostsView.loadingIndicator.stopLoading()
+//                self.currentPage = result.currentPage
+                
+                DispatchQueue.main.async {
+                    self.myPostsView.empty.isHidden = !self.myPostsData.isEmpty
+                    self.myPostsView.myPostsTableView.reloadData()
+                }
+                
+                stopLoading()
+                isLoading = false
+            }
+            catch {
+                stopLoading()
+                isLoading = false
+                print(error.localizedDescription)
             }
         }
     }
@@ -96,11 +91,9 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
         let contentHeight = scrollView.contentSize.height
         let tableViewHeight = scrollView.frame.size.height
 
-        if offsetY > contentHeight - tableViewHeight * 2 {
-            if !isLoading && !isLastPage {
-                currentPage += 1
-                getMyPostsAPI()
-            }
+        if offsetY > contentHeight - tableViewHeight {
+            guard !isLoading, currentPage + 1 < totalPage else { return }
+            getMyPostsAPI(startPage: currentPage + 1)
         }
     }
 }
