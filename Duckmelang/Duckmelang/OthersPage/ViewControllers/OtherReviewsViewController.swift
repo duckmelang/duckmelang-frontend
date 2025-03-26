@@ -6,10 +6,9 @@
 //
 
 import UIKit
-import Moya
 
 class OtherReviewsViewController: UIViewController {
-    private let provider = MoyaProvider<OtherPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = OtherPageService()
     
     var otherReviewsData: [OtherReviewDTO] = []
     var oppositeId: Int?
@@ -30,22 +29,27 @@ class OtherReviewsViewController: UIViewController {
     
     // MARK: - 후기 가져오기
     private func getOtherReviews() {
-        provider.request(.getOtherReviews(memberId: self.oppositeId!)) { result in
-            switch result {
-            case .success(let response):
+        Task {
+            do {
+                startLoading()
                 self.otherReviewsData.removeAll()
-                let response = try? response.map(ApiResponse<OtherReviewResponse>.self)
-                guard let result = response?.result else { return }
+                guard let oppositeId = self.oppositeId else { return }
+                
+                let result = try await networkService.getOtherReviews(memberId: oppositeId)
                 self.otherReviewsData = result.reviewList
                 
-                print("다른 사람 후기: \(self.otherReviewsData)")
+                // OtherPageTopView에 데이터 반영
                 DispatchQueue.main.async {
                     self.otherReviewsView.cosmosView.rating = result.average
                     self.otherReviewsView.cosmosCount.text = "\(result.average)"
                     self.otherReviewsView.reviewTableView.reloadData()
                 }
-            case .failure(let error):
-                print("후기 불러오기 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

@@ -28,7 +28,7 @@ class OtherReviewsView: UIView {
     }
     
     lazy var cosmosView = CosmosView().then {
-        $0.rating = 4.8 // 평점
+        $0.rating = 0.0 // 평점
         $0.settings.updateOnTouch = false // 터치 비활성화 옵션
         $0.settings.fillMode = .precise // 별 채우기 모드 full(완전히), half(절반), precise(터치 및 입력한 곳까지 소수점으로)
         $0.settings.starSize = 25 // 별 크기
@@ -67,8 +67,7 @@ class OtherReviewsView: UIView {
         
         reviewTableView.snp.makeConstraints{
             $0.top.equalTo(cosmosStack.snp.bottom).offset(18)
-            $0.horizontalEdges.equalToSuperview().inset(4)
-            $0.height.equalTo(500)
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
     }
 }

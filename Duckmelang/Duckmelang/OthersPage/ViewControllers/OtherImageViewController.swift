@@ -6,17 +6,17 @@
 //
 
 import UIKit
-import Moya
 
 class OtherImageViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let provider = MoyaProvider<OtherPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = OtherPageService()
+    
     private var profileImageData: [OtherImageData] = []
     
     var oppositeId: Int?
     var profileData: OtherProfileData?
     
     var isLoading = false   // 중복 로딩 방지
-    var isLastPage = false  // 마지막 페이지인지 여부
+    var totalPage = 0       // 마지막 페이지 번호
     var currentPage = 0     // 현재 페이지 번호
     
     override func viewDidLoad() {
@@ -29,7 +29,7 @@ class OtherImageViewController: UIViewController, UITableViewDelegate, UITableVi
         
         setupDelegate()
         setupNavigationBar()
-        getOtherProfileImageAPI()
+        getOtherProfileImageAPI(startPage: 0)
     }
     
     private lazy var otherImageView: OtherImageView = {
@@ -53,36 +53,34 @@ class OtherImageViewController: UIViewController, UITableViewDelegate, UITableVi
     }
 
     // MARK: - 프로필 이미지 목록 가져오기
-    private func getOtherProfileImageAPI() {
-        guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
-        isLoading = true
-        otherImageView.loadingIndicator.startLoading()
-        
-        provider.request(.getOtherProfileImage(memberId: self.oppositeId!, page: currentPage)) { result in
-            switch result {
-            case .success(let response):
-                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
-                    let response = try? response.map(ApiResponse<OtherImageResponse>.self)
-                    guard let result = response?.result?.profileImageList else { return }
-                    guard let isLast = response?.result?.isLast else { return }
-                    self.profileImageData.append(contentsOf: result)
-                    print("다른 사람 이미지: \(self.profileImageData)")
-                    
-                    DispatchQueue.main.async {
-                        self.isLastPage = isLast
-                        self.isLoading = false
-                        self.otherImageView.loadingIndicator.stopLoading()
-                        self.otherImageView.imageTableView.reloadData()
-                        
-                        if isLast {
-                            self.otherImageView.imageTableView.tableFooterView = nil
-                        }
-                    }
+    private func getOtherProfileImageAPI(startPage: Int) {
+        Task {
+            do {
+                self.isLoading = true
+                startLoading()
+                guard let oppositeId = self.oppositeId else { return }
+                
+                let result = try await networkService.getOtherProfileImage(memberId: oppositeId, page: startPage)
+                
+                if (result.isFirst) {
+                    self.profileImageData = result.profileImageList
+                    self.totalPage = result.totalPage
+                } else {
+                    self.profileImageData.append(contentsOf: result.profileImageList)
                 }
-            case .failure(let error):
-                print(error)
-                self.isLoading = false
-                self.otherImageView.loadingIndicator.stopLoading()
+//                self.currentPage = result.currentPage
+                
+                DispatchQueue.main.async {
+                    self.otherImageView.imageTableView.reloadData()
+                }
+                
+                stopLoading()
+                isLoading = false
+            }
+            catch {
+                stopLoading()
+                isLoading = false
+                print(error.localizedDescription)
             }
         }
     }
@@ -118,11 +116,9 @@ class OtherImageViewController: UIViewController, UITableViewDelegate, UITableVi
         let contentHeight = scrollView.contentSize.height
         let tableViewHeight = scrollView.frame.size.height
 
-        if offsetY > contentHeight - tableViewHeight * 2 {
-            if !isLoading && !isLastPage {
-                currentPage += 1
-                getOtherProfileImageAPI()
-            }
+        if offsetY > contentHeight - tableViewHeight {
+            guard !isLoading, currentPage + 1 < totalPage else { return }
+            getOtherProfileImageAPI(startPage: currentPage + 1)
         }
     }
 }
