@@ -36,10 +36,7 @@ class ChatView: UIView {
         $0.register(ChatCell.self, forCellReuseIdentifier: ChatCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 75
-        $0.tableFooterView = loadingIndicator
     }
-    
-    let loadingIndicator = LoadingIndicator()
     
     lazy var empty = emptyLabel(text: "채팅 목록이 없습니다")
     

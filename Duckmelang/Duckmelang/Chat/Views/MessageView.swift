@@ -167,7 +167,7 @@ class MessageView: UIView {
         }
         
         messageCollectionView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(bottomMessageView.snp.top)
         }
         

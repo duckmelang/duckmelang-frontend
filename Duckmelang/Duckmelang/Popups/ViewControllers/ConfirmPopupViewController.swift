@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Moya
 
 class ConfirmPopupViewController: UIViewController {
     weak var delegate: ModalDelegate?
@@ -19,7 +18,7 @@ class ConfirmPopupViewController: UIViewController {
         func hideConfirmBtn()
     }
     
-    private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let networkService = ChatService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,20 +55,12 @@ class ConfirmPopupViewController: UIViewController {
     }
     
     private func postRequest() {
-        guard let postId = self.postId else { return }
-        
-        provider.request(.postRequest(postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                if (200...299).contains(response.statusCode) {
-                    print("✅ 성공")
-                } else {
-                    let result = try? response.map(ApiResponse<String>.self)
-                    let alert = UIAlertController(title: "오류 발생", message: result?.message, preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "확인", style: .default))
-                    self.present(alert, animated: true)
-                    return
-                }
+        Task {
+            do {
+                guard let postId = self.postId else { return }
+                startLoading()
+                
+                _ = try await networkService.postRequest(postId: postId)
                 
                 self.delegate?.hideConfirmBtn()
                 
@@ -81,8 +72,11 @@ class ConfirmPopupViewController: UIViewController {
                         presentingVC.present(successPopupVC, animated: false, completion: nil)
                     }
                 }
-            case .failure(let error):
-                print(error)
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

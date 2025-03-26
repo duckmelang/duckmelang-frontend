@@ -6,14 +6,12 @@
 //
 
 import UIKit
-import Moya
 
 class NewMessageViewController: UIViewController, OtherMessageCellDelegate, ConfirmPopupViewController.ModalDelegate {
     func hideConfirmBtn() {
         messageView.topMessageView.confirmBtn.isHidden = true
     }
     
-    private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
     private let socketManager = SocketManager()
     
     private var messageData: [MessageModel] = []
