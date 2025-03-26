@@ -108,21 +108,12 @@ class LoginView: UIView {
         )
     }()
     
-    public lazy var foundIDBtn: longCustomBtn = {
-        return longCustomBtn(
-            backgroundColor: .clear,
-            title: "ID 찾기",
-            titleColor: .grey400!,
-            width: 100,
-            height: 30
-        )
-    }()
-    
     public lazy var foundPWBtn: longCustomBtn = {
         return longCustomBtn(
             backgroundColor: .clear,
             title: "PW 찾기",
             titleColor: .grey400!,
+            font: .ptdSemiBoldFont(ofSize: 14),
             width: 100,
             height: 30
         )
@@ -146,7 +137,7 @@ class LoginView: UIView {
             logoImageView,
             inputTextContainer,
             loginButton,
-            foundBtnContainer
+            foundPWBtn
         ].forEach {
             view.addSubview($0)
         }
@@ -170,7 +161,7 @@ class LoginView: UIView {
             $0.height.equalTo(45)
         }
         
-        foundBtnContainer.snp.makeConstraints {
+        foundPWBtn.snp.makeConstraints {
             $0.top.equalTo(loginButton.snp.bottom).offset(12)
             $0.centerX.equalToSuperview()
             $0.height.equalTo(30)
@@ -204,14 +195,6 @@ class LoginView: UIView {
         return view
     }()
     
-    private lazy var foundBtnContainer: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [foundIDBtn, verticalLine, foundPWBtn])
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.spacing = 12
-        return stackView
-    }()
-    
     // MARK: - Setup Methods
     
     private func setupView() {
@@ -224,7 +207,7 @@ class LoginView: UIView {
         loginContainer.snp.makeConstraints {
             $0.top.equalTo(self.safeAreaLayoutGuide.snp.top).offset(40)
             $0.left.right.equalToSuperview().inset(16)
-            $0.bottom.equalTo(foundBtnContainer.snp.bottom)
+            $0.bottom.equalTo(foundPWBtn.snp.bottom)
         }
     }
 }
