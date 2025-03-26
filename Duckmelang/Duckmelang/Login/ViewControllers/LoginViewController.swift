@@ -40,6 +40,8 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
         
         loginView.emailTextField.addTarget(self, action: #selector(textFieldsUpdated), for: .editingChanged)
         loginView.pwdTextField.addTarget(self, action: #selector(textFieldsUpdated), for: .editingChanged)
+        
+        loginView.foundPWBtn.addTarget(self, action: #selector(goVerifyView), for: .touchUpInside)
     }
     
     private lazy var loginView: LoginView = {
@@ -77,6 +79,11 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
         
     @objc private func goBack() {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func goVerifyView() {
+        let verifyVC = VerifyPhoneViewController()
+        self.navigationController?.pushViewController(verifyVC, animated: true)
     }
     
     @objc private func didTapLoginButton() {
