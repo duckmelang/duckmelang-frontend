@@ -1,5 +1,5 @@
 //
-//  ChatAPI.swift
+//  ChatEndpoint.swift
 //  Duckmelang
 //
 //  Created by 주민영 on 2/16/25.
@@ -14,21 +14,19 @@ import Moya
 // 매개변수를 사용하지 않는 곳이라면 생략하고 case 이름만 작성해도 됨
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
-public enum ChatAPI {
+public enum ChatEndpoint {
     case getChatrooms(page: Int)
     case getOngoingChatrooms(page: Int)
-    case getTerminatedChatrooms(page: Int)
     case getConfirmedChatrooms(page: Int)
+    case getTerminatedChatrooms(page: Int)
     
     case getDetailChatroom(chatRoomId: Int)
     case getMessages(chatRoomId: Int, lastMessageId: String?, size: Int)
     
     case postRequest(postId: Int)
-    
-    case getMemberId // 채팅 보내기에서 멤버아이디를 가져오기 위해서
 }
 
-extension ChatAPI: TargetType {
+extension ChatEndpoint: TargetType {
     // Domain.swift 파일 참고해서 맞는 baseURL 적용하기
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
@@ -68,8 +66,6 @@ extension ChatAPI: TargetType {
             return "/chat/\(chatRoomId)/messages"
         case .postRequest(let postId):
             return "/send/\(postId)"
-        case .getMemberId:
-            return "/mypage"
         }
     }
     
@@ -97,7 +93,7 @@ extension ChatAPI: TargetType {
                 params["lastMessageId"] = lastMessageId
             }
             return .requestParameters(parameters: params, encoding: URLEncoding.queryString)
-        case .postRequest, .getMemberId:
+        case .postRequest:
             return .requestPlain
         }
     }
