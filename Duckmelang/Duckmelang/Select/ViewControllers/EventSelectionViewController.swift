@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Moya
 
 protocol EventSelectionViewControllerDelegate: AnyObject {
     func didSelectEvent(_ event: EventDTO)
@@ -15,7 +14,7 @@ protocol EventSelectionViewControllerDelegate: AnyObject {
 class EventSelectionViewController: UIViewController {
     weak var delegate: EventSelectionViewControllerDelegate?
     
-    private let provider = MoyaProvider<HomeAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = HomeService()
     
     var eventKinds: [String] = ["공연", "행사"]
     var concertEvents: [EventDTO] = []
@@ -40,19 +39,25 @@ class EventSelectionViewController: UIViewController {
         eventSelectionView.eventCollectionView.dataSource = self
     }
     
+    // 아이돌 목록 불러오기
     private func getEventsAPI() {
-        provider.request(.getEvents) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<EventResponse>.self)
-                guard let result = response?.result?.eventCategoryList else { return }
-                self.concertEvents = result.filter { $0.eventKind == "공연" }
-                self.festivalEvents = result.filter { $0.eventKind == "행사" }
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.getEvents()
+                self.concertEvents = result.eventCategoryList.filter { $0.eventKind == "공연" }
+                self.festivalEvents = result.eventCategoryList.filter { $0.eventKind == "행사" }
+                
                 DispatchQueue.main.async {
                     self.eventSelectionView.eventCollectionView.reloadData()
                 }
-            case .failure(let error):
-                print(error)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

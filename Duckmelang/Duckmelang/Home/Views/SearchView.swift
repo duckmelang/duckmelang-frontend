@@ -53,12 +53,9 @@ class SearchView: UIView {
         $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 106
-        $0.tableFooterView = loadingIndicator
         $0.isHidden = true
         $0.tag = 1
     }
-    
-    let loadingIndicator = LoadingIndicator()
     
     lazy var empty = emptyLabel(text: "검색 결과가 존재하지 않습니다")
 

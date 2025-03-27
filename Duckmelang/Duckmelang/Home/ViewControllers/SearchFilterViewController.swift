@@ -6,11 +6,9 @@
 //
 
 import UIKit
-import Moya
 
 class SearchFilterViewController: UIViewController {
-
-    private let provider = MoyaProvider<SearchAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = HomeService()
     
     private var selectedGender: String? = nil
     private var minAge: Int? = nil
@@ -41,31 +39,30 @@ class SearchFilterViewController: UIViewController {
         self.dismiss(animated: true)
     }
     
-    /// ✅ 필터 데이터를 서버에서 불러오기 (GET 요청)
-      private func fetchFilterSettings() {
-          provider.request(.getFilters) { result in
-              switch result {
-              case .success(let response):
-                  do {
-                      if let jsonObject = try JSONSerialization.jsonObject(with: response.data, options: []) as? [String: Any],
-                         let result = jsonObject["result"] as? [String: Any] {
-                          
-                          self.selectedGender = result["gender"] as? String ?? "BOTH"
-                          self.minAge = result["minAge"] as? Int ?? 18
-                          self.maxAge = result["maxAge"] as? Int ?? 50
-
-                          DispatchQueue.main.async {
-                              self.tableView.reloadData()
-                          }
-                      }
-                  } catch {
-                      print("❌ JSON 파싱 오류: \(error.localizedDescription)")
-                  }
-              case .failure(let error):
-                  print("❌ 필터 가져오기 실패: \(error.localizedDescription)")
-              }
-          }
-      }
+    /// 필터 데이터 불러오기
+    private func fetchFilterSettings() {
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.getFilters()
+                
+                self.selectedGender = result.gender
+                self.minAge = result.minAge
+                self.maxAge = result.maxAge
+                
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+    }
       
       /// ✅ 필터 적용 후 검색 결과 화면으로 이동
       @objc private func saveFilterSettings() {

@@ -6,10 +6,9 @@
 //
 
 import UIKit
-import Moya
 
 class HomeViewController: UIViewController {
-    private let provider = MoyaProvider<HomeAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = HomeService()
     
     // MARK: - 홈에 띄우는 게시물 데이터
     private var currentPostsData: [PostDTO] = []
@@ -21,6 +20,10 @@ class HomeViewController: UIViewController {
     
     private var celebs: [idolDTO]?
     private var selectedCeleb: idolDTO?
+    
+    var isLoading = false   // 중복 로딩 방지
+    var totalPage = 0       // 마지막 페이지 번호
+    var currentPage = 0     // 현재 페이지 번호
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -111,61 +114,93 @@ class HomeViewController: UIViewController {
         navigationController?.pushViewController(searchVC, animated: true)
     }
     
+    // 아이돌 목록 불러오기
     private func getIdolsAPI() {
-        provider.request(.getIdols) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<idolResponse>.self)
-                guard let result = response?.result?.idolList else { return }
+        Task {
+            do {
+                startLoading()
                 
-                self.celebs = result
-                self.fetchPosts()
-            case .failure(let error):
-                print(error)
+                let result = try await networkService.getIdols()
+                self.celebs = result.idolList
+                self.fetchPosts(startPage: 0)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
     
-    private func fetchPosts() {
+    private func fetchPosts(startPage: Int) {
         if let selectedCeleb = selectedCeleb {
-            getIdolsPosts(selectedCeleb.idolId)
+            getIdolsPosts(idolId: selectedCeleb.idolId, startPage: startPage)
         } else {
-            getAllPosts()
+            getAllPosts(startPage: startPage)
         }
     }
     
-    private func getAllPosts() {
-        provider.request(.getAllPosts(page: 0)) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<PostResponse>.self)
-                guard let result = response?.result?.postList else { return }
-                self.currentPostsData = result
-                print("홈 게시글: \(self.currentPostsData)")
+    private func getAllPosts(startPage: Int) {
+        Task {
+            do {
+                self.isLoading = true
+                startLoading()
+                
+                let result = try await networkService.getAllPosts(page: startPage)
+                
+                if (result.isFirst) {
+                    self.currentPostsData = result.postList
+                    self.totalPage = result.totalPage
+                } else {
+                    self.currentPostsData.append(contentsOf: result.postList)
+                }
+//                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
+                    self.homeView.empty.isHidden = !self.currentPostsData.isEmpty
                     self.homeView.postsTableView.reloadData()
                 }
-            case .failure(let error):
-                print(error)
+                
+                stopLoading()
+                isLoading = false
+            }
+            catch {
+                stopLoading()
+                isLoading = false
+                print(error.localizedDescription)
             }
         }
     }
     
-    private func getIdolsPosts(_ idolId: Int) {
-        provider.request(.getIdolPosts(idolId: idolId, page: 0)) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<PostResponse>.self)
-                guard let result = response?.result?.postList else { return }
-                self.currentPostsData = result
-                print("홈 게시글 데이터들: \(self.currentPostsData)")
+    private func getIdolsPosts(idolId: Int, startPage: Int) {
+        Task {
+            do {
+                self.isLoading = true
+                startLoading()
+                
+                let result = try await networkService.getIdolPosts(idolId: idolId, page: startPage)
+                
+                if (result.isFirst) {
+                    self.currentPostsData = result.postList
+                    self.totalPage = result.totalPage
+                } else {
+                    self.currentPostsData.append(contentsOf: result.postList)
+                }
+//                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
+                    self.homeView.empty.isHidden = !self.currentPostsData.isEmpty
                     self.homeView.postsTableView.reloadData()
                 }
-            case .failure(let error):
-                print(error)
+                
+                stopLoading()
+                isLoading = false
+            }
+            catch {
+                stopLoading()
+                isLoading = false
+                print(error.localizedDescription)
             }
         }
     }
@@ -195,13 +230,24 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         VC.postId = post.postId
         navigationController?.pushViewController(VC, animated: true)
     }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let tableViewHeight = scrollView.frame.size.height
+
+        if offsetY > contentHeight - tableViewHeight {
+            guard !isLoading, currentPage + 1 < totalPage else { return }
+            fetchPosts(startPage: currentPage + 1)
+        }
+    }
 }
 
 extension HomeViewController: CelebSelectionDelegate {
     func didSelectCeleb(_ celeb: idolDTO) {
         selectedCeleb = celeb
         homeView.celebNameLabel.text = celeb.idolName
-        fetchPosts()
+        fetchPosts(startPage: 0)
     }
 }
 
@@ -210,7 +256,7 @@ extension HomeViewController: WriteViewControllerDelegate {
         if let celeb = celeb {
             selectedCeleb = celeb
             homeView.celebNameLabel.text = celeb.idolName
-            fetchPosts()
+            fetchPosts(startPage: 0)
         }
     }
 }

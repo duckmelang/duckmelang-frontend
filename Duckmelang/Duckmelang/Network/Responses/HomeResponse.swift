@@ -25,15 +25,26 @@ public struct EventResponse: Codable {
     let eventCategoryList: [EventDTO]
 }
 
-struct BookmarkResponse: Codable {
+public struct BookmarkResponse: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
     let result: BookmarkResult?
 }
 
-struct BookmarkResult: Codable {
+public struct BookmarkResult: Codable {
     let bookmarkId: Int
     let memberId: Int
     let postId: Int
+}
+
+public struct FilterResponse: Codable {
+    let gender: String
+    let minAge: Int
+    let maxAge: Int
+}
+
+public struct WrtieResponse: Codable {
+    let id: Int
+    let title: String
 }

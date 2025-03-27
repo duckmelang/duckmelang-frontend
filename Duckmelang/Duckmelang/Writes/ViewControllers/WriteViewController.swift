@@ -13,7 +13,7 @@ protocol WriteViewControllerDelegate: AnyObject {
 }
 
 class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDelegate, EventSelectionViewControllerDelegate, DateSelectionViewControllerDelegate {
-    private let provider = MoyaProvider<HomeAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = HomeService()
     
     weak var delegate: WriteViewControllerDelegate?
     var textViewPlaceHolder = "본문"
@@ -138,47 +138,54 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
     
     // 업로드 버튼
     @objc private func didTapPostButton() {
-        guard let celeb = selectedCeleb,
-              let event = selectedEvent,
-              let date = selectedDate,
-              let image = selectedImage else {
-            print("선택되지않음")
-            return
-        }
-
-        let postRequest = PostRequest(
-            title: selectedTitle,
-            content: selectedContent,
-            idolIds: [celeb.idolId],
-            categoryId: event.eventId,
-            date: date,
-            imageInfos: [ImageInfo(orderNumber: 1, description: "example")]
-        )
-        
-        var formData: [MultipartFormData] = []
-
-        // JSON 데이터 변환하여 `multipart/form-data`로 추가
-        if let jsonData = try? JSONEncoder().encode(postRequest) {
-            formData.append(MultipartFormData(provider: .data(jsonData),
-                                              name: "request",
-                                              mimeType: "application/json"))
-        }
-
-        // 이미지 추가 (여러 장 가능하도록 설정)
-        if let imageData = image.jpegData(compressionQuality: 0.1) {
-            formData.append(MultipartFormData(provider: .data(imageData),
-                                              name: "images",
-                                              fileName: "image.jpg",
-                                              mimeType: "image/jpeg"))
-        }
-            
-        provider.request(.postPosts(formData: formData)) { result in
-            switch result {
-            case .success(let response):
-                print("✅ 성공: \(response.statusCode)")
-                self.navigationController?.popViewController(animated: true)
-            case .failure(let error):
-                print("❌ 실패: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                guard let celeb = selectedCeleb,
+                      let event = selectedEvent,
+                      let date = selectedDate,
+                      let image = selectedImage else {
+                    print("선택되지않음")
+                    return
+                }
+                
+                let postRequest = PostRequest(
+                    title: selectedTitle,
+                    content: selectedContent,
+                    idolIds: [celeb.idolId],
+                    categoryId: event.eventId,
+                    date: date,
+                    imageInfos: [ImageInfo(orderNumber: 1, description: "example")]
+                )
+                
+                var formData: [MultipartFormData] = []
+                
+                // JSON 데이터 변환하여 `multipart/form-data`로 추가
+                if let jsonData = try? JSONEncoder().encode(postRequest) {
+                    formData.append(MultipartFormData(provider: .data(jsonData),
+                                                      name: "request",
+                                                      mimeType: "application/json"))
+                }
+                
+                // 이미지 추가 (여러 장 가능하도록 설정)
+                if let imageData = image.jpegData(compressionQuality: 0.1) {
+                    formData.append(MultipartFormData(provider: .data(imageData),
+                                                      name: "images",
+                                                      fileName: "image.jpg",
+                                                      mimeType: "image/jpeg"))
+                }
+                
+                let _ = try await networkService.postPosts(formData: formData)
+                
+                DispatchQueue.main.async {
+                    self.navigationController?.popViewController(animated: true)
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

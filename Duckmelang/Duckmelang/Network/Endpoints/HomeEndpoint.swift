@@ -14,16 +14,26 @@ import Moya
 // 매개변수를 사용하지 않는 곳이라면 생략하고 case 이름만 작성해도 됨
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
-public enum HomeAPI {
+public enum HomeEndpoint {
+    // Home
     case getAllPosts(page: Int)
     case getIdolPosts(idolId: Int, page: Int)
     case getIdols
     case getEvents
     case postPosts(formData: [MultipartFormData])
     case postBookmark(postId: Int)
+    
+    // Notification
+    case getNotifications
+    case patchNotifications(notificationId: Int)
+    
+    // Search
+    case getSearch(page: Int, searchKeyword: String)
+    case searchPosts(page: Int, keyword: String, gender: String?, minAge: Int?, maxAge: Int?)
+    case getFilters
 }
 
-extension HomeAPI: TargetType {
+extension HomeEndpoint: TargetType {
     // Domain.swift 파일 참고해서 맞는 baseURL 적용하기
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
@@ -31,6 +41,11 @@ extension HomeAPI: TargetType {
         case .getEvents:
             guard let url = URL(string: API.memberURL) else {
                 fatalError("memberURL 오류")
+            }
+            return url
+        case .getNotifications, .patchNotifications:
+            guard let url = URL(string: API.notificationURL) else {
+                fatalError("notificationURL 오류")
             }
             return url
         default:
@@ -44,7 +59,7 @@ extension HomeAPI: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
-        case .getAllPosts:
+        case .getAllPosts, .postPosts, .getNotifications:
             return ""
         case .getIdolPosts(let idolId, _):
             return "/idols/\(idolId)"
@@ -52,10 +67,12 @@ extension HomeAPI: TargetType {
             return "/idols"
         case .getEvents:
             return "/events"
-        case .postPosts:
-            return ""
         case .postBookmark(postId: let postId):
             return "/\(postId)/bookmarks"
+        case .patchNotifications(let notificationId):
+            return "/\(notificationId)/read"
+        case .getSearch, .getFilters, .searchPosts:
+            return "/search"
         }
     }
     
@@ -65,6 +82,8 @@ extension HomeAPI: TargetType {
         switch self {
         case .postPosts, .postBookmark:
             return .post
+        case .patchNotifications:
+            return .patch
         default:
             return .get
         }
@@ -77,7 +96,15 @@ extension HomeAPI: TargetType {
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .postPosts(let formData):
             return .uploadMultipart(formData)
-        case .getIdols, .getEvents,.postBookmark:
+        case .getSearch(let page, let searchKeyword):
+            return .requestParameters(parameters: ["page": page, "searchKeyword": searchKeyword], encoding: URLEncoding.queryString)
+        case .searchPosts(let page, let keyword, let gender, let minAge, let maxAge):
+            var parameters: [String: Any] = ["page": page, "searchKeyword": keyword]
+            if let gender = gender { parameters["gender"] = gender }
+            if let minAge = minAge { parameters["minAge"] = minAge }
+            if let maxAge = maxAge { parameters["maxAge"] = maxAge }
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+        case .getIdols, .getEvents,.postBookmark, .getNotifications, .patchNotifications, .getFilters:
             return .requestPlain
         }
     }

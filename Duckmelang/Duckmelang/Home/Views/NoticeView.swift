@@ -16,7 +16,7 @@ class NoticeView: UIView {
         $0.separatorStyle = .none
         $0.rowHeight = 106
         $0.isHidden = false
-        }
+    }
     
     override init(frame: CGRect) {
             super.init(frame: frame)
