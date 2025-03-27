@@ -8,7 +8,7 @@
 import UIKit
 
 public struct API {
-    public static let baseURL = "http://13.125.217.231:8080"
+    public static let baseURL = "https://13.125.217.231.nip.io"
     public static let reviewURL = "\(baseURL)/reviews"
     public static let requestURL = "\(baseURL)/requests"
     public static let loginURL = "\(baseURL)/login"
