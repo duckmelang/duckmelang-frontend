@@ -57,7 +57,7 @@ public final class ChatService : NetworkManager {
     }
     
     /// 동행 요청 API
-    public func postRequest(postId: Int) async throws -> String {
-        return try await requestAsync(target: .postRequest(postId: postId), decodingType: String.self)
+    public func postRequest(postId: Int) async throws -> PostRequestResponse {
+        return try await requestAsync(target: .postRequest(postId: postId), decodingType: PostRequestResponse.self)
     }
 }

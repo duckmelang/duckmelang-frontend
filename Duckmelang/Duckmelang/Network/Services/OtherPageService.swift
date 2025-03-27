@@ -57,8 +57,8 @@ public final class OtherPageService : NetworkManager {
     }
     
     /// 후기 생성 API
-    public func postReviews(reviewData: ReviewRequest)async throws -> String {
-        return try await requestAsync(target: .postReviews(reviewData: reviewData), decodingType: String.self)
+    public func postReviews(reviewData: ReviewRequest)async throws -> PostReviewResponse {
+        return try await requestAsync(target: .postReviews(reviewData: reviewData), decodingType: PostReviewResponse.self)
     }
     
     /// 후기 정보 가져오기 API
