@@ -68,3 +68,8 @@ public struct MyPageReponse: Codable {
     let age: Int
     let latestPublicMemberProfileImage: String
 }
+
+public struct PostRequestResponse: Codable {
+    let newStatus: String
+    let modifiedAt: String
+}

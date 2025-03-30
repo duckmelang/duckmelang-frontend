@@ -6,21 +6,21 @@
 //
 
 import UIKit
-import Moya
 
 class BookmarksViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let provider = MoyaProvider<MyAccompanyAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyAccompanyService()
+    
     private var bookmarksData: [PostDTO] = []
     
     var isLoading = false   // 중복 로딩 방지
-    var isLastPage = false  // 마지막 페이지인지 여부
+    var totalPage = 0       // 마지막 페이지 번호
     var currentPage = 0     // 현재 페이지 번호
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = bookmarksView
         setupDelegate()
-        getBookmarksAPI()
+        getBookmarksAPI(startPage: 0)
     }
     
     private lazy var bookmarksView: BookmarksView = {
@@ -32,38 +32,35 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
         bookmarksView.bookmarksTableView.delegate = self
         bookmarksView.bookmarksTableView.dataSource = self
     }
-
-    private func getBookmarksAPI() {
-        guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
-        isLoading = true
-        bookmarksView.loadingIndicator.startLoading()
-        
-        provider.request(.getBookmarks(page: currentPage)) { result in
-            switch result {
-            case .success(let response):
-                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
-                    let response = try? response.map(ApiResponse<PostResponse>.self)
-                    guard let result = response?.result?.postList else { return }
-                    guard let isLast = response?.result?.isLast else { return }
-                    self.bookmarksData.append(contentsOf: result)
-                    print("스크랩: \(self.bookmarksData)")
-                    
-                    DispatchQueue.main.async {
-                        self.bookmarksView.empty.isHidden = !result.isEmpty
-                        self.isLastPage = isLast
-                        self.isLoading = false
-                        self.bookmarksView.loadingIndicator.stopLoading()
-                        self.bookmarksView.bookmarksTableView.reloadData()
-                        
-                        if isLast {
-                            self.bookmarksView.bookmarksTableView.tableFooterView = nil
-                        }
-                    }
+    
+    private func getBookmarksAPI(startPage: Int) {
+        Task {
+            do {
+                self.isLoading = true
+                startLoading()
+                
+                let result = try await networkService.getBookmarks(page: startPage)
+                
+                if (result.isFirst) {
+                    self.bookmarksData = result.postList
+                    self.totalPage = result.totalPage
+                } else {
+                    self.bookmarksData.append(contentsOf: result.postList)
                 }
-            case .failure(let error):
-                print(error)
-                self.isLoading = false
-                self.bookmarksView.loadingIndicator.stopLoading()
+//                self.currentPage = result.currentPage
+                
+                DispatchQueue.main.async {
+                    self.bookmarksView.empty.isHidden = !self.bookmarksData.isEmpty
+                    self.bookmarksView.bookmarksTableView.reloadData()
+                }
+                
+                stopLoading()
+                isLoading = false
+            }
+            catch {
+                stopLoading()
+                isLoading = false
+                print(error.localizedDescription)
             }
         }
     }
@@ -94,11 +91,9 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
         let contentHeight = scrollView.contentSize.height
         let tableViewHeight = scrollView.frame.size.height
 
-        if offsetY > contentHeight - tableViewHeight * 2 {
-            if !isLoading && !isLastPage {
-                currentPage += 1
-                getBookmarksAPI()
-            }
+        if offsetY > contentHeight - tableViewHeight {
+            guard !isLoading, currentPage + 1 < totalPage else { return }
+            getBookmarksAPI(startPage: currentPage + 1)
         }
     }
 }

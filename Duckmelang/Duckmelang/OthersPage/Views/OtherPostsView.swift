@@ -22,10 +22,7 @@ class OtherPostsView: UIView {
         $0.register(PostCell.self, forCellReuseIdentifier: PostCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 106
-        $0.tableFooterView = loadingIndicator
     }
-    
-    let loadingIndicator = LoadingIndicator()
     
     lazy var empty = emptyLabel(text: "업로드한 게시물이 없습니다")
     
@@ -34,9 +31,7 @@ class OtherPostsView: UIView {
         
         uploadPostView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(12)
-            $0.left.equalToSuperview()
-            $0.right.equalToSuperview()
-            $0.height.equalTo(500)
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
         
         empty.snp.makeConstraints {

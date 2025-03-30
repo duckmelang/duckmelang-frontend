@@ -6,22 +6,21 @@
 //
 
 import UIKit
-import Moya
 
 class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate {
-    private let provider = MoyaProvider<ChatAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    private let networkService = ChatService()
     private let socketManager = SocketManager()
     
     private var messageData: [MessageModel] = []
     
     var chat: ChatDTO?
+    var isLoading = false               // 중복 로딩 방지
     private var lastMessageId: String? // 페이지네이션을 위한 lastMessageId
-    private var isFetching = false  // 중복 요청 방지
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.navigationController?.isNavigationBarHidden = false
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.tabBarController?.tabBar.isHidden = true
         
         self.view = messageView
@@ -42,7 +41,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        self.navigationController?.isNavigationBarHidden = false
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.tabBarController?.tabBar.isHidden = true
         
         DispatchQueue.main.async {
@@ -56,25 +55,19 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         return view
     }()
     
-    private func getMessagesAPI(lastMessageId: String?) {
-        guard !isFetching else { return } // 중복 요청 방지
-        isFetching = true
-        
-        provider.request(
-            .getMessages(
-                chatRoomId: chat?.chatRoomId ?? 0,
-                lastMessageId: lastMessageId,
-                size: 20
-            )
-        ) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<MessageResponse>.self)
-                guard let results = response?.result?.chatMessageList else { return }
+    func getMessagesAPI(lastMessageId: String?) {
+        Task {
+            do {
+                startLoading()
+                guard let chatRoomId = chat?.chatRoomId else { return }
                 
-                if let lastMessageId = response?.result?.lastMessageId {
-                    self.lastMessageId = lastMessageId
-                }
+                let response = try await networkService.getMessages(
+                    chatRoomId: chatRoomId,
+                    lastMessageId: lastMessageId,
+                    size: 20
+                )
+                let results = response.chatMessageList
+                self.lastMessageId = response.lastMessageId
                 
                 var newMessages: [MessageModel] = []
                 
@@ -124,11 +117,14 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
                         self.scrollToLastMessages()
                     }
                 }
-                self.isFetching = false
+                stopLoading()
+                isLoading = false
                 print("메세지: \(self.messageData)")
-            case .failure(let error):
-                print(error)
-                self.isFetching = false
+            }
+            catch {
+                stopLoading()
+                isLoading = false
+                print(error.localizedDescription)
             }
         }
     }
@@ -169,19 +165,22 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         }
     }
     
-    private func getDetailChatroomsAPI() {
-        provider.request(.getDetailChatroom(chatRoomId: self.chat?.chatRoomId ?? 0)) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<DetailChatroomResponse>.self)
-                guard let result = response?.result else { return }
-                print("채팅 상세 정보: \(result)")
-                
+    func getDetailChatroomsAPI() {
+        guard let chatRoomId = self.chat?.chatRoomId else { return }
+        
+        Task {
+            do {
+                startLoading()
+                let result = try await networkService.getDetailChatroom(chatRoomId: chatRoomId)
+
+                stopLoading()
                 DispatchQueue.main.async {
                     self.messageView.detailChatroomResponse = result
                 }
-            case .failure(let error):
-                print(error)
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
@@ -291,7 +290,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         
         guard totalItems > 0 else { return }
         
-        let targetIndex = max(totalItems - count, 0) // ✅ 최근 20개의 메시지가 보이도록 설정
+        let targetIndex = max(totalItems - count, 0)
         let indexPath = IndexPath(item: 0, section: targetIndex)
 
         messageView.messageCollectionView.scrollToItem(at: indexPath, at: .top, animated: false)
@@ -376,10 +375,11 @@ extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y
-        let insetTop = scrollView.adjustedContentInset.top // ✅ 상단 inset 고려
+        let contentHeight = scrollView.contentSize.height
+        let tableViewHeight = scrollView.frame.size.height
 
-        // ✅ 스크롤이 최상단 근처에 도달했을 때 로드
-        if offsetY <= insetTop - 50, let lastMessageId = lastMessageId, !isFetching {
+        if offsetY > contentHeight - tableViewHeight {
+            guard let lastMessageId = lastMessageId, !isLoading else { return }
             getMessagesAPI(lastMessageId: lastMessageId)
         }
     }

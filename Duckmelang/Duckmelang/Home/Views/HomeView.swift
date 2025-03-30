@@ -55,6 +55,8 @@ class HomeView: UIView {
         $0.rowHeight = 106
         $0.isHidden = true
     }
+    
+    lazy var empty = emptyLabel(text: "해당하는 게시물 목록이 없습니다")
 
     // 글쓰기 버튼
     let writeButton = UIButton().then {
@@ -88,6 +90,7 @@ class HomeView: UIView {
             bellIcon,
             findIcon,
             postsTableView,
+            empty,
             writeButton
         ].forEach {
             addSubview($0)
@@ -124,6 +127,11 @@ class HomeView: UIView {
         postsTableView.snp.makeConstraints {
             $0.top.equalTo(celebNameLabel.snp.bottom).offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
+        }
+        
+        empty.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(40)
+            $0.centerX.equalToSuperview()
         }
     }
     //Chevron 아이콘 업데이트 함수

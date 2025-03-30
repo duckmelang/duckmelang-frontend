@@ -6,12 +6,10 @@
 //
 
 import UIKit
-import Then
-import SnapKit
-import Moya
 
 class SearchViewController: UIViewController {
-    private let provider = MoyaProvider<SearchAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = HomeService()
+    
     private let searchManager = SearchHistoryManager()
     
     let searchView = SearchView()
@@ -20,7 +18,7 @@ class SearchViewController: UIViewController {
     private var searchData: [PostDTO] = []
     
     var isLoading = false   // 중복 로딩 방지
-    var isLastPage = false  // 마지막 페이지인지 여부
+    var totalPage = 0       // 마지막 페이지 번호
     var currentPage = 0     // 현재 페이지 번호
     
     var selectedGender: String?
@@ -91,33 +89,35 @@ class SearchViewController: UIViewController {
     }
     
     // MARK: - 검색 API 요청
-    private func fetchSearchResults(keyword: String) {
-        guard !isLoading, !isLastPage, !keyword.isEmpty else { return }
-        isLoading = true
-        searchView.loadingIndicator.startLoading()
-
-        provider.request(.searchPosts(page: currentPage, keyword: keyword, gender: selectedGender, minAge: minAge, maxAge: maxAge)) { result in
-          switch result {
-          case .success(let response):
-              do {
-                  let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
-                  if let postList = decodedResponse.result?.postList {
-                      DispatchQueue.main.async {
-                          self.searchData.append(contentsOf: postList)
-                          self.isLastPage = decodedResponse.result?.isLast ?? false
-                          self.isLoading = false
-                          self.searchView.loadingIndicator.stopLoading()
-                          self.searchView.searchDataTableView.reloadData()
-                      }
-                  }
-              } catch {
-                  print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                  self.isLoading = false
-              }
-          case .failure(let error):
-              print("❌ 검색 API 요청 실패: \(error.localizedDescription)")
-              self.isLoading = false
-          }
+    private func fetchSearchResults(keyword: String, startPage: Int) {
+        Task {
+            do {
+                self.isLoading = true
+                startLoading()
+                
+                let result = try await networkService.searchPosts(page: startPage, keyword: keyword, gender: selectedGender, minAge: minAge, maxAge: maxAge)
+                
+                if (result.isFirst) {
+                    self.searchData = result.postList
+                    self.totalPage = result.totalPage
+                } else {
+                    self.searchData.append(contentsOf: result.postList)
+                }
+//                self.currentPage = result.currentPage
+                
+                DispatchQueue.main.async {
+                    self.searchView.empty.isHidden = !self.searchData.isEmpty
+                    self.searchView.searchDataTableView.reloadData()
+                }
+                
+                stopLoading()
+                isLoading = false
+            }
+            catch {
+                stopLoading()
+                isLoading = false
+                print(error.localizedDescription)
+            }
         }
     }
     
@@ -142,39 +142,34 @@ class SearchViewController: UIViewController {
     }
     
     // MARK: - 검색 키워드에 따라 데이터 불러오기
-    private func getSearchData(_ keyword: String) {
-        guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
-        isLoading = true
-        
-        if (keyword.isEmpty) { return }
-        
-        provider.request(.getSearch(page: currentPage, searchKeyword: keyword)) { result in
-            print("getsearch 실행")
-            switch result {
-            case .success(let response):
-                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
-                    let response = try? response.map(ApiResponse<PostResponse>.self)
-                    guard let result = response?.result?.postList else { return }
-                    guard let isLast = response?.result?.isLast else { return }
-                    self.searchData.append(contentsOf: result)
-                    print("검색 결과: \(self.searchData)")
-                    
-                    DispatchQueue.main.async {
-                        self.searchView.empty.isHidden = !result.isEmpty
-                        self.isLastPage = isLast
-                        self.isLoading = false
-                        self.searchView.loadingIndicator.stopLoading()
-                        self.searchView.searchDataTableView.reloadData()
-                        
-                        if isLast {
-                            self.searchView.searchDataTableView.tableFooterView = nil
-                        }
-                    }
+    private func getSearchData(keyword: String, startPage: Int) {
+        Task {
+            do {
+                self.isLoading = true
+                startLoading()
+                
+                let result = try await networkService.getSearch(page: startPage, searchKeyword: keyword)
+                
+                if (result.isFirst) {
+                    self.searchData = result.postList
+                    self.totalPage = result.totalPage
+                } else {
+                    self.searchData.append(contentsOf: result.postList)
                 }
-            case .failure(let error):
-                print(error)
-                self.isLoading = false
-                self.searchView.loadingIndicator.stopLoading()
+//                self.currentPage = result.currentPage
+                
+                DispatchQueue.main.async {
+                    self.searchView.empty.isHidden = !self.searchData.isEmpty
+                    self.searchView.searchDataTableView.reloadData()
+                }
+                
+                stopLoading()
+                isLoading = false
+            }
+            catch {
+                stopLoading()
+                isLoading = false
+                print(error.localizedDescription)
             }
         }
     }
@@ -217,12 +212,10 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let tableViewHeight = scrollView.frame.size.height
-        
-        if offsetY > contentHeight - tableViewHeight * 2 {
-            if !isLoading && !isLastPage {
-                currentPage += 1
-                getSearchData(searchView.searchTextField.text ?? "")
-            }
+
+        if offsetY > contentHeight - tableViewHeight {
+            guard !isLoading, currentPage + 1 < totalPage else { return }
+            getSearchData(keyword: searchView.searchTextField.text ?? "", startPage: currentPage + 1)
         }
     }
     
@@ -252,8 +245,8 @@ extension SearchViewController: UITextFieldDelegate {
         // 엔터를 누르면 새로운 데이터를 받아야하므로 모든 값을 초기화
         searchData.removeAll()
         currentPage = 0
+        totalPage = 0
         isLoading = false
-        isLastPage = false
         
         searchView.searchDataTableView.reloadData()
         searchView.searchDataTableView.isHidden = false
@@ -261,9 +254,8 @@ extension SearchViewController: UITextFieldDelegate {
         searchView.recentSearchTableView.isHidden = true
         
         // 최근 검색어에 값을 저장하고 검색을 실행
-        searchView.loadingIndicator.startLoading()
         searchManager.saveSearchQuery(text)
-        getSearchData(text)
+        getSearchData(keyword: text, startPage: 0)
         return true
     }
 }

@@ -14,7 +14,7 @@ import Moya
 // 매개변수를 사용하지 않는 곳이라면 생략하고 case 이름만 작성해도 됨
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
-public enum MyAccompanyAPI {
+public enum MyAccompanyEndpoint {
     case getPendingRequests(page: Int)
     case getSentRequests(page: Int)
     case getReceivedRequests(page: Int)
@@ -25,7 +25,7 @@ public enum MyAccompanyAPI {
     case getPostDetail(postId: Int)
 }
 
-extension MyAccompanyAPI: TargetType {
+extension MyAccompanyEndpoint: TargetType {
     // Domain.swift 파일 참고해서 맞는 baseURL 적용하기
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {

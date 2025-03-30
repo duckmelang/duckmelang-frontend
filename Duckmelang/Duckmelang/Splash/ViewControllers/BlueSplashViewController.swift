@@ -10,19 +10,23 @@ import SnapKit
 import Then
 
 class BlueSplashViewController: UIViewController {
-
-    override func loadView() {
-        // SplashView를 뷰로 설정
-        let splashView = BlueSplashView()
-        self.view = splashView
+    override func viewDidLoad() {
+        self.view = BlueSplashView(title: "인증이 완료되었어요!", subTitle: "메랑이가 되기 위한 준비를 해볼까요?")
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        // 1.5초 후 현재 화면 닫기
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.dismiss(animated: true, completion: nil)
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+//            self.transitionToNextScreen()
+//        }
     }
+
+//    private func transitionToNextScreen() {
+//        // 프로필 작성 화면으로 전환
+//        let view = makeProfileViewController()
+//        view.modalTransitionStyle = .crossDissolve
+//        view.modalPresentationStyle = .fullScreen
+//        self.present(view, animated: true)
+//    }
 }

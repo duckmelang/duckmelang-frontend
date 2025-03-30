@@ -17,8 +17,7 @@ class OtherPostDetailViewController: UIViewController {
     private var accompanyData: [PostDetailAccompanyModel] = [] // 동행 정보 데이터
 
     private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
-    private let providerHome = MoyaProvider<HomeAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
-    private let providerOther = MoyaProvider<OtherPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkServiceHome = HomeService()
     
     private lazy var isBookmarked: Bool = false
     
@@ -109,14 +108,7 @@ class OtherPostDetailViewController: UIViewController {
     // ✅ 북마크 버튼 클릭 시 API 요청
     @objc private func scrapBtnDidTap() {
         guard let postId = postId else { return }
-        
-        addBookmark(postId: postId) { success in
-            if success {
-                DispatchQueue.main.async {
-                    self.otherPostDetailView.tabBar.scrapBtn.setImage(UIImage(systemName: "bookmark.fill"), for: .normal)
-                }
-            }
-        }
+        addBookmark(postId: postId)
     }
     
     // ✅ 채팅 버튼 클릭 시 화면전환
@@ -137,26 +129,22 @@ class OtherPostDetailViewController: UIViewController {
         navigationController?.pushViewController(newMessageVC, animated: true)
     }
     
-    func addBookmark(postId: Int, completion: @escaping (Bool) -> Void) {
-        providerHome.request(.postBookmark(postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try JSONDecoder().decode(BookmarkResponse.self, from: response.data)
-                    if decodedResponse.isSuccess {
-                        print("✅ 북마크 추가 성공 - 북마크 ID: \(decodedResponse.result?.bookmarkId ?? 0)")
-                        completion(true)
-                    } else {
-                        print("❌ 북마크 추가 실패: \(decodedResponse.message)")
-                        completion(false)
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                    completion(false)
+    private func addBookmark(postId: Int) {
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let _ = try await networkServiceHome.postBookmark(postId: postId)
+                
+                DispatchQueue.main.async {
+                    self.otherPostDetailView.tabBar.scrapBtn.setImage(UIImage(systemName: "bookmark.fill"), for: .normal)
                 }
-            case .failure(let error):
-                print("❌ 북마크 API 요청 실패: \(error.localizedDescription)")
-                completion(false)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

@@ -50,3 +50,9 @@ public struct RequestResponse: Codable {
     let isFirst: Bool
     let isLast: Bool
 }
+
+// 수락, 거절 성공 시 받아오는 구조체
+public struct AcceptRequestResponse: Codable {
+    let mateRelationshipId: Int
+    let createdAt: String
+}

@@ -6,9 +6,10 @@
 //
 
 import UIKit
-import Moya
 
-class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
+class LoginViewController: UIViewController {
+    let networkService = LoginService()
+    
     func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(
@@ -25,11 +26,6 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
             }
         }
     }
-    
-    
-    lazy var provider: MoyaProvider<LoginAPI> = {
-            return MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
-        }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,55 +91,31 @@ class LoginViewController: UIViewController, MoyaErrorHandlerDelegate {
             showAlert(title: "확인필요", message: "이메일과 비밀번호를 입력하세요.")
             return
         }
-
-        print("📡 로그인 시도: \(email), \(password)")
-
-        provider.request(.postLogin(email: email, password: password)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decoder = JSONDecoder()
-                    
-                    // ✅ JSON 디코딩 (오류가 발생하면 catch 블록으로 이동)
-                    let loginResponse = try decoder.decode(LoginResponse.self, from: response.data)
-
-                    // ✅ JSON 디코딩 성공한 경우만 로그 출력
-                    print("📩 서버 응답 JSON (Decoded): \(loginResponse)")
-
-                    if loginResponse.isSuccess {
-                        print("✅ 로그인 성공: \(loginResponse.message)")
-                        // 🔥 ✅ 토큰 저장
-                        let loginResult = loginResponse.result
-                        KeychainManager.shared.save(key: "accessToken", value: loginResult.accessToken)
-                        KeychainManager.shared.save(key: "refreshToken", value: loginResult.refreshToken)
-                        KeychainManager.shared.save(key: "memberId", value: String(loginResult.memberId))
-
-                        print("🔑 Access Token 저장 완료: \(loginResult.accessToken.prefix(10))...")
-                        print("🔑 Refresh Token 저장 완료: \(loginResult.refreshToken.prefix(10))...")
-
-                        DispatchQueue.main.async {
-                            self.navigateToHomeView()
-                        }
-                    } else {
-                        print("⚠️ 로그인 실패: \(loginResponse.message)")
-                        DispatchQueue.main.async {
-                            self.showAlert(title: "로그인 실패", message: loginResponse.message)
-                        }
-                    }
-
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                    DispatchQueue.main.async {
-                        self.showAlert(title: "오류", message: "서버 응답을 처리하는 중 오류가 발생했습니다.")
-                    }
-                    return
-                }
-
-            case .failure(let error):
-                print("❌ 로그인 요청 실패: \(error.localizedDescription)")
+        
+        postLoginAPI(email: email, password: password)
+    }
+    
+    private func postLoginAPI(email: String, password: String) {
+        Task {
+            do {
+                startLoading()
+                
+                let newLoginRequest = LoginRequest(email: email, password: password)
+                let result = try await networkService.postLogin(login: newLoginRequest)
+                
+                KeychainManager.shared.save(key: "accessToken", value: result.accessToken)
+                KeychainManager.shared.save(key: "refreshToken", value: result.refreshToken)
+                KeychainManager.shared.save(key: "memberId", value: String(result.memberId))
+                
                 DispatchQueue.main.async {
-                    self.showAlert(title: "오류", message: "네트워크 오류가 발생했습니다. 다시 시도해 주세요.")
+                    self.navigateToHomeView()
                 }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

@@ -1,15 +1,14 @@
 //
-//  OtherProfileModifyViewController.swift
+//  OtherProfileViewController.swift
 //  Duckmelang
 //
 //  Created by KoNangYeon on 1/14/25.
 //
 
 import UIKit
-import Moya
 
 class OtherProfileViewController: UIViewController {
-    private let provider = MoyaProvider<OtherPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = OtherPageService()
     
     private var currentViewController: UIViewController?
     
@@ -122,25 +121,25 @@ class OtherProfileViewController: UIViewController {
     }
     
     private func getProfileInfo() {
-        provider.request(.getOtherProfile(memberId: self.oppositeId!)) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<OtherProfileData>.self)
-                guard let profile = response?.result else { return }
-                self.profileData = profile
-                print("다른 사람 정보 : \(profile)")
+        Task {
+            do {
+                startLoading()
+                guard let oppositeId = self.oppositeId else { return }
+                
+                let result = try await networkService.getOtherProfile(memberId: oppositeId)
+                self.profileData = result
                 
                 // OtherPageTopView에 데이터 반영
                 DispatchQueue.main.async {
-                    self.updateUI(profile)
+                    self.otherProfileView.otherProfileTopView.profileData = result
                 }
-            case .failure(let error):
-                print("프로필 불러오기 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
-    }
-    
-    private func updateUI(_ profileData: OtherProfileData) {
-        self.otherProfileView.otherProfileTopView.profileData = profileData
     }
 }

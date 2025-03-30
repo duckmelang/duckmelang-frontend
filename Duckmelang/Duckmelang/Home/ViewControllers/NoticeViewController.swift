@@ -6,10 +6,10 @@
 //
 
 import UIKit
-import Moya
 
 class NoticeViewController: UIViewController {
-    private let provider = MoyaProvider<NotificationAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = HomeService()
+    
     private var notices: [NotificationModel] = []
 
     override func viewDidLoad() {
@@ -53,36 +53,43 @@ class NoticeViewController: UIViewController {
     }
     
     private func getNotificationsAPI() {
-        provider.request(.getNotifications) { result in
-            switch result {
-            case .success(let response):
-                let response = try? response.map(ApiResponse<NotificationResponse>.self)
-                guard let result = response?.result?.notificationList else { return }
-                self.notices = result
-                self.notices = self.notices.reversed()
-                print("알림 목록: \(self.notices)")
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.getNotifications()
+                self.notices = result.notificationList.reversed()
                 
                 DispatchQueue.main.async {
                     self.noticeView.noticeTableView.reloadData()
                 }
-            case .failure(let error):
-                print(error)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
     
-    private func patchReadAPI(_ notificationId: Int) {
-        provider.request(.patchNotifications(notificationId: notificationId)) { result in
-            switch result {
-            case .success(let response):
-                print("알림 읽음: \(response)")
+    private func patchReadAPI(notificationId: Int) {
+        Task {
+            do {
+                startLoading()
+                
+                let _ = try await networkService.patchNotifications(notificationId: notificationId)
                 
                 DispatchQueue.main.async {
                     self.getNotificationsAPI()
                     self.noticeView.noticeTableView.reloadData()
                 }
-            case .failure(let error):
-                print(error)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
@@ -109,6 +116,6 @@ extension NoticeViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let notificationId = notices[indexPath.row].id
-        patchReadAPI(notificationId)
+        patchReadAPI(notificationId: notificationId)
     }
 }

@@ -6,9 +6,10 @@
 //
 
 import UIKit
-import Moya
 
-class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErrorHandlerDelegate {
+class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
+    let networkService = LoginService()
+    
     func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -18,12 +19,6 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
             self.present(alert, animated: true)
         }
     }
-    
-    
-    // MARK: - Properties
-    lazy var provider: MoyaProvider<LoginAPI> = {
-            return MoyaProvider<LoginAPI>(plugins: [MoyaLoggerPlugin(delegate: self)])
-        }()
 
     private var countdownTimer: Timer?
     private var remainingSeconds = 180
@@ -74,48 +69,29 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
     // MARK: - 인증번호 요청
     @objc private func didTapSendBtn() {
         guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11 else { return }
-        print("📡 인증 요청 버튼 눌림: \(phoneNumber)")
-
         resetCountdown()
-
-        // 5초 후 타임아웃 팝업을 띄우기 위한 DispatchWorkItem 설정
-        let timeoutWorkItem = DispatchWorkItem {
-            DispatchQueue.main.async {
-                self.showAlert(title: "요청시간 초과", message: "요청 시간이 초과되었습니다. 다시 시도해주세요.")
-            }
-        }
-
-        // 5초 후 실행 (만약 응답이 오면 취소됨)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: timeoutWorkItem)
-
-        // 🔥 인증번호 요청 API 호출
-        provider.request(.postSendVerificationCode(phoneNum: phoneNumber)) { result in
-            timeoutWorkItem.cancel()
-
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(VerifyCodeResponse.self)
-                    
-                    if decodedResponse.isSuccess {
-                        if let resultMessage = decodedResponse.result {
-                            self.showPopup(message: resultMessage)
-                            
-                            // ✅ 인증 성공 시 verifyCodeContainer 활성화
-                            DispatchQueue.main.async {
-                                self.phoneSigninView.verifyCodeContainer.isHidden = false
-                                self.startCountdown()
-                            }
-                        }
-                    } else {
-                        self.showAlert(title: "실패", message: decodedResponse.message)
-                    }
-                } catch {
-                    self.showAlert(title: "오류", message: "응답을 해석하는 데 실패했습니다.")
+        postSendCodeAPI(phoneNumber: phoneNumber)
+    }
+    
+    private func postSendCodeAPI(phoneNumber: String) {
+        Task {
+            do {
+                startLoading()
+                
+                let newCodeRequest = VerificationCodeRequest(phoneNum: phoneNumber)
+                let result = try await networkService.postSendVerificationCode(phoneNum: newCodeRequest)
+                
+                self.startCountdown()
+                DispatchQueue.main.async {
+                    self.showPopup(message: "인증 번호를 전송하였습니다.")
+                    self.phoneSigninView.verifyCodeContainer.isHidden = false
                 }
-
-            case .failure(let error):
-                self.showAlert(title: "실패", message: error.localizedDescription)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
@@ -141,32 +117,31 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate, MoyaErro
             return
         }
 
-        provider.request(.postVerifyCode(phoneNumber: phoneNumber, code: code)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(VerifyCodeResponse.self)
-                    
-                    if decodedResponse.isSuccess {
-                        if let resultMessage = decodedResponse.result {
-                            DispatchQueue.main.async {
-                                let alert = UIAlertController(title: "알림", message: resultMessage, preferredStyle: .alert)
-                                let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
-                                    self.navigateToIDPWView()
-                                }
-                                alert.addAction(confirmAction)
-                                self.present(alert, animated: true)
-                            }
-                        }
-                    } else {
-                        self.showAlert(title: "오류", message: decodedResponse.message)
+        postVerifyCodeAPI(phoneNumber: phoneNumber, code: code)
+    }
+    
+    private func postVerifyCodeAPI(phoneNumber: String, code: String) {
+        Task {
+            do {
+                startLoading()
+                
+                let newVerifyCode = VerifyCode(phoneNum: phoneNumber, certificationCode: code)
+                let result = try await networkService.postVerifyCode(verifyCode: newVerifyCode)
+                
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(title: "알림", message: "인증이 완료되었어요!", preferredStyle: .alert)
+                    let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+                        self.navigateToIDPWView()
                     }
-                } catch {
-                    self.showAlert(title: "오류", message: "응답을 해석하는 데 실패했습니다.")
+                    alert.addAction(confirmAction)
+                    self.present(alert, animated: true)
                 }
-
-            case .failure(let error):
-                self.showAlert(title: "오류", message: error.localizedDescription)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

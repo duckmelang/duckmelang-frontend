@@ -14,6 +14,12 @@ struct NotificationModel: Codable {
     let createdAt: String
 }
 
-struct NotificationResponse: Codable {
+public struct NotificationResponse: Codable {
     let notificationList: [NotificationModel]
+}
+
+public struct ReadResponse: Codable {
+    let id: Int
+    let content: String
+    let isRead: Bool
 }
