@@ -13,6 +13,9 @@ final class TokenPlugin: PluginType {
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
         
+        if target.path.contains("/login") || target.path.contains("/refresh") {
+            return request
+        }
         
         // ✅ Access Token 가져오기
         if let accessToken = KeychainManager.shared.load(key: "accessToken") {
@@ -49,38 +52,24 @@ final class TokenPlugin: PluginType {
             return
         }
 
-        let provider = MoyaProvider<LoginAPI>() // 🔥 별도 요청용 Provider
+        let networkService = LoginService()
 
-        let refreshRequest = RefreshTokenRequest(refreshToken: refreshToken) // ✅ 요청 모델 생성
-
-        provider.request(.postRefreshToken(refreshToken: refreshRequest)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    // ✅ 서버 응답을 `RefreshTokenResponse` 모델로 디코딩
-                    let refreshResponse = try JSONDecoder().decode(RefreshTokenResponse.self, from: response.data)
-                    
-                    // 🔥 서버가 성공적으로 새로운 토큰을 반환했는지 확인
-                    if refreshResponse.isSuccess {
-                        let newAccessToken = refreshResponse.result.accessToken
-                        let newRefreshToken = refreshResponse.result.refreshToken
-                        
-                        // ✅ 새로운 토큰 저장
-                        KeychainManager.shared.save(key: "accessToken", value: newAccessToken)
-                        KeychainManager.shared.save(key: "refreshToken", value: newRefreshToken)
-                        
-                        print("🔄 새로운 Access Token & Refresh Token 저장 완료")
-                        completion(true)
-                    } else {
-                        print("❌ Refresh Token 갱신 실패: \(refreshResponse.message)")
-                        completion(false)
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                    completion(false)
-                }
-            case .failure:
-                print("❌ Refresh Token 요청 실패")
+        let refreshRequest = RefreshTokenRequest(refreshToken: refreshToken)
+        
+        _Concurrency.Task {
+            do {
+                let result = try await networkService.postRefreshToken(refreshToken: refreshRequest)
+                
+                let newAccessToken = result.accessToken
+                let newRefreshToken = result.refreshToken
+                
+                KeychainManager.shared.save(key: "accessToken", value: newAccessToken)
+                KeychainManager.shared.save(key: "refreshToken", value: newRefreshToken)
+                
+                completion(true)
+            }
+            catch {
+                print(error.localizedDescription)
                 completion(false)
             }
         }

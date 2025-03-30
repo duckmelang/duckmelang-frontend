@@ -7,27 +7,19 @@
 
 import UIKit
 import WebKit
-import SnapKit
-import Then
-import Moya
 
-class OAuthWebViewController: UIViewController, WKNavigationDelegate, MoyaErrorHandlerDelegate {
-    func showAlert(title: String, message: String) {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(
-                title: "오류 발생",
-                message: message,
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "확인", style: .default))
-            self.present(alert, animated: true)
-        }
+class OAuthWebViewController: UIViewController, WKNavigationDelegate {
+    let networkService = LoginService()
+    
+    var authURL: URL?
+    var oauthCompletion: ((Int, Bool) -> Void)?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupWebView()
+        setInitialTitle()
+        loadAuthURL()
     }
-    
-    
-    lazy var provider: MoyaProvider<LoginAPI> = {
-        return MoyaProvider<LoginAPI>(plugins: [TokenPlugin(),MoyaLoggerPlugin()])
-    }()
     
     private lazy var navBar: UINavigationBar = {
         let bar = UINavigationBar()
@@ -43,16 +35,6 @@ class OAuthWebViewController: UIViewController, WKNavigationDelegate, MoyaErrorH
     // `WKWebView`를 Then을 사용하여 선언
     private let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration()).then {
         $0.navigationDelegate = nil  // 초기에는 nil, 이후 `self` 설정
-    }
-    
-    var authURL: URL?
-    var oauthCompletion: ((Int, Bool) -> Void)?
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupWebView()
-        setInitialTitle()
-        loadAuthURL()
     }
     
     private func setInitialTitle() {
@@ -110,52 +92,36 @@ class OAuthWebViewController: UIViewController, WKNavigationDelegate, MoyaErrorH
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         if let currentURL = webView.url?.absoluteString {
             navBar.topItem?.title = getLoginService(from: currentURL) // ✅ Safari처럼 현재 URL 표시
-        }
-        webView.evaluateJavaScript("document.body.innerText") { [weak self] (result, error) in
-            guard let jsonString = result as? String, error == nil else {
-                print("❌ JSON 데이터 감지 실패")
-                return
-            }
-            print("🔗 감지된 JSON 응답: \(jsonString)")
             
-            // OAuth 인증 완료 후 모달 닫기 + 정보 처리
-            self?.processOAuthResponse(jsonString)
+            if currentURL.contains("code=") {
+                Task {
+                    await handleKakaoLoginResult()
+                }
+            }
         }
     }
     
-    // JSON 응답에서 memberId 추출 후 처리
-    private func processOAuthResponse(_ jsonString: String) {
-        guard let jsonData = jsonString.data(using: .utf8) else {
-            print("❌ JSON 문자열을 데이터로 변환할 수 없음")
-            return
-        }
-
+    private func handleKakaoLoginResult() async {
         do {
-            let response = try JSONDecoder().decode(SocialLoginResponse.self, from: jsonData)
+            startLoading()
             
-            if response.isSuccess {
-                let memberId = response.result.memberId
-                let profileComplete = response.result.profileComplete
-                let accessToken = response.result.accessToken
-                let refreshToken = response.result.refreshToken
-                
-                // ✅ 🔥 Access Token & Refresh Token 저장
-                KeychainManager.shared.save(key: "accessToken", value: accessToken)
-                KeychainManager.shared.save(key: "refreshToken", value: refreshToken)
-                
-                print("🔑 Access Token 저장 완료: \(accessToken.prefix(10))...")
-                print("🔑 Refresh Token 저장 완료: \(refreshToken.prefix(10))...")
-                
-                // 전달된 데이터로 OnboardingViewController로 이동할 수 있게 콜백 호출
+            let result = try await networkService.kakaoLogin()
+            
+            let memberId = result.memberId
+            let profileComplete = result.profileComplete
+            
+            KeychainManager.shared.save(key: "accessToken", value: result.accessToken)
+            KeychainManager.shared.save(key: "refreshToken", value: result.refreshToken)
+
+            DispatchQueue.main.async {
                 self.oauthCompletion?(memberId, profileComplete)
-                
-                // 모달을 닫기
                 self.dismiss(animated: true, completion: nil)
-            } else {
-                print("❌ OAuth 로그인 실패: \(response.message)")
             }
+            
+            stopLoading()
         } catch {
-            print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+            stopLoading()
+            print("❌ 카카오 로그인 실패: \(error.localizedDescription)")
         }
     }
 }
