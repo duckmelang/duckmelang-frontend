@@ -10,7 +10,7 @@ import Moya
 
 class IdolAddViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
     
     private var searchResults: [IdolListDTO] = []  // 검색 결과
     private var selectedIdols: Set<Int> = []  // 선택된 아이돌의 ID
@@ -50,21 +50,21 @@ class IdolAddViewController: UIViewController {
     }
         
     private func searchIdols(keyword: String) {
-        provider.request(.getSearchIdol(keyword: keyword)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<idolListResponse>.self)
-                    self.searchResults = decodedResponse.result?.idolList ?? []
-                    DispatchQueue.main.async {
-                        self.idolAddView.idolAddCollectionView.reloadData()
-                        print("컬렉션뷰크기: \(self.idolAddView.idolAddCollectionView.frame)")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let reponse = try await networkService.getSearchIdol(keyword: keyword).idolList
+                
+                DispatchQueue.main.async {
+                    self.idolAddView.idolAddCollectionView.reloadData()
+                    print("컬렉션뷰크기: \(self.idolAddView.idolAddCollectionView.frame)")
                 }
-            case .failure(let error):
-                print("❌ 아이돌 검색 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
@@ -72,12 +72,16 @@ class IdolAddViewController: UIViewController {
     @objc private func finishBtnTapped() {
         // 선택된 아이돌 ID를 서버에 추가하는 API 호출
         for idolId in selectedIdols {
-            provider.request(.postIdol(idolId: idolId)) { result in
-                switch result {
-                case .success:
-                    print("✅ 아이돌 추가 성공: \(idolId)")
-                case .failure(let error):
-                    print("❌ 아이돌 추가 실패: \(error.localizedDescription)")
+            _Concurrency.Task {
+                do {
+                    startLoading()
+                    
+                    try await networkService.postIdol(idolId: idolId)
+                    
+                    stopLoading()
+                } catch {
+                    stopLoading()
+                    print(error.localizedDescription)
                 }
             }
         }

@@ -9,7 +9,7 @@ import UIKit
 import Moya
 
 class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
 
     private var profileImageData: [ProfileImageData] = []
     
@@ -61,7 +61,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
         self.navigationController?.popViewController(animated: true)
     }
     
-    private func getMyProfileImageAPI() {
+    /*private func getMyProfileImageAPI() {
         guard !isLoading && !isLastPage else { return } // 중복 호출 & 마지막 페이지 방지
         isLoading = true
         myProfileImageView.loadingIndicator.startLoading()
@@ -91,6 +91,42 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
                 print(error)
                 self.isLoading = false
                 self.myProfileImageView.loadingIndicator.stopLoading()
+            }
+        }
+    }*/
+    
+    private func getMyProfileImageAPI() {
+        guard !isLoading && !isLastPage else { return }
+        isLoading = true
+        myProfileImageView.loadingIndicator.startLoading()
+
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let response = try await networkService.getMyProfileImage(page: currentPage)
+
+                self.profileImageData.append(contentsOf: response.profileImageList)
+                self.isLastPage = response.isLast
+
+                DispatchQueue.main.async {
+                    self.myProfileImageView.loadingIndicator.stopLoading()
+                    self.myProfileImageView.imageTableView.reloadData()
+                    if self.isLastPage {
+                        self.myProfileImageView.imageTableView.tableFooterView = nil
+                    }
+                    self.isLoading = false
+                }
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                
+                print(error.localizedDescription)
+                DispatchQueue.main.async {
+                    self.myProfileImageView.loadingIndicator.stopLoading()
+                    self.isLoading = false
+                }
             }
         }
     }

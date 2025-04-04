@@ -16,7 +16,7 @@ class FeedManagementViewController: UIViewController {
     
     private var pendingDeletes: [(postId: Int, indexPath: IndexPath)] = [] // 삭제 대기 중인 게시물 저장
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(),NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
 
     private var posts: [PostDTO] = []
 
@@ -93,49 +93,36 @@ class FeedManagementViewController: UIViewController {
 
         /// ✅ 서버에서 게시물 삭제 요청
         private func deletePost(postId: Int, completion: (() -> Void)? = nil) {
-            provider.request(.deletePost(postId: postId)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let decodedResponse = try response.map(ApiResponse<String>.self)
-                        if decodedResponse.isSuccess {
-                            print("✅ 게시물 삭제 성공: \(decodedResponse.message)")
-                        } else {
-                            print("❌ 삭제 실패: \(decodedResponse.message)")
-                        }
-                    } catch {
-                        print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                    }
-                case .failure(let error):
-                    print("❌ 요청 실패: \(error.localizedDescription)")
+            _Concurrency.Task {
+                do {
+                    let response: () = try await networkService.deletePost(postId: postId)
+                    print("게시글 삭제 성공: \(response)")
+                } catch {
+                    print(error.localizedDescription)
                 }
-                completion?() // 요청이 끝난 후 처리
+                completion?()
             }
         }
 
         /// ✅ 최신 게시물 가져오기 (삭제된 게시물 제외)
         private func fetchMyPosts() {
-            provider.request(.getMyPosts(page: 0)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
-
-                        // ✅ 서버에서 최신 게시물 가져오기, 삭제된 postId 제외
-                        let allPosts = decodedResponse.result?.postList ?? []
-                        let deletedPostIds = self.pendingDeletes.map { $0.postId }
-                        let filteredPosts = allPosts.filter { !deletedPostIds.contains($0.postId) }
-
-                        DispatchQueue.main.async {
-                            self.posts = filteredPosts
-                            self.feedManagementView.postView.reloadData()
-                        }
-
-                    } catch {
-                        print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+            _Concurrency.Task {
+                do {
+                    startLoading()
+                    
+                    let response = try await networkService.getMyPosts(page: 0)
+                    let deletedPostIds = self.pendingDeletes.map { $0.postId }
+                    let filteredPosts = response.postList.filter { !deletedPostIds.contains($0.postId) }
+                    
+                    DispatchQueue.main.async {
+                        self.posts = filteredPosts
+                        self.feedManagementView.postView.reloadData()
                     }
-                case .failure(let error):
-                    print("❌ 게시글 불러오기 실패: \(error.localizedDescription)")
+                    
+                    stopLoading()
+                } catch {
+                    stopLoading()
+                    print(error.localizedDescription)
                 }
             }
         }
@@ -157,26 +144,6 @@ class FeedManagementViewController: UIViewController {
         feedManagementView.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         feedManagementView.finishBtn.addTarget(self, action: #selector(finishBtnDidTap), for: .touchUpInside)
         feedManagementView.deleteBtn.addTarget(self, action: #selector(deleteBtnDidTap), for: .touchUpInside)
-    }
-    
-    private func deletePost(postId: Int, indexPath: IndexPath) {
-        provider.request(.deletePost(postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<String>.self)
-                    if decodedResponse.isSuccess {
-                        print("✅ 게시물 삭제 성공: \(decodedResponse.message)")
-                    } else {
-                        print("❌ 삭제 실패: \(decodedResponse.message)")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                }
-            case .failure(let error):
-                print("❌ 요청 실패: \(error.localizedDescription)")
-            }
-        }
     }
 }
 

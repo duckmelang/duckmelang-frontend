@@ -101,7 +101,7 @@ import Moya
 
 class PushNotificationViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]) // ✅ Moya API Provider
+    let networkService = MyPageService()
 
     private let notificationTitles = [
         "채팅 알림",
@@ -151,27 +151,19 @@ class PushNotificationViewController: UIViewController {
         }
 
         // ✅ PATCH 요청 실행
-        provider.request(.patchNotificationsSetting(parameters)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<NotificationsSettingResponse>.self)
-                    if decodedResponse.isSuccess {
-                        print("✅ 알림 설정 변경 성공")
-
-                        // ✅ PATCH 요청 후 GET 요청을 다시 실행하여 최신 데이터 반영
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.fetchNotificationSettings()
-                        }
-
-                    } else {
-                        print("❌ 알림 설정 변경 실패: \(decodedResponse.message)")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                let response = try await networkService.patchNotificationsSetting(parameters)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.fetchNotificationSettings()
                 }
-            case .failure(let error):
-                print("❌ 요청 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

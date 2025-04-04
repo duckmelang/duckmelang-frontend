@@ -12,7 +12,7 @@ class ProfileViewController: UIViewController{
     var selectedTag: Int = 0
     var profileData: ProfileData? //MyPage에서 전달받을 변수
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
 
     private var posts: [PostDTO] = []
   
@@ -59,21 +59,21 @@ class ProfileViewController: UIViewController{
     }
     
     private func fetchProfileData() {
-        provider.request(.getProfile) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<ProfileData>.self)
-                    guard let profile = decodedResponse.result else { return }
-                    DispatchQueue.main.async {
-                        self.profileData = profile
-                        self.updateUI()
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let profile = try await networkService.getProfile()
+                
+                DispatchQueue.main.async {
+                    self.profileData = profile
+                    self.updateUI()
                 }
-            case .failure(let error):
-                print("❌ 프로필 가져오기 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
@@ -93,55 +93,41 @@ class ProfileViewController: UIViewController{
     
     // 내 게시글 가져오기
     private func fetchMyPosts() {
-        provider.request(.getMyPosts(page: 0)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<PostResponse>.self)
-                    //디버깅용 데이터 출력 (서버 응답 확인)
-                    print("📌 [DEBUG] 서버 응답 데이터:")
-                    print(decodedResponse)
-                    // `postList`가 `nil`이면 빈 배열을 할당하여 오류 방지
-                    let postList = decodedResponse.result?.postList ?? []
-                    
-                    DispatchQueue.main.async {
-                        self.posts = postList
-                        self.profileView.profileBottomView.uploadPostView.reloadData() // 테이블뷰 갱신
-                    }
-                } catch {
-                    print("JSON 디코딩 오류: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let postResponse = try await networkService.getMyPosts(page: 0)
+                DispatchQueue.main.async {
+                    self.posts = postResponse.postList
+                    self.profileView.profileBottomView.uploadPostView.reloadData() // 테이블뷰 갱신
                 }
-            case .failure(let error):
-                print("게시글 불러오기 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
     
     private func fetchReviews() {
-        provider.request(.getReviews) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<ReviewResponse>.self)
-                    
-                    // ✅ 서버 응답 확인
-                    print("📌 [DEBUG] fetchReviews() - 서버 응답 데이터: \(decodedResponse)")
-
-                    // 리뷰 리스트가 `nil`이면 빈 배열을 할당하여 오류 방지
-                    let myReviewList = decodedResponse.result?.reviewList ?? []
-                    let averageRating = decodedResponse.result?.average ?? 0.0 // API에서 받은 평균 평점
-
-                    DispatchQueue.main.async {
-                        self.reviews = myReviewList
-                        self.profileView.profileBottomView.reviewTableView.reloadData() // ✅ 테이블뷰 갱신
-                        self.profileView.profileBottomView.cosmosView.rating = averageRating // ✅ 평점 업데이트
-                        print("✅ [DEBUG] 리뷰 \(myReviewList.count)개 로드됨!")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let reviewResponse = try await networkService.getReviews()
+                DispatchQueue.main.async {
+                    self.reviews = reviewResponse.reviewList
+                    self.profileView.profileBottomView.reviewTableView.reloadData()
+                    self.profileView.profileBottomView.cosmosView.rating = reviewResponse.average // ✅ 평점 업데이트
+                    print("리뷰 \(reviewResponse.reviewList.count)개 로드됨")
                 }
-            case .failure(let error):
-                print("❌ 동행후기 가져오기 요청 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

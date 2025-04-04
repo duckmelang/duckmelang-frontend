@@ -6,11 +6,10 @@
 //
 
 import UIKit
-import Moya
 
 class MyPageViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -119,31 +118,23 @@ class MyPageViewController: UIViewController {
         present(logoutPopupVC, animated: false)
     }
     
-    //내 프로필 가져오기
+    //마이페이지에서 내 프로필 가져오기
     private func getProfileInfo() {
-        provider.request(.getProfile) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<ProfileData>.self)
-                    guard let profile = decodedResponse.result else {
-                        print("❌ ProfileData가 없습니다.")
-                        return
-                    }
-                    
-                    print("✅ 서버에서 받은 ProfileData: \(profile)")
-                    
-                    // UI 업데이트는 반드시 메인 스레드에서 실행
-                    DispatchQueue.main.async {
-                        self.myPageView.myPageTopView.profileData = profile
-                        self.myPageView.myPageTopView.profileImage.contentMode = .scaleAspectFill
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.getProfile()
+                
+                DispatchQueue.main.async {
+                    self.myPageView.myPageTopView.profileData = result
+                    self.myPageView.myPageTopView.profileImage.contentMode = .scaleAspectFill
                 }
                 
-            case .failure(let error):
-                print("❌ 프로필 불러오기 실패: \(error.localizedDescription)")
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

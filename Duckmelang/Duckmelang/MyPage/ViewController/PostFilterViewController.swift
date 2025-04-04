@@ -10,7 +10,7 @@ import Moya
 
 class PostFilterViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
 
     // 필터 데이터
     private var selectedGender: String? = nil // "MALE" / "FEMALE"
@@ -45,7 +45,7 @@ class PostFilterViewController: UIViewController {
     }
     
     /// ✅ 필터 데이터를 서버에서 불러오기 (GET 요청)
-    private func fetchFilterSettings() {
+    /*private func fetchFilterSettings() {
         provider.request(.getFilters) { result in
             switch result {
             case .success(let response):
@@ -91,6 +91,41 @@ class PostFilterViewController: UIViewController {
                 }
             case .failure(let error):
                 print("❌ 필터 가져오기 실패: \(error.localizedDescription)")
+            }
+        }
+    }*/
+    
+    private func fetchFilterSettings() {
+        _Concurrency.Task {
+            do {
+                let response = try await networkService.getFilters()
+                
+                if let jsonObject = try JSONSerialization.jsonObject(with: response.data, options: []) as? [String: Any],
+                   let result = jsonObject["result"] as? [String: Any] {
+                    
+                    print("📌 JSON 원본: \(result)")
+                    
+                    // ✅ 성별 데이터 적용
+                    if let gender = result["gender"] as? String {
+                        self.selectedGender = gender
+                // 값 파싱 및 기본값 처리
+                self.selectedGender = response.gender ?? "BOTH"
+                self.minAge = response.minAge ?? 18
+                self.maxAge = response.maxAge ?? 50
+
+                print("✅ 필터 조회 완료 - Gender: \(self.selectedGender!), Age: \(self.minAge!)~\(self.maxAge!)")
+
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                    
+                    if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as? AgeSelectionCell {
+                        cell.minAge = self.minAge
+                        cell.maxAge = self.maxAge
+                        cell.updateUI()
+                    }
+                }
+            } catch {
+                print("❌ 필터 조회 실패: \(error.localizedDescription)")
             }
         }
     }
