@@ -176,6 +176,20 @@ class PushNotificationViewController: UIViewController {
     }
     
     private func fetchNotificationSettings() {
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                _ = try await networkService.getNotificationsSetting()
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+        /*
         provider.request(.getNotificationsSetting) { result in
             switch result {
             case .success(let response):
@@ -195,7 +209,7 @@ class PushNotificationViewController: UIViewController {
             case .failure(let error):
                 print("❌ 요청 실패: \(error.localizedDescription)")
             }
-        }
+        }*/
     }
 
 }

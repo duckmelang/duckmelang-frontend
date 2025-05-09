@@ -63,7 +63,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
             do {
                 startLoading()
                 
-                try await networkService.patchProfile(profileData: profileData)
+                let response = try await networkService.patchProfile(profileData: profileData)
                 
                 NotificationCenter.default.post(
                     name: NSNotification.Name("ProfileUpdated"),

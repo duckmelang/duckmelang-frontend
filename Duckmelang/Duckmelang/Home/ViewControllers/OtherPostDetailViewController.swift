@@ -16,7 +16,7 @@ class OtherPostDetailViewController: UIViewController {
     
     private var accompanyData: [PostDetailAccompanyModel] = [] // 동행 정보 데이터
 
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkServiceMyPage = MyPageService()
     let networkServiceHome = HomeService()
     
     private lazy var isBookmarked: Bool = false
@@ -65,30 +65,25 @@ class OtherPostDetailViewController: UIViewController {
     }
     
     private func fetchPostDetail(postId: Int) {
-        provider.request(.getMyPostDetail(postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<MyPostDetailResponse>.self)
-                    if decodedResponse.isSuccess {
-                        guard let postDetail = decodedResponse.result else { return }
-                        self.postDetail = postDetail
-                        DispatchQueue.main.async {
-                            self.otherPostDetailView.updateUI(with: postDetail)
-                            self.updateAccompanyData(with: postDetail)
-                            self.updateBookmarkState(isBookmarked: postDetail.bookmarkCount > 0) // ✅ 북마크 상태 업데이트
-                            self.updateScore(averageScore: postDetail.averageScore) // ✅ 점수 업데이트
-                        }
-                        // ✅ 성공 시 데이터 출력
-                        print("Post Detail: \(String(describing: decodedResponse.result))")
-                    } else {
-                        print("❌ 서버 에러: \(decodedResponse.message)")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 실패: \(error.localizedDescription)")
+        _Concurrency .Task {
+            do {
+                startLoading()
+                
+                let response = try await networkServiceMyPage.getMyPostDetail(postId: postId)
+                self.postDetail = response
+                DispatchQueue.main.async {
+                    self.otherPostDetailView.updateUI(with: self.postDetail!)
+                    self.updateAccompanyData(with: self.postDetail!)
+                    self.updateBookmarkState(isBookmarked: self.postDetail!.bookmarkCount > 0) //북마크 상태 업데이트
+                    self.updateScore(averageScore: self.postDetail!.averageScore) //점수 업데이트
                 }
-            case .failure(let error):
-                print("❌ 요청 실패: \(error.localizedDescription)")
+                //성공 시 데이터 출력
+                print("Post Detail: \(response)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

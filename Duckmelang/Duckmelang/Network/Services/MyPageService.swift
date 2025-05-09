@@ -87,12 +87,12 @@ public final class MyPageService : NetworkManager {
         try await requestAsync(target: .deleteLandmines(landmineId: landmineId))
     }
 
-    public func getFilters() async throws {
-        try await requestAsync(target: .getFilters)
+    public func getFilters() async throws -> FilterRequest {
+        return try await requestAsync(target: .getFilters, decodingType: FilterRequest.self)
     }
 
-    public func postFilters(FilterRequest: FilterRequest) async throws {
-        try await requestAsync(target: .postFilters(FilterRequest: FilterRequest))
+    public func postFilters(FilterRequest: FilterRequest) async throws -> FilterResponse {
+        try await requestAsync(target: .postFilters(FilterRequest: FilterRequest), decodingType: FilterResponse.self)
     }
 
     public func patchPostStatus(postId: Int, wanted: Int) async throws -> UpdatePostStatusResponse {

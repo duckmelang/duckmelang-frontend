@@ -98,23 +98,15 @@ class PostFilterViewController: UIViewController {
     private func fetchFilterSettings() {
         _Concurrency.Task {
             do {
+                startLoading()
+                
                 let response = try await networkService.getFilters()
                 
-                if let jsonObject = try JSONSerialization.jsonObject(with: response.data, options: []) as? [String: Any],
-                   let result = jsonObject["result"] as? [String: Any] {
-                    
-                    print("📌 JSON 원본: \(result)")
-                    
-                    // ✅ 성별 데이터 적용
-                    if let gender = result["gender"] as? String {
-                        self.selectedGender = gender
                 // 값 파싱 및 기본값 처리
                 self.selectedGender = response.gender ?? "BOTH"
                 self.minAge = response.minAge ?? 18
                 self.maxAge = response.maxAge ?? 50
-
-                print("✅ 필터 조회 완료 - Gender: \(self.selectedGender!), Age: \(self.minAge!)~\(self.maxAge!)")
-
+                
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                     
@@ -124,40 +116,45 @@ class PostFilterViewController: UIViewController {
                         cell.updateUI()
                     }
                 }
-            } catch {
-                print("❌ 필터 조회 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
-
-
     
     /// ✅ 필터 데이터를 서버로 저장하기 (POST 요청)
     @objc private func saveFilterSettings() {
-        let value: String? = (selectedGender == "BOTH") ? nil : selectedGender
-        let filterRequest = FilterRequest(
-            gender: value,
-            minAge: minAge,
-            maxAge: maxAge
-        )
-        
-        provider.request(.postFilters(FilterRequest: filterRequest)) { result in
-            switch result {
-            case .success:
-                print("✅ 필터 설정 저장 성공")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let value: String? = (selectedGender == "BOTH") ? nil : selectedGender
+                let filterRequest = FilterRequest(
+                    gender: value,
+                    minAge: minAge,
+                    maxAge: maxAge
+                )
+                
+                _ = try await networkService.postFilters(FilterRequest: filterRequest)
+                
                 self.dismiss(animated: true)
-            case .failure(let error):
-                print("❌ 필터 설정 저장 실패: \(error.localizedDescription)")
+            }
+            catch {
+                print(error.localizedDescription)
             }
         }
     }
-
+    
     @objc private func handleSectionTap(_ sender: UITapGestureRecognizer) {
         guard let section = sender.view?.tag else { return }
         
         let previousExpandedSection = expandedSection
         expandedSection = (previousExpandedSection == section) ? nil : section
-
+        
         tableView.performBatchUpdates({
             if let previousSection = previousExpandedSection {
                 tableView.reloadSections(IndexSet(integer: previousSection), with: .automatic)
@@ -170,7 +167,7 @@ class PostFilterViewController: UIViewController {
         let section = sender.tag
         let previousExpandedSection = expandedSection
         expandedSection = (previousExpandedSection == section) ? nil : section
-
+        
         tableView.performBatchUpdates({
             if let previousSection = previousExpandedSection {
                 tableView.reloadSections(IndexSet(integer: previousSection), with: .automatic)
@@ -228,14 +225,14 @@ extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
             return ageCell
         }
     }
-
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = UIView().then {
             $0.backgroundColor = .white
             $0.tag = section
             $0.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSectionTap(_:))))
         }
-
+        
         let label = Label(text: section == 0 ? "성별" : "나이", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
         
         let toggleButton = UIButton().then {
@@ -250,25 +247,25 @@ extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
             $0.backgroundColor = .grey200
             $0.tag = 100  // 태그 지정하여 구분선 숨김 처리 가능하게
         }
-
+        
         [label, toggleButton, separator].forEach({ headerView.addSubview($0) })
         
         label.snp.makeConstraints {
             $0.leading.equalToSuperview()
             $0.centerY.equalToSuperview()
         }
-
+        
         toggleButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().offset(-16)
             $0.centerY.equalToSuperview()
         }
-
+        
         separator.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalToSuperview()
             $0.height.equalTo(1)
         }
-
+        
         // ✅ 구분선 숨김 애니메이션 적용
         UIView.animate(withDuration: 0.3) {
             separator.isHidden = (self.expandedSection == section)
@@ -276,7 +273,7 @@ extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
         
         return headerView
     }
-
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // ✅ 셀이 표시될 때 구분선 추가
         let separatorTag = 200
@@ -302,6 +299,9 @@ extension PostFilterViewController: UITableViewDelegate, UITableViewDataSource {
                     $0.height.equalTo(1)
                 }
             }
+            
+            
         }
     }
 }
+
