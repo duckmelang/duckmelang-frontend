@@ -12,7 +12,8 @@ class IdolChangeViewController: UIViewController {
     
     let data = IdolChangeModel.dummy()
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
+    
     private var idolList: [IdolListDTO] = []  // 서버에서 가져온 관심 아이돌 목록
     private var deleteQueue: Set<Int> = []
 
@@ -66,23 +67,23 @@ class IdolChangeViewController: UIViewController {
         let index = sender.tag
         let idolId = idolList[index].idolId
         
-        guard index < idolList.count else { return }  // ✅ 안전한 인덱스 확인
+        guard index < idolList.count else { return }  // 안전한 인덱스 확인
 
-        // ✅ 삭제 대기 목록에 추가
+        // 삭제 대기 목록에 추가
         if !deleteQueue.contains(idolId) {
             deleteQueue.insert(idolId)
 
-            // ✅ 컬렉션 뷰 업데이트를 위해 삭제 전 인덱스 저장
+            // 컬렉션 뷰 업데이트를 위해 삭제 전 인덱스 저장
             let indexPath = IndexPath(item: index, section: 0)
             
-            // ✅ 데이터 먼저 삭제
+            // 데이터 먼저 삭제
             idolList.remove(at: index)
             
-            // ✅ 부드러운 삭제 애니메이션 적용
+            // 부드러운 삭제 애니메이션 적용
             idolChangeView.idolChangeCollectionView.performBatchUpdates {
                 idolChangeView.idolChangeCollectionView.deleteItems(at: [indexPath])
             } completion: { _ in
-                self.idolChangeView.idolChangeCollectionView.reloadItems(at: self.idolChangeView.idolChangeCollectionView.indexPathsForVisibleItems)  // ✅ 남은 셀들 정렬
+                self.idolChangeView.idolChangeCollectionView.reloadItems(at: self.idolChangeView.idolChangeCollectionView.indexPathsForVisibleItems)  // 남은 셀들 정렬
             }
         }
     }
@@ -93,14 +94,17 @@ class IdolChangeViewController: UIViewController {
         
         for idolId in deleteQueue {
             group.enter()
-            provider.request(.deleteIdol(idolId: idolId)) { result in
-                switch result {
-                case .success:
-                    print("✅ 아이돌 삭제 성공: \(idolId)")
-                case .failure(let error):
-                    print("❌ 아이돌 삭제 실패: \(error.localizedDescription)")
+            _Concurrency.Task {
+                do {
+                    startLoading()
+                    
+                    try await networkService.deleteIdol(idolId: idolId)
+                    
+                    stopLoading()
+                } catch {
+                    stopLoading()
+                    print(error.localizedDescription)
                 }
-                group.leave()
             }
         }
         
@@ -116,22 +120,20 @@ class IdolChangeViewController: UIViewController {
     }
     
     private func fetchIdolList() {
-        provider.request(.getIdolList) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<idolListResponse>.self)
-                    guard let list = decodedResponse.result?.idolList else { return }
-                    print("✅ 관심 아이돌 조회 성공: \(list)")
-                    self.idolList = list
-                    DispatchQueue.main.async {
-                        self.idolChangeView.idolChangeCollectionView.reloadData()
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let response = try await networkService.getIdolList().idolList
+                self.idolList = response
+                DispatchQueue.main.async {
+                    self.idolChangeView.idolChangeCollectionView.reloadData()
                 }
-            case .failure(let error):
-                print("❌ 관심 아이돌 목록 조회 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

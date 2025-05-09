@@ -14,7 +14,7 @@ enum ActionType {
 
 class XKeywordChangeViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
     
     private var filters: [LandmineModel] = []  // 서버에서 가져온 키워드 리스트
     private var pendingAddQueue: Set<String> = []  // 새로 추가할 키워드 큐
@@ -102,13 +102,17 @@ class XKeywordChangeViewController: UIViewController {
         // **Step 2: 삭제 요청**
         for landmineId in pendingDeleteQueue {
             dispatchGroup.enter()
-            provider.request(.deleteLandmines(landmineId: landmineId)) { result in
-                switch result {
-                case .success:
-                    print("✅ \(landmineId) 삭제 성공")
-                case .failure(let error):
-                    print("❌ \(landmineId) 삭제 실패: \(error.localizedDescription)")
+            
+            _Concurrency.Task {
+                do {
+                    startLoading()
+                    
+                    let _: () = try await networkService.deleteLandmines(landmineId: landmineId)
+                    print("\(landmineId) 삭제 성공")
+                } catch {
+                    print(error.localizedDescription)
                 }
+                
                 dispatchGroup.leave()
             }
         }
@@ -116,13 +120,19 @@ class XKeywordChangeViewController: UIViewController {
         // **Step 3: 추가 요청**
         for content in finalAddQueue {
             dispatchGroup.enter()
-            provider.request(.postLandmines(content: content)) { result in
-                switch result {
-                case .success:
-                    print("✅ \(content) 추가 성공")
-                case .failure(let error):
-                    print("❌ \(content) 추가 실패: \(error.localizedDescription)")
+            
+            _Concurrency.Task {
+                do {
+                    startLoading()
+                    
+                    let response: () = try await networkService.postLandmines(content: content)
+                    print("\(content) 추가 성공")
+                    
+                    stopLoading()
+                } catch {
+                    print(error.localizedDescription)
                 }
+                
                 dispatchGroup.leave()
             }
         }
@@ -142,20 +152,21 @@ class XKeywordChangeViewController: UIViewController {
     }
     
     private func fetchLandmines() {
-        provider.request(.getLandmines) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<LandmineResponse>.self)
-                    self.filters = decodedResponse.result?.landmineList ?? []
-                    DispatchQueue.main.async {
-                        self.xKeywordChangeView.xKeywordCollectionView.reloadData()
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let reponse = try await networkService.getLandmines()
+                self.filters = reponse.landmineList
+                
+                DispatchQueue.main.async {
+                    self.xKeywordChangeView.xKeywordCollectionView.reloadData()
                 }
-            case .failure(let error):
-                print("❌ 필터 목록 가져오기 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
