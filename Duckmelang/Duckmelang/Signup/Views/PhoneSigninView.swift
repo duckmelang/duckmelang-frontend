@@ -84,6 +84,8 @@ class PhoneSigninView: UIView {
         $0.setTitleColor(.grey100, for: .normal)
         $0.backgroundColor = UIColor.dmrBlue
         $0.layer.cornerRadius = 8
+        $0.isEnabled = false
+        $0.alpha = 0.5
     }
     
     private let phoneVerifyContainer = UIStackView().then {
@@ -126,6 +128,8 @@ class PhoneSigninView: UIView {
         $0.setTitleColor(.grey100, for: .normal)
         $0.backgroundColor = UIColor.dmrBlue
         $0.layer.cornerRadius = 8
+        $0.isEnabled = false
+        $0.alpha = 0.5
     }
     
     public let verifyCodeContainer = UIStackView().then {

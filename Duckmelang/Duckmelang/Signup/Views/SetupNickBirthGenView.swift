@@ -10,6 +10,18 @@ import Then
 import SnapKit
 
 class SetupNickBirthGenView: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.backgroundColor = .white
+        setupView()
+        nicknameTextField.delegate = self
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private let progressBar = ProgressBarView(currentStep: 0)
     
     private let titleLabel = UILabel().then {
         $0.text = "프로필을 작성해볼까요?"
@@ -19,7 +31,7 @@ class SetupNickBirthGenView: UIView {
     
     public let profileImageButton = UIButton().then {
         $0.setImage(UIImage(named: "profileAddPlaceholder"), for: .normal)
-        $0.backgroundColor = .grey300
+        $0.backgroundColor = .grey700
         $0.layer.cornerRadius = 45
         $0.clipsToBounds = true
     }
@@ -34,17 +46,21 @@ class SetupNickBirthGenView: UIView {
         $0.placeholder = "닉네임 입력"
         $0.borderStyle = .none
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
-        $0.textColor = .grey800
+        $0.textColor = .grey900
         $0.keyboardType = .default
         $0.returnKeyType = .done
     }
     
-    public let nickCheckButton = UIButton().then {
-        $0.configureGenderButton(title: "확인", selectedBool: false)
+    public let checkIcon = UIImageView().then {
+        $0.image = UIImage(systemName: "checkmark")
+        $0.tintColor = .green
+        $0.isHidden = true
     }
     
+    public let nickCheckButton = BlueChipButton(title: "확인", tag: 0)
+    
     private let nicknameUnderline = UIView().then {
-        $0.backgroundColor = .grey300
+        $0.backgroundColor = .grey400
     }
     
     private let birthdateLabel = UILabel().then {
@@ -61,7 +77,7 @@ class SetupNickBirthGenView: UIView {
     }
     
     private let birthdateUnderline = UIView().then {
-        $0.backgroundColor = .grey300
+        $0.backgroundColor = .grey400
     }
     
     public let datePicker = UIDatePicker().then {
@@ -76,14 +92,11 @@ class SetupNickBirthGenView: UIView {
         $0.textColor = .grey700
     }
     
-    public let maleButton = UIButton().then {
-        $0.configureGenderButton(title: "남성", selectedBool: false)
-    }
+    public let maleButton = BlueChipButton(title: "남성", tag: 1)
 
-    public let femaleButton = UIButton().then {
-        $0.configureGenderButton(title: "여성", selectedBool: true)
-    }
+    public let femaleButton = BlueChipButton(title: "여성", tag: 2)
     
+    public let nextButton = longCustomBtn(title: "다음", isEnabled: false)
     
     // MARK: - Containers
     private lazy var nicknameContainer = UIView().then {
@@ -91,6 +104,7 @@ class SetupNickBirthGenView: UIView {
         $0.addSubview(nicknameTextField)
         $0.addSubview(nicknameUnderline)
         $0.addSubview(nickCheckButton)
+        $0.addSubview(checkIcon)
     }
         
     private lazy var birthdateContainer = UIView().then {
@@ -114,28 +128,26 @@ class SetupNickBirthGenView: UIView {
         $0.addArrangedSubview(genderContainer)
     }
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupView()
-        nicknameTextField.delegate = self
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     private func setupView() {
         [
+            progressBar,
             titleLabel,
             profileImageButton,
-            mainStackView
+            mainStackView,
+            nextButton,
         ].forEach {
             addSubview($0)
         }
         
+        progressBar.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide).inset(8)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(4)
+        }
+        
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
-            $0.left.equalToSuperview()
+            $0.top.equalTo(progressBar.snp.bottom).offset(24)
+            $0.leading.equalTo(progressBar.snp.leading)
         }
                 
         profileImageButton.snp.makeConstraints {
@@ -155,6 +167,12 @@ class SetupNickBirthGenView: UIView {
         
         nicknameLabel.snp.makeConstraints {
             $0.top.leading.equalToSuperview()
+        }
+        
+        checkIcon.snp.makeConstraints{
+            $0.leading.equalTo(nicknameLabel.snp.trailing).offset(4)
+            $0.centerY.equalTo(nicknameLabel)
+            $0.width.height.equalTo(15)
         }
                 
         nicknameTextField.snp.makeConstraints {
@@ -215,22 +233,11 @@ class SetupNickBirthGenView: UIView {
             $0.centerY.equalTo(maleButton)
             $0.trailing.equalToSuperview()
         }
-    }
-}
-
-extension UIButton {
-    func configureGenderButton(title: String, selectedBool: Bool) {
-        self.isSelected = selectedBool
-        self.titleLabel?.font = .ptdSemiBoldFont(ofSize: 14)
-        self.setTitle(title, for: .normal)
-        self.setTitleColor(selectedBool ? .white : .grey400, for: .normal)
-        self.backgroundColor = selectedBool ? .dmrBlue : .white
-        self.layer.borderWidth = 1
-        self.layer.borderColor = selectedBool ? UIColor.dmrBlue!.cgColor : UIColor.grey400!.cgColor
-        self.layer.cornerRadius = 15
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        self.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+        nextButton.snp.makeConstraints {
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(12)
+            $0.leading.trailing.equalToSuperview().inset(16)
+        }
     }
 }
 

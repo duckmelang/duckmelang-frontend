@@ -1,113 +1,143 @@
-////
-////  FilterKeywordsViewController.swift
-////  Duckmelang
-////
-////  Created by 김연우 on 2/17/25.
-////
 //
+//  FilterKeywordsViewController.swift
+//  Duckmelang
 //
-//import UIKit
+//  Created by 주민영 on 5/21/25.
 //
-//class FilterKeywordsViewController: UIViewController, NextStepHandler, NextButtonUpdatable, MoyaErrorHandlerDelegate {
-//    let networkService = SignupService()
-//    
-//    private let memberId: Int
-//    
-//    init(memberId: Int) {
-//        self.memberId = memberId
-//        super.init(nibName: nil, bundle: nil)
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-//    
-//    func handleNextStep(completion: @escaping () -> Void) {
-//        postKeywords(completion: completion)
-//    }
-//    
-//    weak var nextButtonDelegate: NextButtonUpdatable?
-//    
-//    func updateNextButtonState(isEnabled: Bool) {
-//        nextButtonDelegate?.updateNextButtonState(isEnabled: isEnabled)
-//    }
-//    
-//    func showAlert(title: String, message: String) {
-//        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-//        alert.addAction(UIAlertAction(title: "확인", style: .default))
-//        present(alert, animated: true)
-//    }
-//    
-//
-//    private let filterKeywordsView = FilterKeywordsView()
-//    
-//    private var keywords: [String] = [] {
-//        didSet {
-//            print("📌 현재 키워드 목록: \(keywords) (총 \(keywords.count)개)")
-//            self.nextButtonDelegate?.updateNextButtonState(isEnabled: !keywords.isEmpty)
-//        }
-//    }
-//    
-//    private func postKeywords(completion: @escaping () -> Void) {
-//        Task {
-//            do {
-//                startLoading()
-//                
-//                let request = SetLandmineKeywordRequest(landmineContents: keywords)
-//                let result = try await networkService.postLandMines(memberId: memberId, landmineString: request)
-//                
-//                stopLoading()
-//            }
-//            catch {
-//                stopLoading()
-//                print(error.localizedDescription)
-//            }
-//        }
-//    }
-//
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        setupUI()
-//        
-//        filterKeywordsView.onKeywordsUpdated = { [weak self] updatedKeywords in
-//            self?.keywords = updatedKeywords
-//        }
-//    }
-//    
-//    private func setupUI() {
-//        view.backgroundColor = .white
-//        view.addSubview(filterKeywordsView)
-//        
-//        filterKeywordsView.snp.makeConstraints {
-//            $0.edges.equalTo(view.safeAreaLayoutGuide)
-//        }
-//    }
-//}
-//
-//extension FilterKeywordsViewController: UITextFieldDelegate {
-//    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-//        guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return false }
-//        filterKeywordsView.addKeyword(text)
-//        textField.text = ""
-//        return true
-//    }
-//}
-//
-//extension FilterKeywordsViewController: UICollectionViewDataSource, UICollectionViewDelegate {
-//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        return keywords.count
-//    }
-//    
-//    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-//        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: KeywordCell.identifier, for: indexPath) as? KeywordCell else {
-//            return UICollectionViewCell()
-//        }
-//        let keyword = keywords[indexPath.row]
-//        cell.configure(with: keyword)
-//        cell.deleteAction = { [weak self] in
-//            self?.keywords.remove(at: indexPath.row)
-//        }
-//        return cell
-//    }
-//}
+
+import UIKit
+
+class FilterKeywordsViewController: UIViewController {
+    let networkService = SignupService()
+    
+    var memberId: Int?
+    
+    private var keywords: [String] = []
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view = filterKeywordsView
+        setupNavigationBar()
+        setupDelegates()
+    }
+    
+    private lazy var filterKeywordsView: FilterKeywordsView = {
+        let view = FilterKeywordsView()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(onPlusIconTapped))
+        view.plusIcon.addGestureRecognizer(tapGesture)
+        
+        view.nextBtn.addTarget(self, action: #selector(nextBtn), for: .touchUpInside)
+        return view
+    }()
+    
+    private func setupNavigationBar() {
+        self.navigationController?.navigationBar.backgroundColor = .white
+        
+        self.navigationItem.title = "회원가입"
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(
+            ofSize: 18
+        )]
+        
+        let leftBarButton = UIBarButtonItem(
+            image: UIImage(named: "back"),
+            style: .plain,
+            target: self,
+            action: #selector(goBack)
+        )
+        leftBarButton.tintColor = .grey600
+        self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
+    }
+    
+    @objc private func goBack() {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    private func setupDelegates() {
+        filterKeywordsView.keywordsCollectionView.delegate = self
+        filterKeywordsView.keywordsCollectionView.dataSource = self
+        filterKeywordsView.filterKeywordTextField.delegate = self
+    }
+    
+    @objc func onPlusIconTapped() {
+        guard let text = filterKeywordsView.filterKeywordTextField.text?.trimmingCharacters(in: .alphanumerics), !text.isEmpty else { return }
+        self.keywords.append(text)
+        filterKeywordsView.filterKeywordTextField.text = ""
+        
+        DispatchQueue.main.async {
+            self.filterKeywordsView.keywordsCollectionView.reloadData()
+        }
+    }
+
+    private func postKeywords() {
+        guard let memberId = self.memberId else { return }
+        
+        Task {
+            do {
+                startLoading()
+                
+                let request = SetLandmineKeywordRequest(landmineContents: keywords)
+                _ = try await networkService.postLandMines(memberId: memberId, landmineString: request)
+                DispatchQueue.main.async {
+                    self.navigateToHomeView()
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    // 다음 버튼 눌렀을 때
+    @objc func nextBtn() {
+        // MARK: TEST
+//        navigateToHomeView()
+        postKeywords()
+    }
+    
+    private func navigateToHomeView() {
+        let splashVC = SignUpCompleteViewController()
+        splashVC.modalPresentationStyle = .fullScreen
+        splashVC.modalTransitionStyle = .crossDissolve
+        self.present(splashVC, animated: true)
+    }
+}
+
+extension FilterKeywordsViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return false }
+        self.keywords.append(text)
+        textField.text = ""
+        
+        DispatchQueue.main.async {
+            self.filterKeywordsView.keywordsCollectionView.reloadData()
+        }
+        
+        return true
+    }
+}
+
+// MARK: - UICollectionView Delegate & DataSource
+extension FilterKeywordsViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return keywords.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: KeywordCell.identifier, for: indexPath) as? KeywordCell else {
+            return UICollectionViewCell()
+        }
+        let keyword = keywords[indexPath.row]
+        cell.configure(with: keyword)
+        
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        keywords.remove(at: indexPath.row)
+        collectionView.deleteItems(at: [indexPath])
+    }
+}

@@ -10,6 +10,15 @@ import Then
 import SnapKit
 
 class SignUpView: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.backgroundColor = UIColor.white
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // Title Label
     private let titleLabel = UILabel().then {
@@ -17,7 +26,7 @@ class SignUpView: UIView {
         paragraphStyle.lineHeightMultiple = 1.35 // 자간 135%
 
         let attributedString = NSAttributedString(
-            string: "ID / PW를 입력해주세요",
+            string: "EMAIL / PW를 입력해주세요",
             attributes: [
                 .font: UIFont.aritaBoldFont(ofSize: 20),
                 .foregroundColor: UIColor.grey800!,
@@ -70,17 +79,7 @@ class SignUpView: UIView {
         $0.alignment = .fill
     }
     
-    public let signUpButton = longCustomBtn(title: "확인")
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        self.backgroundColor = UIColor.white
-        setupView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    public let signUpButton = longCustomBtn(title: "확인", isEnabled: false)
     
     private func setupView() {
         // ID Container 내부 요소 추가
@@ -129,6 +128,7 @@ class SignUpView: UIView {
         signUpButton.snp.makeConstraints {
             $0.top.equalTo(pwContainer.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
     }
 }
