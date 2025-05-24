@@ -28,24 +28,22 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         self.navigationController?.isNavigationBarHidden = false
         self.view = phoneSigninView
         
+        setupAction()
         setupNavigationBar()
     }
         
     private lazy var phoneSigninView: PhoneSigninView = {
         let view = PhoneSigninView()
-        view.phoneTextField.delegate = self
-        view.phoneTextField.addTarget(self, action: #selector(writePhoneNumber), for: .editingChanged)
-        view.verifyButton.addTarget(self, action: #selector(didTapSendBtn), for: .touchUpInside)
-        view.verifyButton.isEnabled = false
-        view.verifyButton.alpha = 0.5
-        
-        view.certificationNumberField.addTarget(self, action: #selector(putCertificationNumber), for: .editingChanged)
-        view.verifyCodeButton.addTarget(self, action: #selector(didTapVerifyCodeBtn), for: .touchUpInside)
-        view.verifyCodeButton.isEnabled = false
-        view.verifyCodeButton.alpha = 0.5
-        
         return view
     }()
+    
+    private func setupAction() {
+        phoneSigninView.phoneTextField.delegate = self
+        phoneSigninView.phoneTextField.addTarget(self, action: #selector(writePhoneNumber), for: .editingChanged)
+        phoneSigninView.verifyButton.addTarget(self, action: #selector(didTapSendBtn), for: .touchUpInside)
+        phoneSigninView.certificationNumberField.addTarget(self, action: #selector(putCertificationNumber), for: .editingChanged)
+        phoneSigninView.verifyCodeButton.addTarget(self, action: #selector(didTapVerifyCodeBtn), for: .touchUpInside)
+    }
     
     private func setupNavigationBar() {
         self.navigationController?.navigationBar.backgroundColor = .white
@@ -70,7 +68,10 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     @objc private func didTapSendBtn() {
         guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11 else { return }
         resetCountdown()
-        postSendCodeAPI(phoneNumber: phoneNumber)
+//        postSendCodeAPI(phoneNumber: phoneNumber)
+        
+        // MARK: TEST
+        self.phoneSigninView.verifyCodeContainer.isHidden = false
     }
     
     private func postSendCodeAPI(phoneNumber: String) {
@@ -79,7 +80,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
                 startLoading()
                 
                 let newCodeRequest = VerificationCodeRequest(phoneNum: phoneNumber)
-                let result = try await networkService.postSendVerificationCode(phoneNum: newCodeRequest)
+                _ = try await networkService.postSendVerificationCode(phoneNum: newCodeRequest)
                 
                 self.startCountdown()
                 DispatchQueue.main.async {
@@ -117,7 +118,8 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
             return
         }
 
-        postVerifyCodeAPI(phoneNumber: phoneNumber, code: code)
+        //TEST:
+        navigateToIDPWView()
     }
     
     private func postVerifyCodeAPI(phoneNumber: String, code: String) {
@@ -126,7 +128,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
                 startLoading()
                 
                 let newVerifyCode = VerifyCode(phoneNum: phoneNumber, certificationCode: code)
-                let result = try await networkService.postVerifyCode(verifyCode: newVerifyCode)
+                _ = try await networkService.postVerifyCode(verifyCode: newVerifyCode)
                 
                 DispatchQueue.main.async {
                     let alert = UIAlertController(title: "알림", message: "인증이 완료되었어요!", preferredStyle: .alert)
@@ -175,7 +177,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         phoneSigninView.certificationNumberField.placeholder = "(인증시간 초과)"
 
         DispatchQueue.main.async {
-            self.phoneSigninView.verifyButton.isEnabled = true
+            self.phoneSigninView.verifyButton.isEnabled = false
             self.phoneSigninView.verifyButton.alpha = 1.0
             self.phoneSigninView.verifyButton.setTitleColor(.white, for: .normal)
             self.phoneSigninView.verifyButton.backgroundColor = UIColor.dmrBlue
@@ -187,7 +189,6 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     }
 
     func navigateToIDPWView() {
-        print("⏭️ Go SignUPViewController")
         let view = SignUpViewController()
         self.navigationController?.pushViewController(view, animated: true)
     }

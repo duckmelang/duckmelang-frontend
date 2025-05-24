@@ -10,6 +10,8 @@ import UIKit
 class SignUpViewController: UIViewController {
     let networkService = SignupService()
     
+    var memberId: Int?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.isNavigationBarHidden = false
@@ -43,18 +45,25 @@ class SignUpViewController: UIViewController {
     private lazy var signupView: SignUpView = {
         let view = SignUpView()
         view.signUpButton.addTarget(self, action: #selector(didTapSigninButton), for: .touchUpInside)
+        view.emailTextField.addTarget(self, action: #selector(textFieldsDidChange), for: .editingChanged)
+        view.pwTextField.addTarget(self, action: #selector(textFieldsDidChange), for: .editingChanged)
         return view
     }()
     
     @objc private func didTapSigninButton() {
         guard let email = signupView.emailTextField.text, !email.isEmpty,
-              let password = signupView.pwTextField.text, !password.isEmpty else {
-            print("이메일 또는 비밀번호를 입력하세요.")
-            return
-        }
+              let password = signupView.pwTextField.text, !password.isEmpty else { return }
         
-        signUp(email: email, password: password)
+//        signUp(email: email, password: password)
+        navigateToMakeProfileView()
         print("goto MakeProfile : \(email), \(password)")
+    }
+    
+    @objc func textFieldsDidChange() {
+        let text1 = signupView.emailTextField.text ?? ""
+        let text2 = signupView.pwTextField.text ?? ""
+        
+        signupView.signUpButton.setEnabled(!text1.isEmpty && !text2.isEmpty)
     }
         
     private func signUp(email: String, password: String) {
@@ -65,12 +74,12 @@ class SignUpViewController: UIViewController {
                 let newSignupRequest = SignupRequest(email: email, password: password)
                 let result = try await networkService.postSignUp(signUp: newSignupRequest)
                 
-                let memberId = result.memberId
+                self.memberId = result.memberId
                 let profileComplete = result.profileComplete
                 
                 if !profileComplete {
                     DispatchQueue.main.async {
-                        self.navigateToMakeProfileView(memberId: memberId)
+                        self.navigateToMakeProfileView()
                     }
                 }
                 
@@ -83,21 +92,11 @@ class SignUpViewController: UIViewController {
         }
     }
     
-    private func navigateToMakeProfileView(memberId: Int) {
-        let splashViewController = AuthSuccessSplashViewController()
-        splashViewController.modalPresentationStyle = .fullScreen
-        splashViewController.modalTransitionStyle = .crossDissolve
-        if let window = view.window {
-            window.rootViewController = splashViewController
-            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: nil) { _ in
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-//                    let makeProfilesVC = MakeProfilesViewController()
-//                    let navigationController = UINavigationController(rootViewController: makeProfilesVC)
-//                    navigationController.modalPresentationStyle = .fullScreen
-//                    window.rootViewController = navigationController
-//                    UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: nil, completion: nil)
-//                }
-            }
-        }
+    private func navigateToMakeProfileView() {
+        let splashVC = AuthSuccessSplashViewController()
+        splashVC.modalPresentationStyle = .fullScreen
+        splashVC.modalTransitionStyle = .crossDissolve
+        splashVC.memberId = self.memberId
+        self.present(splashVC, animated: true)
     }
 }

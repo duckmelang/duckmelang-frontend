@@ -19,8 +19,9 @@ class ProgressBarView: UIView {
     
     private var stepViews: [UIView] = []
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(currentStep: Int = 0) {
+        self.currentStep = currentStep
+        super.init(frame: .zero)
         setupProgressBar()
     }
     

@@ -1,136 +1,180 @@
-////
-////  SelectEventViewController.swift
-////  Duckmelang
-////
-////  Created by 김연우 on 2/17/25.
-////
 //
+//  SelectEventViewController.swift
+//  Duckmelang
 //
-//import UIKit
+//  Created by 주민영 on 5/21/25.
 //
-//class SelectEventViewController: UIViewController, NextStepHandler, UICollectionViewDelegate, SelectEventViewDelegate {
-//    func selectedEventsDidChange(_ selectedEvents: Set<Int>) {
-//        self.selectedEventIds = selectedEvents
-//        print("🟢 View에서 받은 선택된 이벤트 목록: \(selectedEventIds)")
-//    }
-//    
-//    func handleNextStep(completion: @escaping () -> Void) {
-//        nextButtonDelegate?.updateNextButtonState(isEnabled: true)
-//        postSelectedEvents {completion()}
-//    }
-//    
-//    weak var nextButtonDelegate: NextButtonUpdatable?
-//    
-//    private func showConfirmationAlert() {
-//        let alert = UIAlertController(title: "확인", message: "다음 단계로 이동하시겠습니까?", preferredStyle: .alert)
-//        
-//        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
-//        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
-//            print("✅ 다음 단계 진행")
-//        }))
-//        
-//        present(alert, animated: true)
-//    }
-//    
-//    func showAlert(title: String, message: String) {
-//        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-//        alert.addAction(UIAlertAction(title: "확인", style: .default))
-//        present(alert, animated: true)
-//    }
-//    
-//    let networkService = SignupService()
-//    
-//    private let memberId: Int
-//    
-//    private var events: [EventCategoryList] = []
-//    private var selectedEventIds: Set<Int> = []
-//    
-//    init(memberId: Int) {
-//        self.memberId = memberId
-//        super.init(nibName: nil, bundle: nil)
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-//
-//    private let selectEventView = SelectEventView()
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        setupUI()
-//        fetchEventList()
-//        
-//        selectEventView.delegate = self
-//        DispatchQueue.main.async {
-//            self.nextButtonDelegate?.updateNextButtonState(isEnabled: true)
-//        }
-//        
-//        print("✅ SelectEventView가 화면에 추가되었는지 확인: \(selectEventView.superview != nil)")
-//    }
-//    
-//    private func setupUI() {
-//        view.backgroundColor = .white
-//        view.addSubview(selectEventView)
-//        
-//        selectEventView.snp.makeConstraints {
-//            $0.edges.equalTo(view.safeAreaLayoutGuide)
-//        }
-//    }
-//    
-//    private func fetchEventList() {
-//        Task {
-//            do {
-//                startLoading()
-//                
-//                let result = try await networkService.getAllEvents()
-//                
-//                DispatchQueue.main.async {
-//                    self.selectEventView.updateWithEvents(events: result.eventCategoryList)
-//                }
-//                
-//                stopLoading()
-//            }
-//            catch {
-//                stopLoading()
-//                print(error.localizedDescription)
-//            }
-//        }
-//    }
-//    
-//    private func postSelectedEvents(completion: @escaping () -> Void) {
-//        let selectedEventIds = selectEventView.getSelectedEventIds()
-//        
-//        if selectedEventIds.isEmpty {
-//            print("❌ 선택된 이벤트 없음. 요청을 보내지 않음.")
-//            return
-//        }
-//        
-//        print("🟢 선택된 이벤트 ID: \(selectedEventIds) → 서버로 전송")
-//
-//        let request = SelectFavoriteEventRequest(eventCategoryIds: selectedEventIds)
-//        postMemberInterestEventAPI(eventNums: request)
-//    }
-//    
-//    private func postMemberInterestEventAPI(eventNums: SelectFavoriteEventRequest) {
-//        Task {
-//            do {
-//                startLoading()
-//                
-//                let result = try await networkService.postMemberInterestEvent(memberId: memberId, eventNums: eventNums)
-//                
-//                stopLoading()
-//            }
-//            catch {
-//                stopLoading()
-//                print(error.localizedDescription)
-//            }
-//        }
-//    }
-//}
-//
-//extension SelectEventView {
-//    func getSelectedEventIds() -> [Int] {
-//        return Array(selectedEvents)
-//    }
-//}
+
+import UIKit
+
+class SelectEventViewController: UIViewController {
+    let networkService = SignupService()
+    
+    var memberId: Int?
+    
+    private var events: [EventCategoryList] = []
+    private var selectedEventIds: [Int] = [] {
+        didSet {
+            self.selectEventView.nextBtn.setEnabled(!selectedEventIds.isEmpty)
+        }
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view = selectEventView
+        setupDelegates()
+        getEventList()
+        setupNavigationBar()
+    }
+    
+    private lazy var selectEventView: SelectEventView = {
+        let view = SelectEventView()
+        view.nextBtn.addTarget(self, action: #selector(nextBtn), for: .touchUpInside)
+        return view
+    }()
+    
+    private func setupNavigationBar() {
+        self.navigationController?.navigationBar.backgroundColor = .white
+        
+        self.navigationItem.title = "회원가입"
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(
+            ofSize: 18
+        )]
+        
+        let leftBarButton = UIBarButtonItem(
+            image: UIImage(named: "back"),
+            style: .plain,
+            target: self,
+            action: #selector(goBack)
+        )
+        leftBarButton.tintColor = .grey600
+        self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
+    }
+    
+    @objc private func goBack() {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    private func setupDelegates() {
+        selectEventView.eventCollectionView.delegate = self
+        selectEventView.eventCollectionView.dataSource = self
+    }
+    
+    private func getEventList() {
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.getAllEvents()
+                self.events = result.eventCategoryList
+                
+                DispatchQueue.main.async {
+                    self.selectEventView.eventCollectionView.reloadData()
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func postSelectedEvents() {
+        if selectedEventIds.isEmpty {
+            print("❌ 선택된 이벤트 없음. 요청을 보내지 않음.")
+            return
+        }
+        
+        print("🟢 선택된 이벤트 ID: \(selectedEventIds) → 서버로 전송")
+
+        let request = SelectFavoriteEventRequest(eventCategoryIds: selectedEventIds)
+        postMemberInterestEventAPI(eventNums: request)
+    }
+    
+    private func postMemberInterestEventAPI(eventNums: SelectFavoriteEventRequest) {
+        guard let memberId = self.memberId else { return }
+        
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.postMemberInterestEvent(
+                    memberId: memberId,
+                    eventNums: eventNums
+                )
+                
+                DispatchQueue.main.async {
+                    self.navigateToFilterKeywordsView()
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    // 다음 버튼 눌렀을 때
+    @objc func nextBtn() {
+        // MARK: TEST
+//        navigateToFilterKeywordsView()
+        postSelectedEvents()
+    }
+    
+    private func navigateToFilterKeywordsView() {
+        let filterVC = FilterKeywordsViewController()
+        filterVC.hidesBottomBarWhenPushed = true
+        filterVC.memberId = self.memberId
+        navigationController?.pushViewController(filterVC, animated: true)
+    }
+}
+
+extension SelectEventViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return events.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EventSelectionCell.identifier, for: indexPath) as? EventSelectionCell else {
+            return UICollectionViewCell()
+        }
+        
+        let event = events[indexPath.item]
+        cell.configure(event: event)
+        cell.isSelected = selectedEventIds.contains(event.eventID)
+        
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let eventID = events[indexPath.item].eventID
+        
+        if selectedEventIds.contains(where: { $0 == eventID }) {
+            selectedEventIds.removeAll(where: { $0 == eventID })
+        } else {
+            selectedEventIds.append(eventID)
+        }
+        
+        if let cell = collectionView.cellForItem(at: indexPath) as? EventSelectionCell {
+            cell.isSelected = selectedEventIds.contains(eventID)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        let eventID = events[indexPath.item].eventID
+        
+        if selectedEventIds.contains(where: { $0 == eventID }) {
+            selectedEventIds.removeAll(where: { $0 == eventID })
+        } else {
+            selectedEventIds.append(eventID)
+        }
+        
+        if let cell = collectionView.cellForItem(at: indexPath) as? EventSelectionCell {
+            cell.isSelected = selectedEventIds.contains(eventID)
+        }
+    }
+}

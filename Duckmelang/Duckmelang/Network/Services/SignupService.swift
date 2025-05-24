@@ -17,7 +17,6 @@ public final class SignupService : NetworkManager {
     public init(provider: MoyaProvider<SignupEndpoint>? = nil) {
         // 플러그인 추가
         let plugins: [PluginType] = [
-            TokenPlugin(),
             NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
         ]
         

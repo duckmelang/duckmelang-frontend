@@ -51,7 +51,7 @@ public struct IdolListResult: Codable {
 }
 
 // 개별 아이돌 정보
-public struct Idol: Codable {
+public struct Idol: Codable, Equatable {
     public let idolId: Int
     public let idolName: String
     public let idolImage: String

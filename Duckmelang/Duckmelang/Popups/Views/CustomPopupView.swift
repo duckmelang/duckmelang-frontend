@@ -9,16 +9,20 @@ import UIKit
 
 class CustomPopupView: UIView {
     init(
-        userImage: UIImage,
+        userImage: UIImage? = nil,
         title: String,
         subTitle: String,
-        leftBtnTitle: String,
-        rightBtnTitle: String,
+        leftBtnTitle: String? = nil,
+        rightBtnTitle: String? = nil,
         height: CGFloat
     ) {
         super.init(frame: .zero)
         
-        self.userImage.image = userImage
+        if (userImage == nil) {
+            self.userImage.isHidden = true
+        } else {
+            self.userImage.image = userImage
+        }
         self.title.text = title
         self.subTitle.text = subTitle
         

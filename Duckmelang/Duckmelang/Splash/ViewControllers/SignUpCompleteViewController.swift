@@ -1,19 +1,17 @@
 //
-//  AuthSuccessSplashViewController.swift
+//  SignUpCompleteViewController.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 3/30/25.
+//  Created by 주민영 on 5/10/25.
 //
 
 import UIKit
 
-class AuthSuccessSplashViewController: UIViewController {
-    var memberId: Int?
-    
+class SignUpCompleteViewController: UIViewController {
     override func loadView() {
         self.view = BlueSplashView(
-            title: "인증이 완료되었어요!",
-            subTitle: "메랑이가 되기 위한 준비를 해볼까요?"
+            title: "환영해요!",
+            subTitle: "나와 잘 맞는 메랑이를 찾아봐요!"
         )
     }
     
@@ -26,10 +24,11 @@ class AuthSuccessSplashViewController: UIViewController {
     }
     
     private func transitionToNextScreen() {
-        let view = SetupNickBirthGenViewController()
+        let view = BaseViewController()
         let navigationController = UINavigationController(rootViewController: view)
         navigationController.modalTransitionStyle = .crossDissolve
         navigationController.modalPresentationStyle = .fullScreen
+        navigationController.hidesBottomBarWhenPushed = true
         self.present(navigationController, animated: true, completion: nil)
     }
 }

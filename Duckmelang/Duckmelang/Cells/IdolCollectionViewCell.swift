@@ -11,7 +11,6 @@ import Then
 import Kingfisher
 
 class IdolCollectionViewCell: UICollectionViewCell {
-    
     static let identifier = "IdolCollectionViewCell"
     
     private let idolImageView = UIImageView().then {
@@ -68,14 +67,19 @@ class IdolCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func configure(with idol: Idol, isSelected: Bool) {
+    func configure(with idol: Idol) {
         idolNameLabel.text = idol.idolName
-        idolNameLabel.textColor = isSelected ? .dmrBlue : .grey800
-        idolImageView.layer.borderColor = isSelected ? UIColor.dmrBlue!.cgColor : UIColor.clear.cgColor
-        idolImageView.layer.borderWidth = isSelected ? 2 : 0
         
         if let imageUrl = URL(string: idol.idolImage) {
             idolImageView.kf.setImage(with: imageUrl, placeholder: UIImage(named: "placeholder"))
+        }
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            idolNameLabel.textColor = isSelected ? .dmrBlue : .grey800
+            idolImageView.layer.borderColor = isSelected ? UIColor.dmrBlue!.cgColor : UIColor.clear.cgColor
+            idolImageView.layer.borderWidth = isSelected ? 2 : 0
         }
     }
 }

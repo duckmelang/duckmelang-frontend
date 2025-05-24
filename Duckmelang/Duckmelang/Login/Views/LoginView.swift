@@ -98,15 +98,12 @@ class LoginView: UIView {
         pwdTextField.isSecureTextEntry.toggle()
     }
     
-    public lazy var loginButton: longCustomBtn = {
-        return longCustomBtn(
-            backgroundColor: UIColor.grey700!,
-            title: "확인",
-            titleColor: .white!,
-            width: 343,
-            height: 45
-        )
-    }()
+    public lazy var loginButton = longCustomBtn(
+        backgroundColor: UIColor.dmrBlue!,
+        title: "확인",
+        titleColor: .white!,
+        height: 45
+    )
     
     public lazy var foundPWBtn: longCustomBtn = {
         return longCustomBtn(
@@ -157,7 +154,7 @@ class LoginView: UIView {
         
         loginButton.snp.makeConstraints {
             $0.top.equalTo(inputTextContainer.snp.bottom).offset(16)
-            $0.centerX.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
             $0.height.equalTo(45)
         }
         

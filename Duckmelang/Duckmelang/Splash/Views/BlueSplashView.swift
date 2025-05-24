@@ -1,5 +1,5 @@
 //
-//  SplashView.swift
+//  BlueSplashView.swift
 //  Duckmelang
 //
 //  Created by 김연우 on 1/14/25.
@@ -15,6 +15,7 @@ class BlueSplashView: UIView {
         
         self.titleView.text = title
         self.subTitleView.text = subTitle
+        setupView()
     }
     
     required init?(coder: NSCoder) {
@@ -34,17 +35,18 @@ class BlueSplashView: UIView {
     }
     
     private var stackView = UIStackView().then {
-        $0.axis = .horizontal
+        $0.axis = .vertical
         $0.alignment = .center
         $0.distribution = .equalSpacing
         $0.spacing = 9
     }
 
     private func setupView() {
-        self.backgroundColor = .dmrBlue
+        backgroundColor = .dmrBlue
         
         stackView.addArrangedSubview(titleView)
         stackView.addArrangedSubview(subTitleView)
+        addSubview(stackView)
 
         stackView.snp.makeConstraints {
             $0.centerX.centerY.equalToSuperview()

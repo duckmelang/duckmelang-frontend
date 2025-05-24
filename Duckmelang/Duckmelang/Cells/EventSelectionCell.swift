@@ -51,4 +51,10 @@ class EventSelectionCell: UICollectionViewCell {
         btn.tag = event.eventId
         btn.sizeToFit()
     }
+    
+    public func configure(event: EventCategoryList) {
+        btn.setTitle(event.eventName, for: .normal)
+        btn.tag = event.eventID
+        btn.sizeToFit()
+    }
 }

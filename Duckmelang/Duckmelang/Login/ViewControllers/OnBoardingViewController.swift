@@ -7,9 +7,13 @@
 
 import UIKit
 import SafariServices
+import KakaoSDKCommon
+import KakaoSDKUser
 
 class OnBoardingViewController: UIViewController {
     let networkService = LoginService()
+    
+    let kakaoLoginManager = KakaoLoginManager()
     
     var memberId: Int?
     
@@ -18,13 +22,9 @@ class OnBoardingViewController: UIViewController {
     private lazy var onboardingView: OnBoardingView = {
         let view = OnBoardingView()
         view.loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
-//        view.kakaoLoginButton.addTarget(self, action: #selector(didTapKakaoLoginButton), for: .touchUpInside)
+        view.kakaoLoginButton.addTarget(self, action: #selector(didTapKakaoLoginButton), for: .touchUpInside)
 //        view.googleLoginButton.addTarget(self, action: #selector(didTapGoogleLoginButton), for: .touchUpInside)
-//        view.phoneLoginButton.addTarget(self, action: #selector(didTapPhoneLoginButton), for: .touchUpInside)
-        
-        //FIXME: - 개발 종료 후 지울것1. Main으로 연결되는 통로
-        view.goHome.addTarget(self, action: #selector(didTapGoHome), for: .touchUpInside)
-        
+        view.phoneLoginButton.addTarget(self, action: #selector(didTapPhoneLoginButton), for: .touchUpInside)
         return view
     }()
 
@@ -48,36 +48,40 @@ class OnBoardingViewController: UIViewController {
         navigateToLoginView()
         print("GoTo Login")
     }
-//    
-//    @objc private func didTapKakaoLoginButton() {
-//        print("Kakao login button tapped")
-//        openOAuthLogin(api: networkService.kakaoLogin)
-//    }
-//    
+    
+    @objc private func didTapKakaoLoginButton() {
+//        MARK: SDK로 구현한 부분
+//        UserApi.shared.loginWithKakaoAccount {(oauthToken, error) in
+//            if let error = error {
+//                print(error)
+//            }
+//            else if let oauthToken = oauthToken {
+//                KeychainManager.shared.save(key: "accessToken", value: oauthToken.accessToken)
+//                KeychainManager.shared.save(key: "refreshToken", value: oauthToken.refreshToken)
+//            }
+//        }
+        
+//        MARK: 인가코드 받는 방식
+//        kakaoLoginManager.loginWithKakao { code in
+//            if let code = code {
+//                // 👉 code 받아서 서버에 전송하거나 Kakao에 token 요청
+//                print("받은 code: \(code)")
+//            } else {
+//                print("code를 받지 못했습니다.")
+//            }
+//        }
+    }
+    
 //    @objc private func didTapGoogleLoginButton() {
 //        print("Google login button tapped")
 //        openOAuthLogin(api: networkService.googleLogin)
 //    }
 //    
-//    @objc private func didTapPhoneLoginButton() {
-//        print("Phone Signin button tapped")
-//        navigateToPhoneSinginView()
-//    }
-//    
-//    // MARK: - OAuth 로그인 처리
-//    private func openOAuthLogin(api: LoginService) {
-//        let url = api.baseURL.appendingPathComponent(api.path)
-//
-//        let oauthWebVC = OAuthWebViewController()
-//        oauthWebVC.authURL = url
-//        oauthWebVC.modalPresentationStyle = .pageSheet
-//        // OAuthWebViewController에서 로그인 후 받은 데이터를 처리할 클로저 설정
-//        oauthWebVC.oauthCompletion = { [weak self] memberId, profileComplete in
-//            self?.handleOAuthResponse(memberId: memberId, profileComplete: profileComplete)
-//        }
-//        present(oauthWebVC, animated: true)
-//    }
-//
+    @objc private func didTapPhoneLoginButton() {
+        print("Phone Signin button tapped")
+        navigateToPhoneSinginView()
+    }
+
 //    // OAuthWebViewController에서 로그인 후 받은 데이터를 처리
 //    func handleOAuthResponse(memberId: Int, profileComplete: Bool) {
 //        print("✅ OAuth 완료 - memberId: \(memberId), profileComplete: \(profileComplete)")
@@ -130,11 +134,5 @@ class OnBoardingViewController: UIViewController {
     private func navigateToPhoneSinginView() {
         let view = PhoneSigninViewController()
         self.navigationController?.pushViewController(view, animated: true)
-    }
-    
-    //FIXME: - 개발 종료 후 지울것2. Main으로 연결되는 통로
-    @objc private func didTapGoHome() {
-        print("go home")
-        navigateToBaseViewController()
     }
 }

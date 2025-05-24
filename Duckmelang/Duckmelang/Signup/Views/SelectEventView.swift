@@ -9,9 +9,18 @@ import UIKit
 import Then
 import SnapKit
 
-class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
+class SelectEventView: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.backgroundColor = .white
+        setupView()
+    }
     
-    weak var delegate: SelectEventViewDelegate?
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private let progressBar = ProgressBarView(currentStep: 2)
     
     private let titleLabel = UILabel().then {
         $0.text = "자주 가는 행사를 알려주세요!"
@@ -25,110 +34,59 @@ class SelectEventView: UIView, UICollectionViewDataSource, UICollectionViewDeleg
         $0.textColor = .grey600
     }
     
-    private var eventsView: [EventCategoryList] = []
-    public var selectedEvents: Set<Int> = [] {
-        didSet {
-            delegate?.selectedEventsDidChange(selectedEvents) // ✅ 값이 변경될 때 VC로 전달
-        }
-    }
-    
-    private lazy var eventCollectionView: UICollectionView = {
+    public lazy var eventCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.estimatedItemSize = CGSize(width: 80, height: 40)
         layout.minimumInteritemSpacing = 14  // 좌우 간격
         layout.minimumLineSpacing = 20  // 위아래 간격
 
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.register(EventCollectionViewCell.self, forCellWithReuseIdentifier: EventCollectionViewCell.identifier)
+        cv.register(EventSelectionCell.self, forCellWithReuseIdentifier: EventSelectionCell.identifier)
         cv.backgroundColor = .clear
-        cv.dataSource = self
-        cv.delegate = self
+        cv.allowsSelection = true
+        cv.isUserInteractionEnabled = true
+        cv.allowsMultipleSelection = true
         return cv
     }()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        self.backgroundColor = .white
-        setupView()
-        
-        eventCollectionView.allowsSelection = true
-        eventCollectionView.isUserInteractionEnabled = true
-        
-        eventCollectionView.delegate = self
-        eventCollectionView.dataSource = self
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    public let nextBtn = longCustomBtn(title: "다음", isEnabled: false)
     
     private func setupView() {
         [
+            progressBar,
             titleLabel,
             subtitleLabel,
-            eventCollectionView
+            eventCollectionView,
+            nextBtn
         ].forEach {
             addSubview($0)
         }
+        
+        progressBar.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide).inset(8)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(4)
+        }
             
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
-            $0.left.equalToSuperview()
+            $0.top.equalTo(progressBar.snp.bottom).offset(24)
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
         
         subtitleLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.left.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
         
         eventCollectionView.snp.makeConstraints {
-            $0.top.equalTo(subtitleLabel.snp.bottom).offset(20)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.top.equalTo(subtitleLabel.snp.bottom).offset(24)
+            $0.bottom.equalTo(nextBtn.snp.top).offset(-12)
+            $0.leading.trailing.equalToSuperview().inset(24)
+        }
+        
+        nextBtn.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(12)
         }
     }
-    
-    // 서버에서 받은 데이터 업데이트
-    func updateWithEvents(events: [EventCategoryList]) {
-        self.eventsView = events
-        eventCollectionView.reloadData()
-    }
-
-    // UICollectionViewDataSource
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return eventsView.count
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EventCollectionViewCell.identifier, for: indexPath) as! EventCollectionViewCell
-        
-        let event = eventsView[indexPath.row]
-        cell.configureEventButton(title: event.eventName, isSelected: selectedEvents.contains(event.eventID))
-        
-        return cell
-    }
-
-    // 선택 시 토글 및 로그 추가
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let event = eventsView[indexPath.row]
-
-        if selectedEvents.contains(event.eventID) {
-            selectedEvents.remove(event.eventID)
-            print("🛑 이벤트 선택 해제: \(event.eventName) (ID: \(event.eventID))")
-        } else {
-            selectedEvents.insert(event.eventID)
-            print("✅ 이벤트 선택됨: \(event.eventName) (ID: \(event.eventID))")
-        }
-
-        print("📌 현재 선택된 이벤트 ID 목록: \(Array(selectedEvents))")
-        
-        delegate?.selectedEventsDidChange(selectedEvents)
-
-        collectionView.reloadItems(at: [indexPath])
-        
-        collectionView.reloadData()
-    }
-}
-
-protocol SelectEventViewDelegate: AnyObject {
-    func selectedEventsDidChange(_ selectedEvents: Set<Int>)
 }

@@ -9,7 +9,18 @@ import UIKit
 import Then
 import SnapKit
 
-class SelectFavoriteCelebView: UIView, UITextFieldDelegate {
+class SelectFavoriteCelebView: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.backgroundColor = .white
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private let progressBar = ProgressBarView(currentStep: 1)
     
     private let titleLabel = UILabel().then {
         $0.text = "좋아하는 아이돌을 알려주세요!"
@@ -30,7 +41,7 @@ class SelectFavoriteCelebView: UIView, UITextFieldDelegate {
         $0.returnKeyType = .done
 
         // 왼쪽 패딩 추가
-        let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
+        let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         $0.leftView = leftPaddingView
         $0.leftViewMode = .always
 
@@ -48,7 +59,7 @@ class SelectFavoriteCelebView: UIView, UITextFieldDelegate {
         $0.rightViewMode = .always
     }
     
-    private let collectionView: UICollectionView = {
+    public let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 16
@@ -59,117 +70,56 @@ class SelectFavoriteCelebView: UIView, UITextFieldDelegate {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsVerticalScrollIndicator = false
         collectionView.backgroundColor = .white
+        collectionView.allowsMultipleSelection = true
         collectionView.register(IdolCollectionViewCell.self, forCellWithReuseIdentifier: "IdolCollectionViewCell")
         return collectionView
     }()
     
-    private var selectableIdols: [SelectableIdol] = []
-    
-    var isSelected: ((Int, Bool) -> Void)?
-    var onTextInput: ((String) -> Void)?
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        self.backgroundColor = .white
-        setupView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    public let nextBtn = longCustomBtn(title: "다음", isEnabled: false)
     
     private func setupView() {
         [
+            progressBar,
             titleLabel,
             subtitleLabel,
             celebTextField,
-            collectionView
+            collectionView,
+            nextBtn
         ].forEach {
             addSubview($0)
         }
+        
+        progressBar.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide).inset(8)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(4)
+        }
             
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
-            $0.left.equalToSuperview()
+            $0.top.equalTo(progressBar.snp.bottom).offset(24)
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
         
         subtitleLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.leading.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
             
         celebTextField.snp.makeConstraints {
-            $0.top.equalTo(subtitleLabel.snp.bottom).offset(20)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(44)
+            $0.top.equalTo(subtitleLabel.snp.bottom).offset(26)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(40)
         }
-        
-        collectionView.register(IdolCollectionViewCell.self, forCellWithReuseIdentifier: "IdolCollectionViewCell")
         
         collectionView.snp.makeConstraints {
-            $0.top.equalTo(celebTextField.snp.bottom)
-            $0.bottom.equalToSuperview()
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.top.equalTo(celebTextField.snp.bottom).offset(24)
+            $0.bottom.equalTo(nextBtn.snp.top).offset(-12)
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
         
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        
-        celebTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-        celebTextField.delegate = self
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder() // 키보드 닫기
-        return true
-    }
-    
-    func updateCollectionView(with idols: [SelectableIdol]) {
-        self.selectableIdols = idols
-        collectionView.reloadData()
-    }
-    
-    func resetTextField(){
-        celebTextField.text = ""
-        onTextInput?("")
-    }
-
-    @objc private func textFieldDidChange(_ textField: UITextField) {
-        let query = textField.text?.lowercased() ?? ""
-        
-        if query.isEmpty {
-            // ✅ 검색어가 비었을 때: 전체 목록 보여주기
-            collectionView.isHidden = false
-            onTextInput?("")
-        } else {
-            // ✅ 검색어가 있을 때: 필터링된 목록 보여주기
-            collectionView.isHidden = false
-            onTextInput?(query)
+        nextBtn.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(12)
         }
-    }
-}
-
-extension SelectFavoriteCelebView: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return selectableIdols.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "IdolCollectionViewCell", for: indexPath) as? IdolCollectionViewCell else {
-            return UICollectionViewCell()
-        }
-        
-        let idol = selectableIdols[indexPath.item]
-        cell.configure(with: idol.idol, isSelected: idol.isSelected)
-        
-        return cell
-    }
-}
-
-extension SelectFavoriteCelebView: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        selectableIdols[indexPath.item].isSelected.toggle()
-        isSelected?(selectableIdols[indexPath.item].idol.idolId, selectableIdols[indexPath.item].isSelected)
-        collectionView.reloadItems(at: [indexPath])
     }
 }

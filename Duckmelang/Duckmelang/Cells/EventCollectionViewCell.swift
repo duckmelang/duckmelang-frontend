@@ -12,8 +12,6 @@ import SnapKit
 class EventCollectionViewCell: UICollectionViewCell {
     static let identifier = "EventCollectionViewCell"
     
-    
-    
     public let eventButton = UIButton()
     
     override init(frame: CGRect) {
@@ -32,9 +30,9 @@ class EventCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureEventButton(title: String, isSelected: Bool) {
+    func configure(event: EventCategoryList) {
         var config = UIButton.Configuration.filled()
-        config.title = title
+        config.title = event.eventName
         eventButton.titleLabel?.numberOfLines = 1
         eventButton.titleLabel?.textAlignment = .center
         config.baseForegroundColor = isSelected ? .white : .grey400

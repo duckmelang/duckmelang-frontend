@@ -46,18 +46,6 @@ class OnBoardingView: UIView {
         return createImageView(named: "logo_yellow")
     }()
     
-    //FIXME: - 개발 종료 후 gohome 지우기 1
-    public lazy var goHome: UIButton = {
-        let button = createButton(
-            title: " 홈화면 연결통로",
-            titleColor: .black!,
-            backgroundColor: .mainColor!,
-            iconName: nil,
-            borderColor: .grey300!
-        )
-        return button
-    }()
-    
     public lazy var kakaoLoginButton: UIButton = {
         let button = createButton(
             title: "카카오톡으로 시작하기",
@@ -192,8 +180,6 @@ class OnBoardingView: UIView {
         self.backgroundColor = .white
         addSubviews(
             headerContainer,
-            //FIXME: - 개발 종료 후 gohome 지우기 2
-            goHome,
             loginBtnsContainer,
             signinContainer
         )
@@ -207,14 +193,6 @@ class OnBoardingView: UIView {
             $0.centerX.equalToSuperview()
             $0.width.equalToSuperview().inset(16)
             $0.bottom.equalTo(logoImageView.snp.bottom)
-        }
-        
-        //FIXME: - 개발 종료 후 gohome 지우기 3
-        goHome.snp.makeConstraints{
-            $0.top.equalTo(headerContainer.snp.bottom).offset(15)
-            $0.centerX.equalToSuperview()
-            $0.width.equalTo(200)
-            $0.height.equalTo(40)
         }
         
         loginBtnsContainer.snp.makeConstraints {
