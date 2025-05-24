@@ -13,8 +13,6 @@ import KakaoSDKUser
 class OnBoardingViewController: UIViewController {
     let networkService = LoginService()
     
-    let kakaoLoginManager = KakaoLoginManager()
-    
     var memberId: Int?
     
     // MARK: - Properties
