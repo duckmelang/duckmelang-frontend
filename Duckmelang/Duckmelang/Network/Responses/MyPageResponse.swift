@@ -84,18 +84,19 @@ public struct MyPostDetailResponse: Codable {
     }
 }
 
-struct ProfileImageResponse: Codable {
+//ProfileImageData랑 동일
+/*struct ProfileImageResponse: Codable {
     let memberProfileImageUrl: String
     let createdAt: String
-}
+}*/
 
-struct ProfileEditInfoResponse: Codable {
+public struct ProfileEditInfoResponse: Codable {
     let nickname: String
     let latestPublicMemberProfileImage: String?
 }
 
 //현재 관심 아이돌 목록 조회
-struct idolListResponse: Codable {
+public struct idolListResponse: Codable {
     let idolList: [IdolListDTO]
 }
 
@@ -106,23 +107,23 @@ struct IdolListDTO: Codable {
 }
 
 //get 응답 모델
-struct LandmineResponse: Codable {
+public struct LandmineResponse: Codable {
     let landmineList: [LandmineModel]
 }
 
 //post 응답 모델
-struct LandmineModel: Codable {
+public struct LandmineModel: Codable {
     let landmineId: Int
     let content: String
 }
 
-struct UpdatePostStatusResponse: Codable {
+public struct UpdatePostStatusResponse: Codable {
     let id: Int
     let title: String
     let wanted: Int
 }
 
-struct NotificationsSettingResponse: Codable {
+public struct NotificationsSettingResponse: Codable {
     let notificationSettingId: Int
     let memberId: Int
     var chatNotificationEnabled: Bool
@@ -131,7 +132,7 @@ struct NotificationsSettingResponse: Codable {
     var bookmarkNotificationEnabled: Bool
 }
 
-struct myPageLoginResponse: Codable {
+public struct myPageLoginResponse: Codable {
     let nickname: String
     let email: String
     var kakaoLinked: Bool
@@ -151,3 +152,5 @@ public struct ProfileImageData: Codable {
     let memberProfileImageUrl: String
     let createdAt: String
 }
+
+

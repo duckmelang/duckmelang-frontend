@@ -10,7 +10,7 @@ import Moya
 
 class LoginInfoViewController: UIViewController {
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
  
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,26 +32,19 @@ class LoginInfoViewController: UIViewController {
     }
     
     private func getLoginInfo() {
-        provider.request(.getMyPageLogin) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<myPageLoginResponse>.self)
-                    guard let loginInfo = decodedResponse.result else {
-                        print("❌ 로그인정보가 없습니다.")
-                        return
-                    }
-
-                    // UI 업데이트는 반드시 메인 스레드에서 실행
-                    DispatchQueue.main.async {
-                        self.loginInfoView.loginInfo = loginInfo
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let response = try await self.networkService.getMyPageLogin()
+                DispatchQueue.main.async {
+                    self.loginInfoView.loginInfo = response
                 }
                 
-            case .failure(let error):
-                print("❌ 프로필 불러오기 실패: \(error.localizedDescription)")
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

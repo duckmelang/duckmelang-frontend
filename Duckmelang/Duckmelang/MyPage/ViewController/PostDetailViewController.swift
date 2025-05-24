@@ -24,7 +24,7 @@ class PostDetailViewController: UIViewController {
     
     private var currentState: PostProgressState = .inProgress
     
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(), NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -165,28 +165,22 @@ class PostDetailViewController: UIViewController {
     }
     
     private func fetchPostDetail(postId: Int) {
-        provider.request(.getMyPostDetail(postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<MyPostDetailResponse>.self)
-                    if decodedResponse.isSuccess {
-                        guard let postDetail = decodedResponse.result else { return }
-                        DispatchQueue.main.async {
-                            self.postDetailView.updateUI(with: postDetail)
-                            self.updateAccompanyData(with: postDetail)
-                            self.updateBtn(with: postDetail)
-                        }
-                        // ✅ 성공 시 데이터 출력
-                        print("Post Detail: \(String(describing: decodedResponse.result))")
-                    } else {
-                        print("❌ 서버 에러: \(decodedResponse.message)")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 실패: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let response = try await networkService.getMyPostDetail(postId: postId)
+                
+                DispatchQueue.main.async {
+                    self.postDetailView.updateUI(with: response)
+                    self.updateAccompanyData(with: response)
+                    self.updateBtn(with: response)
                 }
-            case .failure(let error):
-                print("❌ 요청 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
@@ -196,29 +190,18 @@ class PostDetailViewController: UIViewController {
             print("❌ postId가 없습니다.")
             return
         }
-
-        provider.request(.patchPostStatus(postId: postId, wanted: wanted)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedResponse = try response.map(ApiResponse<UpdatePostStatusResponse>.self)
-                    
-                    if decodedResponse.isSuccess, let updatedPost = decodedResponse.result {
-                        print("✅ 게시글 상태 변경 성공: \(decodedResponse.message)")
-                        print("📝 변경된 상태 - ID: \(updatedPost.id), 모집 상태: \(updatedPost.wanted)")
-
-                        // ✅ UI 업데이트
-                        /*DispatchQueue.main.async {
-                            self.updateBtn(with: updatedPost)
-                        }*/
-                    } else {
-                        print("❌ 상태 변경 실패: \(decodedResponse.message)")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                }
-            case .failure(let error):
-                print("❌ 요청 실패: \(error.localizedDescription)")
+        
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let response = try await networkService.patchPostStatus(postId: postId, wanted: wanted)
+                print("변경된 상태 - ID: \(response.id), 모집 상태: \(response.wanted)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

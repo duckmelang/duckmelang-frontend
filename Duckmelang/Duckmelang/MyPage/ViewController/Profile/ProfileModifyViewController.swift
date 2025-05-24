@@ -5,13 +5,12 @@
 //  Created by KoNangYeon on 1/14/25.
 //
 import UIKit
-import Moya
 import Kingfisher
+import Moya
 
 class ProfileModifyViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    // MARK: - Properties
-    private let provider = MoyaProvider<MyPageAPI>(plugins: [TokenPlugin(),NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))])
+    let networkService = MyPageService()
     private lazy var profileModifyView = ProfileModifyView()
     private var uploadedImageURL: String?
 
@@ -57,28 +56,29 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
     private func updateProfileInfo() {
         guard let nickname = profileModifyView.nicknameTextField.text,
               let introduction = profileModifyView.selfPRTextField.text else { return }
-
+        
         let profileData = EditProfileRequest(nickname: nickname, introduction: introduction)
         
-        provider.request(.patchProfile(profileData: profileData)) { result in
-            switch result {
-            case .success(let response):
-                print("✅ 프로필 수정 성공: \(String(data: response.data, encoding: .utf8) ?? "")")
-
-                // ✅ 수정된 데이터를 NotificationCenter로 전송
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let response = try await networkService.patchProfile(profileData: profileData)
+                
                 NotificationCenter.default.post(
                     name: NSNotification.Name("ProfileUpdated"),
                     object: nil,
                     userInfo: ["nickname": nickname, "introduction": introduction, "imageURL": self.uploadedImageURL ?? ""]
                 )
                 self.dismiss(animated: true)
-
-            case .failure(let error):
-                print("❌ 프로필 수정 실패: \(error.localizedDescription)")
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
-
 
     @objc private func addBtnDidTap() {
         let imagePicker = UIImagePickerController()
@@ -119,32 +119,34 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
 
     // MARK: - API Requests
     private func uploadProfileImage(_ imageData: Data) {
-        let formData = MultipartFormData(provider: .data(imageData), name: "profileImage", fileName: "profile.jpg", mimeType: "image/jpeg")
-        
-        provider.request(.postProfileImage(profileImage: [formData])) { result in
-            switch result {
-            case .success(let response):
-                let decodedResponse = try? response.map(ApiResponse<ProfileImageResponse>.self)
-                if let imageUrl = decodedResponse?.result?.memberProfileImageUrl {
-                    self.uploadedImageURL = imageUrl
-                    self.updateProfileInfo()  // 이미지 URL이 성공적으로 저장된 후 닉네임과 자기소개 수정
-                }
-            case .failure(let error):
-                print("❌ 이미지 업로드 실패: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let formData = MultipartFormData(provider: .data(imageData), name: "profileImage", fileName: "profile.jpg", mimeType: "image/jpeg")
+                       
+                let response = try await networkService.postProfileImage(profileImage: [formData])
+                self.uploadedImageURL = response.profileImageList[0].memberProfileImageUrl
+                self.updateProfileInfo()  // 이미지 URL이 성공적으로 저장된 후 닉네임과 자기소개 수정
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }
     
     private func fetchProfileInfo() {
-        provider.request(.getProfile) { result in
-            switch result {
-            case .success(let response):
-                let decodedResponse = try? response.map(ApiResponse<ProfileEditInfoResponse>.self)
-                if let profileData = decodedResponse?.result {
-                    self.updateProfileView(with: profileData)
-                }
-            case .failure(let error):
-                print("❌ 프로필 정보 조회 실패: \(error.localizedDescription)")
+        _Concurrency.Task {
+            do {
+                startLoading()
+                let profile = try await networkService.getLatestProfile()
+                self.updateProfileView(with: profile)
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
             }
         }
     }

@@ -14,14 +14,13 @@ import Moya
 // 매개변수를 사용하지 않는 곳이라면 생략하고 case 이름만 작성해도 됨
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
-public enum MyPageAPI {
+public enum MyPageEndpoint {
     case getProfile
     case patchProfile(profileData: EditProfileRequest)
     case getMyPosts(page: Int)
     case getReviews
     case getMyPostDetail(postId: Int)
     case postProfileImage(profileImage: [MultipartFormData])
-    case getProfileEdit
     case deletePost(postId: Int)
     case getIdolList
     case getSearchIdol(keyword: String)
@@ -38,9 +37,10 @@ public enum MyPageAPI {
     case getMyPageLogin
     case getMyProfileImage(page: Int)
     case deleteAccount
+    case getLatestProfile
 }
 
-extension MyPageAPI: TargetType {
+extension MyPageEndpoint: TargetType {
     // Domain.swift 파일 참고해서 맞는 baseURL 적용하기
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
@@ -68,9 +68,9 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getMyProfileImage:
             return "/profile/image"
-        case .getProfile:
+        case .getProfile, .getLatestProfile:
             return "/profile"
-        case .patchProfile, .getProfileEdit:
+        case .patchProfile:
             return "/profile/edit"
         case .getMyPosts:
             return "/posts"
@@ -123,7 +123,7 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getMyPosts(let page), .getMyProfileImage(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .getProfileEdit, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting, .deleteAccount:
+        case .getProfile, .getReviews, .getMyPostDetail, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting, .deleteAccount, .getLatestProfile:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)
@@ -149,3 +149,4 @@ extension MyPageAPI: TargetType {
         }
     }
 }
+
