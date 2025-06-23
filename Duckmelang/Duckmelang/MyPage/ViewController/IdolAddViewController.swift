@@ -54,14 +54,14 @@ class IdolAddViewController: UIViewController {
             do {
                 startLoading()
                 
-                let reponse = try await networkService.getSearchIdol(keyword: keyword).idolList
+                let response = try await networkService.getSearchIdol(keyword: keyword).idolList
                 
-                DispatchQueue.main.async {
+                await MainActor.run {
+                    self.searchResults = response
                     self.idolAddView.idolAddCollectionView.reloadData()
                     print("컬렉션뷰크기: \(self.idolAddView.idolAddCollectionView.frame)")
+                    stopLoading()
                 }
-                
-                stopLoading()
             } catch {
                 stopLoading()
                 print(error.localizedDescription)
@@ -70,25 +70,28 @@ class IdolAddViewController: UIViewController {
     }
     
     @objc private func finishBtnTapped() {
+        let group = DispatchGroup()
+        
         // 선택된 아이돌 ID를 서버에 추가하는 API 호출
         for idolId in selectedIdols {
+            group.enter()
             _Concurrency.Task {
                 do {
-                    startLoading()
-                    
                     try await networkService.postIdol(idolId: idolId)
-                    
-                    stopLoading()
                 } catch {
-                    stopLoading()
                     print(error.localizedDescription)
                 }
             }
         }
         
-        self.presentingViewController?.dismiss(animated: true) {
+        group.notify(queue: .main) {
+            self.dismiss(animated: true)
             self.onCompletion?()
         }
+        /*
+        self.presentingViewController?.dismiss(animated: true) {
+            self.onCompletion?()
+        }*/
     }
 }
 
@@ -110,6 +113,10 @@ extension IdolAddViewController: UICollectionViewDataSource {
             cell.idolName.textColor = .dmrBlue
             cell.idolImage.layer.borderWidth = 1
             cell.idolImage.layer.borderColor = UIColor.dmrBlue?.cgColor
+        } else {
+            cell.idolName.textColor = .black
+            cell.idolImage.layer.borderWidth = 0
+            cell.idolImage.layer.borderColor = nil
         }
         
         return cell
