@@ -1,14 +1,15 @@
 //
-//  IdolAddViewController.swift
+//  HomeIdolAddView.swift
 //  Duckmelang
 //
-//  Created by KoNangYeon on 1/14/25.
+//  Created by nau on 6/23/25.
 //
-
 import UIKit
+import Then
+import SnapKit
 import Moya
 
-class IdolAddViewController: UIViewController {
+class HomeIdolAddViewController: UIViewController {
     
     let networkService = MyPageService()
     
@@ -27,7 +28,7 @@ class IdolAddViewController: UIViewController {
         setupDelegate()
     }
     
-    private lazy var idolAddView = IdolAddView().then {
+    private lazy var idolAddView = HomeIdolAddView().then {
         $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         $0.searchIcon.addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
         $0.finishBtn.addTarget(self, action: #selector(finishBtnTapped), for: .touchUpInside)
@@ -95,7 +96,7 @@ class IdolAddViewController: UIViewController {
     }
 }
 
-extension IdolAddViewController: UICollectionViewDataSource {
+extension HomeIdolAddViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return searchResults.count
     }
@@ -123,7 +124,7 @@ extension IdolAddViewController: UICollectionViewDataSource {
     }
 }
 
-extension IdolAddViewController: UICollectionViewDelegate {
+extension HomeIdolAddViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let idolId = searchResults[indexPath.item].idolId
         
@@ -141,7 +142,7 @@ extension IdolAddViewController: UICollectionViewDelegate {
     }
 }
 
-extension IdolAddViewController: UITextFieldDelegate {
+extension HomeIdolAddViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder() // ✅ "완료" 버튼 클릭 시 키보드 내리기
         return true
