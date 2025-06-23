@@ -8,15 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		01997BE52D62DD120008A90C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01997BE42D62DD120008A90C /* WebKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		5DB132D22D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291A2D39ECEB0036A9AC /* Then */; };
-		5DB132D32D9F8298004E2AE9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291D2D39ECF20036A9AC /* SnapKit */; };
-		5DB132D42D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291F2D39EDBF0036A9AC /* Then */; };
-		5DB132D52D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29222D39EDD60036A9AC /* Then */; };
-		5DB132D62D9F8298004E2AE9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29252D39EDE30036A9AC /* SnapKit */; };
-		5DB132D72D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29282D39EE040036A9AC /* Then */; };
-		5DB132D82D9F8298004E2AE9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292B2D39EE120036A9AC /* SnapKit */; };
-		5DB132D92D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29302D39EF990036A9AC /* Then */; };
-		5DB132DA2D9F8298004E2AE9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29332D39EFA40036A9AC /* SnapKit */; };
 		AF1C01462D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292D2D39EE460036A9AC /* Then */; };
 		C07F4E142DDDE01A009B4C21 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E132DDDE01A009B4C21 /* KakaoSDKAuth */; };
 		C07F4E162DDDE01A009B4C21 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E152DDDE01A009B4C21 /* KakaoSDKCommon */; };
