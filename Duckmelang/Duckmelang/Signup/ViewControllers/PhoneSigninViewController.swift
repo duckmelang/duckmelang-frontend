@@ -67,7 +67,7 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     // MARK: - 인증번호 요청
     @objc private func didTapSendBtn() {
         guard let phoneNumber = phoneSigninView.phoneTextField.text, phoneNumber.count == 11 else { return }
-        resetCountdown()
+        startCountdown()
 //        postSendCodeAPI(phoneNumber: phoneNumber)
         
         // MARK: TEST
@@ -152,40 +152,44 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     private func startCountdown() {
         print("⏳ 인증 타이머 시작!")
         remainingSeconds = 180
-        phoneSigninView.certificationNumberField.placeholder = "03:00"
-        
+        updateCountdownUI()
+
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             guard let self = self else { return }
+            self.remainingSeconds -= 1
             self.updateCountdownUI()
         }
     }
 
     private func updateCountdownUI() {
-        if remainingSeconds > 0 {
-            remainingSeconds -= 1
+        if remainingSeconds >= 0 {
             let minutes = remainingSeconds / 60
             let seconds = remainingSeconds % 60
             phoneSigninView.certificationNumberField.placeholder = String(format: "%02d:%02d", minutes, seconds)
-        } else {
-            resetCountdown()
+        }
+
+        if remainingSeconds == 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.resetCountdown()
+            }
         }
     }
 
     private func resetCountdown() {
         countdownTimer?.invalidate()
         countdownTimer = nil
-        phoneSigninView.certificationNumberField.placeholder = "(인증시간 초과)"
+        remainingSeconds = 0
 
-        DispatchQueue.main.async {
-            self.phoneSigninView.verifyButton.isEnabled = false
-            self.phoneSigninView.verifyButton.alpha = 1.0
-            self.phoneSigninView.verifyButton.setTitleColor(.white, for: .normal)
-            self.phoneSigninView.verifyButton.backgroundColor = UIColor.dmrBlue
+        // 텍스트 필드 초기화 + 제한 표시
+        phoneSigninView.certificationNumberField.text = ""
+        phoneSigninView.certificationNumberField.placeholder = "제한시간이 초과되었어요"
+        phoneSigninView.certificationNumberField.textColor = .gray
+        phoneSigninView.certificationNumberField.layer.borderColor = UIColor.grey400!.cgColor
+        phoneSigninView.certificationNumberField.isUserInteractionEnabled = true
 
-            self.phoneSigninView.phoneTextField.isUserInteractionEnabled = true
-            self.phoneSigninView.phoneTextField.textColor = .black
-            self.phoneSigninView.phoneTextField.layer.borderColor = UIColor.grey400!.cgColor
-        }
+        // 인증 버튼 비활성화
+        phoneSigninView.verifyCodeButton.isEnabled = false
+        phoneSigninView.verifyCodeButton.alpha = 0.5
     }
 
     func navigateToIDPWView() {
