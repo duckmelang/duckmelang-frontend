@@ -53,6 +53,7 @@ class WriteView: UIView, UITextViewDelegate {
         $0.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         $0.leftViewMode = .always
         $0.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        $0.autocapitalizationType = .none
         $0.returnKeyType = .done
     }
     

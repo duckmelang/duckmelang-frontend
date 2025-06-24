@@ -95,7 +95,7 @@ class MyAccompanyCell: UITableViewCell {
         $0.backgroundColor = .dmrBlue
         $0.setTitleColor(.grey0, for: .normal)
         $0.layer.cornerRadius = 15
-        $0.addTarget(self, action: #selector(acceptBtnTapped), for: .touchUpInside)
+        $0.addTarget(MyAccompanyCell.self, action: #selector(acceptBtnTapped), for: .touchUpInside)
     }
     
     // TODO: delegate로 구현
@@ -110,7 +110,7 @@ class MyAccompanyCell: UITableViewCell {
         $0.backgroundColor = .white
         $0.setTitleColor(.dmrBlue, for: .normal)
         $0.layer.cornerRadius = 15
-        $0.addTarget(self, action: #selector(rejectBtnTapped), for: .touchUpInside)
+        $0.addTarget(MyAccompanyCell.self, action: #selector(rejectBtnTapped), for: .touchUpInside)
     }
     
     // TODO: delegate로 구현

@@ -39,14 +39,12 @@ class CompleteResetPasswordViewController: UIViewController {
     }
     
     @objc private func goLogin() {
-        if let navController = self.navigationController {
-            for controller in navController.viewControllers {
-                if controller is LoginViewController {
-                    navController.popToViewController(controller, animated: true)
-                    break
-                }
-            }
-        }
+        guard let navController = self.navigationController else { return }
+        
+        let onboardingVC = OnBoardingViewController()
+        let loginVC = LoginViewController()
+        
+        // 온보딩 → 로그인 순으로 스택 재설정
+        navController.setViewControllers([onboardingVC, loginVC], animated: true)
     }
-
 }

@@ -29,6 +29,22 @@ public struct PostResponse: Codable {
     let isLast: Bool
 }
 
+// 스크랩 목록 정보 담는 구조체
+public struct BookmarkItem: Codable {
+    let bookmarkId: Int
+    let post: PostDTO
+}
+
+// 스크랩 목록 받아오는 구조체
+public struct BookmarksResponse: Codable {
+    let bookmarkList: [BookmarkItem]
+    let listSize: Int
+    let totalPage: Int
+    let totalElements: Int
+    let isFirst: Bool
+    let isLast: Bool
+}
+
 // 보낸 요청 정보를 담는 구조체
 public struct RequestDTO: Codable {
     public let postId: Int

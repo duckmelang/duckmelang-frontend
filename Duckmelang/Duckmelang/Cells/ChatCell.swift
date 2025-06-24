@@ -144,7 +144,7 @@ class ChatCell: UITableViewCell {
         inputFormatter.dateFormat = "yyyy-MM-dd HH:mm"
         inputFormatter.locale = Locale(identifier: "ko_KR")
 
-        if let date = inputFormatter.date(from: model.lastMessageTime) {
+        if let date = inputFormatter.date(from: model.lastMessageTime ?? "") {
             let outputFormatter = DateFormatter()
             outputFormatter.dateFormat = "a hh:mm"
             outputFormatter.locale = Locale(identifier: "ko_KR")

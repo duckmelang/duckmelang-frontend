@@ -48,6 +48,9 @@ class SignUpView: UIView {
         $0.placeholder = "이메일을 입력해주세요"
         $0.borderStyle = .roundedRect
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
+        $0.keyboardType = .emailAddress
+        $0.autocapitalizationType = .none
+        $0.returnKeyType = .done
     }
     
     // EMAIL Container
@@ -70,6 +73,8 @@ class SignUpView: UIView {
         $0.borderStyle = .roundedRect
         $0.isSecureTextEntry = false
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
+        $0.autocapitalizationType = .none
+        $0.returnKeyType = .done
     }
     
     // PW Container

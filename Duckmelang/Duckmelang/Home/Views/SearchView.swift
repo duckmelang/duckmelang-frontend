@@ -30,6 +30,7 @@ class SearchView: UIView {
 
         $0.rightView = rightPaddingView
         $0.rightViewMode = .always
+        $0.autocapitalizationType = .none
         $0.returnKeyType = .done
     }
 

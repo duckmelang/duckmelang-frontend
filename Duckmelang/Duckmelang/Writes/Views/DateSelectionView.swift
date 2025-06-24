@@ -20,7 +20,7 @@ class DateSelectionView: UIView {
     
     let datePicker = UIDatePicker().then {
         $0.datePickerMode = .date
-        $0.preferredDatePickerStyle = .wheels
+        $0.preferredDatePickerStyle = .inline
         $0.locale = Locale(identifier: "ko_KR")
         $0.minimumDate = Date()
     }
@@ -34,7 +34,6 @@ class DateSelectionView: UIView {
         datePicker.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.centerY.equalToSuperview().offset(-30)
-            $0.height.equalTo(168)
         }
         
         completeButton.snp.makeConstraints {
