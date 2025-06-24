@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftyToaster
 
 class HomeViewController: UIViewController {
     let networkService = HomeService()
@@ -129,6 +130,7 @@ class HomeViewController: UIViewController {
             catch {
                 stopLoading()
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("아이돌 목록을 불러오지 못했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }
@@ -169,6 +171,7 @@ class HomeViewController: UIViewController {
                 stopLoading()
                 isLoading = false
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("게시물 목록을 불러오지 못했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }
@@ -201,6 +204,7 @@ class HomeViewController: UIViewController {
                 stopLoading()
                 isLoading = false
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("게시물 목록을 불러오지 못했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }

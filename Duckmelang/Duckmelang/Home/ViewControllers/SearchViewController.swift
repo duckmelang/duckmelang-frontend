@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftyToaster
 
 class SearchViewController: UIViewController {
     let networkService = HomeService()
@@ -117,6 +118,7 @@ class SearchViewController: UIViewController {
                 stopLoading()
                 isLoading = false
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("검색 결과를 불러오는 데 실패했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }
@@ -170,6 +172,7 @@ class SearchViewController: UIViewController {
                 stopLoading()
                 isLoading = false
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("검색 결과를 불러오는 데 실패했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }

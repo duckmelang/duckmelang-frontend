@@ -8,16 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		01997BE52D62DD120008A90C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01997BE42D62DD120008A90C /* WebKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		5DB132D22D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291A2D39ECEB0036A9AC /* Then */; };
-		5DB132D32D9F8298004E2AE9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291D2D39ECF20036A9AC /* SnapKit */; };
-		5DB132D42D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291F2D39EDBF0036A9AC /* Then */; };
-		5DB132D52D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29222D39EDD60036A9AC /* Then */; };
-		5DB132D62D9F8298004E2AE9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29252D39EDE30036A9AC /* SnapKit */; };
-		5DB132D72D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29282D39EE040036A9AC /* Then */; };
-		5DB132D82D9F8298004E2AE9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292B2D39EE120036A9AC /* SnapKit */; };
-		5DB132D92D9F8298004E2AE9 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29302D39EF990036A9AC /* Then */; };
-		5DB132DA2D9F8298004E2AE9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E29332D39EFA40036A9AC /* SnapKit */; };
 		AF1C01462D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292D2D39EE460036A9AC /* Then */; };
+		C0358CD32E0AA8F800227D60 /* SwiftyToaster in Frameworks */ = {isa = PBXBuildFile; productRef = C0358CD22E0AA8F800227D60 /* SwiftyToaster */; };
 		C07F4E142DDDE01A009B4C21 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E132DDDE01A009B4C21 /* KakaoSDKAuth */; };
 		C07F4E162DDDE01A009B4C21 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E152DDDE01A009B4C21 /* KakaoSDKCommon */; };
 		C07F4E182DDDE01A009B4C21 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E172DDDE01A009B4C21 /* KakaoSDKUser */; };
@@ -85,6 +77,7 @@
 				C07F4E182DDDE01A009B4C21 /* KakaoSDKUser in Frameworks */,
 				01997BE52D62DD120008A90C /* WebKit.framework in Frameworks */,
 				C07F4E242DDDE060009B4C21 /* SnapKit in Frameworks */,
+				C0358CD32E0AA8F800227D60 /* SwiftyToaster in Frameworks */,
 				AF1C01462D4DDF6E008AF4DE /* Then in Frameworks */,
 				C07F4E142DDDE01A009B4C21 /* KakaoSDKAuth in Frameworks */,
 			);
@@ -148,6 +141,7 @@
 				C07F4E202DDDE053009B4C21 /* Moya */,
 				C07F4E232DDDE060009B4C21 /* SnapKit */,
 				C07F4E262DDDE06D009B4C21 /* Then */,
+				C0358CD22E0AA8F800227D60 /* SwiftyToaster */,
 			);
 			productName = Duckmelang;
 			productReference = AF1C01482D4DDF6E008AF4DE /* Duckmelang.app */;
@@ -184,6 +178,7 @@
 				C07F4E1F2DDDE053009B4C21 /* XCRemoteSwiftPackageReference "Moya" */,
 				C07F4E222DDDE060009B4C21 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				C07F4E252DDDE06D009B4C21 /* XCRemoteSwiftPackageReference "Then" */,
+				C0358CD12E0AA8F800227D60 /* XCRemoteSwiftPackageReference "SwiftyToaster" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FA4FE3FE2D2FA23D007423E3;
@@ -229,6 +224,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -255,6 +251,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -411,6 +408,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C0358CD12E0AA8F800227D60 /* XCRemoteSwiftPackageReference "SwiftyToaster" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/noeyiz/SwiftyToaster";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
+			};
+		};
 		C07F4E122DDDE01A009B4C21 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
@@ -501,6 +506,11 @@
 		991E29332D39EFA40036A9AC /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SnapKit;
+		};
+		C0358CD22E0AA8F800227D60 /* SwiftyToaster */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0358CD12E0AA8F800227D60 /* XCRemoteSwiftPackageReference "SwiftyToaster" */;
+			productName = SwiftyToaster;
 		};
 		C07F4E132DDDE01A009B4C21 /* KakaoSDKAuth */ = {
 			isa = XCSwiftPackageProductDependency;

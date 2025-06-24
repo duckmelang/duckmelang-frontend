@@ -7,6 +7,7 @@
 
 import UIKit
 import Moya
+import SwiftyToaster
 
 class OtherPostDetailViewController: UIViewController {
     var postId: Int?  // 전달받을 게시물 ID
@@ -65,7 +66,7 @@ class OtherPostDetailViewController: UIViewController {
     }
     
     private func fetchPostDetail(postId: Int) {
-        _Concurrency .Task {
+        _Concurrency.Task {
             do {
                 startLoading()
                 
@@ -84,6 +85,7 @@ class OtherPostDetailViewController: UIViewController {
             } catch {
                 stopLoading()
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("게시물 정보를 불러오지 못했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }
@@ -140,6 +142,7 @@ class OtherPostDetailViewController: UIViewController {
             catch {
                 stopLoading()
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("북마크를 추가하는 데 실패했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }

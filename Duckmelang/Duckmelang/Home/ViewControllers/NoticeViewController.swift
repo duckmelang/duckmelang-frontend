@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftyToaster
 
 class NoticeViewController: UIViewController {
     let networkService = HomeService()
@@ -69,6 +70,7 @@ class NoticeViewController: UIViewController {
             catch {
                 stopLoading()
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("알림을 가져오는 데 실패했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }
@@ -90,6 +92,7 @@ class NoticeViewController: UIViewController {
             catch {
                 stopLoading()
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("알림 상태를 업데이트하지 못했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }
