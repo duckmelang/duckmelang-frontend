@@ -22,6 +22,8 @@ class MyPageViewController: UIViewController {
         
         self.view = myPageView
         myPageView.myPageTopView.isHidden = true
+
+        startLoading()
         
         //NotificationCenter 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateProfile(_:)), name: NSNotification.Name("ProfileUpdated"), object: nil)

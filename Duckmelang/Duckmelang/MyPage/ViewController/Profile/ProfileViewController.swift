@@ -37,6 +37,7 @@ class ProfileViewController: UIViewController{
         fetchProfileData()
         
         profileView.profileTopView.isHidden = true
+        profileView.profileBottomView.isHidden = true
         
         fetchMyPosts()
         fetchReviews()
@@ -107,6 +108,7 @@ class ProfileViewController: UIViewController{
                     self.posts = postResponse.postList
                     self.profileView.profileBottomView.uploadPostView.reloadData() // 테이블뷰 갱신
                 }
+                profileView.profileBottomView.isHidden = false
                 
                 stopLoading()
             } catch {

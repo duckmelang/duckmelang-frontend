@@ -22,6 +22,8 @@ class ProfileModifyView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    lazy var contentView = UIView()
+    
     lazy var backBtn = UIButton().then {
         $0.setImage(.back, for: .normal)
     }
@@ -95,8 +97,12 @@ class ProfileModifyView: UIView {
     }
     
     private func setupView(){
-        [topStack, profileImage, profileAddBtn, textFieldStack, nicknameErrorText, selfPRErrorText, blurBackgroundView, alert].forEach{addSubview($0)}
+        addSubview(contentView)
+        [topStack, profileImage, profileAddBtn, textFieldStack, nicknameErrorText, selfPRErrorText, blurBackgroundView, alert].forEach{contentView.addSubview($0)}
         
+        contentView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
         
         blurBackgroundView.snp.makeConstraints {
             $0.edges.equalToSuperview() // 화면 전체를 덮음
