@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftyToaster
 
 class SearchFilterViewController: UIViewController {
     let networkService = HomeService()
@@ -60,6 +61,7 @@ class SearchFilterViewController: UIViewController {
             catch {
                 stopLoading()
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("필터 정보를 불러오는 데 실패했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }

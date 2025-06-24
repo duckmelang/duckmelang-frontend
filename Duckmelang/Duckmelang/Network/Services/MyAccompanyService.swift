@@ -52,8 +52,8 @@ public final class MyAccompanyService : NetworkManager {
     }
     
     /// 스크랩  API
-    public func getBookmarks(page: Int) async throws -> PostResponse {
-        return try await requestAsync(target: .getBookmarks(page: page), decodingType: PostResponse.self)
+    public func getBookmarks(page: Int) async throws -> BookmarksResponse {
+        return try await requestAsync(target: .getBookmarks(page: page), decodingType: BookmarksResponse.self)
     }
     
     /// 내 게시물  API

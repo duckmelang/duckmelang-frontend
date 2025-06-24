@@ -25,9 +25,10 @@ public struct SocialLoginResult: Codable {
 
 // Login 응답 결과
 public struct LoginResult: Codable {
+    public let memberId: Int
     public let accessToken: String
     public let refreshToken: String
-    public let memberId: Int
+    public let profileComplete: Bool
 }
 
 // 인증번호 응답 모델

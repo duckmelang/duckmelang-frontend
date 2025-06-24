@@ -108,7 +108,7 @@ class HomeView: UIView {
         // 아이콘 컨테이너 뷰 생성
         let iconStackView = UIStackView(arrangedSubviews: [bellIcon, findIcon])
         iconStackView.axis = .horizontal
-        iconStackView.spacing = 16 // 아이콘 간 간격 조절
+        iconStackView.spacing = 20 // 아이콘 간 간격 조절
 
         addSubview(iconStackView)
 

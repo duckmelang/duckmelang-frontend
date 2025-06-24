@@ -35,7 +35,7 @@ public struct ChatDTO: Codable {
     public let postImage: String
     public let status: String
     public let lastMessage: String?
-    public let lastMessageTime: String
+    public let lastMessageTime: String?
 }
 
 public struct ChatResponse: Codable {

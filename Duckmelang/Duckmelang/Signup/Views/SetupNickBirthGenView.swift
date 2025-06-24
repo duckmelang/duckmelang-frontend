@@ -48,6 +48,7 @@ class SetupNickBirthGenView: UIView {
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
         $0.textColor = .grey900
         $0.keyboardType = .default
+        $0.autocapitalizationType = .none
         $0.returnKeyType = .done
     }
     
@@ -74,6 +75,8 @@ class SetupNickBirthGenView: UIView {
         $0.borderStyle = .none
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
         $0.tintColor = .clear
+        $0.autocapitalizationType = .none
+        $0.returnKeyType = .done
     }
     
     private let birthdateUnderline = UIView().then {

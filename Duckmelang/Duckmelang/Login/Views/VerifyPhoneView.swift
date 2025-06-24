@@ -80,6 +80,10 @@ class VerifyPhoneView: UIView {
         textField.layer.cornerRadius = 5
         textField.layer.borderColor = UIColor.grey400!.cgColor
         
+        textField.autocapitalizationType = .none
+        textField.returnKeyType = .done
+        textField.keyboardType = .numberPad
+        
         return textField
     }()
     
@@ -123,6 +127,9 @@ class VerifyPhoneView: UIView {
         textField.layer.borderWidth = 1
         textField.layer.cornerRadius = 5
         textField.layer.borderColor = UIColor.grey400!.cgColor
+        
+        textField.autocapitalizationType = .none
+        textField.returnKeyType = .done
         
         return textField
     }()

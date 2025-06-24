@@ -60,7 +60,7 @@ class PhoneSigninView: UIView {
         textField.textColor = UIColor.grey600
         
         // 플레이스홀더 설정
-        textField.placeholder = "01012345678"
+        textField.placeholder = "010-1234-5678"
         
         // 왼쪽 패딩 추가
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
@@ -74,6 +74,8 @@ class PhoneSigninView: UIView {
         textField.layer.borderWidth = 1
         textField.layer.cornerRadius = 5
         textField.layer.borderColor = UIColor.grey400!.cgColor
+        
+        textField.keyboardType = .numberPad
         
         return textField
     }()
@@ -118,6 +120,8 @@ class PhoneSigninView: UIView {
         textField.layer.borderWidth = 1
         textField.layer.cornerRadius = 5
         textField.layer.borderColor = UIColor.grey400!.cgColor
+        
+        textField.keyboardType = .numberPad
         
         return textField
     }()

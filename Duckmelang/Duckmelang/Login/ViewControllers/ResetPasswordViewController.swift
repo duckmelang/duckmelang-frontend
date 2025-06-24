@@ -49,8 +49,7 @@ class ResetPasswordViewController: UIViewController {
     }
     
     @objc func didTapVerifyButton(_ textField: UITextField) {
-        // MARK-: 테스트를 위한 임시 구문
-        let completeVC = CompleteResetPasswordViewController()
-        self.navigationController?.pushViewController(completeVC, animated: true)
+        let newPwdVC = NewPasswordViewController()
+        self.navigationController?.pushViewController(newPwdVC, animated: true)
     }
 }

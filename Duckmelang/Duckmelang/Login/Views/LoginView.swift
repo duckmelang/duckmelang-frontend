@@ -45,6 +45,8 @@ class LoginView: UIView {
             leftViewMode: .always,
             interaction: true
         )
+        textField.autocapitalizationType = .none
+        textField.returnKeyType = .done
         textField.configLayer(layerBorderWidth: 1.0, layerCornerRadius: 5, layerColor: UIColor.grey400)
         return textField
     }()
@@ -90,6 +92,8 @@ class LoginView: UIView {
         textField.isSecureTextEntry = true
         textField.rightView = rightPaddingView
         textField.rightViewMode = .always
+        textField.autocapitalizationType = .none
+        textField.returnKeyType = .done
         return textField
     }()
     

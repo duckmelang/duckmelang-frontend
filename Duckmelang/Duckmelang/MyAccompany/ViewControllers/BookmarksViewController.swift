@@ -42,10 +42,10 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
                 let result = try await networkService.getBookmarks(page: startPage)
                 
                 if (result.isFirst) {
-                    self.bookmarksData = result.postList
+                    self.bookmarksData = result.bookmarkList.map { $0.post }
                     self.totalPage = result.totalPage
                 } else {
-                    self.bookmarksData.append(contentsOf: result.postList)
+                    self.bookmarksData.append(contentsOf: result.bookmarkList.map { $0.post })
                 }
 //                self.currentPage = result.currentPage
                 
