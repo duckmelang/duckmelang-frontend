@@ -100,9 +100,11 @@ import UIKit
 import Moya
 
 class PushNotificationViewController: UIViewController {
-    
+
     let networkService = MyPageService()
 
+    var isLoading = false
+    
     private let notificationTitles = [
         "채팅 알림",
         "동행 확정 요청 수신 알림",
@@ -124,7 +126,10 @@ class PushNotificationViewController: UIViewController {
         self.view = pushNotificationView
         navigationController?.isNavigationBarHidden = true
         setupDelegate()
+        
+        self.startLoading()
         fetchNotificationSettings()  // ✅ API 요청 (알림 설정 가져오기)
+        self.pushNotificationView.tableView.isHidden = true
     }
 
     private lazy var pushNotificationView = PushNotificationView().then {
@@ -153,16 +158,12 @@ class PushNotificationViewController: UIViewController {
         // ✅ PATCH 요청 실행
         _Concurrency.Task {
             do {
-                startLoading()
                 let response = try await networkService.patchNotificationsSetting(parameters)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.fetchNotificationSettings()
                 }
-                
-                stopLoading()
             } catch {
-                stopLoading()
                 print(error.localizedDescription)
             }
         }
@@ -178,10 +179,10 @@ class PushNotificationViewController: UIViewController {
     private func fetchNotificationSettings() {
         _Concurrency.Task {
             do {
-                startLoading()
+                let result = try await networkService.getNotificationsSetting()
+                self.notificationSettings = result
                 
-                _ = try await networkService.getNotificationsSetting()
-                
+                self.pushNotificationView.tableView.isHidden = false
                 stopLoading()
             }
             catch {
@@ -189,27 +190,6 @@ class PushNotificationViewController: UIViewController {
                 print(error.localizedDescription)
             }
         }
-        /*
-        provider.request(.getNotificationsSetting) { result in
-            switch result {
-            case .success(let response):
-                if let responseString = String(data: response.data, encoding: .utf8) {
-                    print("📌 [DEBUG] 서버 응답 JSON: \(responseString)") // ✅ 서버 응답 직접 확인
-                }
-                do {
-                    let decodedResponse = try response.map(ApiResponse<NotificationsSettingResponse>.self)
-                    if decodedResponse.isSuccess {
-                        self.notificationSettings = decodedResponse.result
-                    } else {
-                        print("❌ 알림 설정 가져오기 실패: \(decodedResponse.message)")
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
-                }
-            case .failure(let error):
-                print("❌ 요청 실패: \(error.localizedDescription)")
-            }
-        }*/
     }
 
 }
