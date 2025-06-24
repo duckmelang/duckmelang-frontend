@@ -21,6 +21,10 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
         navigationController?.isNavigationBarHidden = true
         setupAction()
         fetchProfileInfo()
+        
+        self.profileModifyView.contentView.isHidden = true
+        
+        startLoading()
     }
 
     // MARK: - Setup Functions
@@ -61,8 +65,6 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
         
         _Concurrency.Task {
             do {
-                startLoading()
-                
                 let response = try await networkService.patchProfile(profileData: profileData)
                 
                 NotificationCenter.default.post(
@@ -74,7 +76,6 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
                 
                 stopLoading()
             } catch {
-                stopLoading()
                 print(error.localizedDescription)
             }
         }
@@ -164,6 +165,8 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
                 }
             }
         }
+        
+        self.profileModifyView.contentView.isHidden = false
     }
     
     private func makeProfileImageRound() {

@@ -84,6 +84,5 @@ class MyPageView: UIView {
         bottomBtnStack.snp.makeConstraints{
             $0.leading.equalToSuperview().inset(8)
         }
-
     }
 }

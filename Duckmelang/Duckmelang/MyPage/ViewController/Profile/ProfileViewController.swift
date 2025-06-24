@@ -35,6 +35,10 @@ class ProfileViewController: UIViewController{
         setupAction()
         setupDelegate()
         fetchProfileData()
+        
+        profileView.profileTopView.isHidden = true
+        profileView.profileBottomView.isHidden = true
+        
         fetchMyPosts()
         fetchReviews()
         
@@ -89,6 +93,8 @@ class ProfileViewController: UIViewController{
                 profileView.profileTopView.profileImage.kf.setImage(with: imageUrl, options: [.cacheMemoryOnly])
             }
         }
+        
+        profileView.profileTopView.isHidden = false
     }
     
     // 내 게시글 가져오기
@@ -102,6 +108,7 @@ class ProfileViewController: UIViewController{
                     self.posts = postResponse.postList
                     self.profileView.profileBottomView.uploadPostView.reloadData() // 테이블뷰 갱신
                 }
+                profileView.profileBottomView.isHidden = false
                 
                 stopLoading()
             } catch {
