@@ -8,17 +8,20 @@
 import UIKit
 
 class MyPageViewController: UIViewController {
-    
+   
     let networkService = MyPageService()
+    
+    private var profileData: ProfileData?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view = myPageView
-        
         navigationController?.isNavigationBarHidden = true
-        
+
         getProfileInfo()
+        
+        self.view = myPageView
+        myPageView.myPageTopView.isHidden = true
         
         //NotificationCenter 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateProfile(_:)), name: NSNotification.Name("ProfileUpdated"), object: nil)
@@ -43,7 +46,6 @@ class MyPageViewController: UIViewController {
     @objc private func updateProfile(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let nickname = userInfo["nickname"] as? String,
-              let introduction = userInfo["introduction"] as? String,
               let imageURLString = userInfo["imageURL"] as? String,
               let imageURL = URL(string: imageURLString) else { return }
         
@@ -63,12 +65,17 @@ class MyPageViewController: UIViewController {
     }
     
     @objc private func profileSeeBtnDidTap() {
+        guard let data = self.profileData else {
+            print("프로필 정보를 불러올 수 없음.")
+            return
+        }
+        
         let profileVC = ProfileViewController()
-        profileVC.profileData = myPageView.myPageTopView.profileData // 데이터 전달
+        profileVC.profileData = data // 데이터 전달
         
         navigationController?.pushViewController(profileVC, animated: true)
     }
-
+    
     @objc
     private func idolChangeDidTap() {
         let idolChangeVC = UINavigationController(rootViewController: IdolChangeViewController())
@@ -122,22 +129,30 @@ class MyPageViewController: UIViewController {
     private func getProfileInfo() {
         Task {
             do {
-                startLoading()
+                self.startLoading()
                 
                 let result = try await networkService.getProfile()
+                self.profileData = result
                 
-                DispatchQueue.main.async {
-                    self.myPageView.myPageTopView.profileData = result
-                    self.myPageView.myPageTopView.profileImage.contentMode = .scaleAspectFill
-                }
+                self.updateMyPageTopView(with: result)
                 
-                stopLoading()
+                myPageView.myPageTopView.isHidden = false
+                self.stopLoading()
             } catch {
-                stopLoading()
+                self.stopLoading()
                 print(error.localizedDescription)
             }
         }
     }
+    
+    private func updateMyPageTopView(with data: ProfileData) {
+        self.myPageView.myPageTopView.nickname.text = data.nickname
+        self.myPageView.myPageTopView.gender.text = data.localizedGender
+        self.myPageView.myPageTopView.age.text = data.localizedAge
+        
+        if let url = URL(string: data.latestPublicMemberProfileImage) {
+            myPageView.myPageTopView.profileImage.kf.setImage(with: url, placeholder: UIImage(resource: .profile))
+        }
+    }
 }
-
 

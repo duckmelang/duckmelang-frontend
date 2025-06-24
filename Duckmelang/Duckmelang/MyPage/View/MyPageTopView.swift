@@ -12,18 +12,9 @@ class MyPageTopView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
-        
+
         addStack()
         setupView()
-    }
-    
-    var profileData: ProfileData? {
-        didSet {
-            if let profile = profileData { //profileData가 nil이 아닐 때만 실행
-                print("profileData 변경됨: \(profile)") // 확인용로그
-                updateProfile(with: profile) //인스턴스를 전달
-            }
-        }
     }
         
     required init?(coder: NSCoder) {
@@ -43,13 +34,13 @@ class MyPageTopView: UIView {
         $0.clipsToBounds = true
     }
     
-    lazy var nickname = Label(text: "닉네임", font: .ptdMediumFont(ofSize: 16), color: .black)
+    lazy var nickname = Label(text: "", font: .ptdMediumFont(ofSize: 16), color: .black)
     
-    private lazy var gender = Label(text: "여성", font: .ptdRegularFont(ofSize: 13), color: .grey600)
+    lazy var gender = Label(text: "", font: .ptdRegularFont(ofSize: 13), color: .grey600)
 
-    private lazy var line = Label(text: "|", font: .ptdMediumFont(ofSize: 13), color: .grey400)
+    lazy var line = Label(text: "|", font: .ptdMediumFont(ofSize: 13), color: .grey400)
     
-    private lazy var age = Label(text: "나이", font: .ptdRegularFont(ofSize: 13), color: .grey600)
+    lazy var age = Label(text: "", font: .ptdRegularFont(ofSize: 13), color: .grey600)
     
     lazy var profileSeeBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
@@ -93,21 +84,6 @@ class MyPageTopView: UIView {
         profileSeeBtn.snp.makeConstraints{
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview().inset(16)
-        }
-    }
-    
-    //UI 업데이트 함수 추가
-    func updateProfile(with data: ProfileData) {
-        nickname.text = data.nickname
-        gender.text = data.localizedGender
-        age.text = data.localizedAge
-        
-        //Kingfisher로 이미지 로딩 (URL이 유효한 경우만)
-        if let url = URL(string: data.latestPublicMemberProfileImage) {
-            profileImage.kf.setImage(
-                with: url,
-                placeholder: UIImage(resource: .profile) // 로딩 전 기본 이미지
-            )
         }
     }
 }
