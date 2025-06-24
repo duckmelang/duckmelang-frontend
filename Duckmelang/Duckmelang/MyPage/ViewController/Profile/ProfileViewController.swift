@@ -35,6 +35,9 @@ class ProfileViewController: UIViewController{
         setupAction()
         setupDelegate()
         fetchProfileData()
+        
+        profileView.profileTopView.isHidden = true
+        
         fetchMyPosts()
         fetchReviews()
         
@@ -89,6 +92,8 @@ class ProfileViewController: UIViewController{
                 profileView.profileTopView.profileImage.kf.setImage(with: imageUrl, options: [.cacheMemoryOnly])
             }
         }
+        
+        profileView.profileTopView.isHidden = false
     }
     
     // 내 게시글 가져오기
