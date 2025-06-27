@@ -59,6 +59,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     
     @objc private func goBack() {
         self.navigationController?.popViewController(animated: true)
+        self.tabBarController?.tabBar.isHidden = false // tabBar 다시 보이도록
     }
     
     /*private func getMyProfileImageAPI() {

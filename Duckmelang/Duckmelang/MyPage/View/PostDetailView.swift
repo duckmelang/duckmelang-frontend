@@ -4,7 +4,6 @@
 //
 //  Created by KoNangYeon on 1/14/25.
 //
-
 import UIKit
 import SnapKit
 import Kingfisher
@@ -126,7 +125,7 @@ class PostDetailTopView: UIView {
         $0.isPagingEnabled = true
     }
     
-    private lazy var imageViews = UIImageView().then {
+    lazy var imageViews = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
     }

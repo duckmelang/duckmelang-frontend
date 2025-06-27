@@ -34,7 +34,7 @@ class PostDetailViewController: UIViewController {
         navigationController?.isNavigationBarHidden = true
         
         setupDelegate()
-        
+
         updateButtonVisibility(state: .inProgress) // 초기 상태 설정
         
         // ✅ postId가 nil이 아니면 API 요청

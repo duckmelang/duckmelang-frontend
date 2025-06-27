@@ -1,5 +1,5 @@
 {
-  "originHash" : "e0b831f226c7ceb50244f4e26fa009848ff10001bd1aa06e70f56cebc67086ea",
+  "originHash" : "596bbf971854e63fd7cce6e93a18e2d9a0e8b322bd49ac8aa37752cb969b3ef6",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -76,7 +76,7 @@
     {
       "identity" : "swiftytoaster",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/noeyiz/SwiftyToaster",
+      "location" : "https://github.com/noeyiz/SwiftyToaster.git",
       "state" : {
         "revision" : "4ed905fdecf7426e3e7a7af03b09674980f9c1a7",
         "version" : "1.0.2"
