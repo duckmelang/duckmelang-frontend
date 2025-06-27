@@ -106,7 +106,7 @@ class ProfileTopView: UIView {
     
     private lazy var matchingCount = Label(text: "", font: .ptdSemiBoldFont(ofSize: 17), color: .grey800)
     
-    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -13, distribution: .equalSpacing)
+    private lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -19, distribution: .equalSpacing)
     private lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var postStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
     private lazy var matchingStack = Stack(axis: .vertical, spacing: 4, alignment: .center)
@@ -282,7 +282,7 @@ class ProfileBottomView: UIView {
         $0.settings.emptyImage = UIImage(resource: .emptyStar)
     }
     
-    private lazy var cosmosCount = Label(text: String(cosmosView.rating), font: .ptdSemiBoldFont(ofSize: 17), color: .mainColor)
+    lazy var cosmosCount = Label(text: "0.0", font: .ptdSemiBoldFont(ofSize: 17), color: .mainColor)
     
     private lazy var cosmosFive = Label(text: "/ 5", font: .ptdRegularFont(ofSize: 17), color: .grey600)
     

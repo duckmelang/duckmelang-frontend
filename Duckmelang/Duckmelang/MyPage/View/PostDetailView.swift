@@ -4,12 +4,14 @@
 //
 //  Created by KoNangYeon on 1/14/25.
 //
-
 import UIKit
 import SnapKit
 import Kingfisher
 
 class PostDetailView: UIView {
+    
+    var imageViewTopConstraint: Constraint!
+    var gradientLayer: CAGradientLayer!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,9 +25,13 @@ class PostDetailView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var scrollView = UIScrollView()
+    lazy var scrollView = UIScrollView().then {
+        $0.scrollsToTop = false
+    }
     
-    private lazy var contentView = UIView()
+    private lazy var contentView = UIView().then {
+        $0.backgroundColor = .white
+    }
     
     //이미지뷰, 프로필info, 진행중btn
     lazy var postDetailTopView = PostDetailTopView()
@@ -42,6 +48,16 @@ class PostDetailView: UIView {
         $0.setImage(.moreVertical, for: .normal)
     }
     
+    lazy var imageView = UIScrollView().then {
+        $0.backgroundColor = .grey200
+        $0.isPagingEnabled = true
+    }
+    
+    lazy var imageViews = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
+        $0.clipsToBounds = true
+    }
+
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
     private func addStack(){
@@ -51,9 +67,26 @@ class PostDetailView: UIView {
     private func setupView(){
         [scrollView].forEach{addSubview($0)}
         [contentView].forEach{scrollView.addSubview($0)}
-        [postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
+        [imageView, postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
         
         addSubview(topStack)
+        
+        imageView.addSubview(imageViews)
+
+        
+        imageView.snp.makeConstraints{
+            imageViewTopConstraint = $0.top.equalTo(contentView.snp.top).constraint
+            $0.top.equalTo(safeAreaInsets)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
+            $0.bottom.equalTo(postDetailTopView.snp.top)
+        }
+        
+        imageViews.snp.makeConstraints {
+            $0.edges.equalTo(imageView)
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(imageView)
+        }
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
@@ -66,12 +99,14 @@ class PostDetailView: UIView {
         }
         
         contentView.snp.makeConstraints{
+            $0.top.equalTo(scrollView.frameLayoutGuide.snp.top)
             $0.edges.width.equalToSuperview()
             $0.height.greaterThanOrEqualToSuperview()
         }
         
         postDetailTopView.snp.makeConstraints{
-            $0.top.horizontalEdges.equalToSuperview()
+            $0.top.equalTo(contentView.snp.top).offset(350)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         postDetailBottomView.snp.makeConstraints{
@@ -84,7 +119,7 @@ class PostDetailView: UIView {
         // 이미지 로드 (첫 번째 이미지)
         if let firstImageUrlString = data.postImageUrl.first,
            let imageUrl = URL(string: firstImageUrlString) {
-            postDetailTopView.updateImage(with: imageUrl) // ✅ 이미지 로드 후 그라데이션 추가
+            updateImage(with: imageUrl) // ✅ 이미지 로드 후 그라데이션 추가
         }
         
         // 상단 프로필 정보 업데이트
@@ -104,6 +139,36 @@ class PostDetailView: UIView {
         
         postDetailBottomView.tableView.reloadData()
     }
+    
+    /// ✅ Kingfisher 이미지 로드 후 그라데이션 추가
+    func updateImage(with url: URL?) {
+        guard let url = url else { return }
+        imageViews.kf.setImage(with: url, placeholder: UIImage(), completionHandler: { _ in
+            DispatchQueue.main.async {
+                //self.addGradientLayer()
+                self.imageViews.contentMode = .scaleAspectFill
+                self.imageViews.clipsToBounds = true
+            }
+        })
+    }
+    
+    func addGradientLayer() {
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.name = "postDetailGradient"
+
+        //그라데이션 색상 설정 (위는 투명, 아래는 검정)
+        gradientLayer.colors = [
+            UIColor.clear.cgColor,
+            UIColor.black!.withAlphaComponent(0.5).cgColor
+        ]
+
+        //그라데이션 방향 설정 (위 → 아래)
+        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
+        gradientLayer.frame = imageViews.bounds
+    
+        imageViews.layer.addSublayer(gradientLayer)
+    }
 }
 
 class PostDetailTopView: UIView {
@@ -119,16 +184,6 @@ class PostDetailTopView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    lazy var imageView = UIScrollView().then {
-        $0.backgroundColor = .grey200
-        $0.isPagingEnabled = true
-    }
-    
-    private lazy var imageViews = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.clipsToBounds = true
     }
     
     lazy var profileImage = UIImageView().then {
@@ -197,39 +252,11 @@ class PostDetailTopView: UIView {
         $0.isHidden = true
     }
     
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -10, distribution: .equalCentering)
+    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -16, distribution: .equalCentering)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6, alignment: .leading)
     lazy var profileInfo = Stack(axis: .horizontal, spacing: 16, alignment: .center)
     
-    /// ✅ Kingfisher 이미지 로드 후 그라데이션 추가
-    func updateImage(with url: URL?) {
-        guard let url = url else { return }
-        imageViews.kf.setImage(with: url, placeholder: UIImage(), completionHandler: { _ in
-            DispatchQueue.main.async {
-                self.addGradientLayer()
-                self.imageViews.contentMode = .scaleAspectFill
-                self.imageViews.clipsToBounds = true
-            }
-        })
-    }
     
-    func addGradientLayer() {
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.frame = imageViews.bounds
-
-        //그라데이션 색상 설정 (위는 투명, 아래는 검정)
-        gradientLayer.colors = [
-            UIColor.clear.cgColor,
-            UIColor.black!.withAlphaComponent(0.5).cgColor
-        ]
-
-        //그라데이션 방향 설정 (위 → 아래)
-        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
-        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
-
-        //`imageView`의 `layer`에 추가
-        imageViews.layer.addSublayer(gradientLayer)
-    }
     
     private func addStack(){
         [gender, line, age].forEach{genderAndAgeStack.addArrangedSubview($0)}
@@ -238,51 +265,32 @@ class PostDetailTopView: UIView {
     }
     
     private func setupView(){
-        [imageView, profileInfo, progressBtn, progressTapBtn, endBtn].forEach{addSubview($0)}
-    
-        imageView.addSubview(imageViews)
+        [profileInfo, progressBtn, progressTapBtn, endBtn].forEach{addSubview($0)}
 
-        imageView.snp.makeConstraints{
-            $0.top.equalToSuperview().offset(-(UIApplication.shared.windows.first?.safeAreaInsets.top)!) //Safe Area 고려하여 확장\
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
-        }
-        
-        imageViews.snp.makeConstraints {
-            $0.edges.equalTo(imageView)
-            $0.centerX.equalToSuperview()
-            $0.height.equalTo(imageView)
-        }
-        
-        //그라데이션 추가
-        DispatchQueue.main.async {
-            self.addGradientLayer()
-        }
-        
         profileImage.snp.makeConstraints{
             $0.height.width.equalTo(36)
         }
         
         profileInfo.snp.makeConstraints{
-            $0.top.equalTo(imageView.snp.bottom).offset(15)
+            $0.top.equalToSuperview().offset(15)
             $0.leading.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }
         
         progressBtn.snp.makeConstraints{
-            $0.top.equalTo(imageView.snp.bottom).offset(12)
+            $0.top.equalToSuperview().offset(12)
             $0.trailing.equalToSuperview().inset(16)
             $0.width.equalTo(92)
         }
         
         progressTapBtn.snp.makeConstraints{
-            $0.top.equalTo(imageView.snp.bottom).offset(12)
+            $0.top.equalToSuperview().offset(12)
             $0.trailing.equalToSuperview().inset(16)
             $0.width.equalTo(92)
         }
         
         endBtn.snp.makeConstraints{
-            $0.top.equalTo(imageView.snp.bottom).offset(12)
+            $0.top.equalToSuperview().offset(12)
             $0.trailing.equalToSuperview().inset(16)
             $0.width.equalTo(92)
         }
@@ -350,7 +358,7 @@ class PostDetailBottomView: UIView {
             $0.top.equalTo(title2.snp.bottom).offset(12)
             $0.width.equalTo(UIScreen.main.bounds.width - 32)
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.height.equalTo(500)//수정예정
+            $0.height.greaterThanOrEqualTo(140)
         }
     }
 }
