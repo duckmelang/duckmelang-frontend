@@ -252,7 +252,7 @@ class PostDetailTopView: UIView {
         $0.isHidden = true
     }
     
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -10, distribution: .equalCentering)
+    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -16, distribution: .equalCentering)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6, alignment: .leading)
     lazy var profileInfo = Stack(axis: .horizontal, spacing: 16, alignment: .center)
     
