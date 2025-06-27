@@ -128,6 +128,7 @@ class ProfileViewController: UIViewController{
                     self.reviews = reviewResponse.reviewList
                     self.profileView.profileBottomView.reviewTableView.reloadData()
                     self.profileView.profileBottomView.cosmosView.rating = reviewResponse.average // ✅ 평점 업데이트
+                    self.profileView.profileBottomView.cosmosCount.text = String(reviewResponse.average)
                     print("리뷰 \(reviewResponse.reviewList.count)개 로드됨")
                 }
                 
