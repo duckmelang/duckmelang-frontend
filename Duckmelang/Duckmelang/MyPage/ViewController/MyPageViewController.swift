@@ -82,7 +82,7 @@ class MyPageViewController: UIViewController {
     private func idolChangeDidTap() {
         let idolChangeVC = UINavigationController(rootViewController: IdolChangeViewController())
         idolChangeVC.modalPresentationStyle = .fullScreen
-        present(idolChangeVC, animated: false)
+        present(idolChangeVC, animated: true)
     }
     
     @objc

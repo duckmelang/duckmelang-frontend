@@ -7,6 +7,7 @@
 
 import UIKit
 import Moya
+import Then
 
 //버튼 상태
 enum PostProgressState {
@@ -15,7 +16,7 @@ enum PostProgressState {
     case completed
 }
 
-class PostDetailViewController: UIViewController {
+class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     var postId: Int?  // 전달받을 게시물 ID
     
     var data = PostDetailAccompanyModel.dummy()
@@ -25,16 +26,24 @@ class PostDetailViewController: UIViewController {
     private var currentState: PostProgressState = .inProgress
     
     let networkService = MyPageService()
+
+    override func loadView() {
+        self.view = postDetailView
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.view = postDetailView
         
         navigationController?.isNavigationBarHidden = true
         
         setupDelegate()
-
+        
+        postDetailView.scrollView.delegate = self
+        postDetailView.translatesAutoresizingMaskIntoConstraints = true
+        
+        scrollViewDidScroll(postDetailView.scrollView)
+        postDetailView.scrollView.backgroundColor = .white
+        
         updateButtonVisibility(state: .inProgress) // 초기 상태 설정
         
         // ✅ postId가 nil이 아니면 API 요청
@@ -42,6 +51,27 @@ class PostDetailViewController: UIViewController {
             fetchPostDetail(postId: postId)
         } else {
             print("❌ postId가 nil입니다. API 호출을 하지 않습니다.")
+        }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let yOffset = scrollView.contentOffset.y
+        
+        if yOffset < 0 {
+            let scale = min(1 + abs(yOffset) / 300, 1.1)
+            
+            postDetailView.imageViewTopConstraint.update(offset: yOffset)
+            
+            postDetailView.imageView.transform = CGAffineTransform(scaleX: scale, y: scale)
+            
+            //postDetailView.gradientLayer?.frame = postDetailView.imageView.bounds
+            
+        } else {
+            postDetailView.imageView.transform = .identity
+    
+            postDetailView.imageViewTopConstraint.update(offset: 0)
+            
+            //postDetailView.gradientLayer?.frame = postDetailView.imageView.bounds
         }
     }
     
