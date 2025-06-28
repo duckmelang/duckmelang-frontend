@@ -39,7 +39,7 @@ class XKeywordChangeViewController: UIViewController {
     }
     
     @objc private func backBtnDidTap() {
-        self.presentingViewController?.dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
     
     // MARK: - Add Filter

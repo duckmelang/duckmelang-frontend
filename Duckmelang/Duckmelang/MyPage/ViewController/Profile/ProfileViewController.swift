@@ -143,7 +143,7 @@ class ProfileViewController: UIViewController{
 
     @objc
     private func backBtnDidTap() {
-        navigationController?.popViewController(animated: true)
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc
@@ -205,15 +205,13 @@ class ProfileViewController: UIViewController{
         
         if touchPoint.y <= halfHeight {
             // 윗부분 터치
-            let profileModifyVC = UINavigationController(rootViewController: ProfileModifyViewController())
-            profileModifyVC.modalPresentationStyle = .fullScreen
-            present(profileModifyVC, animated: false)
+            let profileModifyVC = ProfileModifyViewController()
+            navigationController?.pushViewController(profileModifyVC, animated: true)
             profileView.profileTopView.setBtnImage.isHidden = true
         } else {
             // 아랫부분 터치
-            let feedVC = UINavigationController(rootViewController: FeedManagementViewController())
-            feedVC.modalPresentationStyle = .fullScreen
-            present(feedVC, animated: false)
+            let feedVC = FeedManagementViewController()
+            navigationController?.pushViewController(feedVC, animated: true)
             profileView.profileTopView.setBtnImage.isHidden = true
         }
     }

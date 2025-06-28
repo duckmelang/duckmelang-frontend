@@ -80,44 +80,38 @@ class MyPageViewController: UIViewController {
     
     @objc
     private func idolChangeDidTap() {
-        let idolChangeVC = UINavigationController(rootViewController: IdolChangeViewController())
-        idolChangeVC.modalPresentationStyle = .fullScreen
-        present(idolChangeVC, animated: true)
+        let VC = IdolChangeViewController()
+        self.navigationController?.pushViewController(VC, animated: true)
     }
     
     @objc
     private func xKeywordDidTap() {
-        let xKeywordChangeVC = UINavigationController(rootViewController: XKeywordChangeViewController())
-        xKeywordChangeVC.modalPresentationStyle = .fullScreen
-        present(xKeywordChangeVC, animated: false)
+        let VC = XKeywordChangeViewController()
+        self.navigationController?.pushViewController(VC, animated: true)
     }
     
     @objc
     private func postFilterChangeDidTap() {
-        let postFilterVC = UINavigationController(rootViewController: PostFilterViewController())
-        postFilterVC.modalPresentationStyle = .fullScreen
-        present(postFilterVC, animated: false)
+        let VC = PostFilterViewController()
+        self.navigationController?.pushViewController(VC, animated: true)
     }
     
     @objc
     private func loginInfoDidTap() {
-        let loginInfoVC = UINavigationController(rootViewController: LoginInfoViewController())
-        loginInfoVC.modalPresentationStyle = .fullScreen
-        present(loginInfoVC, animated: false)
+        let VC = LoginInfoViewController()
+        self.navigationController?.pushViewController(VC, animated: true)
     }
     
     @objc
     private func pushDidTap() {
-        let pushVC = UINavigationController(rootViewController: PushNotificationViewController())
-        pushVC.modalPresentationStyle = .fullScreen
-        present(pushVC, animated: false)
+        let VC = PushNotificationViewController()
+        self.navigationController?.pushViewController(VC, animated: true)
     }
     
     @objc
     private func outDidTap() {
-        let outVC = UINavigationController(rootViewController: AccountClosing1ViewController())
-        outVC.modalPresentationStyle = .fullScreen
-        present(outVC, animated: false)
+        let VC = AccountClosing1ViewController()
+        self.navigationController?.pushViewController(VC, animated: true)
     }
     
     @objc

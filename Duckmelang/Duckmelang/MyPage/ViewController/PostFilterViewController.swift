@@ -41,7 +41,7 @@ class PostFilterViewController: UIViewController {
     }
     
     @objc private func backBtnDidTap() {
-        self.dismiss(animated: true)
+        self.navigationController?.popViewController(animated: true)
     }
     
     /// ✅ 필터 데이터를 서버에서 불러오기 (GET 요청)
