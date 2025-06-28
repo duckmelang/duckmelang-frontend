@@ -48,6 +48,11 @@ extension HomeEndpoint: TargetType {
                 fatalError("notificationURL 오류")
             }
             return url
+        case .getIdols:
+            guard let url = URL(string: API.baseURL) else {
+                fatalError("BaseURL 오류")
+            }
+            return url
         default:
             guard let url = URL(string: API.postURL) else {
                 fatalError("postURL 오류")
