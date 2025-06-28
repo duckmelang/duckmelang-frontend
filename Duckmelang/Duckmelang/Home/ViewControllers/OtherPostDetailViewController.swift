@@ -31,6 +31,11 @@ class OtherPostDetailViewController: UIViewController {
         
         setupDelegate()
  
+        otherPostDetailView.scrollView.delegate = self
+        otherPostDetailView.translatesAutoresizingMaskIntoConstraints = true
+        
+        scrollViewDidScroll(otherPostDetailView.scrollView)
+        
         // ✅ postId가 nil이 아니면 API 요청
         if let postId = postId {
             fetchPostDetail(postId: postId)
@@ -38,6 +43,8 @@ class OtherPostDetailViewController: UIViewController {
             print("❌ postId가 nil입니다. API 호출을 하지 않습니다.")
         }
     }
+    
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -52,6 +59,23 @@ class OtherPostDetailViewController: UIViewController {
         $0.tabBar.chatBtn.addTarget(self, action: #selector(chatBtnDidTap), for: .touchUpInside)
     }
 
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let yOffset = scrollView.contentOffset.y
+        
+        if yOffset < 0 {
+            let scale = min(1 + abs(yOffset) / 300, 1.1)
+            
+            otherPostDetailView.imageViewTopConstraint.update(offset: yOffset)
+            
+            otherPostDetailView.imageView.transform = CGAffineTransform(scaleX: scale, y: scale)
+    
+        } else {
+            otherPostDetailView.imageView.transform = .identity
+    
+            otherPostDetailView.imageViewTopConstraint.update(offset: 0)
+        }
+    }
+    
     @objc private func backBtnDidTap() {
         if let navigationController = self.navigationController {
             navigationController.popViewController(animated: true) // ✅ 네비게이션이 있을 경우 pop 사용

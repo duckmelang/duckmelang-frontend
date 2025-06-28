@@ -101,7 +101,7 @@ class PostDetailView: UIView {
         contentView.snp.makeConstraints{
             $0.top.equalTo(scrollView.frameLayoutGuide.snp.top)
             $0.edges.width.equalToSuperview()
-            $0.height.greaterThanOrEqualToSuperview()
+            $0.bottom.equalTo(postDetailBottomView.tableView.snp.bottom).offset(10)
         }
         
         postDetailTopView.snp.makeConstraints{

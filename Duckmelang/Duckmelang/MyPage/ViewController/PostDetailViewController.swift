@@ -63,15 +63,11 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
             postDetailView.imageViewTopConstraint.update(offset: yOffset)
             
             postDetailView.imageView.transform = CGAffineTransform(scaleX: scale, y: scale)
-            
-            //postDetailView.gradientLayer?.frame = postDetailView.imageView.bounds
-            
+    
         } else {
             postDetailView.imageView.transform = .identity
     
             postDetailView.imageViewTopConstraint.update(offset: 0)
-            
-            //postDetailView.gradientLayer?.frame = postDetailView.imageView.bounds
         }
     }
     
