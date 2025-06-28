@@ -28,7 +28,7 @@ class LoginInfoViewController: UIViewController {
     
     @objc
     private func backBtnDidTap() {
-        self.presentingViewController?.dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
     
     private func getLoginInfo() {

@@ -36,7 +36,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
 
     // MARK: - Button Actions
     @objc private func backBtnDidTap() {
-        dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc private func finishBtnDidTap() {

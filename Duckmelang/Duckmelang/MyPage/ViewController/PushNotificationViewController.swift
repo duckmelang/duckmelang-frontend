@@ -137,7 +137,7 @@ class PushNotificationViewController: UIViewController {
     }
 
     @objc private func backBtnDidTap() {
-        self.presentingViewController?.dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
 
     /// ✅ 알림 설정 변경 처리 (CustomToggleButton이 눌릴 때)
