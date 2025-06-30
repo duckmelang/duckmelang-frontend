@@ -277,6 +277,19 @@ class OtherPostDetailBottomView: UIView {
     lazy var text2 = Label(text: "| 채팅 0", font: .ptdRegularFont(ofSize: 12), color: .grey500)
     lazy var text3 = Label(text: "| 조회 0", font: .ptdRegularFont(ofSize: 12), color: .grey500)
     
+    lazy var warningBtn = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        let imageConfig = UIImage.SymbolConfiguration(pointSize: 12)
+        let image = UIImage(systemName: "exclamationmark.triangle", withConfiguration: imageConfig)
+        config.imagePadding = 8
+        config.attributedTitle = AttributedString("신고하기", attributes: AttributeContainer([.font: UIFont.ptdRegularFont(ofSize: 12), .foregroundColor: UIColor.errorPrimary!]))
+        config.image = image
+        $0.tintColor = UIColor.errorPrimary
+        $0.setTitleColor(.errorPrimary, for: .normal)
+
+        $0.configuration = config
+    }
+    
     private lazy var textStack = Stack(axis: .vertical, spacing: 14)
     lazy var infoStack = Stack(axis: .horizontal, spacing: 10)
     
@@ -295,7 +308,7 @@ class OtherPostDetailBottomView: UIView {
     }
     
     private func setupView(){
-        [textStack, title2, tableView].forEach{addSubview($0)}
+        [textStack, title2, tableView, warningBtn].forEach{addSubview($0)}
         
         textStack.snp.makeConstraints{
             $0.top.equalToSuperview().inset(8)
@@ -305,6 +318,13 @@ class OtherPostDetailBottomView: UIView {
         title2.snp.makeConstraints{
             $0.top.equalTo(textStack.snp.bottom).offset(60)
             $0.leading.equalToSuperview().inset(16)
+        }
+        
+        warningBtn.snp.makeConstraints{
+            $0.centerY.equalTo(infoStack.snp.centerY)
+            $0.height.equalTo(12)
+            //$0.width.greaterThanOrEqualTo(80)
+            $0.trailing.equalToSuperview().inset(24)
         }
         
         tableView.snp.makeConstraints{
