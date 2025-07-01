@@ -57,6 +57,7 @@ class OtherPostDetailViewController: UIViewController {
         $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         $0.tabBar.scrapBtn.addTarget(self, action: #selector(scrapBtnDidTap), for: .touchUpInside)
         $0.tabBar.chatBtn.addTarget(self, action: #selector(chatBtnDidTap), for: .touchUpInside)
+        $0.postDetailBottomView.warningBtn.addTarget(self, action: #selector(warningBtnDidTap), for: .touchUpInside)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -82,6 +83,12 @@ class OtherPostDetailViewController: UIViewController {
         } else {
             dismiss(animated: true) // ✅ 네비게이션이 없으면 dismiss
         }
+    }
+    
+    @objc
+    private func warningBtnDidTap() {
+        let VC = WarningViewController()
+        self.navigationController?.pushViewController(VC, animated: true)
     }
  
     private func setupDelegate() {
