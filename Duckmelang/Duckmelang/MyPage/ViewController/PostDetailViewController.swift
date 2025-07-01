@@ -38,6 +38,10 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
         
         setupDelegate()
         
+        postDetailView.scrollView.isHidden = true
+        
+        startLoading()
+        
         postDetailView.scrollView.delegate = self
         postDetailView.translatesAutoresizingMaskIntoConstraints = true
         
@@ -203,6 +207,7 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
                     self.updateBtn(with: response)
                 }
                 
+                self.postDetailView.scrollView.isHidden = false
                 stopLoading()
             } catch {
                 stopLoading()

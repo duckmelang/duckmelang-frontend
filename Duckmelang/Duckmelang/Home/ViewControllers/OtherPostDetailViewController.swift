@@ -26,7 +26,7 @@ class OtherPostDetailViewController: UIViewController {
         super.viewDidLoad()
 
         self.view = otherPostDetailView
-        otherPostDetailView.isHidden = true
+        otherPostDetailView.scrollView.isHidden = true
         
         startLoading()
         
@@ -113,7 +113,7 @@ class OtherPostDetailViewController: UIViewController {
                 //성공 시 데이터 출력
                 print("Post Detail: \(response)")
                 
-                otherPostDetailView.isHidden = false
+                otherPostDetailView.scrollView.isHidden = false
                 stopLoading()
             } catch {
                 stopLoading()
