@@ -26,16 +26,18 @@ class OtherPostDetailViewController: UIViewController {
         super.viewDidLoad()
 
         self.view = otherPostDetailView
+        otherPostDetailView.isHidden = true
+        
+        startLoading()
         
         navigationController?.isNavigationBarHidden = true
         
         setupDelegate()
- 
+        
         otherPostDetailView.scrollView.delegate = self
         otherPostDetailView.translatesAutoresizingMaskIntoConstraints = true
-        
         scrollViewDidScroll(otherPostDetailView.scrollView)
-        
+      
         // ✅ postId가 nil이 아니면 API 요청
         if let postId = postId {
             fetchPostDetail(postId: postId)
@@ -85,8 +87,7 @@ class OtherPostDetailViewController: UIViewController {
         }
     }
     
-    @objc
-    private func warningBtnDidTap() {
+    @objc private func warningBtnDidTap() {
         let VC = WarningViewController()
         self.navigationController?.pushViewController(VC, animated: true)
     }
@@ -112,6 +113,7 @@ class OtherPostDetailViewController: UIViewController {
                 //성공 시 데이터 출력
                 print("Post Detail: \(response)")
                 
+                otherPostDetailView.isHidden = false
                 stopLoading()
             } catch {
                 stopLoading()

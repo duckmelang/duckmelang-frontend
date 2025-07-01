@@ -19,15 +19,21 @@ class OtherPostDetailView: UIView {
         
         addStack()
         setupView()
+        
+        postDetailBottomView.bringSubviewToFront(postDetailBottomView.warningBtn)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    lazy var scrollView = UIScrollView()
+    lazy var scrollView = UIScrollView().then {
+        $0.isUserInteractionEnabled = true
+    }
     
-    private lazy var contentView = UIView()
+    private lazy var contentView = UIView().then {
+        $0.isUserInteractionEnabled = true
+    }
     
     private lazy var whiteView = UIView().then {
         $0.backgroundColor = .white
@@ -35,7 +41,9 @@ class OtherPostDetailView: UIView {
     
     lazy var postDetailTopView = OtherPostDetailTopView()
     
-    lazy var postDetailBottomView = OtherPostDetailBottomView()
+    lazy var postDetailBottomView = OtherPostDetailBottomView().then {
+        $0.isUserInteractionEnabled = true
+    }
     
     lazy var tabBar = OtherPostDetailTapBar()
     
@@ -126,6 +134,8 @@ class OtherPostDetailView: UIView {
         
         postDetailBottomView.snp.makeConstraints{
             $0.top.equalTo(postDetailTopView.profileInfo.snp.bottom).offset(16)
+            $0.width.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
         
         scrollView.contentInset.bottom = 40
@@ -286,8 +296,8 @@ class OtherPostDetailBottomView: UIView {
         config.image = image
         $0.tintColor = UIColor.errorPrimary
         $0.setTitleColor(.errorPrimary, for: .normal)
-
         $0.configuration = config
+        $0.isUserInteractionEnabled = true
     }
     
     private lazy var textStack = Stack(axis: .vertical, spacing: 14)
@@ -322,14 +332,14 @@ class OtherPostDetailBottomView: UIView {
         
         warningBtn.snp.makeConstraints{
             $0.centerY.equalTo(infoStack.snp.centerY)
-            $0.height.equalTo(12)
-            //$0.width.greaterThanOrEqualTo(80)
+            $0.height.equalTo(44)
+            $0.width.greaterThanOrEqualTo(90)
             $0.trailing.equalToSuperview().inset(24)
         }
         
         tableView.snp.makeConstraints{
             $0.top.equalTo(title2.snp.bottom).offset(12)
-            $0.width.equalTo(UIScreen.main.bounds.width - 32)
+            //$0.width.equalTo(UIScreen.main.bounds.width - 32)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.greaterThanOrEqualTo(160)
         }

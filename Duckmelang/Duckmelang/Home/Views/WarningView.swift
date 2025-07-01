@@ -55,7 +55,7 @@ class WarningView: UIView {
         }
         
         warningBtn.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(12)
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(12)
             $0.horizontalEdges.equalToSuperview().inset(12)
             $0.height.equalTo(45)
         }

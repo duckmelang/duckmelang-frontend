@@ -17,6 +17,7 @@ class WarningViewController: UIViewController {
     
     private lazy var warningView = WarningView().then {
         $0.warningBtn.addTarget(self, action: #selector(warningBtnDidTap), for: .touchUpInside)
+        $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
     }
     
     @objc
@@ -24,5 +25,15 @@ class WarningViewController: UIViewController {
         let popupVC = WarningPopupViewController()
         popupVC.modalPresentationStyle = .overFullScreen
         present(popupVC, animated: false)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            popupVC.dismiss(animated: false)
+            self.navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    @objc
+    private func backBtnDidTap() {
+        self.navigationController?.popViewController(animated: true)
     }
 }

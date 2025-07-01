@@ -31,6 +31,7 @@ class PostDetailView: UIView {
     
     private lazy var contentView = UIView().then {
         $0.backgroundColor = .white
+        $0.isUserInteractionEnabled = true
     }
     
     //이미지뷰, 프로필info, 진행중btn
