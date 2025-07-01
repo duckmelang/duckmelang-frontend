@@ -8,7 +8,7 @@
 import UIKit
 
 protocol CelebSelectionDelegate: AnyObject {
-    func didSelectCeleb(_ celeb: idolDTO)
+    func didSelectCeleb(_ celeb: idolDTO?)
 }
 
 class CelebSelectionViewController: UIViewController {
@@ -32,12 +32,23 @@ class CelebSelectionViewController: UIViewController {
         super.viewDidLoad()
         self.view = celebSelectionView
         setupDelegate()
+        setupActions()
     }
     
     private lazy var celebSelectionView: CelebSelectionView = {
         let view = CelebSelectionView()
         return view
     }()
+    
+    private func setupActions() {
+        celebSelectionView.allPostSeeBtn.addTarget(self, action: #selector(allPostSeeBtnDidTap), for: .touchUpInside)
+    }
+    
+    @objc
+    private func allPostSeeBtnDidTap() {
+        delegate?.didSelectCeleb(nil) // nil전달
+        dismiss(animated: true)
+    }
     
     private func setupDelegate() {
         celebSelectionView.collectionView.delegate = self
@@ -81,7 +92,7 @@ extension CelebSelectionViewController: UICollectionViewDelegate, UICollectionVi
 
 // MARK: - CelebSelectionDelegate
 extension CelebSelectionViewController: CelebSelectionDelegate {
-    func didSelectCeleb(_ celeb: idolDTO) {
+    func didSelectCeleb(_ celeb: idolDTO?) {
         delegate?.didSelectCeleb(celeb)
         dismiss(animated: true)
     }

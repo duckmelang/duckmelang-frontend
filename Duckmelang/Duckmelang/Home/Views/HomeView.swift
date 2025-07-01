@@ -130,8 +130,7 @@ class HomeView: UIView {
         }
         
         empty.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(40)
-            $0.centerX.equalToSuperview()
+            $0.centerY.centerX.equalToSuperview()
         }
     }
     //Chevron 아이콘 업데이트 함수
