@@ -9,7 +9,7 @@ import UIKit
 import SwiftyToaster
 
 class SearchFilterViewController: UIViewController {
-    let networkService = HomeService()
+    let networkService = MyPageService()
     
     private var selectedGender: String? = nil
     private var minAge: Int? = nil
@@ -37,7 +37,8 @@ class SearchFilterViewController: UIViewController {
     }
     
     @objc private func backBtnDidTap() {
-        self.dismiss(animated: true)
+        self.navigationController?.popViewController(animated: true)
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     /// 필터 데이터 불러오기
@@ -48,7 +49,7 @@ class SearchFilterViewController: UIViewController {
                 
                 let result = try await networkService.getFilters()
                 
-                self.selectedGender = result.gender
+                self.selectedGender = result.gender ?? "BOTH"
                 self.minAge = result.minAge
                 self.maxAge = result.maxAge
                 
@@ -65,15 +66,34 @@ class SearchFilterViewController: UIViewController {
             }
         }
     }
-      
-      /// ✅ 필터 적용 후 검색 결과 화면으로 이동
-      @objc private func saveFilterSettings() {
-          let searchVC = SearchViewController()
-          searchVC.selectedGender = selectedGender
-          searchVC.minAge = minAge
-          searchVC.maxAge = maxAge
-          navigationController?.pushViewController(searchVC, animated: true)
-      }
+    
+    /// ✅ 필터 데이터를 서버로 저장하기 (POST 요청)
+    @objc private func saveFilterSettings() {
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let value: String? = (selectedGender == "BOTH") ? nil : selectedGender
+                let filterRequest = FilterRequest(
+                    gender: value,
+                    minAge: minAge,
+                    maxAge: maxAge
+                )
+                
+                _ = try await networkService.postFilters(FilterRequest: filterRequest)
+                
+                DispatchQueue.main.async {
+                    self.navigationController?.popViewController(animated: true)
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+    }
         
     @objc private func handleSectionTap(_ sender: UITapGestureRecognizer) {
         guard let section = sender.view?.tag else { return }

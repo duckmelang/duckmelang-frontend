@@ -64,12 +64,12 @@ class SearchViewController: UIViewController {
     
     @objc private func goBack() {
         self.navigationController?.popViewController(animated: true)
+        
     }
     
     @objc private func goFilter() {
         let VC = SearchFilterViewController()
-        VC.modalPresentationStyle = .fullScreen
-        present(VC, animated: true)
+        self.navigationController?.pushViewController(VC, animated: true)
     }
     
     // MARK: - Delegate 설정

@@ -44,57 +44,6 @@ class PostFilterViewController: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    /// ✅ 필터 데이터를 서버에서 불러오기 (GET 요청)
-    /*private func fetchFilterSettings() {
-        provider.request(.getFilters) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    // ✅ 원본 JSON을 직접 파싱
-                    if let jsonObject = try JSONSerialization.jsonObject(with: response.data, options: []) as? [String: Any],
-                       let result = jsonObject["result"] as? [String: Any] {
-                        
-                        print("📌 JSON 원본: \(result)")
-                        
-                        // ✅ 성별 데이터 적용
-                        if let gender = result["gender"] as? String {
-                            self.selectedGender = gender
-                            print("✅ selectedGender 적용됨: \(self.selectedGender!)")
-                        } else {
-                            self.selectedGender = "BOTH"
-                            print("⚠️ selectedGender가 nil이므로 BOTH로 설정됨")
-                        }
-
-                        // ✅ 나이 데이터 적용 (nil이면 기본값 18~50 적용)
-                        let fetchedMinAge = result["minAge"] as? Int ?? 18
-                        let fetchedMaxAge = result["maxAge"] as? Int ?? 50
-
-                        self.minAge = fetchedMinAge
-                        self.maxAge = fetchedMaxAge
-
-                        print("✅ minAge 적용됨: \(self.minAge!)")
-                        print("✅ maxAge 적용됨: \(self.maxAge!)")
-
-                        DispatchQueue.main.async {
-                            self.tableView.reloadData() // ✅ UI 업데이트
-                            
-                            // ✅ 값이 설정된 후에만 `updateUI()` 실행
-                            if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as? AgeSelectionCell {
-                                cell.minAge = self.minAge
-                                cell.maxAge = self.maxAge
-                                cell.updateUI()  // 🎯 여기서 updateUI() 실행!
-                            }
-                        }
-                    }
-                } catch {
-                    print("❌ JSON 파싱 오류: \(error.localizedDescription)")
-                }
-            case .failure(let error):
-                print("❌ 필터 가져오기 실패: \(error.localizedDescription)")
-            }
-        }
-    }*/
-    
     private func fetchFilterSettings() {
         _Concurrency.Task {
             do {
@@ -139,11 +88,14 @@ class PostFilterViewController: UIViewController {
                     maxAge: maxAge
                 )
                 
-                _ = try await networkService.postFilters(FilterRequest: filterRequest)
+                print(filterRequest)
+                try await networkService.postFilters(FilterRequest: filterRequest)
                 
-                self.dismiss(animated: true)
+                self.navigationController?.popViewController(animated: true)
+                stopLoading()
             }
             catch {
+                stopLoading()
                 print(error.localizedDescription)
             }
         }
