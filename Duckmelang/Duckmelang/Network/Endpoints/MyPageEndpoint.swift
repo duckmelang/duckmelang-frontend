@@ -81,8 +81,10 @@ extension MyPageEndpoint: TargetType {
             return "/posts"
         case .getReviews:
             return "/reviews"
-        case .getMyPostDetail(postId: let postId), .deletePost(postId: let postId):
+        case .getMyPostDetail(postId: let postId):
             return "/\(postId)"
+        case .deletePost(postId: let postId):
+            return "/posts/\(postId)"
         case .postProfileImage:
             return "/profile/image/edit"
         case .getIdolList:

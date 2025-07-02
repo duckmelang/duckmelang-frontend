@@ -37,8 +37,9 @@ class FeedManagementView: UIView {
     lazy var postView = UITableView().then {
         $0.register(FeedManagementCell.self, forCellReuseIdentifier: FeedManagementCell.identifier)
         $0.separatorStyle = .none
-        $0.rowHeight = 120
+        $0.rowHeight = 106
         $0.isHidden = false
+        $0.allowsSelection = true
     }
     
     lazy var deleteBtn = UIButton().then {
@@ -64,12 +65,11 @@ class FeedManagementView: UIView {
         postView.snp.makeConstraints {
             $0.top.equalTo(topStack.snp.bottom).offset(12)
             $0.horizontalEdges.bottom.equalToSuperview()
-            $0.height.equalTo(400)
         }
         
         deleteBtn.snp.makeConstraints{
             $0.centerX.equalToSuperview()
-            $0.bottom.equalToSuperview().inset(46)
+            $0.bottom.equalToSuperview().inset(90)
             $0.height.width.equalTo(64)
         }
     }

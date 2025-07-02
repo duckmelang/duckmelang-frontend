@@ -24,6 +24,11 @@ class SearchFilterViewController: UIViewController {
         fetchFilterSettings() // ✅ 뷰 로드 시 필터 설정 불러오기
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+    
     private lazy var postFilterView = SearchFilterView().then {
         $0.backBtn.addTarget(self, action: #selector(backBtnDidTap), for: .touchUpInside)
         $0.finishBtn.addTarget(self, action: #selector(saveFilterSettings), for: .touchUpInside)
@@ -38,7 +43,6 @@ class SearchFilterViewController: UIViewController {
     
     @objc private func backBtnDidTap() {
         self.navigationController?.popViewController(animated: true)
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     /// 필터 데이터 불러오기
