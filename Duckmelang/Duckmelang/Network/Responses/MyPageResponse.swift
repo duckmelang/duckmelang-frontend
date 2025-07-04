@@ -153,4 +153,8 @@ public struct ProfileImageData: Codable {
     let createdAt: String
 }
 
-
+public struct PatchProfileResponse: Codable {
+    let memberId: Int
+    let nickname: String
+    let introduction: String
+}
