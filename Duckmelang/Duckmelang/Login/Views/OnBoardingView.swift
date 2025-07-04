@@ -58,18 +58,6 @@ class OnBoardingView: UIView {
         return button
     }()
     
-    public lazy var googleLoginButton: UIButton = {
-        let button = createButton(
-            title: "구글로 시작하기",
-            titleColor: .black!,
-            backgroundColor: .white!,
-            iconName: "googleLogo",
-            borderColor: .grey300!
-        )
-        
-        return button
-    }()
-    
     public lazy var phoneLoginButton: UIButton = {
         let button = createButton(
             title: "휴대폰 번호로 시작하기",
@@ -135,7 +123,7 @@ class OnBoardingView: UIView {
     
     private lazy var loginBtnsContainer: UIView = {
         let view = UIView()
-        view.addSubviews(kakaoLoginButton, googleLoginButton, phoneLoginButton)
+        view.addSubviews(kakaoLoginButton, phoneLoginButton)
         kakaoLoginButton.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.width.equalToSuperview()
@@ -143,15 +131,8 @@ class OnBoardingView: UIView {
             $0.height.equalTo(40)
         }
         
-        googleLoginButton.snp.makeConstraints {
-            $0.top.equalTo(kakaoLoginButton.snp.bottom).offset(12)
-            $0.width.equalToSuperview()
-            $0.centerX.equalToSuperview()
-            $0.height.equalTo(40)
-        }
-        
         phoneLoginButton.snp.makeConstraints {
-            $0.top.equalTo(googleLoginButton.snp.bottom).offset(12)
+            $0.top.equalTo(kakaoLoginButton.snp.bottom).offset(12)
             $0.width.equalToSuperview()
             $0.centerX.equalToSuperview()
             $0.height.equalTo(40)
@@ -189,17 +170,17 @@ class OnBoardingView: UIView {
     private func setupConstraints() {
         
         headerContainer.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(236)
+            $0.top.equalTo(safeAreaLayoutGuide).offset(220)
             $0.centerX.equalToSuperview()
             $0.width.equalToSuperview().inset(16)
             $0.bottom.equalTo(logoImageView.snp.bottom)
         }
         
         loginBtnsContainer.snp.makeConstraints {
-            $0.top.equalTo(headerContainer.snp.bottom).offset(165)
+            $0.top.equalTo(headerContainer.snp.bottom).offset(180)
             $0.centerX.equalToSuperview()
-            $0.width.equalToSuperview().inset(16)
-            $0.height.equalTo(145)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(104)
         }
         
         signinContainer.snp.makeConstraints {

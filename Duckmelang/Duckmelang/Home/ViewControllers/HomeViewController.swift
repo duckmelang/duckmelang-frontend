@@ -157,7 +157,7 @@ class HomeViewController: UIViewController {
                 } else {
                     self.currentPostsData.append(contentsOf: result.postList)
                 }
-//                self.currentPage = result.currentPage
+                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
                     self.homeView.empty.isHidden = !self.currentPostsData.isEmpty
@@ -190,7 +190,7 @@ class HomeViewController: UIViewController {
                 } else {
                     self.currentPostsData.append(contentsOf: result.postList)
                 }
-//                self.currentPage = result.currentPage
+                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
                     self.homeView.empty.isHidden = !self.currentPostsData.isEmpty

@@ -16,7 +16,7 @@ public struct RefreshTokenRequest: Codable {
 
 //로그인 요청 모델
 public struct LoginRequest: Codable {
-    let email: String
+    let loginId: String
     let password: String
 }
 

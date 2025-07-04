@@ -14,7 +14,7 @@ class RequestPopupViewController: UIViewController {
     }
     
     private lazy var requestPopupViewController: CustomPopupView = {
-        let view = CustomPopupView(userImage: UIImage(), title: "유저 님이 동행 확정 요청을 보냈어요", subTitle: "거절 후에는 취소할 수 없어요", leftBtnTitle: "거절", rightBtnTitle: "수락", height: 220)
+        let view = CustomPopupView(userImage: UIImage(), title: "유저 님이 동행 확정 요청을 보냈어요", subTitle: "거절 후에는 취소할 수 없어요", leftBtnTitle: "거절", rightBtnTitle: "수락")
         
         view.panel.addTarget(self, action: #selector(closeModal), for: .touchUpInside)
         view.leftBtn.addTarget(self, action: #selector(leftBtnTap), for: .touchUpInside)

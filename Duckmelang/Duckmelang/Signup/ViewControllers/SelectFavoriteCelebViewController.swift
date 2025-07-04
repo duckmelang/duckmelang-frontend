@@ -21,7 +21,6 @@ class SelectFavoriteCelebViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = selectFavoriteCelebView
-        setupAction()
         setupDelegate()
         setupNavigationBar()
         getIdolsAPI()
@@ -45,27 +44,21 @@ class SelectFavoriteCelebViewController: UIViewController {
             image: UIImage(named: "back"),
             style: .plain,
             target: self,
-            action: #selector(goBack)
+            action: #selector(openBackPopup)
         )
         leftBarButton.tintColor = .grey600
         self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
     }
     
-    @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
+    @objc private func openBackPopup() {
+        let popupVC = ProfileCancelPopupViewController()
+        popupVC.modalPresentationStyle = .overFullScreen
+        present(popupVC, animated: false)
     }
     
     private func setupDelegate() {
         selectFavoriteCelebView.collectionView.dataSource = self
         selectFavoriteCelebView.collectionView.delegate = self
-    }
-    
-    private func setupAction() {
-        selectFavoriteCelebView.nextBtn.addTarget(self, action: #selector(didTapNextBtn), for: .touchUpInside)
-    }
-    
-    @objc private func didTapNextBtn() {
-        postInterestCelebAPI()
     }
     
     private func getIdolsAPI() {
@@ -116,8 +109,8 @@ class SelectFavoriteCelebViewController: UIViewController {
     // 다음 버튼 눌렀을 때
     @objc func nextBtn() {
         // MARK: TEST
-//        navigateToSelectEventView()
-        postInterestCelebAPI()
+        navigateToSelectEventView()
+//        postInterestCelebAPI()
     }
     
     private func navigateToSelectEventView() {

@@ -102,26 +102,26 @@ class OAuthWebViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func handleKakaoLoginResult() async {
-        do {
-            startLoading()
-            
-            let result = try await networkService.kakaoLogin()
-            
-            let memberId = result.memberId
-            let profileComplete = result.profileComplete
-            
-            KeychainManager.shared.save(key: "accessToken", value: result.accessToken)
-            KeychainManager.shared.save(key: "refreshToken", value: result.refreshToken)
-
-            DispatchQueue.main.async {
-                self.oauthCompletion?(memberId, profileComplete)
-                self.dismiss(animated: true, completion: nil)
-            }
-            
-            stopLoading()
-        } catch {
-            stopLoading()
-            print("❌ 카카오 로그인 실패: \(error.localizedDescription)")
-        }
+//        do {
+//            startLoading()
+//            
+//            let result = try await networkService.kakaoLogin()
+//            
+//            let memberId = result.memberId
+//            let profileComplete = result.profileComplete
+//            
+//            KeychainManager.shared.save(key: "accessToken", value: result.accessToken)
+//            KeychainManager.shared.save(key: "refreshToken", value: result.refreshToken)
+//
+//            DispatchQueue.main.async {
+//                self.oauthCompletion?(memberId, profileComplete)
+//                self.dismiss(animated: true, completion: nil)
+//            }
+//            
+//            stopLoading()
+//        } catch {
+//            stopLoading()
+//            print("❌ 카카오 로그인 실패: \(error.localizedDescription)")
+//        }
     }
 }

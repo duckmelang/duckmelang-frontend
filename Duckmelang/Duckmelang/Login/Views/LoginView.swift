@@ -28,28 +28,15 @@ class LoginView: UIView {
     
     private lazy var idView: UIView = {
         let view = UIView()
-        view.addSubview(emailTextField)
-        emailTextField.snp.makeConstraints {
+        view.addSubview(idTextField)
+        idTextField.snp.makeConstraints {
             $0.top.bottom.equalToSuperview()
             $0.left.right.equalToSuperview()
         }
         return view
     }()
     
-    public lazy var emailTextField: TextField = {
-        let textField = TextField()
-        let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
-        textField.configTextField(
-            placeholder: "이메일",
-            leftView: leftPadding,
-            leftViewMode: .always,
-            interaction: true
-        )
-        textField.autocapitalizationType = .none
-        textField.returnKeyType = .done
-        textField.configLayer(layerBorderWidth: 1.0, layerCornerRadius: 5, layerColor: UIColor.grey400)
-        return textField
-    }()
+    public lazy var idTextField = CustomTextField(placeholder: "아이디")
     
     private lazy var pwdView: UIView = {
         let view = UIView()
@@ -61,10 +48,7 @@ class LoginView: UIView {
         return view
     }()
     
-    public lazy var pwdTextField: TextField = {
-        let textField = TextField()
-        let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
-        
+    public lazy var pwdTextField = CustomTextField(placeholder: "비밀번호").then {
         let eyeButton = UIButton(type: .custom)
         
         let eyeSlash = UIImage(systemName: "eye.slash")?.withRenderingMode(.alwaysTemplate)
@@ -77,25 +61,15 @@ class LoginView: UIView {
         
         eyeButton.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
         eyeButton.addTarget(self, action: #selector(iconAction), for: .touchUpInside)
-    
-        textField.configTextField(
-            placeholder: "비밀번호",
-            leftView: leftPadding,
-            leftViewMode: .always,
-            interaction: true
-        )
-        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        
+        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 56, height: 56))
         eyeButton.center = rightPaddingView.center
         rightPaddingView.addSubview(eyeButton)
         
-        textField.configLayer(layerBorderWidth: 1.0, layerCornerRadius: 5, layerColor: UIColor.grey400)
-        textField.isSecureTextEntry = true
-        textField.rightView = rightPaddingView
-        textField.rightViewMode = .always
-        textField.autocapitalizationType = .none
-        textField.returnKeyType = .done
-        return textField
-    }()
+        $0.isSecureTextEntry = true
+        $0.rightView = rightPaddingView
+        $0.rightViewMode = .always
+    }
     
     @objc func iconAction(sender: UIButton) {
         sender.isSelected.toggle()
@@ -109,10 +83,10 @@ class LoginView: UIView {
         height: 45
     )
     
-    public lazy var foundPWBtn: longCustomBtn = {
+    public lazy var foundIDBtn: longCustomBtn = {
         return longCustomBtn(
             backgroundColor: .clear,
-            title: "PW 찾기",
+            title: "ID 찾기",
             titleColor: .grey400!,
             font: .ptdSemiBoldFont(ofSize: 14),
             width: 100,
@@ -125,20 +99,40 @@ class LoginView: UIView {
         line.backgroundColor = .grey300
         line.snp.makeConstraints {
             $0.width.equalTo(1)
-            $0.height.equalTo(16)
+            $0.height.equalTo(8)
         }
         return line
     }()
+    
+    public lazy var foundPWBtn: longCustomBtn = {
+        return longCustomBtn(
+            backgroundColor: .clear,
+            title: "PW 찾기",
+            titleColor: .grey400!,
+            font: .ptdSemiBoldFont(ofSize: 14),
+            width: 100,
+            height: 30
+        )
+    }()
+    
+    private let foundContainer = UIStackView().then {
+        $0.axis = .horizontal
+        $0.spacing = 8
+        $0.alignment = .fill
+        $0.distribution = .fill
+    }
     
     //MARK: - container
     
     private lazy var loginContainer: UIView = {
         let view = UIView()
+        [foundIDBtn,verticalLine,foundPWBtn].forEach {foundContainer.addArrangedSubview($0)}
+        
         [
             logoImageView,
             inputTextContainer,
             loginButton,
-            foundPWBtn
+            foundContainer
         ].forEach {
             view.addSubview($0)
         }
@@ -151,8 +145,7 @@ class LoginView: UIView {
         
         inputTextContainer.snp.makeConstraints {
             $0.top.equalTo(logoImageView.snp.bottom).offset(40)
-            $0.width.equalToSuperview().offset(16)
-            $0.centerX.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalTo(pwdTextField.snp.bottom)
         }
         
@@ -162,7 +155,7 @@ class LoginView: UIView {
             $0.height.equalTo(45)
         }
         
-        foundPWBtn.snp.makeConstraints {
+        foundContainer.snp.makeConstraints {
             $0.top.equalTo(loginButton.snp.bottom).offset(12)
             $0.centerX.equalToSuperview()
             $0.height.equalTo(30)
@@ -183,13 +176,13 @@ class LoginView: UIView {
         
         idView.snp.makeConstraints {
             $0.top.equalToSuperview()
-            $0.left.right.equalToSuperview().inset(16)
+            $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(40)
         }
 
         pwdView.snp.makeConstraints {
             $0.top.equalTo(idView.snp.bottom).offset(8)
-            $0.left.right.equalToSuperview().inset(16)
+            $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(40)
         }
         
@@ -206,8 +199,8 @@ class LoginView: UIView {
     
     private func setupConstraints() {
         loginContainer.snp.makeConstraints {
-            $0.top.equalTo(self.safeAreaLayoutGuide.snp.top).offset(40)
-            $0.left.right.equalToSuperview().inset(16)
+            $0.top.equalTo(safeAreaLayoutGuide).offset(40)
+            $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalTo(foundPWBtn.snp.bottom)
         }
     }

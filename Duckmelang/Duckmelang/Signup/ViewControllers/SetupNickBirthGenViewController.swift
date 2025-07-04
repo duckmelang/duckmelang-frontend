@@ -7,6 +7,7 @@
 
 import UIKit
 import Moya
+import SwiftyToaster
 
 class SetupNickBirthGenViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     let networkService = SignupService()
@@ -43,14 +44,16 @@ class SetupNickBirthGenViewController: UIViewController, UIImagePickerController
             image: UIImage(named: "back"),
             style: .plain,
             target: self,
-            action: #selector(goBack)
+            action: #selector(openBackPopup)
         )
         leftBarButton.tintColor = .grey600
         self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
     }
     
-    @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
+    @objc private func openBackPopup() {
+        let popupVC = ProfileCancelPopupViewController()
+        popupVC.modalPresentationStyle = .overFullScreen
+        present(popupVC, animated: false)
     }
     
     private func setupAction() {
@@ -160,25 +163,49 @@ class SetupNickBirthGenViewController: UIViewController, UIImagePickerController
     
     // 다음 버튼 눌렀을 때
     @objc func nextBtn() {
-//         MARK: TEST
-//        navigateToSelectFavoriteCelebView()
-        
-        guard let selectedImage = selectedImage,
-              let memberId = memberId,
-              let nickname = setupNickBirthGenView.nicknameTextField.text,
-              let birth = setupNickBirthGenView.birthdateTextField.text,
-              let isMaleSelected = isMaleSelected else { return }
-        
-        let gender = isMaleSelected ? "MALE" : "FEMALE"
-        
-        // 프로필 사진 postAPI 실행
-        if let imageData = selectedImage.jpegData(compressionQuality: 0.8) {
-            postProfileImageAPI(memberId: memberId, imageData: imageData)
-        } else {
-            print("❌ 이미지 변환 실패")
-        }
-        // 닉네임, 생년월일, 성별 patchAPI 실행
-        patchMemberProfileAPI(memberId: memberId, nickname: nickname, birth: birth, gender: gender)
+        self.navigateToSelectFavoriteCelebView()
+//        // 닉네임 입력 확인
+//        guard let nickname = setupNickBirthGenView.nicknameTextField.text, !nickname.isEmpty else {
+//            Toaster.shared.makeToast("닉네임을 입력해주세요.")
+//            return
+//        }
+//        
+//        // 생년월일 입력 확인
+//        guard let birth = setupNickBirthGenView.birthdateTextField.text, !birth.isEmpty else {
+//            Toaster.shared.makeToast("생년월일을 입력해주세요.")
+//            return
+//        }
+//        
+//        // 성별 선택 확인
+//        guard let isMaleSelected = isMaleSelected else {
+//            Toaster.shared.makeToast("성별을 선택해주세요.")
+//            return
+//        }
+//
+//        // 프로필 사진 선택 확인
+//        guard let selectedImage = selectedImage else {
+//            Toaster.shared.makeToast("프로필 사진을 선택해주세요.")
+//            return
+//        }
+//
+//        // 멤버 ID 확인
+//        guard let memberId = memberId else {
+//            Toaster.shared.makeToast("회원 정보를 불러올 수 없습니다.\n잠시 후 다시 시도해주세요.")
+//            return
+//        }
+
+//        let gender = isMaleSelected ? "MALE" : "FEMALE"
+//
+//        // 프로필 이미지 전송
+//        if let imageData = selectedImage.jpegData(compressionQuality: 0.8) {
+//            postProfileImageAPI(memberId: memberId, imageData: imageData)
+//        } else {
+//            Toaster.shared.makeToast("이미지 변환에 실패했습니다.\n잠시 후 다시 시도해주세요.")
+//            return
+//        }
+//
+//        // 프로필 정보 전송
+//        patchMemberProfileAPI(memberId: memberId, nickname: nickname, birth: birth, gender: gender)
     }
     
     func updateNextButtonState() {
@@ -205,7 +232,7 @@ class SetupNickBirthGenViewController: UIViewController, UIImagePickerController
                     
                     let modal = CheckNicknamePopupViewController()
                     modal.isAvailable = self.isNicknameAvailable
-                    modal.modalPresentationStyle = .fullScreen
+                    modal.modalPresentationStyle = .overFullScreen
                     self.present(modal, animated: false)
                 }
                 

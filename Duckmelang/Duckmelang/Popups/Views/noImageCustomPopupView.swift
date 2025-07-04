@@ -11,14 +11,15 @@ class noImageCustomPopupView: UIView {
     init(
         title: String,
         subTitle: String,
-        leftBtnTitle: String,
-        rightBtnTitle: String,
-        height: CGFloat
+        subTitleColor: UIColor = .grey600 ?? .gray,
+        leftBtnTitle: String = "",
+        rightBtnTitle: String = ""
     ) {
         super.init(frame: .zero)
         
         self.title.text = title
         self.subTitle.text = subTitle
+        self.subTitle.textColor = subTitleColor
         
         if (leftBtnTitle == "") && (rightBtnTitle == "") {
             self.btnStackView.isHidden = true
@@ -44,10 +45,9 @@ class noImageCustomPopupView: UIView {
         setupView()
         
         self.popupView.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(16)
-            $0.trailing.equalToSuperview().offset(-16)
+            $0.centerX.equalToSuperview()
             $0.centerY.equalToSuperview()
-            $0.height.equalTo(height)
+            $0.width.greaterThanOrEqualTo(292 + 48)
         }
     }
     
@@ -79,22 +79,24 @@ class noImageCustomPopupView: UIView {
         $0.textColor = .grey800
         $0.numberOfLines = 0
         $0.textAlignment = .center
-        $0.font = .ptdMediumFont(ofSize: 15)
+        $0.font = .ptdSemiBoldFont(ofSize: 16)
     }
     
     private lazy var subTitle = UILabel().then {
-        $0.textColor = .grey500
+        $0.textColor = .grey600
         $0.numberOfLines = 0
         $0.textAlignment = .center
-        $0.font = .ptdRegularFont(ofSize: 12)
+        $0.font = .ptdRegularFont(ofSize: 13)
     }
     
-    lazy var leftBtn = smallStorkeCustomBtn()
-    lazy var rightBtn = smallFilledCustomBtn()
+    lazy var leftBtn = smallStorkeCustomBtn(width: 140, height: 44)
+    lazy var rightBtn = smallFilledCustomBtn(width: 140, height: 44)
     
     private lazy var btnStackView = UIStackView().then {
         $0.axis = .horizontal
         $0.spacing = 12
+        $0.alignment = .center
+        $0.distribution = .fill
     }
     
     func setupView() {
@@ -103,13 +105,14 @@ class noImageCustomPopupView: UIView {
         }
 
         self.textStackView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(36)
-            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().offset(20)
+            $0.leading.trailing.equalToSuperview().inset(24)
         }
         
         self.btnStackView.snp.makeConstraints {
             $0.top.equalTo(textStackView.snp.bottom).offset(16)
             $0.centerX.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(20)
         }
     }
 }

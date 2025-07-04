@@ -26,7 +26,7 @@ class SignUpView: UIView {
         paragraphStyle.lineHeightMultiple = 1.35 // 자간 135%
 
         let attributedString = NSAttributedString(
-            string: "EMAIL / PW를 입력해주세요",
+            string: "ID / PW를 입력해주세요",
             attributes: [
                 .font: UIFont.aritaBoldFont(ofSize: 20),
                 .foregroundColor: UIColor.grey800!,
@@ -36,28 +36,48 @@ class SignUpView: UIView {
         $0.attributedText = attributedString
     }
     
-    // EMAIL Label
-    private let emailLabel = UILabel().then {
-        $0.text = "EMAIL"
+    // ID Label
+    private let idLabel = UILabel().then {
+        $0.text = "ID"
         $0.font = UIFont.ptdRegularFont(ofSize: 15)
         $0.textColor = UIColor.grey700
     }
     
-    // EMAIL TextField
-    public let emailTextField = UITextField().then {
-        $0.placeholder = "이메일을 입력해주세요"
-        $0.borderStyle = .roundedRect
-        $0.font = UIFont.ptdRegularFont(ofSize: 15)
-        $0.keyboardType = .emailAddress
-        $0.autocapitalizationType = .none
-        $0.returnKeyType = .done
+    // ID TextField
+    public let idTextField = CustomTextField(placeholder: "아이디를 입력해주세요")
+    
+    // ID Button
+    public let idButton = SignupButton(title: "중복 확인")
+    
+    // ID Verify Container
+    public lazy var idVerifyContainer = UIStackView().then {
+        $0.axis = .horizontal
+        $0.distribution = .fill
+        $0.alignment = .fill
+        $0.spacing = 8
     }
     
-    // EMAIL Container
-    private let emailContainer = UIStackView().then {
+    // ID Container
+    private let idContainer = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 8
         $0.alignment = .fill
+    }
+    
+    // 사용할 수 있는 아이디일 때 문구
+    public lazy var successLabel = UILabel().then {
+        $0.text = "사용 가능한 아이디입니다."
+        $0.font = UIFont.ptdRegularFont(ofSize: 12)
+        $0.textColor = UIColor(hex: "#4CAF50")
+        $0.isHidden = true
+    }
+    
+    // 중복 아이디일 때 경고 문구
+    public lazy var alertLabel = UILabel().then {
+        $0.text = "이미 사용 중인 아이디입니다. 다른 아이디를 입력해주세요."
+        $0.font = UIFont.ptdRegularFont(ofSize: 12)
+        $0.textColor = .errorPrimary
+        $0.isHidden = true
     }
     
     // PW Label
@@ -68,14 +88,7 @@ class SignUpView: UIView {
     }
     
     // PW TextField
-    public let pwTextField = UITextField().then {
-        $0.placeholder = "비밀번호를 입력해주세요"
-        $0.borderStyle = .roundedRect
-        $0.isSecureTextEntry = false
-        $0.font = UIFont.ptdRegularFont(ofSize: 15)
-        $0.autocapitalizationType = .none
-        $0.returnKeyType = .done
-    }
+    public let pwTextField = CustomTextField(placeholder: "비밀번호를 입력해주세요")
     
     // PW Container
     private let pwContainer = UIStackView().then {
@@ -87,9 +100,13 @@ class SignUpView: UIView {
     public let signUpButton = longCustomBtn(title: "확인", isEnabled: false)
     
     private func setupView() {
+        // ID Verify Container 내부 요소 추가
+        idVerifyContainer.addArrangedSubview(idTextField)
+        idVerifyContainer.addArrangedSubview(idButton)
+        
         // ID Container 내부 요소 추가
-        emailContainer.addArrangedSubview(emailLabel)
-        emailContainer.addArrangedSubview(emailTextField)
+        idContainer.addArrangedSubview(idLabel)
+        idContainer.addArrangedSubview(idVerifyContainer)
         
         // PW Container 내부 요소 추가
         pwContainer.addArrangedSubview(pwLabel)
@@ -97,7 +114,9 @@ class SignUpView: UIView {
         
         [
             titleLabel,
-            emailContainer,
+            idContainer,
+            successLabel,
+            alertLabel,
             pwContainer,
             signUpButton
         ].forEach {
@@ -106,28 +125,30 @@ class SignUpView: UIView {
         
         // 레이아웃 설정
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(8)
-            $0.left.equalToSuperview().offset(16)
+            $0.top.equalTo(safeAreaLayoutGuide).offset(16)
+            $0.leading.equalToSuperview().inset(16)
         }
         
-        emailContainer.snp.makeConstraints {
+        idContainer.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(28)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalTo(emailTextField.snp.bottom)
+            $0.bottom.equalTo(idTextField.snp.bottom)
+        }
+        
+        successLabel.snp.makeConstraints {
+            $0.top.equalTo(idContainer.snp.bottom).offset(4)
+            $0.leading.equalTo(idContainer).offset(4)
+        }
+        
+        alertLabel.snp.makeConstraints {
+            $0.top.equalTo(idContainer.snp.bottom).offset(4)
+            $0.leading.equalTo(idContainer).offset(4)
         }
         
         pwContainer.snp.makeConstraints {
-            $0.top.equalTo(emailContainer.snp.bottom).offset(20)
+            $0.top.equalTo(idContainer.snp.bottom).offset(36)
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalTo(pwTextField.snp.bottom)
-        }
-        
-        emailTextField.snp.makeConstraints{
-            $0.height.equalTo(40)
-        }
-        
-        pwTextField.snp.makeConstraints{
-            $0.height.equalTo(40)
         }
         
         signUpButton.snp.makeConstraints {

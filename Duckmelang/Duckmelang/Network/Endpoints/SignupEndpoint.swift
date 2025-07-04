@@ -33,7 +33,7 @@ extension SignupEndpoint: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
-        case .getAllIdols:
+        case .getAllIdols, .getAllEvents:
             guard let url = URL(string: API.baseURL) else {
                 fatalError("baseURL 오류")
             }

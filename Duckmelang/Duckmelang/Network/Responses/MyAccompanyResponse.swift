@@ -15,7 +15,7 @@ public struct PostDTO: Codable {
     public let date: String
     public let nickname: String
     public let createdAt: String
-    public let postImageUrl: String
+    public let postImageUrl: String?
     public let latestPublicMemberProfileImage: String?
 }
 
@@ -27,6 +27,7 @@ public struct PostResponse: Codable {
     let totalElements: Int
     let isFirst: Bool
     let isLast: Bool
+    let currentPage: Int
 }
 
 // 스크랩 목록 정보 담는 구조체

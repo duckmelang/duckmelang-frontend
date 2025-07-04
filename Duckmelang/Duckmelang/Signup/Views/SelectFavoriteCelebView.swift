@@ -51,7 +51,7 @@ class SelectFavoriteCelebView: UIView {
         searchIcon.contentMode = .scaleAspectFit
         searchIcon.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
 
-        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 44))
+        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 56, height: 56))
         searchIcon.center = CGPoint(x: rightPaddingView.frame.width / 2, y: rightPaddingView.frame.height / 2)
         rightPaddingView.addSubview(searchIcon)
 
