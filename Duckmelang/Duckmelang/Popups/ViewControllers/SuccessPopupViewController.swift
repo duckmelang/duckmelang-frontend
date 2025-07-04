@@ -18,7 +18,7 @@ class SuccessPopupViewController: UIViewController {
     }
     
     private lazy var successPopupViewController: CustomPopupView = {
-        let view = CustomPopupView(userImage: UIImage(), title: "유저 님에게 동행 확정 요청을 보냈어요", subTitle: "", leftBtnTitle: "", rightBtnTitle: "", height: 123)
+        let view = CustomPopupView(userImage: UIImage(), title: "유저 님에게 동행 확정 요청을 보냈어요", subTitle: "", leftBtnTitle: "", rightBtnTitle: "")
         return view
     }()
     

@@ -16,7 +16,7 @@ class LogoutPopupViewController: UIViewController {
         self.view = logoutPopupView
     }
     
-    private lazy var logoutPopupView = noImageCustomPopupView(title: "정말 로그아웃 하시겠습니까?", subTitle: "", leftBtnTitle: "아니요", rightBtnTitle: "네", height: 150).then {
+    private lazy var logoutPopupView = noImageCustomPopupView(title: "정말 로그아웃 하시겠습니까?", subTitle: "", leftBtnTitle: "아니요", rightBtnTitle: "네").then {
         $0.leftBtn.addTarget(self, action: #selector(leftBtnTap), for: .touchUpInside)
         $0.rightBtn.addTarget(self, action: #selector(rightBtnTap), for: .touchUpInside)
     }
@@ -32,26 +32,26 @@ class LogoutPopupViewController: UIViewController {
     }
     
     private func logout() {
-        Task {
-            do {
-                startLoading()
-                
-                let result = try await networkService.postLogout()
-                
-                KeychainManager.shared.delete(key: "accessToken")
-                KeychainManager.shared.delete(key: "refreshToken")
-                
-                DispatchQueue.main.async {
-                    self.goToLoginScreen()
-                }
-                
-                stopLoading()
-            }
-            catch {
-                stopLoading()
-                print(error.localizedDescription)
-            }
-        }
+//        Task {
+//            do {
+//                startLoading()
+//                
+//                let result = try await networkService.postLogout()
+//                
+//                KeychainManager.shared.delete(key: "accessToken")
+//                KeychainManager.shared.delete(key: "refreshToken")
+//                
+//                DispatchQueue.main.async {
+//                    self.goToLoginScreen()
+//                }
+//                
+//                stopLoading()
+//            }
+//            catch {
+//                stopLoading()
+//                print(error.localizedDescription)
+//            }
+//        }
     }
     
     // ✅ 로그인 화면으로 이동

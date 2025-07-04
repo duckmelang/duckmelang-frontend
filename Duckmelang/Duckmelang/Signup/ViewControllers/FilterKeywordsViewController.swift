@@ -23,10 +23,7 @@ class FilterKeywordsViewController: UIViewController {
     
     private lazy var filterKeywordsView: FilterKeywordsView = {
         let view = FilterKeywordsView()
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(onPlusIconTapped))
-        view.plusIcon.addGestureRecognizer(tapGesture)
-        
+        view.plusButton.addTarget(self, action: #selector(onPlusIconTapped), for: .touchUpInside)
         view.nextBtn.addTarget(self, action: #selector(nextBtn), for: .touchUpInside)
         return view
     }()
@@ -43,14 +40,16 @@ class FilterKeywordsViewController: UIViewController {
             image: UIImage(named: "back"),
             style: .plain,
             target: self,
-            action: #selector(goBack)
+            action: #selector(openBackPopup)
         )
         leftBarButton.tintColor = .grey600
         self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
     }
     
-    @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
+    @objc private func openBackPopup() {
+        let popupVC = ProfileCancelPopupViewController()
+        popupVC.modalPresentationStyle = .overFullScreen
+        present(popupVC, animated: false)
     }
     
     private func setupDelegates() {
@@ -60,7 +59,7 @@ class FilterKeywordsViewController: UIViewController {
     }
     
     @objc func onPlusIconTapped() {
-        guard let text = filterKeywordsView.filterKeywordTextField.text?.trimmingCharacters(in: .alphanumerics), !text.isEmpty else { return }
+        guard let text = filterKeywordsView.filterKeywordTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return }
         self.keywords.append(text)
         filterKeywordsView.filterKeywordTextField.text = ""
         
@@ -94,8 +93,8 @@ class FilterKeywordsViewController: UIViewController {
     // 다음 버튼 눌렀을 때
     @objc func nextBtn() {
         // MARK: TEST
-//        navigateToHomeView()
-        postKeywords()
+        navigateToHomeView()
+//        postKeywords()
     }
     
     private func navigateToHomeView() {
