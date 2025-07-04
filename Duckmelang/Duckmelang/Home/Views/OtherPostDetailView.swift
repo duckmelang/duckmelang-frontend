@@ -9,9 +9,11 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-class OtherPostDetailView: UIView {
+class OtherPostDetailView: UIView, UIScrollViewDelegate {
 
     var imageViewTopConstraint: Constraint!
+    
+    var imageViews: [UIImageView] = []
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -51,16 +53,25 @@ class OtherPostDetailView: UIView {
         $0.setImage(.back, for: .normal)
         $0.tintColor = .grey0
     }
+
+    let pageControl = UIPageControl().then {
+        $0.currentPage = 0
+        $0.pageIndicatorTintColor = .lightGray
+        $0.currentPageIndicatorTintColor = .black
+        $0.hidesForSinglePage = true
+    }
     
     lazy var imageView = UIScrollView().then {
         $0.backgroundColor = .grey200
         $0.isPagingEnabled = true
     }
     
+    /*
     lazy var imageViews = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
     }
+    */
     
     private lazy var title = Label(text: "", font: .aritaSemiBoldFont(ofSize: 18), color: .black)
     
@@ -77,27 +88,23 @@ class OtherPostDetailView: UIView {
     private func setupView(){
         [scrollView, tabBar, whiteView].forEach{addSubview($0)}
         [contentView].forEach{scrollView.addSubview($0)}
-        [imageView ,postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
+        [imageView, pageControl, postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
         
         addSubview(topStack)
-        
-        imageView.addSubview(imageViews)
 
-        
         imageView.snp.makeConstraints{
             imageViewTopConstraint = $0.top.equalTo(contentView.snp.top).constraint
             $0.top.equalTo(safeAreaInsets)
-            $0.horizontalEdges.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
             $0.bottom.equalTo(postDetailTopView.snp.top)
         }
         
-        imageViews.snp.makeConstraints {
-            $0.edges.equalTo(imageView)
+        pageControl.snp.makeConstraints{
             $0.centerX.equalToSuperview()
-            $0.height.equalTo(imageView)
+            $0.bottom.equalTo(imageView.snp.bottom).offset(-8)
         }
-        
+
         tabBar.snp.makeConstraints{
             $0.height.equalTo(73)
             $0.leading.trailing.equalToSuperview()
@@ -143,11 +150,7 @@ class OtherPostDetailView: UIView {
     
     // **UI 업데이트 함수**
     func updateUI(with data: MyPostDetailResponse) {
-        // 이미지 로드 (첫 번째 이미지)
-        if let firstImageUrlString = data.postImageUrl.first,
-           let imageUrl = URL(string: firstImageUrlString) {
-            updateImage(with: imageUrl) // ✅ 이미지 로드 후 그라데이션 추가
-        }
+        updateImages(with: data.postImageUrl)
         
         // 상단 프로필 정보 업데이트
         if let userImageUrl = URL(string: data.latestPublicMemberProfileImage ?? "") {
@@ -167,7 +170,7 @@ class OtherPostDetailView: UIView {
         postDetailBottomView.tableView.reloadData()
     }
     
-    /// ✅ Kingfisher 이미지 로드 후 그라데이션 추가
+    /*
     func updateImage(with url: URL?) {
         guard let url = url else { return }
         imageViews.kf.setImage(with: url, placeholder: UIImage(), completionHandler: { _ in
@@ -177,6 +180,56 @@ class OtherPostDetailView: UIView {
                 self.imageViews.clipsToBounds = true
             }
         })
+    }
+    */
+    
+    func updateImages(with urls: [String]) {
+        // 기존 이미지뷰 제거
+        imageViews.forEach { $0.removeFromSuperview() }
+        imageViews.removeAll()
+
+        var previousImageView: UIImageView?
+
+        for (_, urlStr) in urls.enumerated() {
+            guard let url = URL(string: urlStr) else { continue }
+
+            let imageView = UIImageView().then {
+                $0.kf.setImage(with: url)
+                $0.contentMode = .scaleAspectFill
+                $0.clipsToBounds = true
+            }
+
+            imageView.isUserInteractionEnabled = true
+
+            self.imageView.addSubview(imageView)
+            imageViews.append(imageView)
+
+            imageView.snp.makeConstraints {
+                $0.top.equalToSuperview()
+                $0.bottom.equalTo(postDetailTopView.snp.top)
+                $0.width.equalToSuperview() // 전체 화면 크기만큼
+                $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
+
+                if let previous = previousImageView {
+                    $0.leading.equalTo(previous.snp.trailing)
+                } else {
+                    $0.leading.equalToSuperview()
+                }
+            }
+
+            previousImageView = imageView
+        }
+
+        // 마지막 이미지뷰가 있다면 trailing 설정
+        if let lastImageView = imageViews.last {
+            lastImageView.snp.makeConstraints {
+                $0.trailing.equalToSuperview()
+            }
+        }
+
+        // 페이지 인디케이터 업데이트
+        pageControl.numberOfPages = imageViews.count
+        pageControl.currentPage = 0
     }
 }
 
@@ -309,6 +362,7 @@ class OtherPostDetailBottomView: UIView {
         $0.register(PostDetailAccompanyCell.self, forCellReuseIdentifier: PostDetailAccompanyCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 36
+        $0.allowsSelection = false
     }
     
     private func addStack(){

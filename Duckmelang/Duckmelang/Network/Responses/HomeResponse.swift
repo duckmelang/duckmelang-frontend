@@ -39,9 +39,9 @@ public struct BookmarkResult: Codable {
 }
 
 public struct FilterResponse: Codable {
-    let gender: String
-    let minAge: Int
-    let maxAge: Int
+    let gender: String?
+    let minAge: Int?
+    let maxAge: Int?
 }
 
 public struct WrtieResponse: Codable {

@@ -49,6 +49,7 @@ class FeedManagementCell: UITableViewCell {
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.grey300?.cgColor
         $0.layer.cornerRadius = 5
+        $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.backgroundColor = .grey200
     }
@@ -92,7 +93,7 @@ class FeedManagementCell: UITableViewCell {
         }
         
         postImage.snp.makeConstraints {
-            $0.top.bottom.equalToSuperview().inset(6)
+            $0.top.bottom.equalToSuperview()
             $0.leading.equalToSuperview()
             $0.width.height.equalTo(94)
         }
@@ -109,7 +110,7 @@ class FeedManagementCell: UITableViewCell {
         
         userImage.snp.makeConstraints {
             $0.leading.equalTo(postTitle.snp.leading)
-            $0.bottom.equalToSuperview().offset(-7)
+            $0.bottom.equalToSuperview().offset(-12)
             $0.width.height.equalTo(16)
         }
         

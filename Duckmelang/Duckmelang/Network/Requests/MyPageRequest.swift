@@ -14,7 +14,7 @@ public struct EditProfileRequest: Codable {
 }
 
 public struct FilterRequest: Codable {
-    let gender : String?
+    var gender : String?
     let minAge : Int?
     let maxAge : Int?
 }
