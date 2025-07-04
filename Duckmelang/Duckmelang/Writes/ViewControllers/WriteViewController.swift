@@ -334,6 +334,7 @@ extension WriteViewController: PHPickerViewControllerDelegate {
         configuration.selectionLimit = 5
         configuration.filter = .images
         configuration.preferredAssetRepresentationMode = .automatic
+        configuration.selection = .ordered
         
         let picker = PHPickerViewController(configuration: configuration)
         picker.delegate = self

@@ -42,7 +42,6 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
         
         startLoading()
         
-        postDetailView.scrollView.delegate = self
         postDetailView.translatesAutoresizingMaskIntoConstraints = true
         
         scrollViewDidScroll(postDetailView.scrollView)
@@ -59,20 +58,38 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let yOffset = scrollView.contentOffset.y
+        if scrollView == postDetailView.imageView {
+            let pageWidth = UIScreen.width
+            let currentPage = Int((scrollView.contentOffset.x + (0.5 * pageWidth)) / pageWidth)
+            postDetailView.pageControl.currentPage = currentPage
+            return
+        }
         
+        let yOffset = scrollView.contentOffset.y
         if yOffset < 0 {
             let scale = min(1 + abs(yOffset) / 300, 1.1)
             
             postDetailView.imageViewTopConstraint.update(offset: yOffset)
             
+            for imageView in postDetailView.imageViews {
+                imageView.transform = CGAffineTransform(scaleX: scale, y: scale)
+            }
+
             postDetailView.imageView.transform = CGAffineTransform(scaleX: scale, y: scale)
-    
         } else {
             postDetailView.imageView.transform = .identity
     
+            for imageView in postDetailView.imageViews {
+                imageView.transform = .identity
+            }
+            
             postDetailView.imageViewTopConstraint.update(offset: 0)
         }
+        
+        // 페이지 인디케이터 업데이트
+          let pageWidth = UIScreen.main.bounds.width
+          let currentPage = Int((postDetailView.imageView.contentOffset.x + (0.5 * pageWidth)) / pageWidth)
+        postDetailView.pageControl.currentPage = currentPage
     }
     
     private lazy var postDetailView = PostDetailView().then {
@@ -192,6 +209,8 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     private func setupDelegate() {
         postDetailView.postDetailBottomView.tableView.delegate = self
         postDetailView.postDetailBottomView.tableView.dataSource = self
+        postDetailView.scrollView.delegate = self
+        postDetailView.imageView.delegate = self
     }
     
     private func fetchPostDetail(postId: Int) {
