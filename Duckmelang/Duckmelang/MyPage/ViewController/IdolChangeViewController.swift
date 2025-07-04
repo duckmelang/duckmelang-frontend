@@ -7,6 +7,7 @@
 
 import UIKit
 import Moya
+import SwiftyToaster
 
 class IdolChangeViewController: UIViewController {
     
@@ -87,7 +88,6 @@ class IdolChangeViewController: UIViewController {
             }
         }
     }
-
     
     @objc private func finishBtnTapped() {
         let group = DispatchGroup()
@@ -100,17 +100,20 @@ class IdolChangeViewController: UIViewController {
                     
                     try await networkService.deleteIdol(idolId: idolId)
                     
+                    Toaster.shared.makeToast("아이돌 변경이 완료되었습니다.") // 완료버튼 눌렀을때 아이돌을 삭제했으면..
                     stopLoading()
                 } catch {
                     stopLoading()
                     print(error.localizedDescription)
                 }
             }
+            group.leave()
         }
         
         group.notify(queue: .main) {
             self.deleteQueue.removeAll()  // 삭제 대기 목록 초기화
             self.fetchIdolList() // 최신 아이돌 목록 다시 가져옴
+            self.navigationController?.popViewController(animated: true)
         }
     }
  

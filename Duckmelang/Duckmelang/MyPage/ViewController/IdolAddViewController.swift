@@ -104,7 +104,7 @@ class IdolAddViewController: UIViewController {
                 // 서버 오류 or 모두 중복된 아이돌일때
                 // 중복된 아이돌이 없는데 에러가 난거면 서버 오류
                 // 중복된 아이돌이 있다면 4003에러
-                duplicatedIdol ? Toaster.shared.makeToast("중복된 아이돌이 포함되어 있습니다. \n 중복된 아이돌 선택 해제 후 다시 시도해주세요.") : Toaster.shared.makeToast("아이돌 추가를 완료하지 못했습니다. \n 잠시 후 다시 시도해주세요.") 
+                duplicatedIdol ? Toaster.shared.makeToast("중복된 아이돌 선택 해제 후 \n 다시 시도해주세요.") : Toaster.shared.makeToast("아이돌 추가를 완료하지 못했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }
