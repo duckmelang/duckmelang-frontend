@@ -15,8 +15,12 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum LoginEndpoint {
+    case getCheckNickname(loginId: String) // 아이디 중복 확인
     case postRefreshToken(refreshToken: RefreshTokenRequest) // 토큰 재발급
+    case getCheckPhoneNum(phoneNum: String) // 전화번호 중복 확인
     case postLogin(login: LoginRequest) // 로그인
+    case patchPassword(login: NewPasswordRequest) // 비밀번호 변경
+    case getFindId(phoneNum: String) // 아이디 찾기
 }
 
 extension LoginEndpoint: TargetType {
@@ -26,7 +30,7 @@ extension LoginEndpoint: TargetType {
         switch self {
         default:
             guard let url = URL(string: API.authURL) else {
-                fatalError("baseURL 오류")
+                fatalError("authURL 오류")
             }
             return url
         }
@@ -35,10 +39,18 @@ extension LoginEndpoint: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
+        case .getCheckNickname:
+            return "/nickname"
         case .postRefreshToken:
             return "/token/refresh"
+        case .getCheckPhoneNum:
+            return "/phone"
         case .postLogin:
             return "/login"
+        case .patchPassword:
+            return "/find-password"
+        case .getFindId:
+            return "/find-id"
         }
     }
     
@@ -46,17 +58,29 @@ extension LoginEndpoint: TargetType {
         // 가장 많이 호출되는 post을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        default:
+        case .postRefreshToken, .postLogin:
             return .post
+        case .patchPassword:
+            return .patch
+        default:
+            return .get
         }
     }
     
     public var task: Moya.Task {
         switch self {
+        case .getCheckNickname(let loginId):
+            return .requestParameters(parameters: ["loginId": loginId], encoding: URLEncoding.queryString)
         case .postRefreshToken(let refreshToken):
             return .requestJSONEncodable(refreshToken)
+        case .getCheckPhoneNum(let phoneNum):
+            return .requestParameters(parameters: ["phoneNum": phoneNum], encoding: URLEncoding.queryString)
         case .postLogin(let login):
             return .requestJSONEncodable(login)
+        case .patchPassword(let login):
+            return .requestJSONEncodable(login)
+        case .getFindId(let phoneNum):
+            return .requestParameters(parameters: ["phoneNum": phoneNum], encoding: URLEncoding.queryString)
         }
     }
         

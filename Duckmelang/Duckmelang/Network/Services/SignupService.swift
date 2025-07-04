@@ -25,6 +25,11 @@ public final class SignupService : NetworkManager {
     }
     
     //MARK: - API funcs
+    /// 아이디 중복 확인 API
+    public func getCheckNickname(loginId: String) async throws -> CheckResult {
+        return try await requestAsync(target: .getCheckNickname(loginId: loginId), decodingType: CheckResult.self)
+    }
+    
     /// 회원가입 API
     public func postSignUp(signUp: SignupRequest) async throws -> SignupResponseResult {
         return try await requestAsync(target: .postSignUp(signUp: signUp), decodingType: SignupResponseResult.self)

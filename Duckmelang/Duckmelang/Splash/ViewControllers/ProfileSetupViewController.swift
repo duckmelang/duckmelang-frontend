@@ -1,5 +1,5 @@
 //
-//  AuthSuccessSplashViewController.swift
+//  ProfileSplashViewController.swift
 //  Duckmelang
 //
 //  Created by 주민영 on 3/30/25.
@@ -7,10 +7,10 @@
 
 import UIKit
 
-class AuthSuccessSplashViewController: UIViewController {
+class ProfileSplashViewController: UIViewController {
     override func loadView() {
         self.view = BlueSplashView(
-            title: "인증이 완료되었어요!",
+            title: "아직 프로필이 완성되지 않았어요",
             subTitle: "메랑이가 되기 위한 준비를 해볼까요?"
         )
     }

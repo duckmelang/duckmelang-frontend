@@ -10,11 +10,10 @@ import UIKit
 class SignUpViewController: UIViewController {
     let networkService = SignupService()
     
-    var memberId: Int?
     private var isIDVerified: Bool = false {
         didSet {
             signupView.successLabel.isHidden = !isIDVerified
-            pwTextFieldsDidChange()
+            checkSignupButton()
         }
     }
     
@@ -55,19 +54,16 @@ class SignUpViewController: UIViewController {
         return view
     }()
     
-    @objc private func didTapSigninButton() {
-        guard let email = signupView.idTextField.text, !email.isEmpty,
-              let password = signupView.pwTextField.text, !password.isEmpty else { return }
-        
-//        signUp(email: email, password: password)
-        navigateToMakeProfileView()
-        print("goto MakeProfile : \(email), \(password)")
-    }
-    
     @objc func idTextFieldsDidChange() {
         // 만약 인증된 상태라면 → 초기화
         if isIDVerified {
             isIDVerified = false
+        }
+        
+        // 만약 에러 상태라면 → 에러 상태 해제
+        if signupView.idTextField.isInErrorState {
+            signupView.idTextField.setErrorState(false)
+            signupView.idAlertLabel.isHidden = true
         }
         
         let textCount = signupView.idTextField.text?.count ?? 0
@@ -75,31 +71,89 @@ class SignUpViewController: UIViewController {
     }
     
     @objc func pwTextFieldsDidChange() {
-        let isPasswordNotEmpty = !(signupView.pwTextField.text?.isEmpty ?? true)
-        let canEnableSignup = isIDVerified && isPasswordNotEmpty
+        let text = signupView.pwTextField.text ?? ""
+        
+        // 비밀번호 유효성 검사
+        if isValidPassword(text) {
+            signupView.pwAlertLabel.isHidden = true
+            signupView.signUpButton.setEnabled(isIDVerified)
+            signupView.pwTextField.setErrorState(false)
+        } else {
+            signupView.pwAlertLabel.isHidden = false
+            signupView.signUpButton.setEnabled(false)
+            signupView.pwTextField.setErrorState(true)
+        }
+    }
+    
+    private func checkSignupButton() {
+        let text = signupView.pwTextField.text ?? ""
+        let canEnableSignup = isIDVerified && isValidPassword(text)
         signupView.signUpButton.setEnabled(canEnableSignup)
     }
     
     @objc func didTapIdButton() {
-        // 중복확인 API 호출하고 error message띄우던가 아니면 아래처럼
-        isIDVerified = true
-        signupView.idButton.isEnabled = false
+        guard let loginId = signupView.idTextField.text else { return }
+        getCheckNicknameAPI(loginId: loginId)
     }
-        
-    private func signUp(email: String, password: String) {
+    
+    // 아이디 중복 확인 API
+    private func getCheckNicknameAPI(loginId: String) {
         Task {
             do {
                 startLoading()
                 
-                let newSignupRequest = SignupRequest(email: email, password: password)
+                let result = try await networkService.getCheckNickname(loginId: loginId)
+                
+                if result.isDuplicate {
+                    DispatchQueue.main.async {
+                        self.isIDVerified = false
+                        self.signupView.idAlertLabel.isHidden = false
+                        self.signupView.idTextField.setErrorState(true)
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self.isIDVerified = true
+                    }
+                }
+                self.signupView.idButton.isEnabled = false
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    // 아이디/비번 텍스트가 비어있지 않으면, 회원가입 API 호출
+    @objc private func didTapSigninButton() {
+        guard let loginId = signupView.idTextField.text, !loginId.isEmpty,
+              let password = signupView.pwTextField.text, !password.isEmpty else { return }
+        
+        signUp(loginId: loginId, password: password)
+    }
+       
+    // 회원가입 API
+    private func signUp(loginId: String, password: String) {
+        Task {
+            do {
+                startLoading()
+                
+                let newSignupRequest = SignupRequest(loginId: loginId, password: password)
                 let result = try await networkService.postSignUp(signUp: newSignupRequest)
                 
-                self.memberId = result.memberId
-                let profileComplete = result.profileComplete
+//                KeychainManager.shared.save(key: "accessToken", value: result.accessToken)
+//                KeychainManager.shared.save(key: "refreshToken", value: result.refreshToken)
+                KeychainManager.shared.save(key: "memberId", value: String(result.memberId))
                 
-                if !profileComplete {
+                if !result.profileComplete {
                     DispatchQueue.main.async {
                         self.navigateToMakeProfileView()
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self.navigateToBaseView()
                     }
                 }
                 
@@ -116,7 +170,13 @@ class SignUpViewController: UIViewController {
         let splashVC = AuthSuccessSplashViewController()
         splashVC.modalPresentationStyle = .fullScreen
         splashVC.modalTransitionStyle = .crossDissolve
-        splashVC.memberId = self.memberId
         self.present(splashVC, animated: true)
+    }
+    
+    private func navigateToBaseView() {
+        let baseVC = BaseViewController()
+        baseVC.modalPresentationStyle = .fullScreen
+        baseVC.modalTransitionStyle = .crossDissolve
+        self.present(baseVC, animated: true)
     }
 }

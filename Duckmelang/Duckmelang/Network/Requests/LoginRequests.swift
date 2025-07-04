@@ -20,9 +20,15 @@ public struct LoginRequest: Codable {
     let password: String
 }
 
+//비밀번호 변경 요청 모델
+public struct NewPasswordRequest: Codable {
+    let loginId: String
+    let newPassword: String
+}
+
 //회원가입 요청 모델
 public struct SignupRequest: Codable {
-    let email: String
+    let loginId: String
     let password: String
 }
 

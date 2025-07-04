@@ -15,6 +15,7 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum SignupEndpoint {
+    case getCheckNickname(loginId: String) // 아이디 중복 확인
     case postSignUp(signUp: SignupRequest) // 회원가입
     case patchMemberProfile(memberId: Int, profile: PatchMemberProfileRequest) // 닉네임, 생년월일, 성별 설정
     case postMemberProfileImage(memberId: Int, profileImage: [MultipartFormData]) // 프로필 사진 설정
@@ -33,6 +34,11 @@ extension SignupEndpoint: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
+        case .getCheckNickname:
+            guard let url = URL(string: API.authURL) else {
+                fatalError("authURL 오류")
+            }
+            return url
         case .getAllIdols, .getAllEvents:
             guard let url = URL(string: API.baseURL) else {
                 fatalError("baseURL 오류")
@@ -49,6 +55,8 @@ extension SignupEndpoint: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
+        case .getCheckNickname:
+            return "/nickname"
         case .postSignUp:
             return "/signup"
         case .patchMemberProfile(let memberId, _):
@@ -76,7 +84,7 @@ extension SignupEndpoint: TargetType {
         // 가장 많이 호출되는 post을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .getMemberNicknameCheck, .getAllIdols, .getAllEvents:
+        case .getCheckNickname, .getMemberNicknameCheck, .getAllIdols, .getAllEvents:
             return .get
         case .patchMemberProfile, .patchMemberIntroduction:
             return .patch
@@ -87,6 +95,8 @@ extension SignupEndpoint: TargetType {
     
     public var task: Moya.Task {
         switch self {
+        case .getCheckNickname(let loginId):
+            return .requestParameters(parameters: ["loginId": loginId], encoding: URLEncoding.queryString)
         case .postSignUp(let signUp):
             return .requestJSONEncodable(signUp)
         case .postMemberProfileImage(_, let profileImage):

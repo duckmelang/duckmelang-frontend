@@ -73,7 +73,7 @@ class SignUpView: UIView {
     }
     
     // 중복 아이디일 때 경고 문구
-    public lazy var alertLabel = UILabel().then {
+    public lazy var idAlertLabel = UILabel().then {
         $0.text = "이미 사용 중인 아이디입니다. 다른 아이디를 입력해주세요."
         $0.font = UIFont.ptdRegularFont(ofSize: 12)
         $0.textColor = .errorPrimary
@@ -97,6 +97,14 @@ class SignUpView: UIView {
         $0.alignment = .fill
     }
     
+    // 비밀번호 조합이 맞지 않을 때 경고 문구
+    public lazy var pwAlertLabel = UILabel().then {
+        $0.text = "영문, 숫자를 조합해 8자리 이상 작성해주세요"
+        $0.font = UIFont.ptdRegularFont(ofSize: 12)
+        $0.textColor = .errorPrimary
+        $0.isHidden = true
+    }
+    
     public let signUpButton = longCustomBtn(title: "확인", isEnabled: false)
     
     private func setupView() {
@@ -116,9 +124,10 @@ class SignUpView: UIView {
             titleLabel,
             idContainer,
             successLabel,
-            alertLabel,
+            idAlertLabel,
             pwContainer,
-            signUpButton
+            signUpButton,
+            pwAlertLabel
         ].forEach {
             addSubview($0)
         }
@@ -140,7 +149,7 @@ class SignUpView: UIView {
             $0.leading.equalTo(idContainer).offset(4)
         }
         
-        alertLabel.snp.makeConstraints {
+        idAlertLabel.snp.makeConstraints {
             $0.top.equalTo(idContainer.snp.bottom).offset(4)
             $0.leading.equalTo(idContainer).offset(4)
         }
@@ -149,6 +158,11 @@ class SignUpView: UIView {
             $0.top.equalTo(idContainer.snp.bottom).offset(36)
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalTo(pwTextField.snp.bottom)
+        }
+        
+        pwAlertLabel.snp.makeConstraints {
+            $0.top.equalTo(pwContainer.snp.bottom).offset(4)
+            $0.leading.equalTo(pwContainer).offset(4)
         }
         
         signUpButton.snp.makeConstraints {

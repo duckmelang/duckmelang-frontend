@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import SwiftyToaster
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, UITextFieldDelegate {
     let networkService = LoginService()
     
     func showAlert(title: String, message: String) {
@@ -43,6 +44,8 @@ class LoginViewController: UIViewController {
     
     private lazy var loginView: LoginView = {
         let view = LoginView()
+        view.idTextField.delegate = self
+        view.pwdTextField.delegate = self
         
         view.loginButton.setEnabled(false)
         
@@ -66,12 +69,6 @@ class LoginViewController: UIViewController {
         )
         leftBarButton.tintColor = .grey600
         self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
-    }
-    
-    private func navigateToHomeView() {
-        let mainVC = BaseViewController()
-        mainVC.modalPresentationStyle = .fullScreen
-        present(mainVC, animated: true)
     }
         
     @objc private func goBack() {
@@ -114,8 +111,20 @@ class LoginViewController: UIViewController {
                 KeychainManager.shared.save(key: "refreshToken", value: result.refreshToken)
                 KeychainManager.shared.save(key: "memberId", value: String(result.memberId))
                 
-                DispatchQueue.main.async {
-                    self.navigateToHomeView()
+                if result.profileComplete {
+                    // 프로필 설정이 완료된 경우
+                    DispatchQueue.main.async {
+                        self.navigateToHomeView()
+                        
+                        Toaster.shared.makeToast("성공적으로 로그인되었습니다.")
+                    }
+                } else {
+                    // 프로필 설정이 미완료된 경우
+                    DispatchQueue.main.async {
+                        self.navigateToMakeProfileView()
+                        
+                        Toaster.shared.makeToast("성공적으로 로그인되었습니다. \n 프로필 설정이 완료되지 않아 프로필 설정 화면으로 이동합니다.")
+                    }
                 }
                 
                 stopLoading()
@@ -123,8 +132,22 @@ class LoginViewController: UIViewController {
             catch {
                 stopLoading()
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("로그인에 실패했습니다. 다시 시도해 주세요.")
             }
         }
+    }
+    
+    private func navigateToHomeView() {
+        let mainVC = BaseViewController()
+        mainVC.modalPresentationStyle = .fullScreen
+        present(mainVC, animated: true)
+    }
+    
+    private func navigateToMakeProfileView() {
+        let mainVC = ProfileSplashViewController()
+        mainVC.modalPresentationStyle = .fullScreen
+        mainVC.modalTransitionStyle = .crossDissolve
+        present(mainVC, animated: true)
     }
     
     @objc private func textFieldsUpdated() {
@@ -132,5 +155,11 @@ class LoginViewController: UIViewController {
         let isPasswordValid = !(loginView.pwdTextField.text?.isEmpty ?? true)
 
         loginView.loginButton.setEnabled(isUsernameValid && isPasswordValid)
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        didTapLoginButton()
+        textField.resignFirstResponder()
+        return true
     }
 }

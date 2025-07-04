@@ -6,8 +6,13 @@
 //
 
 import UIKit
+import SwiftyToaster
 
 class NewPasswordViewController: UIViewController {
+    let networkService = LoginService()
+    
+    var id: String = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = newPasswordView
@@ -43,12 +48,6 @@ class NewPasswordViewController: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    @objc func didTapVerifyButton(_ textField: UITextField) {
-        // MARK: 테스트를 위한 임시 구문
-        let completeVC = CompleteResetPasswordViewController()
-        self.navigationController?.pushViewController(completeVC, animated: true)
-    }
-    
     @objc func passwordTextFieldDidChange(_ textField: UITextField) {
         let text = textField.text ?? ""
         
@@ -64,9 +63,31 @@ class NewPasswordViewController: UIViewController {
         }
     }
     
-    // 영문 + 숫자 조합, 8자 이상인지 확인
-    func isValidPassword(_ text: String) -> Bool {
-        let regex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*(),.?\":{}|<>~`\\[\\]\\\\/+=_-]{8,}$"
-        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: text)
+    @objc func didTapVerifyButton() {
+        guard let password = newPasswordView.passwordTextField.text else { return }
+        patchPasswordAPI(loginId: self.id, password: password)
+    }
+    
+    // 비밀번호 변경 API 호출
+    private func patchPasswordAPI(loginId: String, password: String) {
+        Task {
+            do {
+                startLoading()
+                
+                let newLoginRequest = NewPasswordRequest(loginId: loginId, newPassword: password)
+                _ = try await networkService.patchPassword(login: newLoginRequest)
+                
+                // 비밀번호 성공 시
+                let completeVC = CompleteResetPasswordViewController()
+                self.navigationController?.pushViewController(completeVC, animated: true)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+                Toaster.shared.makeToast(error.localizedDescription)
+            }
+        }
     }
 }
