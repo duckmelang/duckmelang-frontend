@@ -136,8 +136,10 @@ class PostCell: UITableViewCell {
     }
     
     public func configure(model: PostDTO) {
-        if let postImageUrl = URL(string: model.postImageUrl) {
+        if let urlString = model.postImageUrl, let postImageUrl = URL(string: urlString) {
             self.postImage.kf.setImage(with: postImageUrl, placeholder: UIImage(named: "defaultPostImage"))
+        } else {
+            self.postImage.image = UIImage(named: "defaultPostImage")
         }
         
         self.postTitle.text = model.title

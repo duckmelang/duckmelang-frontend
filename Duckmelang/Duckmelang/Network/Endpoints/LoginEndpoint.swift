@@ -16,16 +16,7 @@ import Moya
 
 public enum LoginEndpoint {
     case postRefreshToken(refreshToken: RefreshTokenRequest) // 토큰 재발급
-    case postLogout // 로그아웃
     case postLogin(login: LoginRequest) // 로그인
-    
-    case kakaoLogin // 카카오로그인
-    case googleLogin // 구글로그인
-    case getOAuthTokenKakao(memberId: Int)
-    case getOAuthTokenGoogle(memberId: Int)
-    
-    case postSendVerificationCode(phoneNum: VerificationCodeRequest) // 인증번호 전송
-    case postVerifyCode(verifyCode: VerifyCode) // 인증번호 인증
 }
 
 extension LoginEndpoint: TargetType {
@@ -33,23 +24,8 @@ extension LoginEndpoint: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
-        case .kakaoLogin, .googleLogin:
-            guard let url = URL(string: API.oauthURL) else {
-                fatalError("oauthURL 오류")
-            }
-            return url
-        case .getOAuthTokenKakao, .getOAuthTokenGoogle:
-            guard let url = URL(string: API.oauthCodeURL) else {
-                fatalError("oauthTokenURL 오류")
-            }
-            return url
-        case .postSendVerificationCode, .postVerifyCode:
-            guard let url = URL(string: API.smsURL) else {
-                fatalError("smsURL 오류")
-            }
-            return url
         default:
-            guard let url = URL(string: API.baseURL) else {
+            guard let url = URL(string: API.authURL) else {
                 fatalError("baseURL 오류")
             }
             return url
@@ -61,18 +37,8 @@ extension LoginEndpoint: TargetType {
         switch self {
         case .postRefreshToken:
             return "/token/refresh"
-        case .postLogout:
-            return "/logout"
         case .postLogin:
             return "/login"
-        case .kakaoLogin, .getOAuthTokenKakao:
-            return "/kakao"
-        case .googleLogin, .getOAuthTokenGoogle:
-            return "/google"
-        case .postSendVerificationCode:
-            return "/send"
-        case .postVerifyCode:
-            return "/verify"
         }
     }
     
@@ -80,8 +46,6 @@ extension LoginEndpoint: TargetType {
         // 가장 많이 호출되는 post을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .kakaoLogin, .getOAuthTokenKakao, .googleLogin, .getOAuthTokenGoogle:
-            return .get
         default:
             return .post
         }
@@ -93,14 +57,6 @@ extension LoginEndpoint: TargetType {
             return .requestJSONEncodable(refreshToken)
         case .postLogin(let login):
             return .requestJSONEncodable(login)
-        case .getOAuthTokenKakao(let memberId), .getOAuthTokenGoogle(let memberId):
-            return .requestParameters(parameters: ["memberId": memberId], encoding: URLEncoding.default)
-        case .postSendVerificationCode(let phoneNum):
-            return .requestJSONEncodable(phoneNum)
-        case .postVerifyCode(let verifyCode):
-            return .requestJSONEncodable(verifyCode)
-        case .postLogout, .kakaoLogin, .googleLogin:
-            return .requestPlain
         }
     }
         
