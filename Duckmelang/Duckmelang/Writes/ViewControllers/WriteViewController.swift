@@ -215,9 +215,9 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
     }
     
     // 아이돌 선택 - CelebSelectionDelegate
-    func didSelectCeleb(_ celeb: idolDTO) {
+    func didSelectCeleb(_ celeb: idolDTO?) {
         self.selectedCeleb = celeb
-        writeView.idolSelectButton.setTitle(celeb.idolName, for: .normal)
+        writeView.idolSelectButton.setTitle(celeb?.idolName, for: .normal)
         writeView.idolSelectButton.setTitleColor(.black, for: .normal)
         writeView.idolSelectButton.layer.borderColor = UIColor.black!.cgColor
         checkAllFieldsFilled()

@@ -59,6 +59,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     
     @objc private func goBack() {
         self.navigationController?.popViewController(animated: true)
+        self.tabBarController?.tabBar.isHidden = false // tabBar 다시 보이도록
     }
     
     /*private func getMyProfileImageAPI() {
@@ -98,7 +99,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     private func getMyProfileImageAPI() {
         guard !isLoading && !isLastPage else { return }
         isLoading = true
-        myProfileImageView.loadingIndicator.startLoading()
+        //myProfileImageView.loadingIndicator.startLoading()
 
         _Concurrency.Task {
             do {
@@ -110,7 +111,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
                 self.isLastPage = response.isLast
 
                 DispatchQueue.main.async {
-                    self.myProfileImageView.loadingIndicator.stopLoading()
+                    //self.myProfileImageView.loadingIndicator.stopLoading()
                     self.myProfileImageView.imageTableView.reloadData()
                     if self.isLastPage {
                         self.myProfileImageView.imageTableView.tableFooterView = nil
@@ -124,7 +125,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
                 
                 print(error.localizedDescription)
                 DispatchQueue.main.async {
-                    self.myProfileImageView.loadingIndicator.stopLoading()
+                    //self.myProfileImageView.loadingIndicator.stopLoading()
                     self.isLoading = false
                 }
             }

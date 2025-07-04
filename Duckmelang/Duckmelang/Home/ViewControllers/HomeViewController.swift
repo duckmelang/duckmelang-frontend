@@ -248,9 +248,9 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
 }
 
 extension HomeViewController: CelebSelectionDelegate {
-    func didSelectCeleb(_ celeb: idolDTO) {
+    func didSelectCeleb(_ celeb: idolDTO?) {
         selectedCeleb = celeb
-        homeView.celebNameLabel.text = celeb.idolName
+        homeView.celebNameLabel.text = celeb?.idolName ?? "모든 게시물 보기"
         fetchPosts(startPage: 0)
     }
 }

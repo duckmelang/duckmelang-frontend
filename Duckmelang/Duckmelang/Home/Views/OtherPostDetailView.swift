@@ -11,31 +11,55 @@ import Kingfisher
 
 class OtherPostDetailView: UIView {
 
+    var imageViewTopConstraint: Constraint!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
         
         addStack()
         setupView()
+        
+        postDetailBottomView.bringSubviewToFront(postDetailBottomView.warningBtn)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var scrollView = UIScrollView()
+    lazy var scrollView = UIScrollView().then {
+        $0.isUserInteractionEnabled = true
+    }
     
-    private lazy var contentView = UIView()
+    private lazy var contentView = UIView().then {
+        $0.isUserInteractionEnabled = true
+    }
+    
+    private lazy var whiteView = UIView().then {
+        $0.backgroundColor = .white
+    }
     
     lazy var postDetailTopView = OtherPostDetailTopView()
     
-    lazy var postDetailBottomView = OtherPostDetailBottomView()
+    lazy var postDetailBottomView = OtherPostDetailBottomView().then {
+        $0.isUserInteractionEnabled = true
+    }
     
     lazy var tabBar = OtherPostDetailTapBar()
     
     lazy var backBtn = UIButton().then {
         $0.setImage(.back, for: .normal)
         $0.tintColor = .grey0
+    }
+    
+    lazy var imageView = UIScrollView().then {
+        $0.backgroundColor = .grey200
+        $0.isPagingEnabled = true
+    }
+    
+    lazy var imageViews = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
+        $0.clipsToBounds = true
     }
     
     private lazy var title = Label(text: "", font: .aritaSemiBoldFont(ofSize: 18), color: .black)
@@ -51,16 +75,39 @@ class OtherPostDetailView: UIView {
     }
     
     private func setupView(){
-        [scrollView, tabBar].forEach{addSubview($0)}
+        [scrollView, tabBar, whiteView].forEach{addSubview($0)}
         [contentView].forEach{scrollView.addSubview($0)}
-        [postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
+        [imageView ,postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
         
         addSubview(topStack)
+        
+        imageView.addSubview(imageViews)
+
+        
+        imageView.snp.makeConstraints{
+            imageViewTopConstraint = $0.top.equalTo(contentView.snp.top).constraint
+            $0.top.equalTo(safeAreaInsets)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
+            $0.bottom.equalTo(postDetailTopView.snp.top)
+        }
+        
+        imageViews.snp.makeConstraints {
+            $0.edges.equalTo(imageView)
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(imageView)
+        }
         
         tabBar.snp.makeConstraints{
             $0.height.equalTo(73)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
+        }
+        
+        whiteView.snp.makeConstraints{
+            $0.top.equalTo(tabBar.snp.bottom)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalTo(safeAreaInsets)
         }
         
         topStack.snp.makeConstraints{
@@ -70,24 +117,28 @@ class OtherPostDetailView: UIView {
         }
         
         scrollView.snp.makeConstraints{
-            $0.top.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(tabBar.snp.top)
+            $0.edges.equalToSuperview()
         }
         
         contentView.snp.makeConstraints{
+            $0.top.equalTo(scrollView.frameLayoutGuide.snp.top)
             $0.edges.width.equalToSuperview()
-            $0.height.greaterThanOrEqualToSuperview()
+            $0.bottom.equalTo(postDetailBottomView.tableView.snp.bottom).offset(10)
+            //$0.height.greaterThanOrEqualToSuperview()
         }
         
         postDetailTopView.snp.makeConstraints{
-            $0.top.horizontalEdges.equalToSuperview()
+            $0.top.equalTo(contentView.snp.top).offset(350)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         postDetailBottomView.snp.makeConstraints{
             $0.top.equalTo(postDetailTopView.profileInfo.snp.bottom).offset(16)
+            $0.width.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
         
-        scrollView.contentInset.bottom = 73 // 스크롤뷰가 tabBar 안가리도록..
+        scrollView.contentInset.bottom = 40
     }
     
     // **UI 업데이트 함수**
@@ -95,7 +146,7 @@ class OtherPostDetailView: UIView {
         // 이미지 로드 (첫 번째 이미지)
         if let firstImageUrlString = data.postImageUrl.first,
            let imageUrl = URL(string: firstImageUrlString) {
-            postDetailTopView.updateImage(with: imageUrl) // ✅ 이미지 로드 후 그라데이션 추가
+            updateImage(with: imageUrl) // ✅ 이미지 로드 후 그라데이션 추가
         }
         
         // 상단 프로필 정보 업데이트
@@ -115,6 +166,18 @@ class OtherPostDetailView: UIView {
         
         postDetailBottomView.tableView.reloadData()
     }
+    
+    /// ✅ Kingfisher 이미지 로드 후 그라데이션 추가
+    func updateImage(with url: URL?) {
+        guard let url = url else { return }
+        imageViews.kf.setImage(with: url, placeholder: UIImage(), completionHandler: { _ in
+            DispatchQueue.main.async {
+                //self.addGradientLayer()
+                self.imageViews.contentMode = .scaleAspectFill
+                self.imageViews.clipsToBounds = true
+            }
+        })
+    }
 }
 
 class OtherPostDetailTopView: UIView {
@@ -130,16 +193,6 @@ class OtherPostDetailTopView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    lazy var imageView = UIScrollView().then {
-        $0.backgroundColor = .grey200
-        $0.isPagingEnabled = true
-    }
-    
-    private lazy var imageViews = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.clipsToBounds = true
     }
     
     lazy var profileImage = UIImageView().then {
@@ -163,22 +216,11 @@ class OtherPostDetailTopView: UIView {
         $0.textAlignment = .left
     }
 
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -10, distribution: .equalCentering)
+    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -16, distribution: .equalCentering)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6, alignment: .leading)
     lazy var profileInfo = Stack(axis: .horizontal, spacing: 16, alignment: .center)
     
-    /// ✅ Kingfisher 이미지 로드 후 그라데이션 추가
-    func updateImage(with url: URL?) {
-        guard let url = url else { return }
-        imageViews.kf.setImage(with: url, placeholder: UIImage(), completionHandler: { _ in
-            DispatchQueue.main.async {
-                self.addGradientLayer()
-                self.imageViews.contentMode = .scaleAspectFill
-                self.imageViews.clipsToBounds = true
-            }
-        })
-    }
-    
+    /*
     func addGradientLayer() {
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = imageViews.bounds
@@ -195,7 +237,7 @@ class OtherPostDetailTopView: UIView {
 
         //`imageView`의 `layer`에 추가
         imageViews.layer.addSublayer(gradientLayer)
-    }
+    }*/
     
     private func addStack(){
         [gender, line, age].forEach{genderAndAgeStack.addArrangedSubview($0)}
@@ -204,33 +246,14 @@ class OtherPostDetailTopView: UIView {
     }
     
     private func setupView(){
-        [imageView, profileInfo].forEach{addSubview($0)}
-    
-        imageView.addSubview(imageViews)
+        [profileInfo].forEach{addSubview($0)}
 
-        imageView.snp.makeConstraints{
-            $0.top.equalToSuperview().offset(-(UIApplication.shared.windows.first?.safeAreaInsets.top)!) //Safe Area 고려하여 확장\
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
-        }
-        
-        imageViews.snp.makeConstraints {
-            $0.edges.equalTo(imageView)
-            $0.centerX.equalToSuperview()
-            $0.height.equalTo(imageView)
-        }
-        
-        //그라데이션 추가
-        DispatchQueue.main.async {
-            self.addGradientLayer()
-        }
-        
         profileImage.snp.makeConstraints{
             $0.height.width.equalTo(36)
         }
         
         profileInfo.snp.makeConstraints{
-            $0.top.equalTo(imageView.snp.bottom).offset(15)
+            $0.top.equalToSuperview().offset(15)
             $0.leading.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }
@@ -264,6 +287,19 @@ class OtherPostDetailBottomView: UIView {
     lazy var text2 = Label(text: "| 채팅 0", font: .ptdRegularFont(ofSize: 12), color: .grey500)
     lazy var text3 = Label(text: "| 조회 0", font: .ptdRegularFont(ofSize: 12), color: .grey500)
     
+    lazy var warningBtn = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        let imageConfig = UIImage.SymbolConfiguration(pointSize: 12)
+        let image = UIImage(systemName: "exclamationmark.triangle", withConfiguration: imageConfig)
+        config.imagePadding = 8
+        config.attributedTitle = AttributedString("신고하기", attributes: AttributeContainer([.font: UIFont.ptdRegularFont(ofSize: 12), .foregroundColor: UIColor.errorPrimary!]))
+        config.image = image
+        $0.tintColor = UIColor.errorPrimary
+        $0.setTitleColor(.errorPrimary, for: .normal)
+        $0.configuration = config
+        $0.isUserInteractionEnabled = true
+    }
+    
     private lazy var textStack = Stack(axis: .vertical, spacing: 14)
     lazy var infoStack = Stack(axis: .horizontal, spacing: 10)
     
@@ -282,7 +318,7 @@ class OtherPostDetailBottomView: UIView {
     }
     
     private func setupView(){
-        [textStack, title2, tableView].forEach{addSubview($0)}
+        [textStack, title2, tableView, warningBtn].forEach{addSubview($0)}
         
         textStack.snp.makeConstraints{
             $0.top.equalToSuperview().inset(8)
@@ -294,11 +330,18 @@ class OtherPostDetailBottomView: UIView {
             $0.leading.equalToSuperview().inset(16)
         }
         
+        warningBtn.snp.makeConstraints{
+            $0.centerY.equalTo(infoStack.snp.centerY)
+            $0.height.equalTo(44)
+            $0.width.greaterThanOrEqualTo(90)
+            $0.trailing.equalToSuperview().inset(24)
+        }
+        
         tableView.snp.makeConstraints{
             $0.top.equalTo(title2.snp.bottom).offset(12)
-            $0.width.equalTo(UIScreen.main.bounds.width - 32)
+            //$0.width.equalTo(UIScreen.main.bounds.width - 32)
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.height.equalTo(500)//수정예정
+            $0.height.greaterThanOrEqualTo(160)
         }
     }
 }

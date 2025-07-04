@@ -18,4 +18,5 @@ public struct API {
     public static let profileURL = "\(baseURL)/profile"
     public static let chatroomURL = "\(baseURL)/chatrooms"
     public static let notificationURL = "\(baseURL)/notifications"
+    public static let mySettingURL = "\(baseURL)/settings"
 }

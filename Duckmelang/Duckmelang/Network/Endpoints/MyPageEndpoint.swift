@@ -55,6 +55,11 @@ extension MyPageEndpoint: TargetType {
                 fatalError("mypageURL 오류")
             }
             return url
+        case .getFilters, .postFilters, .getIdolList, .postIdol, .deleteIdol, .getSearchIdol, .getLandmines, .postLandmines, .deleteLandmines:
+            guard let url = URL(string: API.mySettingURL) else {
+                fatalError("mypageURL 오류")
+            }
+            return url
         default:
             guard let url = URL(string: API.mypageURL) else {
                 fatalError("mypageURL 오류")
@@ -92,7 +97,7 @@ extension MyPageEndpoint: TargetType {
             return "/landmines/\(landmineId)"
         case .getFilters, .postFilters:
             return "/filters"
-        case .patchPostStatus(postId: let postId, wanted: let wanted):
+        case .patchPostStatus(postId: let postId):
             return "/\(postId)/status"
         case .patchNotificationsSetting, .getNotificationsSetting:
             return "/setting"

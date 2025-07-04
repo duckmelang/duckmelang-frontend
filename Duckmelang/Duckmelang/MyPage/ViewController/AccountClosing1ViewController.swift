@@ -24,7 +24,7 @@ class AccountClosing1ViewController: UIViewController {
     
     @objc
     private func backBtnDidTap() {
-        self.presentingViewController?.dismiss(animated: false)
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc

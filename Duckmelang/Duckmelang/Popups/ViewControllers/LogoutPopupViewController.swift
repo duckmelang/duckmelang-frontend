@@ -32,26 +32,17 @@ class LogoutPopupViewController: UIViewController {
     }
     
     private func logout() {
-//        Task {
-//            do {
-//                startLoading()
-//                
-//                let result = try await networkService.postLogout()
-//                
-//                KeychainManager.shared.delete(key: "accessToken")
-//                KeychainManager.shared.delete(key: "refreshToken")
-//                
-//                DispatchQueue.main.async {
-//                    self.goToLoginScreen()
-//                }
-//                
-//                stopLoading()
-//            }
-//            catch {
-//                stopLoading()
-//                print(error.localizedDescription)
-//            }
-//        }
+        Task {
+            startLoading()
+            defer { stopLoading() } // 마지막에 실행됨
+            
+            KeychainManager.shared.delete(key: "accessToken")
+            KeychainManager.shared.delete(key: "refreshToken")
+            
+            DispatchQueue.main.async {
+                self.goToLoginScreen()
+            }
+        }
     }
     
     // ✅ 로그인 화면으로 이동
