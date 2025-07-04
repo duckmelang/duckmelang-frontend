@@ -79,8 +79,8 @@ public final class MyPageService : NetworkManager {
         return try await requestAsync(target: .getLandmines, decodingType: LandmineResponse.self)
     }
 
-    public func postLandmines(content: String) async throws {
-        try await requestAsync(target: .postLandmines(content: content))
+    public func postLandmines(content: String) async throws -> LandmineModel {
+        try await requestAsync(target: .postLandmines(content: content), decodingType: LandmineModel.self)
     }
 
     public func deleteLandmines(landmineId: Int) async throws {
