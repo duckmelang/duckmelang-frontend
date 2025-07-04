@@ -6,9 +6,13 @@
 //
 
 import UIKit
+import FirebaseCore
+import FirebaseAuth
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    
+    var window: UIWindow?
     var sseClient = SSEClient()
 
     func application(
@@ -16,8 +20,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         
+        FirebaseApp.configure()
+        Auth.auth().languageCode = "kr"
+        
         UNUserNotificationCenter.current().delegate = self
         NotificationManager.shared.requestNotificationPermission()
+        
         sseClient.connectToSSE()
         
         return true

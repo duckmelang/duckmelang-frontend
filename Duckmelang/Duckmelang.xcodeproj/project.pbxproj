@@ -18,6 +18,8 @@
 		C07F4E212DDDE053009B4C21 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E202DDDE053009B4C21 /* Moya */; };
 		C07F4E242DDDE060009B4C21 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E232DDDE060009B4C21 /* SnapKit */; };
 		C07F4E272DDDE06D009B4C21 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E262DDDE06D009B4C21 /* Then */; };
+		C084067D2E17A41D00730714 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = C084067C2E17A41D00730714 /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		C084067F2E17A4E600730714 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C084067E2E17A4E600730714 /* FirebaseAuth */; };
 		C0E103302D9BE91800342F01 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291A2D39ECEB0036A9AC /* Then */; };
 		C0E103312D9BE91800342F01 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291D2D39ECF20036A9AC /* SnapKit */; };
 		C0E103322D9BE91800342F01 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E291F2D39EDBF0036A9AC /* Then */; };
@@ -35,7 +37,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		FA4FE4192D2FA23E007423E3 /* Exceptions for "Duckmelang" folder in "Duckmelang" target */ = {
+		C08406832E17C22700730714 /* Exceptions for "Duckmelang" folder in "Duckmelang" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -48,7 +50,7 @@
 		FA4FE4092D2FA23D007423E3 /* Duckmelang */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				FA4FE4192D2FA23E007423E3 /* Exceptions for "Duckmelang" folder in "Duckmelang" target */,
+				C08406832E17C22700730714 /* Exceptions for "Duckmelang" folder in "Duckmelang" target */,
 			);
 			path = Duckmelang;
 			sourceTree = "<group>";
@@ -64,8 +66,10 @@
 				C07F4E1B2DDDE028009B4C21 /* Cosmos in Frameworks */,
 				C07F4E162DDDE01A009B4C21 /* KakaoSDKCommon in Frameworks */,
 				C0E103382D9BE91800342F01 /* SnapKit in Frameworks */,
+				C084067D2E17A41D00730714 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				C0E103372D9BE91800342F01 /* Then in Frameworks */,
 				C07F4E272DDDE06D009B4C21 /* Then in Frameworks */,
+				C084067F2E17A4E600730714 /* FirebaseAuth in Frameworks */,
 				C07F4E1E2DDDE036009B4C21 /* Kingfisher in Frameworks */,
 				C0E103362D9BE91800342F01 /* SnapKit in Frameworks */,
 				C0E103352D9BE91800342F01 /* Then in Frameworks */,
@@ -142,6 +146,8 @@
 				C07F4E232DDDE060009B4C21 /* SnapKit */,
 				C07F4E262DDDE06D009B4C21 /* Then */,
 				5D1CD04E2E0AF02F009901BD /* SwiftyToaster */,
+				C084067C2E17A41D00730714 /* FirebaseAnalyticsWithoutAdIdSupport */,
+				C084067E2E17A4E600730714 /* FirebaseAuth */,
 			);
 			productName = Duckmelang;
 			productReference = AF1C01482D4DDF6E008AF4DE /* Duckmelang.app */;
@@ -179,6 +185,7 @@
 				C07F4E222DDDE060009B4C21 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				C07F4E252DDDE06D009B4C21 /* XCRemoteSwiftPackageReference "Then" */,
 				5D1CD04D2E0AF02F009901BD /* XCRemoteSwiftPackageReference "SwiftyToaster" */,
+				C084067B2E17A41D00730714 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FA4FE3FE2D2FA23D007423E3;
@@ -225,6 +232,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -252,6 +260,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -464,6 +473,14 @@
 				minimumVersion = 3.0.0;
 			};
 		};
+		C084067B2E17A41D00730714 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.15.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -551,6 +568,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C07F4E252DDDE06D009B4C21 /* XCRemoteSwiftPackageReference "Then" */;
 			productName = Then;
+		};
+		C084067C2E17A41D00730714 /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C084067B2E17A41D00730714 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		C084067E2E17A4E600730714 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C084067B2E17A41D00730714 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

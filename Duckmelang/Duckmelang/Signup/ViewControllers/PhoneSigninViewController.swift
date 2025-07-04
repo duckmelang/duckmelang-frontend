@@ -2,10 +2,12 @@
 //  PhoneSigninViewController.swift
 //  Duckmelang
 //
-//  Created by 김연우 on 1/25/25.
+//  Created by 주민영 on 1/25/25.
 //
 
 import UIKit
+import FirebaseAuth
+import SwiftyToaster
 
 class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     let networkService = LoginService()
@@ -69,42 +71,62 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         let digitsOnly = rawText.filter { $0.isNumber }
 
         guard digitsOnly.count == 11 else { return }
-
-        startCountdown()
-        // postSendCodeAPI(phoneNumber: digitsOnly)
         
-        // MARK: FIX-ME 전화번호 중복인지 검사하고 error 검사하기
-        // phoneSigninView.phoneTextField.setErrorState(true)
+        getCheckNicknameAPI(phoneNum: rawText)
+    }
+    
+    // 전화번호 중복 확인하기
+    private func getCheckNicknameAPI(phoneNum: String) {
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.getCheckPhoneNum(phoneNum: phoneNum)
+                if (result.isDuplicate) {
+                    // 전화번호가 중복되는 경우
+                    self.phoneSigninView.phoneTextField.setErrorState(true)
+                    self.phoneSigninView.alertLabel.isHidden = false
+                } else {
+                    // 전화번호가 중복되지않는 경우 -> 인증번호 보냄
+                    startCountdown()
+                    
+                    postSendCodeAPI(phoneNumber: phoneNum)
 
-        // MARK: TEST - 인증번호 성공 시
-        self.phoneSigninView.verifyCodeContainer.isHidden = false
-        
-        self.phoneSigninView.phoneTextField.isEnabled = false
-        self.phoneSigninView.verifyButton.isEnabled = false
-        self.phoneSigninView.phoneVerifyContainer.alpha = 0.5
+                    self.phoneSigninView.verifyCodeContainer.isHidden = false
+                    self.phoneSigninView.phoneTextField.isEnabled = false
+                    self.phoneSigninView.verifyButton.isEnabled = false
+                    self.phoneSigninView.phoneVerifyContainer.alpha = 0.5
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+                Toaster.shared.makeToast(error.localizedDescription)
+            }
+        }
     }
     
     private func postSendCodeAPI(phoneNumber: String) {
-//        Task {
-//            do {
-//                startLoading()
-//                
-//                let newCodeRequest = VerificationCodeRequest(phoneNum: phoneNumber)
-//                _ = try await networkService.postSendVerificationCode(phoneNum: newCodeRequest)
-//                
-//                self.startCountdown()
-//                DispatchQueue.main.async {
-//                    self.showPopup(message: "인증 번호를 전송하였습니다.")
-//                    self.phoneSigninView.verifyCodeContainer.isHidden = false
-//                }
-//                
-//                stopLoading()
-//            }
-//            catch {
-//                stopLoading()
-//                print(error.localizedDescription)
-//            }
-//        }
+        let formattedPhoneNumber = formatPhoneNumberToE164(phoneNumber)
+        print(formattedPhoneNumber)
+        
+        PhoneAuthProvider.provider().verifyPhoneNumber(formattedPhoneNumber, uiDelegate: nil) { verificationID, error in
+              if let error = error {
+                    Toaster.shared.makeToast(error.localizedDescription)
+                    print(error.localizedDescription)
+                    return
+              }
+              if let verificationID = verificationID {
+                  print("인증 요청 성공: \(verificationID)")
+                  UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
+              } else {
+                  Toaster.shared.makeToast("verificationID가 nil입니다.")
+                  return
+              }
+              
+          }
     }
 
     // MARK: - 성공 팝업 표시
@@ -126,35 +148,50 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
             showAlert(title: "오류", message: "올바른 인증번호를 입력하세요.")
             return
         }
-
-        //TEST:
-        navigateToIDPWView()
+        
+        postVerifyCodeAPI(code: code)
     }
     
-    private func postVerifyCodeAPI(phoneNumber: String, code: String) {
-//        Task {
-//            do {
-//                startLoading()
-//                
-//                let newVerifyCode = VerifyCode(phoneNum: phoneNumber, certificationCode: code)
-//                _ = try await networkService.postVerifyCode(verifyCode: newVerifyCode)
-//                
-//                DispatchQueue.main.async {
-//                    let alert = UIAlertController(title: "알림", message: "인증이 완료되었어요!", preferredStyle: .alert)
-//                    let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
-//                        self.navigateToIDPWView()
-//                    }
-//                    alert.addAction(confirmAction)
-//                    self.present(alert, animated: true)
-//                }
-//                
-//                stopLoading()
-//            }
-//            catch {
-//                stopLoading()
-//                print(error.localizedDescription)
-//            }
-//        }
+    private func postVerifyCodeAPI(code: String) {
+        Task {
+            startLoading()
+            
+            guard let verificationID = UserDefaults.standard.string(forKey: "authVerificationID") else {
+                print("❌ verificationID가 없습니다")
+                return
+            }
+
+            let credential = PhoneAuthProvider.provider().credential(
+                withVerificationID: verificationID,
+                verificationCode: code
+            )
+
+            do {
+                let result = try await Auth.auth().signIn(with: credential)
+                print("로그인 성공: \(result.user.phoneNumber ?? "")")
+
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(title: "알림", message: "인증이 완료되었어요!", preferredStyle: .alert)
+                    let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+                        self.navigateToIDPWView()
+                    }
+                    alert.addAction(confirmAction)
+                    self.present(alert, animated: true)
+                }
+                
+                stopLoading()
+            } catch {
+                print("로그인 실패: \(error.localizedDescription)")
+                
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(title: "실패", message: error.localizedDescription, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "확인", style: .default))
+                    self.present(alert, animated: true)
+                }
+                
+                stopLoading()
+            }
+        }
     }
 
     // MARK: - 인증번호 타이머 관리
@@ -211,6 +248,12 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
 
         let formatted = formatPhoneNumber(limitedText)
         phoneSigninView.phoneTextField.text = formatted
+        
+        // 에러 상태일 경우에만 처리 (내부에서 상태 자동 전환됨)
+        if phoneSigninView.phoneTextField.isInErrorState {
+            phoneSigninView.phoneTextField.setErrorState(false)
+            phoneSigninView.alertLabel.isHidden = true
+        }
 
         phoneSigninView.verifyButton.isEnabled = (limitedText.count == 11)
     }
