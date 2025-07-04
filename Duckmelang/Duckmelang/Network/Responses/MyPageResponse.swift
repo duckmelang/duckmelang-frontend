@@ -100,7 +100,7 @@ public struct idolListResponse: Codable {
     let idolList: [IdolListDTO]
 }
 
-struct IdolListDTO: Codable {
+public struct IdolListDTO: Codable {
     let idolId: Int
     let idolName: String
     let idolImage: String

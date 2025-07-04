@@ -7,6 +7,7 @@
 import UIKit
 import Kingfisher
 import Moya
+import SwiftyToaster
 
 class ProfileModifyViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -73,10 +74,12 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
                     userInfo: ["nickname": nickname, "introduction": introduction, "imageURL": self.uploadedImageURL ?? ""]
                 )
                 
+                Toaster.shared.makeToast("프로필 수정이 완료되었습니다.")
                 self.navigationController?.popViewController(animated: true)
                 stopLoading()
             } catch {
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("프로필 수정에 실패했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }

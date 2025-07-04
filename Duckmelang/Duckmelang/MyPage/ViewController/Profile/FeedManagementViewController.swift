@@ -100,7 +100,9 @@ class FeedManagementViewController: UIViewController {
                 do {
                     let response: () = try await networkService.deletePost(postId: postId)
                     print("게시글 삭제 성공: \(response)")
+                    Toaster.shared.makeToast("게시글이 삭제되었습니다.")
                 } catch {
+                    Toaster.shared.makeToast("게시글 삭제에 실패했습니다. \n 잠시 후 다시 시도해주세요")
                     print(error.localizedDescription)
                 }
                 completion?()
@@ -123,11 +125,10 @@ class FeedManagementViewController: UIViewController {
                     }
                     
                     stopLoading()
-                    Toaster.shared.makeToast("게시글이 삭제되었습니다.")
                 } catch {
                     stopLoading()
                     print(error.localizedDescription)
-                    Toaster.shared.makeToast("게시글 삭제에 실패했습니다. \n 다시 시도해주세요")
+                    Toaster.shared.makeToast("게시글을 불러오지 못했습니다. \n 잠시 후 다시 시도해주세요")
                 }
             }
         }

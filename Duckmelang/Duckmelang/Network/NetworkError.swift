@@ -54,7 +54,7 @@ extension NetworkError: LocalizedError {
 
 public struct ErrorResponse: Decodable {
     let isSuccess : Bool
-    let httpStatus : String
+    let httpStatus : String?
     let code : String
     let message: String
 }

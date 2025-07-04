@@ -67,8 +67,8 @@ public final class MyPageService : NetworkManager {
         return try await requestAsync(target: .getSearchIdol(keyword: keyword), decodingType: idolListResponse.self)
     }
 
-    public func postIdol(idolId: Int) async throws {
-        try await requestAsync(target: .postIdol(idolId: idolId))
+    public func postIdol(idolId: Int) async throws -> IdolListDTO {
+        return try await requestAsync(target: .postIdol(idolId: idolId), decodingType: IdolListDTO.self)
     }
 
     public func deleteIdol(idolId: Int) async throws {

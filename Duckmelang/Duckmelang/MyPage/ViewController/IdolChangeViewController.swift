@@ -181,9 +181,7 @@ extension IdolChangeViewController: UICollectionViewDelegate {
             idolAddVC.onCompletion = { [weak self] in
                 self?.fetchIdolList()
             }
-            let navigationController = UINavigationController(rootViewController: idolAddVC)
-            navigationController.modalPresentationStyle = .overFullScreen
-            present(navigationController, animated: false)
+            self.navigationController?.pushViewController(idolAddVC, animated: true)
         }
     }
 }
