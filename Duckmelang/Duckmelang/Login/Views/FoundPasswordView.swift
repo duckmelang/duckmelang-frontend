@@ -1,13 +1,13 @@
 //
-//  NewPasswordView.swift
+//  FoundPasswordView.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 6/23/25.
+//  Created by 주민영 on 6/28/25.
 //
 
 import UIKit
 
-class NewPasswordView: UIView {
+class FoundPasswordView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = UIColor.white
@@ -23,7 +23,7 @@ class NewPasswordView: UIView {
         paragraphStyle.lineHeightMultiple = 1.35 // 자간 135%
 
         let attributedString = NSAttributedString(
-            string: "새로운 비밀번호를 입력해주세요",
+            string: "아이디를 입력해주세요",
             attributes: [
                 .font: UIFont.aritaBoldFont(ofSize: 20),
                 .foregroundColor: UIColor.grey800!,
@@ -39,7 +39,7 @@ class NewPasswordView: UIView {
         paragraphStyle.lineHeightMultiple = 1.6 // 자간 160%
 
         let attributedString = NSAttributedString(
-            string: "영문, 숫자를 조합해 8자리 이상 작성해주세요",
+            string: "기존 덕메랑에 저장된 아이디로 비밀번호를 찾아드릴게요",
             attributes: [
                 .font: UIFont.ptdRegularFont(ofSize: 12),
                 .foregroundColor: UIColor.grey600!,
@@ -57,11 +57,11 @@ class NewPasswordView: UIView {
         $0.spacing = 8
     }
     
-    public lazy var passwordTextField = CustomTextField(placeholder: "새 비밀번호를 입력해주세요")
+    public lazy var idTextField = CustomTextField(placeholder: "아이디를 입력해주세요")
     
     public lazy var verifyButton = SignupButton(title: "확인")
     
-    private let phoneVerifyContainer = UIStackView().then {
+    private let idContainer = UIStackView().then {
         $0.axis = .horizontal
         $0.distribution = .fill
         $0.alignment = .fill
@@ -69,7 +69,7 @@ class NewPasswordView: UIView {
     }
     
     public lazy var alertLabel = UILabel().then {
-        $0.text = "영문, 숫자를 조합해 8자리 이상 작성해주세요"
+        $0.text = "입력하신 아이디를 찾을 수 없어요. 확인 후 다시 시도해주세요."
         $0.font = UIFont.ptdRegularFont(ofSize: 12)
         $0.textColor = .errorPrimary
         $0.isHidden = true
@@ -79,12 +79,12 @@ class NewPasswordView: UIView {
         topLabelContainer.addArrangedSubview(titleLabel)
         topLabelContainer.addArrangedSubview(descriptionLabel)
         
-        phoneVerifyContainer.addArrangedSubview(passwordTextField)
-        phoneVerifyContainer.addArrangedSubview(verifyButton)
+        idContainer.addArrangedSubview(idTextField)
+        idContainer.addArrangedSubview(verifyButton)
         
         [
             topLabelContainer,
-            phoneVerifyContainer,
+            idContainer,
             alertLabel
         ].forEach {
             addSubview($0)
@@ -92,18 +92,17 @@ class NewPasswordView: UIView {
         
         topLabelContainer.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).inset(16)
-            $0.height.equalTo(55)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.leading.equalToSuperview().inset(16)
         }
         
-        phoneVerifyContainer.snp.makeConstraints {
+        idContainer.snp.makeConstraints {
             $0.top.equalTo(topLabelContainer.snp.bottom).offset(28)
             $0.leading.trailing.equalToSuperview().inset(16)
         }
         
         alertLabel.snp.makeConstraints{
-            $0.top.equalTo(phoneVerifyContainer.snp.bottom).offset(4)
-            $0.leading.equalTo(phoneVerifyContainer.snp.leading).offset(4)
+            $0.top.equalTo(idContainer.snp.bottom).offset(4)
+            $0.leading.equalTo(idContainer.snp.leading).offset(4)
         }
     }
 }
