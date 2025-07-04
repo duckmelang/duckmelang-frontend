@@ -7,25 +7,27 @@
 
 import UIKit
 import Moya
+import PhotosUI
 
 protocol WriteViewControllerDelegate: AnyObject {
     func didUpdateSelectedCeleb(_ celeb: idolDTO?)
 }
 
-class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDelegate, EventSelectionViewControllerDelegate, DateSelectionViewControllerDelegate {
+class WriteViewController: UIViewController, CelebSelectionDelegate, EventSelectionViewControllerDelegate, DateSelectionViewControllerDelegate {
+    
     let networkService = HomeService()
     
     weak var delegate: WriteViewControllerDelegate?
     var textViewPlaceHolder = "본문"
     var celebs: [idolDTO]?
+    private var selectedImages : [UIImage] = []
     
-    private var selectedImage: UIImage?
     private var selectedTitle: String = ""
     private var selectedContent: String = ""
     private var selectedCeleb: idolDTO?
     private var selectedEvent: EventDTO?
     private var selectedDate: String?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = writeView
@@ -68,6 +70,8 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         writeView.delegate = self
         writeView.titleTextField.delegate = self
         writeView.contentTextView.delegate = self
+        writeView.imageCollectionView.delegate = self
+        writeView.imageCollectionView.dataSource = self
     }
     
     private func setupNavigationBar() {
@@ -98,12 +102,28 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         view.endEditing(true) // 현재 편집 중인 뷰의 키보드를 내림
     }
     
-    // 이미지 선택
+    /*
+     // 이미지 선택
+     @objc private func didTapImageView() {
+     let imagePicker = UIImagePickerController()
+     imagePicker.delegate = self
+     imagePicker.sourceType = .photoLibrary
+     present(imagePicker, animated: true)
+     }
+     */
+    
+    // 이미지 선택 버튼을 누르면 동작하는 함수
     @objc private func didTapImageView() {
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.sourceType = .photoLibrary
-        present(imagePicker, animated: true)
+        print("didTappedSelectedImages - called()")
+        
+        // PHPickerConfiguration 설정
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 5   // 선택 가능한 이미지 또는 영상 개수
+        configuration.filter = .any(of: [.images])   // 이미지 선택 가능
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        present(picker, animated: true)
     }
     
     // 아이돌 선택
@@ -125,7 +145,7 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
     @objc func didTapEventDateSelectButton() {
         let selectVC = DateSelectionViewController()
         selectVC.delegate = self
-
+        
         if let selectedDate = selectedDate {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd"
@@ -143,8 +163,7 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
                 startLoading()
                 guard let celeb = selectedCeleb,
                       let event = selectedEvent,
-                      let date = selectedDate,
-                      let image = selectedImage else {
+                      let date = selectedDate else {
                     print("선택되지않음")
                     return
                 }
@@ -168,11 +187,14 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
                 }
                 
                 // 이미지 추가 (여러 장 가능하도록 설정)
-                if let imageData = image.jpegData(compressionQuality: 0.1) {
-                    formData.append(MultipartFormData(provider: .data(imageData),
-                                                      name: "images",
-                                                      fileName: "image.jpg",
-                                                      mimeType: "image/jpeg"))
+                for (index, image) in selectedImages.enumerated() {
+                    if let imageData = image.jpegData(compressionQuality: 0.2) {
+                        formData.append(MultipartFormData(provider: .data(imageData),
+                                                          name: "images",
+                                                          fileName: "image\(index).jpg",
+                                                          mimeType: "image/jpeg")
+                        )
+                    }
                 }
                 
                 let _ = try await networkService.postPosts(formData: formData)
@@ -202,7 +224,7 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
     
     // 모든 필드가 채워졌는지 확인하는 함수
     func checkAllFieldsFilled() {
-        if selectedImage != nil,
+        if !selectedImages.isEmpty,
            !selectedTitle.isEmpty,
            !selectedContent.isEmpty,
            selectedCeleb != nil,
@@ -245,6 +267,11 @@ class WriteViewController: UIViewController, WriteViewDelegate, CelebSelectionDe
         
         checkAllFieldsFilled()
     }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let page = Int(scrollView.contentOffset.x / scrollView.frame.width )
+        writeView.pageControl.currentPage = page
+    }
 }
 
 extension WriteViewController: UITextFieldDelegate {
@@ -275,6 +302,7 @@ extension WriteViewController: UITextViewDelegate {
     }
 }
 
+/*
 extension WriteViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let selectedImage = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
@@ -287,5 +315,68 @@ extension WriteViewController: UIImagePickerControllerDelegate, UINavigationCont
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
+    }
+}
+*/
+
+extension WriteViewController: WriteViewDelegate {
+    func didTapSelectedImageButton() {
+        print("Delegate called: Button tapped.")
+        presentImagePicker()
+    }
+}
+
+// MARK: - PHPicker 관련 기능
+extension WriteViewController: PHPickerViewControllerDelegate {
+
+    private func presentImagePicker() {
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 5
+        configuration.filter = .images
+        configuration.preferredAssetRepresentationMode = .automatic
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        let dispatchGroup = DispatchGroup()
+        var loadedImages: [UIImage] = []
+        
+        for result in results {
+            dispatchGroup.enter()
+            result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
+                defer { dispatchGroup.leave() }
+                if let image = object as? UIImage {
+                    loadedImages.append(image)
+                }
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            self.selectedImages = loadedImages
+            self.writeView.imageCollectionView.reloadData()
+            self.writeView.imageCountLabel.text = "\(loadedImages.count)/10"
+            self.writeView.pageControl.numberOfPages = loadedImages.count
+            self.writeView.pageControl.currentPage = 0
+            self.checkAllFieldsFilled()
+        }
+    }
+}
+
+extension WriteViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return selectedImages.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: WriteImageCell.identifier, for: indexPath) as? WriteImageCell else {
+            return UICollectionViewCell()
+        }
+        cell.configure(image: selectedImages[indexPath.row])
+        return cell
     }
 }

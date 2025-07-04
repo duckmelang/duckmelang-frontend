@@ -13,12 +13,13 @@ protocol WriteViewDelegate: AnyObject {
     func didTapIdolSelectButton()
     func didTapEventTypeSelectButton()
     func didTapEventDateSelectButton()
+    func didTapSelectedImageButton()
 }
 
 class WriteView: UIView, UITextViewDelegate {
     
     weak var delegate: WriteViewDelegate?
-    
+
     private let scrollView = UIScrollView().then {
         $0.isScrollEnabled = true
         $0.showsVerticalScrollIndicator = false
@@ -29,6 +30,25 @@ class WriteView: UIView, UITextViewDelegate {
     let backgroundView = UIImageView().then {
         $0.backgroundColor = .grey200
         $0.contentMode = .scaleAspectFill
+        $0.clipsToBounds = true
+    }
+    
+    let imageCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
+        $0.scrollDirection = .horizontal
+        $0.itemSize = CGSize(width: UIScreen.width, height:UIScreen.width)
+        $0.minimumLineSpacing = 0
+    }).then {
+        $0.backgroundColor = .grey200
+        $0.showsHorizontalScrollIndicator = false
+        $0.isPagingEnabled = true
+        $0.register(WriteImageCell.self, forCellWithReuseIdentifier: WriteImageCell.identifier)
+    }
+    
+    let pageControl = UIPageControl().then {
+        $0.currentPage = 0
+        $0.pageIndicatorTintColor = .lightGray
+        $0.currentPageIndicatorTintColor = .black
+        $0.hidesForSinglePage = true
     }
     
     let uploadImageView = UIButton().then {
@@ -36,7 +56,7 @@ class WriteView: UIView, UITextViewDelegate {
         $0.tintColor = .lightGray
     }
     
-    private let imageCountLabel = UILabel().then {
+    let imageCountLabel = UILabel().then {
         $0.text = "0/10"
         $0.textColor = .gray
         $0.font = .ptdRegularFont(ofSize: 12)
@@ -158,7 +178,7 @@ class WriteView: UIView, UITextViewDelegate {
         scrollView.addSubview(contentView)
         
         [
-            backgroundView, uploadImageView, imageCountLabel,
+            imageCollectionView, pageControl, uploadImageView, imageCountLabel,
             titleTextField, contentTextView,
             companionInfoLabel, companionStackView,
             uploadButton
@@ -179,14 +199,19 @@ class WriteView: UIView, UITextViewDelegate {
             $0.width.equalToSuperview()
         }
         
-        backgroundView.snp.makeConstraints {
-            $0.top.left.right.equalToSuperview()
-            $0.height.equalTo(300)
+        imageCollectionView.snp.makeConstraints {
+            $0.top.leading.trailing.equalToSuperview()
+            $0.height.equalTo(UIScreen.width)
+        }
+        
+        pageControl.snp.makeConstraints {
+            $0.bottom.equalTo(imageCollectionView.snp.bottom).offset(-8)
+            $0.centerX.equalToSuperview()
         }
         
         uploadImageView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.centerY.equalTo(backgroundView)
+            $0.centerY.equalTo(imageCollectionView)
             $0.width.height.equalTo(80)
         }
         
@@ -196,7 +221,7 @@ class WriteView: UIView, UITextViewDelegate {
         }
         
         titleTextField.snp.makeConstraints {
-            $0.top.equalTo(backgroundView.snp.bottom).offset(20)
+            $0.top.equalTo(imageCollectionView.snp.bottom).offset(20)
             $0.left.right.equalToSuperview().inset(16)
             $0.height.equalTo(44)
         }
