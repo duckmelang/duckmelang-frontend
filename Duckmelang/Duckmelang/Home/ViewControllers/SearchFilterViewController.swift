@@ -71,7 +71,7 @@ class SearchFilterViewController: UIViewController {
         }
     }
     
-    /// ✅ 필터 데이터를 서버로 저장하기 (POST 요청)
+    /// 필터 데이터를 서버로 저장하기 (POST 요청)
     @objc private func saveFilterSettings() {
         _Concurrency.Task {
             do {

@@ -19,19 +19,13 @@ class SearchView: UIView {
         $0.leftView = leftPaddingView
         $0.leftViewMode = .always
 
-        let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        searchIcon.tintColor = .gray
-        searchIcon.contentMode = .scaleAspectFit
-        searchIcon.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-
-        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 44))
-        searchIcon.center = CGPoint(x: rightPaddingView.frame.width / 2, y: rightPaddingView.frame.height / 2)
-        rightPaddingView.addSubview(searchIcon)
-
-        $0.rightView = rightPaddingView
-        $0.rightViewMode = .always
         $0.autocapitalizationType = .none
         $0.returnKeyType = .done
+    }
+    
+    let searchBtn = UIButton().then {
+        $0.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
+        $0.tintColor = .gray
     }
 
     let recentSearchLabel = UILabel().then {
@@ -76,7 +70,8 @@ class SearchView: UIView {
             recentSearchLabel,
             recentSearchTableView,
             searchDataTableView,
-            empty
+            empty,
+            searchBtn
         ].forEach {
             addSubview($0)
         }
@@ -86,6 +81,12 @@ class SearchView: UIView {
             $0.trailing.equalToSuperview().offset(-20)
             $0.top.equalTo(safeAreaLayoutGuide).offset(10)
             $0.height.equalTo(40)
+        }
+        
+        searchBtn.snp.makeConstraints{
+            $0.centerY.equalTo(searchTextField.snp.centerY)
+            $0.trailing.equalTo(searchTextField.snp.trailing).offset(-16)
+            $0.height.width.equalTo(16)
         }
         
         recentSearchLabel.snp.makeConstraints {

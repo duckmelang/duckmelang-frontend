@@ -309,6 +309,7 @@ class OtherPostDetailBottomView: UIView {
         $0.register(PostDetailAccompanyCell.self, forCellReuseIdentifier: PostDetailAccompanyCell.identifier)
         $0.separatorStyle = .none
         $0.rowHeight = 36
+        $0.allowsSelection = false
     }
     
     private func addStack(){
