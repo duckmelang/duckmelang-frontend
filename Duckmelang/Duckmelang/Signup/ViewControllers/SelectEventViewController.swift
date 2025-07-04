@@ -45,14 +45,16 @@ class SelectEventViewController: UIViewController {
             image: UIImage(named: "back"),
             style: .plain,
             target: self,
-            action: #selector(goBack)
+            action: #selector(openBackPopup)
         )
         leftBarButton.tintColor = .grey600
         self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
     }
     
-    @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
+    @objc private func openBackPopup() {
+        let popupVC = ProfileCancelPopupViewController()
+        popupVC.modalPresentationStyle = .overFullScreen
+        present(popupVC, animated: false)
     }
     
     private func setupDelegates() {
@@ -121,8 +123,8 @@ class SelectEventViewController: UIViewController {
     // 다음 버튼 눌렀을 때
     @objc func nextBtn() {
         // MARK: TEST
-//        navigateToFilterKeywordsView()
-        postSelectedEvents()
+        navigateToFilterKeywordsView()
+//        postSelectedEvents()
     }
     
     private func navigateToFilterKeywordsView() {

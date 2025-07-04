@@ -24,11 +24,14 @@ class SignUpCompleteViewController: UIViewController {
     }
     
     private func transitionToNextScreen() {
-        let view = BaseViewController()
-        let navigationController = UINavigationController(rootViewController: view)
-        navigationController.modalTransitionStyle = .crossDissolve
-        navigationController.modalPresentationStyle = .fullScreen
-        navigationController.hidesBottomBarWhenPushed = true
-        self.present(navigationController, animated: true, completion: nil)
+        let baseVC = BaseViewController()
+        let navController = UINavigationController(rootViewController: baseVC)
+
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = scene.windows.first {
+            UIView.transition(with: window, duration: 0.2, options: .transitionCrossDissolve, animations: {
+                window.rootViewController = navController
+            })
+        }
     }
 }

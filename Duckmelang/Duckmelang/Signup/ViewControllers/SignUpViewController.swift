@@ -11,6 +11,12 @@ class SignUpViewController: UIViewController {
     let networkService = SignupService()
     
     var memberId: Int?
+    private var isIDVerified: Bool = false {
+        didSet {
+            signupView.successLabel.isHidden = !isIDVerified
+            pwTextFieldsDidChange()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,8 +26,6 @@ class SignUpViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        self.navigationController?.navigationBar.backgroundColor = .white
-        
         self.navigationItem.title = "회원가입"
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(
             ofSize: 18
@@ -45,13 +49,14 @@ class SignUpViewController: UIViewController {
     private lazy var signupView: SignUpView = {
         let view = SignUpView()
         view.signUpButton.addTarget(self, action: #selector(didTapSigninButton), for: .touchUpInside)
-        view.emailTextField.addTarget(self, action: #selector(textFieldsDidChange), for: .editingChanged)
-        view.pwTextField.addTarget(self, action: #selector(textFieldsDidChange), for: .editingChanged)
+        view.idTextField.addTarget(self, action: #selector(idTextFieldsDidChange), for: .editingChanged)
+        view.idButton.addTarget(self, action: #selector(didTapIdButton), for: .touchUpInside)
+        view.pwTextField.addTarget(self, action: #selector(pwTextFieldsDidChange), for: .editingChanged)
         return view
     }()
     
     @objc private func didTapSigninButton() {
-        guard let email = signupView.emailTextField.text, !email.isEmpty,
+        guard let email = signupView.idTextField.text, !email.isEmpty,
               let password = signupView.pwTextField.text, !password.isEmpty else { return }
         
 //        signUp(email: email, password: password)
@@ -59,11 +64,26 @@ class SignUpViewController: UIViewController {
         print("goto MakeProfile : \(email), \(password)")
     }
     
-    @objc func textFieldsDidChange() {
-        let text1 = signupView.emailTextField.text ?? ""
-        let text2 = signupView.pwTextField.text ?? ""
+    @objc func idTextFieldsDidChange() {
+        // 만약 인증된 상태라면 → 초기화
+        if isIDVerified {
+            isIDVerified = false
+        }
         
-        signupView.signUpButton.setEnabled(!text1.isEmpty && !text2.isEmpty)
+        let textCount = signupView.idTextField.text?.count ?? 0
+        signupView.idButton.isEnabled = textCount >= 3
+    }
+    
+    @objc func pwTextFieldsDidChange() {
+        let isPasswordNotEmpty = !(signupView.pwTextField.text?.isEmpty ?? true)
+        let canEnableSignup = isIDVerified && isPasswordNotEmpty
+        signupView.signUpButton.setEnabled(canEnableSignup)
+    }
+    
+    @objc func didTapIdButton() {
+        // 중복확인 API 호출하고 error message띄우던가 아니면 아래처럼
+        isIDVerified = true
+        signupView.idButton.isEnabled = false
     }
         
     private func signUp(email: String, password: String) {

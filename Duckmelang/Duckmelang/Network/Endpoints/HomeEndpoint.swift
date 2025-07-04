@@ -38,9 +38,9 @@ extension HomeEndpoint: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
-        case .getEvents:
-            guard let url = URL(string: API.memberURL) else {
-                fatalError("memberURL 오류")
+        case .getEvents, .getIdols:
+            guard let url = URL(string: API.baseURL) else {
+                fatalError("baseURL 오류")
             }
             return url
         case .getNotifications, .patchNotifications:

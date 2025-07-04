@@ -12,11 +12,25 @@ class CheckNicknamePopupViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if let isAvailable = isAvailable {
-            let view = CheckNicknamePopupView(isAvailable: isAvailable)
-            view.btn.addTarget(self, action: #selector(dismissPopup), for: .touchUpInside)
-            self.view = view
+
+        if isAvailable == true {
+            let popupView = noImageCustomPopupView(
+                title: "닉네임 확인",
+                subTitle: "사용 가능한 닉네임입니다.",
+                subTitleColor: .grey800 ?? .gray,
+                rightBtnTitle: "확인"
+            )
+            popupView.rightBtn.addTarget(self, action: #selector(dismissPopup), for: .touchUpInside)
+            self.view = popupView
+        } else {
+            let popupView = noImageCustomPopupView(
+                title: "닉네임 확인",
+                subTitle: "중복된 닉네임입니다.",
+                subTitleColor: .errorPrimary ?? .red,
+                rightBtnTitle: "확인"
+            )
+            popupView.rightBtn.addTarget(self, action: #selector(dismissPopup), for: .touchUpInside)
+            self.view = popupView
         }
     }
     

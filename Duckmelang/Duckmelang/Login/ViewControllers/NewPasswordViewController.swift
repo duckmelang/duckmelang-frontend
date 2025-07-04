@@ -52,26 +52,21 @@ class NewPasswordViewController: UIViewController {
     @objc func passwordTextFieldDidChange(_ textField: UITextField) {
         let text = textField.text ?? ""
         
-        // 버튼은 빈 문자열일 땐 무조건 비활성화
-        newPasswordView.verifyButton.setEnabled(!text.isEmpty)
-
         // 비밀번호 유효성 검사
         if isValidPassword(text) {
             newPasswordView.alertLabel.isHidden = true
             newPasswordView.verifyButton.isEnabled = true
-            newPasswordView.verifyButton.alpha = 1.0
-            textField.layer.borderColor = UIColor.grey400!.cgColor
+            newPasswordView.passwordTextField.setErrorState(false)
         } else {
             newPasswordView.alertLabel.isHidden = false
             newPasswordView.verifyButton.isEnabled = false
-            newPasswordView.verifyButton.alpha = 0.5
-            textField.layer.borderColor = UIColor.red.cgColor
+            newPasswordView.passwordTextField.setErrorState(true)
         }
     }
     
     // 영문 + 숫자 조합, 8자 이상인지 확인
     func isValidPassword(_ text: String) -> Bool {
-        let regex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$"
+        let regex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*(),.?\":{}|<>~`\\[\\]\\\\/+=_-]{8,}$"
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: text)
     }
 }

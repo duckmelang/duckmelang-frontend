@@ -34,12 +34,11 @@ class FilterKeywordsView: UIView, UITextFieldDelegate {
         $0.textColor = .grey600
     }
     
-    public lazy var plusIcon = UIImageView().then {
-        $0.image = UIImage(systemName: "plus")
+    public lazy var plusButton = UIButton(type: .system).then {
+        let image = UIImage(systemName: "plus")?.withRenderingMode(.alwaysTemplate)
+        $0.setImage(image, for: .normal)
         $0.tintColor = .grey600
-        $0.contentMode = .scaleAspectFit
-        $0.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-        $0.isUserInteractionEnabled = true
+        $0.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
     }
     
     public lazy var filterKeywordTextField = UITextField().then {
@@ -51,12 +50,12 @@ class FilterKeywordsView: UIView, UITextFieldDelegate {
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
         $0.leftView = leftPaddingView
         $0.leftViewMode = .always
+        
+        let rightContainer = UIView(frame: CGRect(x: 0, y: 0, width: 56, height: 56))
+        plusButton.center = CGPoint(x: rightContainer.frame.width / 2, y: rightContainer.frame.height / 2)
+        rightContainer.addSubview(plusButton)
 
-        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 44))
-        plusIcon.center = CGPoint(x: rightPaddingView.frame.width / 2, y: rightPaddingView.frame.height / 2)
-        rightPaddingView.addSubview(plusIcon)
-
-        $0.rightView = rightPaddingView
+        $0.rightView = rightContainer
         $0.rightViewMode = .always
     }
 

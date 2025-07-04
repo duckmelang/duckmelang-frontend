@@ -13,8 +13,7 @@ class CustomPopupView: UIView {
         title: String,
         subTitle: String,
         leftBtnTitle: String? = nil,
-        rightBtnTitle: String? = nil,
-        height: CGFloat
+        rightBtnTitle: String? = nil
     ) {
         super.init(frame: .zero)
         
@@ -50,10 +49,8 @@ class CustomPopupView: UIView {
         setupView()
         
         self.popupView.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(16)
-            $0.trailing.equalToSuperview().offset(-16)
+            $0.leading.trailing.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
-            $0.height.equalTo(height)
         }
     }
     
@@ -92,22 +89,23 @@ class CustomPopupView: UIView {
         $0.textColor = .grey800
         $0.numberOfLines = 0
         $0.textAlignment = .center
-        $0.font = .ptdMediumFont(ofSize: 15)
+        $0.font = .ptdSemiBoldFont(ofSize: 16)
     }
     
     private lazy var subTitle = UILabel().then {
         $0.textColor = .grey500
         $0.numberOfLines = 0
         $0.textAlignment = .center
-        $0.font = .ptdRegularFont(ofSize: 12)
+        $0.font = .ptdRegularFont(ofSize: 13)
     }
     
-    lazy var leftBtn = smallStorkeCustomBtn()
-    lazy var rightBtn = smallFilledCustomBtn()
+    lazy var leftBtn = smallStorkeCustomBtn(width: 140, height: 44)
+    lazy var rightBtn = smallFilledCustomBtn(width: 140, height: 44)
     
     private lazy var btnStackView = UIStackView().then {
         $0.axis = .horizontal
         $0.spacing = 12
+        $0.distribution = .fillEqually
     }
     
     func setupView() {
@@ -123,12 +121,13 @@ class CustomPopupView: UIView {
         
         self.textStackView.snp.makeConstraints {
             $0.top.equalTo(userImage.snp.bottom).offset(12)
-            $0.centerX.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(24)
         }
         
         self.btnStackView.snp.makeConstraints {
             $0.top.equalTo(textStackView.snp.bottom).offset(32)
-            $0.centerX.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(24)
+            $0.bottom.equalToSuperview().inset(20)
         }
     }
 }

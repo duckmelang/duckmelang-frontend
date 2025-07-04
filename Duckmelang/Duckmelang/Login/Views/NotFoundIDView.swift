@@ -1,16 +1,16 @@
 //
-//  CompleteResetPasswordView.swift
+//  NotFoundIDView.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 3/23/25.
+//  Created by 주민영 on 6/28/25.
 //
 
 import UIKit
 
-class CompleteResetPasswordView: UIView {
+class NotFoundIDView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .white
+        self.backgroundColor = UIColor.white
         setupView()
     }
     
@@ -18,16 +18,15 @@ class CompleteResetPasswordView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var logo = UIImageView().then {
-        $0.image = UIImage(named: "logo_yellow")
-        $0.contentMode = .scaleAspectFit
+    private lazy var errorLogo = UIImageView().then {
+        $0.image = UIImage(named: "logo_error")
     }
     
     private lazy var contentLabel = UILabel().then {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 6
 
-        let text = "비밀번호 변경이 완료되었습니다.\n다시 로그인해주세요."
+        let text = "입력된 정보로 가입된 덕메랑 계정이 없습니다.\n확인 후 다시 시도해주세요."
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.ptdRegularFont(ofSize: 16),
@@ -40,37 +39,34 @@ class CompleteResetPasswordView: UIView {
         $0.textAlignment = .center
     }
     
-    private let middleStackView = UIStackView().then {
+    private let middleContainer = UIStackView().then {
         $0.axis = .vertical
         $0.distribution = .equalSpacing
         $0.alignment = .center
         $0.spacing = 24
     }
     
-    public lazy var loginBtn = longCustomBtn(title: "로그인")
+    public lazy var loginBtn = longCustomBtn(title: "홈으로 돌아가기")
     
     private func setupView() {
-        middleStackView.addArrangedSubview(logo)
-        middleStackView.addArrangedSubview(contentLabel)
+        middleContainer.addArrangedSubview(errorLogo)
+        middleContainer.addArrangedSubview(contentLabel)
         
         [
-            middleStackView,
-            loginBtn
+            middleContainer,
+            loginBtn,
         ].forEach {
             addSubview($0)
         }
         
-        logo.snp.makeConstraints {
-            $0.width.height.equalTo(74)
-        }
-        
-        middleStackView.snp.makeConstraints {
-            $0.centerX.centerY.equalToSuperview()
+        middleContainer.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
         
         loginBtn.snp.makeConstraints {
             $0.bottom.equalTo(safeAreaLayoutGuide).inset(12)
-            $0.centerX.equalToSuperview()
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
     }
 }

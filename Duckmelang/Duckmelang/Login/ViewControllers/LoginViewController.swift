@@ -34,16 +34,17 @@ class LoginViewController: UIViewController {
         self.navigationController?.isNavigationBarHidden = false
         setupNavigationBar()
         
-        loginView.emailTextField.addTarget(self, action: #selector(textFieldsUpdated), for: .editingChanged)
+        loginView.idTextField.addTarget(self, action: #selector(textFieldsUpdated), for: .editingChanged)
         loginView.pwdTextField.addTarget(self, action: #selector(textFieldsUpdated), for: .editingChanged)
         
-        loginView.foundPWBtn.addTarget(self, action: #selector(goVerifyView), for: .touchUpInside)
+        loginView.foundIDBtn.addTarget(self, action: #selector(foundIDBtnTap), for: .touchUpInside)
+        loginView.foundPWBtn.addTarget(self, action: #selector(foundPWBtnTap), for: .touchUpInside)
     }
     
     private lazy var loginView: LoginView = {
         let view = LoginView()
         
-        view.loginButton.alpha = 0.5
+        view.loginButton.setEnabled(false)
         
         view.loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
         return view
@@ -77,30 +78,36 @@ class LoginViewController: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    @objc private func goVerifyView() {
+    @objc private func foundIDBtnTap() {
         let verifyVC = VerifyPhoneViewController()
         self.navigationController?.pushViewController(verifyVC, animated: true)
     }
     
+    @objc private func foundPWBtnTap() {
+        let foundPWVC = FoundPasswordViewController()
+        self.navigationController?.pushViewController(foundPWVC, animated: true)
+    }
+    
+    
     @objc private func didTapLoginButton() {
         print("🔘 Login button tapped")
 
-        guard let email = loginView.emailTextField.text, !email.isEmpty,
+        guard let id = loginView.idTextField.text, !id.isEmpty,
               let password = loginView.pwdTextField.text, !password.isEmpty else {
             print("🚨 입력값 없음 - 로그인 요청 중단")
             showAlert(title: "확인필요", message: "이메일과 비밀번호를 입력하세요.")
             return
         }
         
-        postLoginAPI(email: email, password: password)
+        postLoginAPI(id: id, password: password)
     }
     
-    private func postLoginAPI(email: String, password: String) {
+    private func postLoginAPI(id: String, password: String) {
         Task {
             do {
                 startLoading()
                 
-                let newLoginRequest = LoginRequest(email: email, password: password)
+                let newLoginRequest = LoginRequest(loginId: id, password: password)
                 let result = try await networkService.postLogin(login: newLoginRequest)
                 
                 KeychainManager.shared.save(key: "accessToken", value: result.accessToken)
@@ -121,10 +128,9 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func textFieldsUpdated() {
-        let isUsernameValid = !(loginView.emailTextField.text?.isEmpty ?? true)
+        let isUsernameValid = !(loginView.idTextField.text?.isEmpty ?? true)
         let isPasswordValid = !(loginView.pwdTextField.text?.isEmpty ?? true)
 
-        loginView.loginButton.isEnabled = isUsernameValid && isPasswordValid
-        loginView.loginButton.alpha = isUsernameValid && isPasswordValid ? 1.0 : 0.5
+        loginView.loginButton.setEnabled(isUsernameValid && isPasswordValid)
     }
 }
