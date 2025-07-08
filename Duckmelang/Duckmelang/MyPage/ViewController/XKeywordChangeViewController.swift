@@ -99,7 +99,7 @@ class XKeywordChangeViewController: UIViewController {
         
         // 변경된 키워드가 없을 경우
         if pendingAddQueue.isEmpty && pendingDeleteQueue.isEmpty {
-            Toaster.shared.makeToast("변경된 키워드가 없습니다. \n 기존의 키워드를 삭제하거나 새로운 키워드를 추가하고 다시 시도해주세요")
+            self.navigationController?.popViewController(animated: true)
             return
         }
         
