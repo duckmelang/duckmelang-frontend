@@ -10,8 +10,6 @@ import UIKit
 class SelectEventViewController: UIViewController {
     let networkService = SignupService()
     
-    var memberId: Int?
-    
     private var events: [EventCategoryList] = []
     private var selectedEventIds: [Int] = [] {
         didSet {
@@ -83,6 +81,13 @@ class SelectEventViewController: UIViewController {
         }
     }
     
+    // 다음 버튼 눌렀을 때
+    @objc func nextBtn() {
+        // MARK: TEST
+//        navigateToFilterKeywordsView()
+        postSelectedEvents()
+    }
+    
     private func postSelectedEvents() {
         if selectedEventIds.isEmpty {
             print("❌ 선택된 이벤트 없음. 요청을 보내지 않음.")
@@ -96,13 +101,14 @@ class SelectEventViewController: UIViewController {
     }
     
     private func postMemberInterestEventAPI(eventNums: SelectFavoriteEventRequest) {
-        guard let memberId = self.memberId else { return }
+        guard let memberIdString = KeychainManager.shared.load(key: "memberId"),
+              let memberId = Int(memberIdString) else { return }
         
         Task {
             do {
                 startLoading()
                 
-                let result = try await networkService.postMemberInterestEvent(
+                _ = try await networkService.postMemberInterestEvent(
                     memberId: memberId,
                     eventNums: eventNums
                 )
@@ -120,17 +126,9 @@ class SelectEventViewController: UIViewController {
         }
     }
     
-    // 다음 버튼 눌렀을 때
-    @objc func nextBtn() {
-        // MARK: TEST
-        navigateToFilterKeywordsView()
-//        postSelectedEvents()
-    }
-    
     private func navigateToFilterKeywordsView() {
         let filterVC = FilterKeywordsViewController()
         filterVC.hidesBottomBarWhenPushed = true
-        filterVC.memberId = self.memberId
         navigationController?.pushViewController(filterVC, animated: true)
     }
 }

@@ -10,7 +10,6 @@ import UIKit
 class SelectFavoriteCelebViewController: UIViewController {
     let networkService = SignupService()
     
-    var memberId: Int?
     private var selectableIdols: [Idol] = []
     var selectedIdols: [Idol] = [] {
         didSet {
@@ -81,12 +80,21 @@ class SelectFavoriteCelebViewController: UIViewController {
             }
         }
     }
-
+    
+    // 다음 버튼 눌렀을 때
+    @objc func nextBtn() {
+        // MARK: TEST
+//        navigateToSelectEventView()
+        postInterestCelebAPI()
+    }
+    
     // post
     private func postInterestCelebAPI() {
         Task {
             do {
-                guard let memberId = self.memberId else { return }
+                guard let memberIdString = KeychainManager.shared.load(key: "memberId"),
+                      let memberId = Int(memberIdString) else { return }
+                
                 startLoading()
                 
                 let idolNums = self.selectableIdols.map { idol in idol.idolId }
@@ -106,17 +114,9 @@ class SelectFavoriteCelebViewController: UIViewController {
         }
     }
     
-    // 다음 버튼 눌렀을 때
-    @objc func nextBtn() {
-        // MARK: TEST
-        navigateToSelectEventView()
-//        postInterestCelebAPI()
-    }
-    
     private func navigateToSelectEventView() {
         let eventVC = SelectEventViewController()
         eventVC.hidesBottomBarWhenPushed = true
-        eventVC.memberId = self.memberId
         navigationController?.pushViewController(eventVC, animated: true)
     }
 }

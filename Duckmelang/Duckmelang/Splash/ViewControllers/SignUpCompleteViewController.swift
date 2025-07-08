@@ -25,6 +25,7 @@ class SignUpCompleteViewController: UIViewController {
     
     private func transitionToNextScreen() {
         let baseVC = BaseViewController()
+        baseVC.hidesBottomBarWhenPushed = true
         let navController = UINavigationController(rootViewController: baseVC)
 
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,

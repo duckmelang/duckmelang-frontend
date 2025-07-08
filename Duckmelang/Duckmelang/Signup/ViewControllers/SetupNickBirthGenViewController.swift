@@ -12,7 +12,6 @@ import SwiftyToaster
 class SetupNickBirthGenViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     let networkService = SignupService()
     
-    var memberId: Int?
     private var isNicknameAvailable: Bool = false
     private var selectedImage: UIImage?
     private var isMaleSelected: Bool?
@@ -163,49 +162,51 @@ class SetupNickBirthGenViewController: UIViewController, UIImagePickerController
     
     // 다음 버튼 눌렀을 때
     @objc func nextBtn() {
-        self.navigateToSelectFavoriteCelebView()
-//        // 닉네임 입력 확인
-//        guard let nickname = setupNickBirthGenView.nicknameTextField.text, !nickname.isEmpty else {
-//            Toaster.shared.makeToast("닉네임을 입력해주세요.")
-//            return
-//        }
-//        
-//        // 생년월일 입력 확인
-//        guard let birth = setupNickBirthGenView.birthdateTextField.text, !birth.isEmpty else {
-//            Toaster.shared.makeToast("생년월일을 입력해주세요.")
-//            return
-//        }
-//        
-//        // 성별 선택 확인
-//        guard let isMaleSelected = isMaleSelected else {
-//            Toaster.shared.makeToast("성별을 선택해주세요.")
-//            return
-//        }
-//
-//        // 프로필 사진 선택 확인
-//        guard let selectedImage = selectedImage else {
-//            Toaster.shared.makeToast("프로필 사진을 선택해주세요.")
-//            return
-//        }
-//
-//        // 멤버 ID 확인
-//        guard let memberId = memberId else {
-//            Toaster.shared.makeToast("회원 정보를 불러올 수 없습니다.\n잠시 후 다시 시도해주세요.")
-//            return
-//        }
+//        self.navigateToSelectFavoriteCelebView()
 
-//        let gender = isMaleSelected ? "MALE" : "FEMALE"
-//
-//        // 프로필 이미지 전송
-//        if let imageData = selectedImage.jpegData(compressionQuality: 0.8) {
-//            postProfileImageAPI(memberId: memberId, imageData: imageData)
-//        } else {
-//            Toaster.shared.makeToast("이미지 변환에 실패했습니다.\n잠시 후 다시 시도해주세요.")
-//            return
-//        }
-//
-//        // 프로필 정보 전송
-//        patchMemberProfileAPI(memberId: memberId, nickname: nickname, birth: birth, gender: gender)
+        // 닉네임 입력 확인
+        guard let nickname = setupNickBirthGenView.nicknameTextField.text, !nickname.isEmpty else {
+            Toaster.shared.makeToast("닉네임을 입력해주세요.")
+            return
+        }
+        
+        // 생년월일 입력 확인
+        guard let birth = setupNickBirthGenView.birthdateTextField.text, !birth.isEmpty else {
+            Toaster.shared.makeToast("생년월일을 입력해주세요.")
+            return
+        }
+        
+        // 성별 선택 확인
+        guard let isMaleSelected = isMaleSelected else {
+            Toaster.shared.makeToast("성별을 선택해주세요.")
+            return
+        }
+
+        // 프로필 사진 선택 확인
+        guard let selectedImage = selectedImage else {
+            Toaster.shared.makeToast("프로필 사진을 선택해주세요.")
+            return
+        }
+
+        // 멤버 ID 확인
+        guard let memberIdString = KeychainManager.shared.load(key: "memberId"),
+              let memberId = Int(memberIdString) else {
+            Toaster.shared.makeToast("회원 정보를 불러올 수 없습니다.\n잠시 후 다시 시도해주세요.")
+            return
+        }
+
+        let gender = isMaleSelected ? "MALE" : "FEMALE"
+
+        // 프로필 이미지 전송
+        if let imageData = selectedImage.jpegData(compressionQuality: 0.8) {
+            postProfileImageAPI(memberId: memberId, imageData: imageData)
+        } else {
+            Toaster.shared.makeToast("이미지 변환에 실패했습니다.\n잠시 후 다시 시도해주세요.")
+            return
+        }
+
+        // 프로필 정보 전송
+        patchMemberProfileAPI(memberId: memberId, nickname: nickname, birth: birth, gender: gender)
     }
     
     func updateNextButtonState() {
@@ -286,7 +287,6 @@ class SetupNickBirthGenViewController: UIViewController, UIImagePickerController
     private func navigateToSelectFavoriteCelebView() {
         let celebVC = SelectFavoriteCelebViewController()
         celebVC.hidesBottomBarWhenPushed = true
-        celebVC.memberId = self.memberId
         navigationController?.pushViewController(celebVC, animated: true)
     }
 }
