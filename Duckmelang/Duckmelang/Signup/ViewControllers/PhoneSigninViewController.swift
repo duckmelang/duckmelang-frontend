@@ -68,20 +68,21 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     // MARK: - 인증번호 요청
     @objc private func didTapSendBtn() {
         guard let rawText = phoneSigninView.phoneTextField.text else { return }
+        
         let digitsOnly = rawText.filter { $0.isNumber }
-
         guard digitsOnly.count == 11 else { return }
         
-        getCheckNicknameAPI(phoneNum: rawText)
+        getCheckPhoneNumAPI(phoneNum: rawText)
     }
     
     // 전화번호 중복 확인하기
-    private func getCheckNicknameAPI(phoneNum: String) {
+    private func getCheckPhoneNumAPI(phoneNum: String) {
         Task {
             do {
                 startLoading()
                 
                 let result = try await networkService.getCheckPhoneNum(phoneNum: phoneNum)
+                
                 if (result.isDuplicate) {
                     // 전화번호가 중복되는 경우
                     self.phoneSigninView.phoneTextField.setErrorState(true)
@@ -110,21 +111,21 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     
     private func postSendCodeAPI(phoneNumber: String) {
         let formattedPhoneNumber = formatPhoneNumberToE164(phoneNumber)
-        print(formattedPhoneNumber)
         
         PhoneAuthProvider.provider().verifyPhoneNumber(formattedPhoneNumber, uiDelegate: nil) { verificationID, error in
-              if let error = error {
+                if let error = error {
                     Toaster.shared.makeToast(error.localizedDescription)
                     print(error.localizedDescription)
                     return
-              }
-              if let verificationID = verificationID {
-                  print("인증 요청 성공: \(verificationID)")
-                  UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
-              } else {
-                  Toaster.shared.makeToast("verificationID가 nil입니다.")
-                  return
-              }
+                }
+
+                if let verificationID = verificationID {
+                    print("인증 요청 성공: \(verificationID)")
+                    UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
+                } else {
+                        Toaster.shared.makeToast("verificationID가 nil입니다.")
+                        return
+                }
               
           }
     }
@@ -242,14 +243,13 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
     // MARK: - 전화번호 입력 필터링
     @objc private func writePhoneNumber() {
         guard let text = phoneSigninView.phoneTextField.text else { return }
-
+        
         let digitsOnly = text.filter { $0.isNumber }
         let limitedText = String(digitsOnly.prefix(11))
 
-        let formatted = formatPhoneNumber(limitedText)
-        phoneSigninView.phoneTextField.text = formatted
-        
-        // 에러 상태일 경우에만 처리 (내부에서 상태 자동 전환됨)
+        phoneSigninView.phoneTextField.text = limitedText
+
+        // 에러 상태일 경우 초기화
         if phoneSigninView.phoneTextField.isInErrorState {
             phoneSigninView.phoneTextField.setErrorState(false)
             phoneSigninView.alertLabel.isHidden = true

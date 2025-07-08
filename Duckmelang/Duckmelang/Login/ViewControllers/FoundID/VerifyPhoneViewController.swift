@@ -55,20 +55,17 @@ class VerifyPhoneViewController: UIViewController {
     }
     
     @objc func phoneTextFieldDidChange(_ textField: UITextField) {
-        guard let input = textField.text else { return }
+        guard let phoneNum = textField.text else { return }
 
         // 1. 숫자만 필터링하고 11자리 제한
-        let digitsOnly = input.filter { $0.isNumber }
+        let digitsOnly = phoneNum.filter { $0.isNumber }
         let limitedText = String(digitsOnly.prefix(11))
 
-        // 2. 전화번호 형식으로 변환
-        let formatted = formatPhoneNumber(limitedText)
-        textField.text = formatted
-
-        // 3. 유효한 전화번호 조건: 11자리
+        // 2. 유효한 전화번호 조건: 11자리
+        textField.text = limitedText
         let isValidPhoneNumber = limitedText.count == 11
 
-        // 4. UI 업데이트
+        // 3. UI 업데이트
         verifyPhoneView.verifyButton.isEnabled = isValidPhoneNumber
     }
     
@@ -84,14 +81,12 @@ class VerifyPhoneViewController: UIViewController {
     
     // 인증번호 요청 시 실행
     @objc func didTapVerifyButton() {
-        guard let rawText = verifyPhoneView.phoneTextField.text else { return }
-        let digitsOnly = rawText.filter { $0.isNumber }
-
-        guard digitsOnly.count == 11 else { return }
+        guard let phoneNum = verifyPhoneView.phoneTextField.text else { return }
+        guard phoneNum.count == 11 else { return }
         
         startCountdown()
         
-        postSendCodeAPI(phoneNumber: rawText)
+        postSendCodeAPI(phoneNumber: phoneNum)
         
         self.verifyPhoneView.verifyCodeContainer.isHidden = false
         self.verifyPhoneView.phoneTextField.isEnabled = false
@@ -177,8 +172,7 @@ class VerifyPhoneViewController: UIViewController {
     
     // 아이디 찾기
     private func getFindIdAPI() {
-        guard let originalPhoneNum = self.verifyPhoneView.phoneTextField.text else { return }
-        let phoneNum = originalPhoneNum.filter { $0.isNumber }
+        guard let phoneNum = self.verifyPhoneView.phoneTextField.text else { return }
         
         Task {
             do {
@@ -189,7 +183,7 @@ class VerifyPhoneViewController: UIViewController {
                 
                 // MARK: 전화번호에 맞는 아이디가 있을 때
                 let foundIDVC = FoundIDViewController()
-                foundIDVC.phoneNum = self.verifyPhoneView.phoneTextField.text ?? ""
+                foundIDVC.phoneNum = phoneNum
                 foundIDVC.foundId = self.foundId
                 self.navigationController?.pushViewController(foundIDVC, animated: true)
                 
