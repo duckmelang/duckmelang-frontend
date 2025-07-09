@@ -157,7 +157,12 @@ class OtherPostDetailViewController: UIViewController {
     // ✅ 북마크 버튼 클릭 시 API 요청
     @objc private func scrapBtnDidTap() {
         guard let postId = postId else { return }
-        addBookmark(postId: postId)
+        
+        if isBookmarked {
+            deleteBookmark(postId: postId)
+        } else {
+            addBookmark(postId: postId)
+        }
     }
     
     // ✅ 채팅 버튼 클릭 시 화면전환
@@ -186,7 +191,7 @@ class OtherPostDetailViewController: UIViewController {
                 let _ = try await networkServiceHome.postBookmark(postId: postId)
                 
                 DispatchQueue.main.async {
-                    self.otherPostDetailView.tabBar.scrapBtn.setImage(UIImage(systemName: "bookmark.fill"), for: .normal)
+                    self.updateBookmarkState(isBookmarked: true)
                 }
                 
                 stopLoading()
@@ -195,6 +200,27 @@ class OtherPostDetailViewController: UIViewController {
                 stopLoading()
                 print(error.localizedDescription)
                 Toaster.shared.makeToast("북마크를 추가하는 데 실패했습니다. \n 잠시 후 다시 시도해주세요.")
+            }
+        }
+    }
+    
+    private func deleteBookmark(postId: Int) {
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let _ = try await networkServiceHome.deleteBookmark(postId: postId)
+                
+                DispatchQueue.main.async {
+                    self.updateBookmarkState(isBookmarked: false)
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+                Toaster.shared.makeToast("북마크를 삭제하는 데 실패했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }
