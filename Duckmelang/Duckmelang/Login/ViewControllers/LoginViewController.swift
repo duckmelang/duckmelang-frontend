@@ -70,8 +70,7 @@ class LoginViewController: UIViewController {
     
     private func navigateToHomeView() {
         let mainVC = BaseViewController()
-        mainVC.modalPresentationStyle = .fullScreen
-        present(mainVC, animated: true)
+        self.navigationController?.pushViewController(mainVC, animated: true)
     }
         
     @objc private func goBack() {
