@@ -5,14 +5,15 @@
 //  Created by 주민영 on 2/21/25.
 //
 
-public struct idolDTO: Codable {
+/*
+public struct IdolListDTO: Codable {
     let idolId: Int
     let idolName: String
     let idolImage: String
-}
+}*/
 
 public struct idolResponse: Codable {
-    let idolList: [idolDTO]
+    let idolList: [IdolListDTO]
 }
 
 public struct EventDTO: Codable {

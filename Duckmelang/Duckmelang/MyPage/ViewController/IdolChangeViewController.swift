@@ -51,19 +51,6 @@ class IdolChangeViewController: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    /*@objc private func deleteBtnTapped(_ sender: UIButton) {
-        let index = sender.tag
-        let idolId = idolList[index].idolId
-        
-        // 삭제 대기 목록에 추가하고 목록에서 임시 삭제
-        if !deleteQueue.contains(idolId) {
-            deleteQueue.insert(idolId)
-            idolList.remove(at: index)  // 목록에서 임시 제거
-            //idolChangeView.idolChangeCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-            idolChangeView.idolChangeCollectionView.reloadData()
-        }
-    }*/
-    
     @objc private func deleteBtnTapped(_ sender: UIButton) {
         let index = sender.tag
         let idolId = idolList[index].idolId

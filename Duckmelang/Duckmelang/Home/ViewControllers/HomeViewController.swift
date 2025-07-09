@@ -19,8 +19,8 @@ class HomeViewController: UIViewController {
         return view
     }()
     
-    private var celebs: [idolDTO]?
-    private var selectedCeleb: idolDTO?
+    private var celebs: [IdolListDTO]?
+    private var selectedCeleb: IdolListDTO?
     
     var isLoading = false   // 중복 로딩 방지
     var totalPage = 0       // 마지막 페이지 번호
@@ -70,7 +70,7 @@ class HomeViewController: UIViewController {
     }
     
     @objc private func showCelebSelection() {
-        let celebSelectionVC = CelebSelectionViewController(celebs: self.celebs ?? [], selectedCeleb: self.selectedCeleb)
+        let celebSelectionVC = CelebSelectionViewController(celebs: self.celebs ?? [], selectedCeleb: self.selectedCeleb, mode: .home)
 
         celebSelectionVC.delegate = self
         celebSelectionVC.modalPresentationStyle = .pageSheet
@@ -248,7 +248,11 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
 }
 
 extension HomeViewController: CelebSelectionDelegate {
-    func didSelectCeleb(_ celeb: idolDTO?) {
+    func didTapIdolAdd() {
+        
+    }
+    
+    func didSelectCeleb(_ celeb: IdolListDTO?) {
         selectedCeleb = celeb
         homeView.celebNameLabel.text = celeb?.idolName ?? "모든 게시물 보기"
         fetchPosts(startPage: 0)
@@ -256,7 +260,7 @@ extension HomeViewController: CelebSelectionDelegate {
 }
 
 extension HomeViewController: WriteViewControllerDelegate {
-    func didUpdateSelectedCeleb(_ celeb: idolDTO?) {
+    func didUpdateSelectedCeleb(_ celeb: IdolListDTO?) {
         if let celeb = celeb {
             selectedCeleb = celeb
             homeView.celebNameLabel.text = celeb.idolName

@@ -10,21 +10,25 @@ import Moya
 import PhotosUI
 
 protocol WriteViewControllerDelegate: AnyObject {
-    func didUpdateSelectedCeleb(_ celeb: idolDTO?)
+    func didUpdateSelectedCeleb(_ celeb: IdolListDTO?)
 }
 
 class WriteViewController: UIViewController, CelebSelectionDelegate, EventSelectionViewControllerDelegate, DateSelectionViewControllerDelegate {
+    func didTapIdolAdd() {
+        let vc = HomeIdolAddViewController()
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
     
     let networkService = HomeService()
     
     weak var delegate: WriteViewControllerDelegate?
     var textViewPlaceHolder = "본문"
-    var celebs: [idolDTO]?
+    var celebs: [IdolListDTO]?
     private var selectedImages : [UIImage] = []
     
     private var selectedTitle: String = ""
     private var selectedContent: String = ""
-    private var selectedCeleb: idolDTO?
+    private var selectedCeleb: IdolListDTO?
     private var selectedEvent: EventDTO?
     private var selectedDate: String?
     
@@ -128,7 +132,7 @@ class WriteViewController: UIViewController, CelebSelectionDelegate, EventSelect
     
     // 아이돌 선택
     @objc func didTapIdolSelectButton() {
-        let selectVC = CelebSelectionViewController(celebs: celebs ?? [], selectedCeleb: self.selectedCeleb)
+        let selectVC = CelebSelectionViewController(celebs: celebs ?? [], selectedCeleb: self.selectedCeleb, mode: .write)
         selectVC.delegate = self
         presentBottomSheet(selectVC)
     }
@@ -237,7 +241,7 @@ class WriteViewController: UIViewController, CelebSelectionDelegate, EventSelect
     }
     
     // 아이돌 선택 - CelebSelectionDelegate
-    func didSelectCeleb(_ celeb: idolDTO?) {
+    func didSelectCeleb(_ celeb: IdolListDTO?) {
         self.selectedCeleb = celeb
         writeView.idolSelectButton.setTitle(celeb?.idolName, for: .normal)
         writeView.idolSelectButton.setTitleColor(.black, for: .normal)

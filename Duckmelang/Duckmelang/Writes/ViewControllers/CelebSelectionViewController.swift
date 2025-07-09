@@ -8,19 +8,30 @@
 import UIKit
 
 protocol CelebSelectionDelegate: AnyObject {
-    func didSelectCeleb(_ celeb: idolDTO?)
+    func didSelectCeleb(_ celeb: IdolListDTO?)
+    func didTapIdolAdd()
+}
+
+enum CelebSelectionMode {
+    case home
+    case write
 }
 
 class CelebSelectionViewController: UIViewController {
     weak var delegate: CelebSelectionDelegate?
     var dismissCompletion: (() -> Void)?
     
-    var celebs: [idolDTO]
-    var selectedCeleb: idolDTO?
+    let networkService = MyPageService()
     
-    init(celebs: [idolDTO], selectedCeleb: idolDTO?) {
+    var celebs: [IdolListDTO]
+    var selectedCeleb: IdolListDTO?
+    
+    private let mode: CelebSelectionMode
+    
+    init(celebs: [IdolListDTO], selectedCeleb: IdolListDTO?, mode: CelebSelectionMode) {
         self.celebs = celebs
         self.selectedCeleb = selectedCeleb
+        self.mode = mode // home -> 전체보기 버튼, write -> 더 찾아보기 버튼
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -33,21 +44,46 @@ class CelebSelectionViewController: UIViewController {
         self.view = celebSelectionView
         setupDelegate()
         setupActions()
+        getMyIdolList()
     }
     
-    private lazy var celebSelectionView: CelebSelectionView = {
-        let view = CelebSelectionView()
-        return view
-    }()
+    private lazy var celebSelectionView = CelebSelectionView(mode: mode)
     
     private func setupActions() {
         celebSelectionView.allPostSeeBtn.addTarget(self, action: #selector(allPostSeeBtnDidTap), for: .touchUpInside)
+        celebSelectionView.idolAddBtn.addTarget(self, action: #selector(idolAddBtnDidTap), for: .touchUpInside)
     }
     
     @objc
     private func allPostSeeBtnDidTap() {
         delegate?.didSelectCeleb(nil) // nil전달
         dismiss(animated: true)
+    }
+    
+    @objc
+    private func idolAddBtnDidTap() {
+        dismiss(animated: true) {
+            self.delegate?.didTapIdolAdd()
+        }
+    }
+    
+    private func getMyIdolList() {
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let response = try await networkService.getIdolList().idolList
+                self.celebs = response
+                DispatchQueue.main.async {
+                    self.celebSelectionView.collectionView.reloadData()
+                }
+                
+                stopLoading()
+            } catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
     }
     
     private func setupDelegate() {
@@ -92,8 +128,13 @@ extension CelebSelectionViewController: UICollectionViewDelegate, UICollectionVi
 
 // MARK: - CelebSelectionDelegate
 extension CelebSelectionViewController: CelebSelectionDelegate {
-    func didSelectCeleb(_ celeb: idolDTO?) {
+    func didSelectCeleb(_ celeb: IdolListDTO?) {
         delegate?.didSelectCeleb(celeb)
         dismiss(animated: true)
+    }
+    
+    func didTapIdolAdd() {
+        let vc = HomeIdolAddViewController()
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
