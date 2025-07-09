@@ -151,10 +151,16 @@ public struct myProfileImageResponse: Codable {
 public struct ProfileImageData: Codable {
     let memberProfileImageUrl: String
     let createdAt: String
+    let imageId: Int
+    var publicStatus: Bool
 }
 
 public struct PatchProfileResponse: Codable {
     let memberId: Int
     let nickname: String
     let introduction: String
+}
+
+public struct ProfileImageStatusResponse: Codable {
+    let changedStatus: String
 }

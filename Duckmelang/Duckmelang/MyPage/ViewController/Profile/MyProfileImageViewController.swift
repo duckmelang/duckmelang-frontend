@@ -132,6 +132,18 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
         }
     }
     
+    private func patchImageStatus(isLocked: Bool, imageId: Int) {
+        _Concurrency.Task {
+            do {
+                let response = try await networkService.patchProfileImageStatus(imageId: imageId, publicStatus: isLocked)
+                
+                print(response)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     func numberOfSections(in tableView: UITableView) -> Int {
         return profileImageData.isEmpty ? 0 : profileImageData.count
     }
@@ -145,13 +157,17 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
             return UITableViewCell()
         }
         
+        
         guard let profileData = self.profileData else {
-            print("❌ profileData가 nil입니다. 기본 데이터를 설정합니다.")
-            return UITableViewCell() // 빈 셀 반환하여 크래시 방지
+            return UITableViewCell()
         }
 
-        // ✅ 데이터 전달 시 nil 방지
-        cell.configure(profileData: profileData, model: self.profileImageData[indexPath.section])
+        let imageModel = self.profileImageData[indexPath.section]
+        cell.configure(profileData: profileData, model: imageModel)
+        
+        cell.lockToggleHandler = { [weak self] isLocked, imageId in
+            self?.patchImageStatus(isLocked: isLocked, imageId: imageId)
+        }
         
         return cell
     }

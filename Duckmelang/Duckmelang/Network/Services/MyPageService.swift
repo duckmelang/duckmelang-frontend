@@ -118,4 +118,8 @@ public final class MyPageService : NetworkManager {
     public func deleteAccount() async throws {
         try await requestAsync(target: .deleteAccount)
     }
+    
+    public func patchProfileImageStatus(imageId: Int, publicStatus: Bool) async throws -> ProfileImageStatusResponse {
+        try await requestAsync(target: .patchProfileImageStatus(imageId: imageId, publicStatus: publicStatus), decodingType: ProfileImageStatusResponse.self)
+    }
 }
