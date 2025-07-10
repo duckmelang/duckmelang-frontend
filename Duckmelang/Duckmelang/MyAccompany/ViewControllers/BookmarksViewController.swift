@@ -21,16 +21,22 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
         self.view = bookmarksView
         setupDelegate()
         getBookmarksAPI(startPage: 0)
+        
+        self.navigationController!.isNavigationBarHidden = false
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadBookmarks), name: .bookmarkDidChange, object: nil)
     }
     
-    private lazy var bookmarksView: BookmarksView = {
-        let view = BookmarksView()
-        return view
-    }()
+    private lazy var bookmarksView = BookmarksView()
 
     private func setupDelegate() {
         bookmarksView.bookmarksTableView.delegate = self
         bookmarksView.bookmarksTableView.dataSource = self
+    }
+    
+    @objc
+    private func reloadBookmarks() {
+        getBookmarksAPI(startPage: 0) // 다시 처음부터 새로 불러오기
     }
     
     private func getBookmarksAPI(startPage: Int) {
@@ -47,7 +53,7 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
                 } else {
                     self.bookmarksData.append(contentsOf: result.bookmarkList.map { $0.post })
                 }
-//                self.currentPage = result.currentPage
+                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
                     self.bookmarksView.empty.isHidden = !self.bookmarksData.isEmpty
@@ -79,7 +85,7 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let postId = bookmarksData[indexPath.row].postId
-        let bookmarkDetailVC = BookmarkDetailViewController()
+        let bookmarkDetailVC = OtherPostDetailViewController()
         
         bookmarkDetailVC.postId = postId
         

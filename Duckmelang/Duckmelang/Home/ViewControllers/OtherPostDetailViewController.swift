@@ -9,6 +9,10 @@ import UIKit
 import Moya
 import SwiftyToaster
 
+extension Notification.Name {
+    static let bookmarkDidChange = Notification.Name("bookmarkDidChange")
+}
+
 class OtherPostDetailViewController: UIViewController {
     var postId: Int?  // 전달받을 게시물 ID
     var postDetail: MyPostDetailResponse?
@@ -192,6 +196,7 @@ class OtherPostDetailViewController: UIViewController {
                 
                 DispatchQueue.main.async {
                     self.updateBookmarkState(isBookmarked: true)
+                    NotificationCenter.default.post(name: .bookmarkDidChange, object: nil)
                 }
                 
                 stopLoading()
@@ -213,6 +218,7 @@ class OtherPostDetailViewController: UIViewController {
                 
                 DispatchQueue.main.async {
                     self.updateBookmarkState(isBookmarked: false)
+                    NotificationCenter.default.post(name: .bookmarkDidChange, object: nil)
                 }
                 
                 stopLoading()
