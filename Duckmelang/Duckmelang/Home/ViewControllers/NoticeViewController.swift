@@ -13,7 +13,7 @@ class NoticeViewController: UIViewController {
     
     private var notices: [NotificationModel] = []
 
-    override func viewDidLoad() {
+override func viewDidLoad() {
         super.viewDidLoad()
         self.view = noticeView
         setupActions()

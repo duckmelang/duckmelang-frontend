@@ -53,7 +53,7 @@ class MyPageView: UIView {
     
     private func addStack() {
         [idolChange, xKeywordChange, postFilterChange].forEach{topBtnStack.addArrangedSubview($0)}
-        [login, push, logout, out].forEach{bottomBtnStack.addArrangedSubview($0)}
+        [/*login,*/ push, logout, out].forEach{bottomBtnStack.addArrangedSubview($0)}
         [myInfoChange, topBtnStack].forEach{topStack.addArrangedSubview($0)}
         [setup, bottomBtnStack].forEach{bottomStack.addArrangedSubview($0)}
     }
