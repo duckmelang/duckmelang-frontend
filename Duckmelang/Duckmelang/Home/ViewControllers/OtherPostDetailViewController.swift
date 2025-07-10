@@ -130,7 +130,7 @@ class OtherPostDetailViewController: UIViewController {
                 DispatchQueue.main.async {
                     self.otherPostDetailView.updateUI(with: self.postDetail!)
                     self.updateAccompanyData(with: self.postDetail!)
-                    self.updateBookmarkState(isBookmarked: self.postDetail!.bookmarkCount > 0) //북마크 상태 업데이트
+                    //self.updateBookmarkState(isBookmarked: self.postDetail!.bookmarkCount > 0) //북마크 상태 업데이트
                     self.updateScore(averageScore: self.postDetail!.averageScore) //점수 업데이트
                 }
                 //성공 시 데이터 출력

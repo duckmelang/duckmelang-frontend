@@ -13,8 +13,9 @@ class MyAccompanyViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = myAccompanyView
+ 
+        self.navigationController?.navigationBar.isHidden = true
         
-        setupNavigationBar()
         setupAction()
         switchSegment(segment: myAccompanyView.segmentedControl)
     }
@@ -23,15 +24,6 @@ class MyAccompanyViewController: UIViewController {
         let view = MyAccompanyView()
         return view
     }()
-    
-    private func setupNavigationBar() {
-        self.navigationItem.title = "나의 동행"
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
-        
-        let rightBarButton = UIBarButtonItem(image: UIImage(named: "bell"), style: .plain, target: self, action: #selector(clickBell))
-        rightBarButton.tintColor = .grey500
-        self.navigationItem.setRightBarButton(rightBarButton, animated: true)
-    }
     
     @objc private func clickBell() {
         print("알림 버튼 클릭")
