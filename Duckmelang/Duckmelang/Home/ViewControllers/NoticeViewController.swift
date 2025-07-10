@@ -16,8 +16,7 @@ class NoticeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = noticeView
-        self.navigationController?.isNavigationBarHidden = false
-        setupNavigationBar()
+        setupActions()
         setupTableView()
         getNotificationsAPI()
     }
@@ -27,14 +26,9 @@ class NoticeViewController: UIViewController {
         return view
     }()
     
-    private func setupNavigationBar() {
-        self.navigationItem.title = "알림"
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
-        
-        let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
-        leftBarButton.tintColor = .grey600
-        self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
-        }
+    private func setupActions() {
+        noticeView.navibar.setLeftButtonAction(target: self, action: #selector(goBack))
+    }
         
     @objc private func goBack() {
         if navigationController?.viewControllers.count == 1 {

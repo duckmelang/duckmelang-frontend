@@ -34,6 +34,7 @@ class MyAccompanyViewController: UIViewController {
     
     private func setupAction() {
         myAccompanyView.segmentedControl.addTarget(self, action: #selector(switchSegment(segment:)), for: .valueChanged)
+        myAccompanyView.finishBtn.addTarget(self, action: #selector(clickBell), for: .touchUpInside)
     }
 
     @objc private func switchSegment(segment: UISegmentedControl) {
