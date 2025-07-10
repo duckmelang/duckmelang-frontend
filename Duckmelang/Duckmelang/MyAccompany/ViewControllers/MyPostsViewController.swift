@@ -8,7 +8,7 @@
 import UIKit
 
 class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    let networkService = MyAccompanyService()
+    let networkService = MyPageService()
     
     private var myPostsData: [PostDTO] = []
     
@@ -23,10 +23,7 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
         getMyPostsAPI(startPage: 0)
     }
     
-    private lazy var myPostsView: MyPostsView = {
-        let view = MyPostsView()
-        return view
-    }()
+    private lazy var myPostsView = MyPostsView()
 
     private func setupDelegate() {
         myPostsView.myPostsTableView.delegate = self
@@ -47,7 +44,7 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
                 } else {
                     self.myPostsData.append(contentsOf: result.postList)
                 }
-//                self.currentPage = result.currentPage
+                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
                     self.myPostsView.empty.isHidden = !self.myPostsData.isEmpty
@@ -79,7 +76,7 @@ class MyPostsViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let postId = myPostsData[indexPath.row].postId
-        let myPostDetailVC = MyPostDetailViewController()
+        let myPostDetailVC = PostDetailViewController()
         
         myPostDetailVC.postId = postId
         
