@@ -34,7 +34,9 @@ class HomeIdolAddView: UIView {
         $0.backgroundColor = .clear
     }
     
-    lazy var title = Label(text: "좋아하는 아이돌을 추가해주세요", font: .aritaSemiBoldFont(ofSize: 18), color: .grey800)
+    lazy var title = Label(text: "좋아하는 아이돌을 추가해주세요", font: .aritaSemiBoldFont(ofSize: 18), color: .grey800).then {
+        $0.textAlignment = .left
+    }
     
     lazy var searchBar = TextField().then {
         $0.configLabel(text: "", font: .ptdRegularFont(ofSize: 15), color: .grey900!)
@@ -48,7 +50,7 @@ class HomeIdolAddView: UIView {
     }
     
     let idolAddCollectionView = UICollectionView(frame: .zero, collectionViewLayout: LeftAlignedCollectionViewFlowLayout().then {
-        $0.itemSize = .init(width: 88, height: 108)
+        $0.itemSize = .init(width: 88, height: 115)
         $0.minimumInteritemSpacing = 26
     }).then {
         $0.backgroundColor = .white
@@ -72,6 +74,7 @@ class HomeIdolAddView: UIView {
         
         title.snp.makeConstraints{
             $0.top.equalTo(topStack.snp.bottom).offset(16)
+            $0.height.equalTo(30)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
         

@@ -7,6 +7,7 @@
 
 import UIKit
 import Moya
+import SwiftyToaster
 
 enum ActionType {
     case add, delete, none
@@ -49,6 +50,7 @@ class XKeywordChangeViewController: UIViewController {
         // 중복 방지
         if filters.contains(where: { $0.content == filterText }) || pendingAddQueue.contains(filterText) {
             print("⚠️ 중복된 키워드입니다.")
+            Toaster.shared.makeToast("중복된 키워드입니다.")
             return
         }
         
@@ -94,7 +96,16 @@ class XKeywordChangeViewController: UIViewController {
     
     // MARK: - Finish Action
     @objc private func finishBtnTapped() {
+        
+        // 변경된 키워드가 없을 경우
+        if pendingAddQueue.isEmpty && pendingDeleteQueue.isEmpty {
+            self.navigationController?.popViewController(animated: true)
+            return
+        }
+        
         let dispatchGroup = DispatchGroup()
+        
+        var isSuccess = false
         
         // **Step 1: 실제 추가할 키워드 계산 (삭제되지 않은 추가 키워드)**
         let finalAddQueue = pendingAddQueue.filter { lastAction[$0] != .delete }
@@ -108,6 +119,8 @@ class XKeywordChangeViewController: UIViewController {
                     startLoading()
                     
                     let _: () = try await networkService.deleteLandmines(landmineId: landmineId)
+                    
+                    isSuccess = true
                     print("\(landmineId) 삭제 성공")
                 } catch {
                     print(error.localizedDescription)
@@ -125,7 +138,9 @@ class XKeywordChangeViewController: UIViewController {
                 do {
                     startLoading()
                     
-                    let response: () = try await networkService.postLandmines(content: content)
+                    let response = try await networkService.postLandmines(content: content)
+                    
+                    isSuccess = true
                     print("\(content) 추가 성공")
                     
                     stopLoading()
@@ -137,11 +152,21 @@ class XKeywordChangeViewController: UIViewController {
             }
         }
         
+        
+        
         // **Step 4: 모든 요청이 끝난 후 초기화 및 새로고침**
         dispatchGroup.notify(queue: .main) {
             self.pendingAddQueue.removeAll()
             self.pendingDeleteQueue.removeAll()
             self.lastAction.removeAll()
+            
+            if isSuccess {
+                Toaster.shared.makeToast("키워드 변경이 완료되었습니다.")
+                self.navigationController?.popViewController(animated: true)
+            } else {
+                Toaster.shared.makeToast("변경된 키워드를 적용하지 못했습니다. \n 잠시 후 다시 시도해주세요.")
+            }
+            
             self.fetchLandmines()
         }
     }

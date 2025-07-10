@@ -47,13 +47,17 @@ class LogoutPopupViewController: UIViewController {
     
     // ✅ 로그인 화면으로 이동
     private func goToLoginScreen() {
+        // 스택 구성: OnBoarding → Login 순서로
+        let onboardingVC = OnBoardingViewController()
         let loginVC = LoginViewController()
-        let navController = UINavigationController(rootViewController: loginVC)
+        let nav = UINavigationController()
+        nav.setViewControllers([onboardingVC, loginVC], animated: false)
         
+        // rootViewController 교체
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = scene.windows.first {
-            window.rootViewController = navController
-            window.makeKeyAndVisible()
+           let delegate = scene.delegate as? SceneDelegate {
+            delegate.window?.rootViewController = nav
+            delegate.window?.makeKeyAndVisible()
         }
     }
 }

@@ -47,7 +47,7 @@ class IdolAddView: UIView {
     }
     
     let idolAddCollectionView = UICollectionView(frame: .zero, collectionViewLayout: LeftAlignedCollectionViewFlowLayout().then {
-        $0.itemSize = .init(width: 88, height: 108)
+        $0.itemSize = .init(width: 88, height: 115)
         $0.minimumInteritemSpacing = 26
     }).then {
         $0.backgroundColor = .white

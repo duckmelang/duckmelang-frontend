@@ -34,8 +34,8 @@ public final class MyPageService : NetworkManager {
         return try await requestAsync(target: .getLatestProfile, decodingType: ProfileEditInfoResponse.self)
     }
 
-    public func patchProfile(profileData: EditProfileRequest) async throws -> ProfileData {
-        return try await requestAsync(target: .patchProfile(profileData: profileData), decodingType: ProfileData.self)
+    public func patchProfile(profileData: EditProfileRequest) async throws -> PatchProfileResponse {
+        return try await requestAsync(target: .patchProfile(profileData: profileData), decodingType: PatchProfileResponse.self)
     }
 
     public func getMyPosts(page: Int) async throws -> PostResponse {
@@ -50,8 +50,8 @@ public final class MyPageService : NetworkManager {
         return try await requestAsync(target: .getMyPostDetail(postId: postId), decodingType: MyPostDetailResponse.self)
     }
 
-    public func postProfileImage(profileImage: [MultipartFormData]) async throws -> myProfileImageResponse {
-        return try await requestAsync(target: .postProfileImage(profileImage: profileImage), decodingType: myProfileImageResponse.self)
+    public func postProfileImage(profileImage: [MultipartFormData]) async throws -> ProfileImageData {
+        try await requestAsync(target: .postProfileImage(profileImage: profileImage), decodingType: ProfileImageData.self)
     }
 
     //delete는 return 없앰..
@@ -67,8 +67,8 @@ public final class MyPageService : NetworkManager {
         return try await requestAsync(target: .getSearchIdol(keyword: keyword), decodingType: idolListResponse.self)
     }
 
-    public func postIdol(idolId: Int) async throws {
-        try await requestAsync(target: .postIdol(idolId: idolId))
+    public func postIdol(idolId: Int) async throws -> IdolListDTO {
+        return try await requestAsync(target: .postIdol(idolId: idolId), decodingType: IdolListDTO.self)
     }
 
     public func deleteIdol(idolId: Int) async throws {
@@ -79,8 +79,8 @@ public final class MyPageService : NetworkManager {
         return try await requestAsync(target: .getLandmines, decodingType: LandmineResponse.self)
     }
 
-    public func postLandmines(content: String) async throws {
-        try await requestAsync(target: .postLandmines(content: content))
+    public func postLandmines(content: String) async throws -> LandmineModel {
+        try await requestAsync(target: .postLandmines(content: content), decodingType: LandmineModel.self)
     }
 
     public func deleteLandmines(landmineId: Int) async throws {
@@ -117,5 +117,9 @@ public final class MyPageService : NetworkManager {
 
     public func deleteAccount() async throws {
         try await requestAsync(target: .deleteAccount)
+    }
+    
+    public func patchProfileImageStatus(imageId: Int, publicStatus: Bool) async throws -> ProfileImageStatusResponse {
+        try await requestAsync(target: .patchProfileImageStatus(imageId: imageId, publicStatus: publicStatus), decodingType: ProfileImageStatusResponse.self)
     }
 }

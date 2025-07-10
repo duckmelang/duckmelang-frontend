@@ -44,6 +44,7 @@ public struct BookmarksResponse: Codable {
     let totalElements: Int
     let isFirst: Bool
     let isLast: Bool
+    let currentPage: Int
 }
 
 // 보낸 요청 정보를 담는 구조체

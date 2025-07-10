@@ -7,6 +7,7 @@
 
 import UIKit
 import Moya
+import SwiftyToaster
 
 class PostFilterViewController: UIViewController {
     
@@ -90,6 +91,7 @@ class PostFilterViewController: UIViewController {
                 
                 print(filterRequest)
                 try await networkService.postFilters(FilterRequest: filterRequest)
+                Toaster.shared.makeToast("필터링 설정이 완료되었습니다.")
                 
                 self.navigationController?.popViewController(animated: true)
                 stopLoading()
@@ -97,6 +99,7 @@ class PostFilterViewController: UIViewController {
             catch {
                 stopLoading()
                 print(error.localizedDescription)
+                Toaster.shared.makeToast("필터링 설정이 완료되지 않았습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }

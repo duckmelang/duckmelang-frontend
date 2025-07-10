@@ -22,6 +22,7 @@ public enum HomeEndpoint {
     case getEvents
     case postPosts(formData: [MultipartFormData])
     case postBookmark(postId: Int)
+    case deleteBookmark(postId: Int)
     
     // Notification
     case getNotifications
@@ -72,7 +73,7 @@ extension HomeEndpoint: TargetType {
             return "/idols"
         case .getEvents:
             return "/events"
-        case .postBookmark(postId: let postId):
+        case .postBookmark(postId: let postId), .deleteBookmark(postId: let postId):
             return "/\(postId)/bookmarks"
         case .patchNotifications(let notificationId):
             return "/\(notificationId)/read"
@@ -89,6 +90,8 @@ extension HomeEndpoint: TargetType {
             return .post
         case .patchNotifications:
             return .patch
+        case .deleteBookmark:
+            return .delete
         default:
             return .get
         }
@@ -109,7 +112,7 @@ extension HomeEndpoint: TargetType {
             if let minAge = minAge { parameters["minAge"] = minAge }
             if let maxAge = maxAge { parameters["maxAge"] = maxAge }
             return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
-        case .getIdols, .getEvents,.postBookmark, .getNotifications, .patchNotifications, .getFilters:
+        case .getIdols, .getEvents, .postBookmark, .deleteBookmark, .getNotifications, .patchNotifications, .getFilters:
             return .requestPlain
         }
     }

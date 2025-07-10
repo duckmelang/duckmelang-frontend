@@ -69,7 +69,7 @@ class CelebCell: UICollectionViewCell {
         contentView.layer.borderColor = isSelected ? UIColor.grey200!.cgColor : UIColor.clear.cgColor
     }
 
-    func configure(with celeb: idolDTO, isSelected: Bool) {
+    func configure(with celeb: IdolListDTO, isSelected: Bool) {
         if let idolImageUrl = URL(string: celeb.idolImage) {
             self.profileImageView.kf.setImage(with: idolImageUrl, placeholder: UIImage())
         }

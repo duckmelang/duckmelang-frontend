@@ -126,7 +126,6 @@ class OnBoardingViewController: UIViewController {
     private func navigateToLoginView() {
         let view = LoginViewController()
         self.navigationController?.pushViewController(view, animated: true)
-
     }
     
     private func navigateToPhoneSinginView() {
