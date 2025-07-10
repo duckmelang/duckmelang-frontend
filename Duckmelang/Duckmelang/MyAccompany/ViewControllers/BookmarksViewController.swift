@@ -22,9 +22,11 @@ class BookmarksViewController: UIViewController, UITableViewDelegate, UITableVie
         setupDelegate()
         getBookmarksAPI(startPage: 0)
         
-        self.navigationController!.isNavigationBarHidden = false
-        
         NotificationCenter.default.addObserver(self, selector: #selector(reloadBookmarks), name: .bookmarkDidChange, object: nil)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     private lazy var bookmarksView = BookmarksView()
