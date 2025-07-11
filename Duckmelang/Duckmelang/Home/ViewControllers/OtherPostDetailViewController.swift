@@ -23,7 +23,9 @@ class OtherPostDetailViewController: UIViewController {
 
     let networkServiceMyPage = MyPageService()
     let networkServiceHome = HomeService()
+    let networkServiceMyAccompany = MyAccompanyService()
     
+    private var bookmarkedPostId: Set<Int> = []
     private lazy var isBookmarked: Bool = false
     
     override func viewDidLoad() {
@@ -41,12 +43,7 @@ class OtherPostDetailViewController: UIViewController {
         otherPostDetailView.translatesAutoresizingMaskIntoConstraints = true
         scrollViewDidScroll(otherPostDetailView.scrollView)
       
-        // ✅ postId가 nil이 아니면 API 요청
-        if let postId = postId {
-            fetchPostDetail(postId: postId)
-        } else {
-            print("❌ postId가 nil입니다. API 호출을 하지 않습니다.")
-        }
+        getInitialData()
     }
     
     
@@ -130,7 +127,7 @@ class OtherPostDetailViewController: UIViewController {
                 DispatchQueue.main.async {
                     self.otherPostDetailView.updateUI(with: self.postDetail!)
                     self.updateAccompanyData(with: self.postDetail!)
-                    //self.updateBookmarkState(isBookmarked: self.postDetail!.bookmarkCount > 0) //북마크 상태 업데이트
+                    self.updateBookmarkStateIfNeeded(postId: postId)
                     self.updateScore(averageScore: self.postDetail!.averageScore) //점수 업데이트
                 }
                 //성공 시 데이터 출력
@@ -146,14 +143,34 @@ class OtherPostDetailViewController: UIViewController {
         }
     }
     
-    // ✅ 북마크 상태 업데이트 함수
+    private func getInitialData() {
+        _Concurrency.Task {
+            do {
+                let bookmarks = try await networkServiceMyAccompany.getBookmarks(page: 0)
+                self.bookmarkedPostId = Set(bookmarks.bookmarkList.map { $0.post.postId })
+                
+                if let postId = postId {
+                    fetchPostDetail(postId: postId)
+                }
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    // 북마크 상태 업데이트 함수
     private func updateBookmarkState(isBookmarked: Bool) {
         self.isBookmarked = isBookmarked
         let imageName = isBookmarked ? "bookmark.fill" : "bookmark"
         otherPostDetailView.tabBar.scrapBtn.setImage(UIImage(systemName: imageName), for: .normal)
     }
     
-    // ✅ 평균 점수 업데이트 함수
+    private func updateBookmarkStateIfNeeded(postId: Int) {
+        let isBookmarked = bookmarkedPostId.contains(postId)
+        updateBookmarkState(isBookmarked: isBookmarked)
+    }
+    
+    // 평균 점수 업데이트 함수
     private func updateScore(averageScore: Double) {
         otherPostDetailView.tabBar.score1.text = String(format: "%.1f", averageScore)
     }
@@ -195,6 +212,7 @@ class OtherPostDetailViewController: UIViewController {
                 let _ = try await networkServiceHome.postBookmark(postId: postId)
                 
                 DispatchQueue.main.async {
+                    self.bookmarkedPostId.insert(postId)
                     self.updateBookmarkState(isBookmarked: true)
                     NotificationCenter.default.post(name: .bookmarkDidChange, object: nil)
                 }
@@ -217,6 +235,7 @@ class OtherPostDetailViewController: UIViewController {
                 let _ = try await networkServiceHome.deleteBookmark(postId: postId)
                 
                 DispatchQueue.main.async {
+                    self.bookmarkedPostId.remove(postId)
                     self.updateBookmarkState(isBookmarked: false)
                     NotificationCenter.default.post(name: .bookmarkDidChange, object: nil)
                 }
