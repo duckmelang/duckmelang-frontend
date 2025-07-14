@@ -19,20 +19,16 @@ class SignUpCompleteViewController: UIViewController {
         super.viewDidAppear(animated)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.transitionToNextScreen()
+            self.transitionToOnBoarding()
         }
     }
     
-    private func transitionToNextScreen() {
-        let baseVC = BaseViewController()
-        baseVC.hidesBottomBarWhenPushed = true
-        let navController = UINavigationController(rootViewController: baseVC)
-
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = scene.windows.first {
-            UIView.transition(with: window, duration: 0.2, options: .transitionCrossDissolve, animations: {
-                window.rootViewController = navController
-            })
-        }
+    private func transitionToOnBoarding() {
+        // 온보딩 화면으로 전환
+        let view = OnBoardingViewController()
+        let navigationController = UINavigationController(rootViewController: view)
+        navigationController.modalTransitionStyle = .crossDissolve
+        navigationController.modalPresentationStyle = .fullScreen
+        self.present(navigationController, animated: true, completion: nil)
     }
 }
