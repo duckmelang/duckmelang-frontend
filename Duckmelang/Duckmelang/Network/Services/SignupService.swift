@@ -34,6 +34,11 @@ public final class SignupService : NetworkManager {
     public func postSignUp(signUp: SignupRequest) async throws -> SignupResponseResult {
         return try await requestAsync(target: .postSignUp(signUp: signUp), decodingType: SignupResponseResult.self)
     }
+    
+    /// 전화번호 등록 API
+    public func postPhoneNum(phoneNum: String) async throws -> CheckResult {
+        return try await requestAsync(target: .postPhoneNum(phoneNum: phoneNum), decodingType: CheckResult.self)
+    }
 
     /// 닉네임, 생년월일, 성별 설정 API
     public func patchMemberProfile(memberId: Int, profile: PatchMemberProfileRequest) async throws -> MemberProfile {
