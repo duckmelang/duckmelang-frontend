@@ -36,6 +36,24 @@ class SignUpView: UIView {
         $0.attributedText = attributedString
     }
     
+    // description Label
+    private let descriptionLabel = UILabel().then {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 1.6 // 자간 160%
+
+        let attributedString = NSAttributedString(
+            string: "아이디는 영문/숫자 조합의 4~10자,\n비밀번호는 영문+숫자 포함 8자 이상으로 입력해주세요.",
+            attributes: [
+                .font: UIFont.ptdRegularFont(ofSize: 12),
+                .foregroundColor: UIColor.grey600!,
+                .paragraphStyle: paragraphStyle
+            ]
+        )
+
+        $0.attributedText = attributedString
+        $0.numberOfLines = 2
+    }
+    
     // ID Label
     private let idLabel = UILabel().then {
         $0.text = "ID"
@@ -122,6 +140,7 @@ class SignUpView: UIView {
         
         [
             titleLabel,
+            descriptionLabel,
             idContainer,
             successLabel,
             idAlertLabel,
@@ -138,8 +157,13 @@ class SignUpView: UIView {
             $0.leading.equalToSuperview().inset(16)
         }
         
+        descriptionLabel.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(12)
+            $0.leading.equalToSuperview().inset(16)
+        }
+        
         idContainer.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(28)
+            $0.top.equalTo(descriptionLabel.snp.bottom).offset(28)
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.bottom.equalTo(idTextField.snp.bottom)
         }

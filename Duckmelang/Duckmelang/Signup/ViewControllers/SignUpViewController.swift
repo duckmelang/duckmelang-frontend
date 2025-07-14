@@ -2,13 +2,16 @@
 //  SignUpViewController.swift
 //  Duckmelang
 //
-//  Created by 김연우 on 1/25/25.
+//  Created by 주민영 on 1/25/25.
 //
 
 import UIKit
+import SwiftyToaster
 
 class SignUpViewController: UIViewController {
     let networkService = SignupService()
+    
+    public var phoneNum: String = ""
     
     private var isIDVerified: Bool = false {
         didSet {
@@ -66,8 +69,8 @@ class SignUpViewController: UIViewController {
             signupView.idAlertLabel.isHidden = true
         }
         
-        let textCount = signupView.idTextField.text?.count ?? 0
-        signupView.idButton.isEnabled = textCount >= 3
+        let idText = signupView.idTextField.text ?? ""
+        signupView.idButton.isEnabled = isValidUserId(idText)
     }
     
     @objc func pwTextFieldsDidChange() {
@@ -143,9 +146,10 @@ class SignUpViewController: UIViewController {
                 let newSignupRequest = SignupRequest(loginId: loginId, password: password)
                 let result = try await networkService.postSignUp(signUp: newSignupRequest)
                 
-//                KeychainManager.shared.save(key: "accessToken", value: result.accessToken)
-//                KeychainManager.shared.save(key: "refreshToken", value: result.refreshToken)
                 KeychainManager.shared.save(key: "memberId", value: String(result.memberId))
+                
+                // 전화 번호 등록
+                postPhoneNum(memberId: result.memberId, phoneNum: phoneNum)
                 
                 if !result.profileComplete {
                     DispatchQueue.main.async {
@@ -162,6 +166,24 @@ class SignUpViewController: UIViewController {
             catch {
                 stopLoading()
                 print(error.localizedDescription)
+            }
+        }
+    }
+    
+    // 전화번호 등록
+    private func postPhoneNum(memberId: Int, phoneNum: String) {
+        Task {
+            do {
+                startLoading()
+                //MARK: - FIX-ME memberId 추가하기
+                _ = try await networkService.postPhoneNum(phoneNum: phoneNum)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+                Toaster.shared.makeToast("전화번호 등록에 실패했습니다. 잠시 후 다시 시도해주세요.")
             }
         }
     }
