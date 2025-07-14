@@ -40,6 +40,11 @@ public final class LoginService : NetworkManager {
         return try await requestAsync(target: .getCheckPhoneNum(phoneNum: phoneNum), decodingType: CheckResult.self)
     }
     
+    /// 전화번호 등록 API
+    public func postPhoneNum(phoneNum: String) async throws -> CheckResult {
+        return try await requestAsync(target: .postPhoneNum(phoneNum: phoneNum), decodingType: CheckResult.self)
+    }
+    
     /// 로그인 API
     public func postLogin(login: LoginRequest) async throws -> LoginResult {
         return try await requestAsync(target: .postLogin(login: login), decodingType: LoginResult.self)

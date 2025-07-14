@@ -18,6 +18,7 @@ public enum LoginEndpoint {
     case getCheckNickname(loginId: String) // 아이디 중복 확인
     case postRefreshToken(refreshToken: RefreshTokenRequest) // 토큰 재발급
     case getCheckPhoneNum(phoneNum: String) // 전화번호 중복 확인
+    case postPhoneNum(phoneNum: String) // 전화번호 등록
     case postLogin(login: LoginRequest) // 로그인
     case patchPassword(login: NewPasswordRequest) // 비밀번호 변경
     case getFindId(phoneNum: String) // 아이디 찾기
@@ -43,7 +44,7 @@ extension LoginEndpoint: TargetType {
             return "/nickname"
         case .postRefreshToken:
             return "/token/refresh"
-        case .getCheckPhoneNum:
+        case .getCheckPhoneNum, .postPhoneNum:
             return "/phone"
         case .postLogin:
             return "/login"
@@ -58,7 +59,7 @@ extension LoginEndpoint: TargetType {
         // 가장 많이 호출되는 post을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .postRefreshToken, .postLogin:
+        case .postRefreshToken, .postLogin, .postPhoneNum:
             return .post
         case .patchPassword:
             return .patch
@@ -73,13 +74,11 @@ extension LoginEndpoint: TargetType {
             return .requestParameters(parameters: ["loginId": loginId], encoding: URLEncoding.queryString)
         case .postRefreshToken(let refreshToken):
             return .requestJSONEncodable(refreshToken)
-        case .getCheckPhoneNum(let phoneNum):
-            return .requestParameters(parameters: ["phoneNum": phoneNum], encoding: URLEncoding.queryString)
         case .postLogin(let login):
             return .requestJSONEncodable(login)
         case .patchPassword(let login):
             return .requestJSONEncodable(login)
-        case .getFindId(let phoneNum):
+        case .getCheckPhoneNum(let phoneNum), .postPhoneNum(let phoneNum), .getFindId(let phoneNum):
             return .requestParameters(parameters: ["phoneNum": phoneNum], encoding: URLEncoding.queryString)
         }
     }

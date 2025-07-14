@@ -21,6 +21,11 @@ public struct LoginResult: Codable {
     public let profileComplete: Bool
 }
 
+// 전화번호 등록 응답 모델
+public struct PhoneNumResult: Codable {
+    public let phoneNum: String
+}
+
 // 중복 확인 응답 모델
 public struct CheckResult: Codable {
     public let isDuplicate: Bool

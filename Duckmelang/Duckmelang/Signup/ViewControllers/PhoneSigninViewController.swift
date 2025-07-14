@@ -157,6 +157,8 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
         Task {
             startLoading()
             
+            guard let phoneNum = phoneSigninView.phoneTextField.text else { return }
+            
             guard let verificationID = UserDefaults.standard.string(forKey: "authVerificationID") else {
                 print("❌ verificationID가 없습니다")
                 return
@@ -173,9 +175,12 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
 
                 DispatchQueue.main.async {
                     let alert = UIAlertController(title: "알림", message: "인증이 완료되었어요!", preferredStyle: .alert)
+                    self.postPhoneNum(phoneNum: phoneNum)
+                    
                     let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
                         self.navigateToIDPWView()
                     }
+                    
                     alert.addAction(confirmAction)
                     self.present(alert, animated: true)
                 }
@@ -191,6 +196,24 @@ class PhoneSigninViewController: UIViewController, UITextFieldDelegate {
                 }
                 
                 stopLoading()
+            }
+        }
+    }
+    
+    // 전화번호 등록
+    private func postPhoneNum(phoneNum: String) {
+        Task {
+            do {
+                startLoading()
+                
+                _ = try await networkService.postPhoneNum(phoneNum: phoneNum)
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+                Toaster.shared.makeToast("전화번호 등록에 실패했습니다. 잠시 후 다시 시도해주세요.")
             }
         }
     }
