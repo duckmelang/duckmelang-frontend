@@ -50,8 +50,8 @@ class OtherPostDetailView: UIView, UIScrollViewDelegate {
     lazy var tabBar = OtherPostDetailTapBar()
     
     lazy var backBtn = UIButton().then {
-        $0.setImage(.back, for: .normal)
-        $0.tintColor = .grey0
+        $0.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+        $0.tintColor = .white
     }
 
     let pageControl = UIPageControl().then {
@@ -66,12 +66,10 @@ class OtherPostDetailView: UIView, UIScrollViewDelegate {
         $0.isPagingEnabled = true
     }
     
-    /*
-    lazy var imageViews = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.clipsToBounds = true
+    lazy var shadowView = UIView().then {
+        $0.isUserInteractionEnabled = false
+        $0.backgroundColor = .clear
     }
-    */
     
     private lazy var title = Label(text: "", font: .aritaSemiBoldFont(ofSize: 18), color: .black)
     
@@ -86,11 +84,9 @@ class OtherPostDetailView: UIView, UIScrollViewDelegate {
     }
     
     private func setupView(){
-        [scrollView, tabBar, whiteView].forEach{addSubview($0)}
+        [scrollView, shadowView, topStack, tabBar, whiteView].forEach{addSubview($0)}
         [contentView].forEach{scrollView.addSubview($0)}
         [imageView, pageControl, postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
-        
-        addSubview(topStack)
 
         imageView.snp.makeConstraints{
             imageViewTopConstraint = $0.top.equalTo(contentView.snp.top).constraint
@@ -103,6 +99,12 @@ class OtherPostDetailView: UIView, UIScrollViewDelegate {
         pageControl.snp.makeConstraints{
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(imageView.snp.bottom).offset(-8)
+        }
+        
+        shadowView.snp.makeConstraints{
+            $0.top.equalTo(safeAreaInsets)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(40)
         }
 
         tabBar.snp.makeConstraints{
@@ -146,6 +148,8 @@ class OtherPostDetailView: UIView, UIScrollViewDelegate {
         }
         
         scrollView.contentInset.bottom = 40
+        
+        applyTopInnerShadow(to: shadowView)
     }
     
     // **UI 업데이트 함수**
@@ -169,19 +173,6 @@ class OtherPostDetailView: UIView, UIScrollViewDelegate {
         
         postDetailBottomView.tableView.reloadData()
     }
-    
-    /*
-    func updateImage(with url: URL?) {
-        guard let url = url else { return }
-        imageViews.kf.setImage(with: url, placeholder: UIImage(), completionHandler: { _ in
-            DispatchQueue.main.async {
-                //self.addGradientLayer()
-                self.imageViews.contentMode = .scaleAspectFill
-                self.imageViews.clipsToBounds = true
-            }
-        })
-    }
-    */
     
     func updateImages(with urls: [String]) {
         // 기존 이미지뷰 제거
@@ -230,6 +221,22 @@ class OtherPostDetailView: UIView, UIScrollViewDelegate {
         // 페이지 인디케이터 업데이트
         pageControl.numberOfPages = imageViews.count
         pageControl.currentPage = 0
+    }
+    
+    private func applyTopInnerShadow(to view: UIView) {
+        view.layer.sublayers?.removeAll(where: { $0.name == "TopInnerShadow" })
+
+        let shadowLayer = CAGradientLayer()
+        shadowLayer.name = "TopInnerShadow"
+        shadowLayer.frame = CGRect(x: 0, y: 0, width: UIScreen.width, height: 120)
+        shadowLayer.colors = [
+            UIColor.black!.withAlphaComponent(0.6).cgColor,
+            UIColor.clear.cgColor
+        ]
+        shadowLayer.startPoint = CGPoint(x: 0, y: 0)
+        shadowLayer.endPoint = CGPoint(x: 0, y: 1)
+
+        view.layer.addSublayer(shadowLayer)
     }
 }
 

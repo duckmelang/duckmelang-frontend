@@ -40,13 +40,15 @@ class PostDetailView: UIView {
     lazy var postDetailBottomView = PostDetailBottomView()
     
     lazy var backBtn = UIButton().then {
-        $0.setImage(.back, for: .normal)
+        $0.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+        $0.tintColor = .white
     }
     
-    private lazy var title = Label(text: "내 게시글", font: .aritaSemiBoldFont(ofSize: 18), color: .black)
+    private lazy var title = Label(text: "내 게시글", font: .aritaSemiBoldFont(ofSize: 18), color: .white)
     
     lazy var finishBtn = UIButton().then {
         $0.setImage(.moreVertical, for: .normal)
+        $0.tintColor = .white
     }
     
     lazy var imageView = UIScrollView().then {
@@ -60,6 +62,11 @@ class PostDetailView: UIView {
         $0.currentPageIndicatorTintColor = .black
         $0.hidesForSinglePage = true
     }
+    
+    lazy var shadowView = UIView().then {
+        $0.isUserInteractionEnabled = false
+        $0.backgroundColor = .clear
+    }
 
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
@@ -68,11 +75,9 @@ class PostDetailView: UIView {
     }
     
     private func setupView(){
-        [scrollView].forEach{addSubview($0)}
+        [scrollView, shadowView, topStack].forEach{addSubview($0)}
         [contentView].forEach{scrollView.addSubview($0)}
         [imageView, pageControl, postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
-        
-        addSubview(topStack)
         
         imageView.snp.makeConstraints{
             imageViewTopConstraint = $0.top.equalTo(contentView.snp.top).constraint
@@ -80,6 +85,12 @@ class PostDetailView: UIView {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
             $0.bottom.equalTo(postDetailTopView.snp.top)
+        }
+        
+        shadowView.snp.makeConstraints{
+            $0.top.equalTo(safeAreaInsets)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(40)
         }
         
         pageControl.snp.makeConstraints{
@@ -111,6 +122,8 @@ class PostDetailView: UIView {
         postDetailBottomView.snp.makeConstraints{
             $0.top.equalTo(postDetailTopView.profileInfo.snp.bottom).offset(16)
         }
+        
+        applyTopInnerShadow(to: shadowView)
     }
     
     // **UI 업데이트 함수**
@@ -182,6 +195,22 @@ class PostDetailView: UIView {
         // 페이지 인디케이터 업데이트
         pageControl.numberOfPages = imageViews.count
         pageControl.currentPage = 0
+    }
+    
+    private func applyTopInnerShadow(to view: UIView) {
+        view.layer.sublayers?.removeAll(where: { $0.name == "TopInnerShadow" })
+
+        let shadowLayer = CAGradientLayer()
+        shadowLayer.name = "TopInnerShadow"
+        shadowLayer.frame = CGRect(x: 0, y: 0, width: UIScreen.width, height: 120)
+        shadowLayer.colors = [
+            UIColor.black!.withAlphaComponent(0.6).cgColor,
+            UIColor.clear.cgColor
+        ]
+        shadowLayer.startPoint = CGPoint(x: 0, y: 0)
+        shadowLayer.endPoint = CGPoint(x: 0, y: 1)
+
+        view.layer.addSublayer(shadowLayer)
     }
 }
 

@@ -33,6 +33,7 @@ class OtherPostDetailViewController: UIViewController {
 
         self.view = otherPostDetailView
         otherPostDetailView.scrollView.isHidden = true
+        otherPostDetailView.shadowView.isHidden = true
         
         startLoading()
         
@@ -134,6 +135,7 @@ class OtherPostDetailViewController: UIViewController {
                 print("Post Detail: \(response)")
                 
                 otherPostDetailView.scrollView.isHidden = false
+                otherPostDetailView.shadowView.isHidden = false
                 stopLoading()
             } catch {
                 stopLoading()
