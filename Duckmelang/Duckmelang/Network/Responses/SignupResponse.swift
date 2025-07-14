@@ -55,6 +55,10 @@ public struct Idol: Codable, Equatable {
     public let idolId: Int
     public let idolName: String
     public let idolImage: String
+    
+    public static func == (lhs: Idol, rhs: Idol) -> Bool {
+        return lhs.idolId == rhs.idolId
+    }
 }
 
 // isSelected 속성을 추가한 Idol 모델

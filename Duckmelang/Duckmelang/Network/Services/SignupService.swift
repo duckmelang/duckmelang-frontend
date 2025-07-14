@@ -70,9 +70,14 @@ public final class SignupService : NetworkManager {
         return try await requestAsync(target: .getAllIdols, decodingType: IdolListResult.self)
     }
 
+    /// 아이돌 검색 조회 API
+    public func getSearchIdol(keyword: String) async throws -> IdolListResult {
+        return try await requestAsync(target: .getSearchIdol(keyword: keyword), decodingType: IdolListResult.self)
+    }
+
     /// 모든 행사 리스트 조회 API
-    public func getAllEvents() async throws -> EventResult {
-        return try await requestAsync(target: .getAllEvents, decodingType: EventResult.self)
+    public func getAllEvents() async throws -> EventResponse {
+        return try await requestAsync(target: .getAllEvents, decodingType: EventResponse.self)
     }
 
 }

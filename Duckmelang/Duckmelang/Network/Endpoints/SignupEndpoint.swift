@@ -26,6 +26,7 @@ public enum SignupEndpoint {
     case patchMemberIntroduction(memberId: Int, introduction: SetIntroductionRequest) // 자기소개 문구 설정
     
     case getAllIdols
+    case getSearchIdol(keyword: String) // 아이돌 검색
     case getAllEvents
 }
 
@@ -34,6 +35,11 @@ extension SignupEndpoint: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
+        case .getSearchIdol:
+            guard let url = URL(string: API.mySettingURL) else {
+                fatalError("mySettingURL 오류")
+            }
+            return url
         case .getCheckNickname:
             guard let url = URL(string: API.authURL) else {
                 fatalError("authURL 오류")
@@ -75,6 +81,8 @@ extension SignupEndpoint: TargetType {
             return "/\(memberId)/introduction"
         case .getAllIdols:
             return "/idols"
+        case .getSearchIdol:
+            return "/idols/search"
         case .getAllEvents:
             return "/events"
         }
@@ -84,7 +92,7 @@ extension SignupEndpoint: TargetType {
         // 가장 많이 호출되는 post을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .getCheckNickname, .getMemberNicknameCheck, .getAllIdols, .getAllEvents:
+        case .getCheckNickname, .getMemberNicknameCheck, .getAllIdols, .getSearchIdol, .getAllEvents:
             return .get
         case .patchMemberProfile, .patchMemberIntroduction:
             return .patch
@@ -115,6 +123,8 @@ extension SignupEndpoint: TargetType {
             return .requestJSONEncodable(SetIntroductionRequest)
         case .getAllIdols, .getAllEvents:
             return .requestPlain
+        case .getSearchIdol(let keyword):
+            return .requestParameters(parameters: ["keyword": keyword], encoding: URLEncoding.queryString)
         }
     }
     
