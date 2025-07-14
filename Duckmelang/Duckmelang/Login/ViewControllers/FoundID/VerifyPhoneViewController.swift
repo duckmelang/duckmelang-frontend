@@ -11,8 +11,6 @@ import SwiftyToaster
 
 class VerifyPhoneViewController: UIViewController {
     let networkService = LoginService()
-    
-    private var foundId: String = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -179,12 +177,11 @@ class VerifyPhoneViewController: UIViewController {
                 startLoading()
                 
                 let result = try await networkService.getFindId(phoneNum: phoneNum)
-                self.foundId = result.loginId
                 
                 // MARK: 전화번호에 맞는 아이디가 있을 때
                 let foundIDVC = FoundIDViewController()
                 foundIDVC.phoneNum = phoneNum
-                foundIDVC.foundId = self.foundId
+                foundIDVC.foundId = result.loginId
                 self.navigationController?.pushViewController(foundIDVC, animated: true)
                 
                 stopLoading()
