@@ -1,8 +1,8 @@
 //
-//  MyPostsView.swift
+//  File.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 1/31/25.
+//  Created by nau on 7/10/25.
 //
 
 import UIKit

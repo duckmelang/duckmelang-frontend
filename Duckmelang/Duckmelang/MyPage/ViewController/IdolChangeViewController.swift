@@ -7,6 +7,7 @@
 
 import UIKit
 import Moya
+import SwiftyToaster
 
 class IdolChangeViewController: UIViewController {
     
@@ -50,19 +51,6 @@ class IdolChangeViewController: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    /*@objc private func deleteBtnTapped(_ sender: UIButton) {
-        let index = sender.tag
-        let idolId = idolList[index].idolId
-        
-        // 삭제 대기 목록에 추가하고 목록에서 임시 삭제
-        if !deleteQueue.contains(idolId) {
-            deleteQueue.insert(idolId)
-            idolList.remove(at: index)  // 목록에서 임시 제거
-            //idolChangeView.idolChangeCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-            idolChangeView.idolChangeCollectionView.reloadData()
-        }
-    }*/
-    
     @objc private func deleteBtnTapped(_ sender: UIButton) {
         let index = sender.tag
         let idolId = idolList[index].idolId
@@ -87,7 +75,6 @@ class IdolChangeViewController: UIViewController {
             }
         }
     }
-
     
     @objc private func finishBtnTapped() {
         let group = DispatchGroup()
@@ -100,17 +87,20 @@ class IdolChangeViewController: UIViewController {
                     
                     try await networkService.deleteIdol(idolId: idolId)
                     
+                    Toaster.shared.makeToast("아이돌 변경이 완료되었습니다.") // 완료버튼 눌렀을때 아이돌을 삭제했으면..
                     stopLoading()
                 } catch {
                     stopLoading()
                     print(error.localizedDescription)
                 }
             }
+            group.leave()
         }
         
         group.notify(queue: .main) {
             self.deleteQueue.removeAll()  // 삭제 대기 목록 초기화
             self.fetchIdolList() // 최신 아이돌 목록 다시 가져옴
+            self.navigationController?.popViewController(animated: true)
         }
     }
  
@@ -181,9 +171,7 @@ extension IdolChangeViewController: UICollectionViewDelegate {
             idolAddVC.onCompletion = { [weak self] in
                 self?.fetchIdolList()
             }
-            let navigationController = UINavigationController(rootViewController: idolAddVC)
-            navigationController.modalPresentationStyle = .overFullScreen
-            present(navigationController, animated: false)
+            self.navigationController?.pushViewController(idolAddVC, animated: true)
         }
     }
 }

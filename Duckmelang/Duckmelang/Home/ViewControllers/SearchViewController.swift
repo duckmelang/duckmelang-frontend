@@ -12,9 +12,7 @@ class SearchViewController: UIViewController {
     let networkService = HomeService()
     
     private let searchManager = SearchHistoryManager()
-    
-    let searchView = SearchView()
-    
+
     private var recentSearches: [String] = []
     private var searchData: [PostDTO] = []
     
@@ -62,14 +60,22 @@ class SearchViewController: UIViewController {
         self.navigationItem.setRightBarButton(btn, animated: true)
     }
     
+    lazy var searchView = SearchView().then {
+        $0.searchBtn.addTarget(self, action: #selector(searchBtnTapped), for: .touchUpInside)
+    }
+    
+    @objc private func searchBtnTapped() {
+        performSearch()
+    }
+    
     @objc private func goBack() {
         self.navigationController?.popViewController(animated: true)
+        
     }
     
     @objc private func goFilter() {
         let VC = SearchFilterViewController()
-        VC.modalPresentationStyle = .fullScreen
-        present(VC, animated: true)
+        self.navigationController?.pushViewController(VC, animated: true)
     }
     
     // MARK: - Delegate 설정
@@ -82,6 +88,8 @@ class SearchViewController: UIViewController {
         
         searchView.searchTextField.delegate = self
     }
+    
+    
     
     // MARK: - 검색어 UI 업데이트
     private func updateSearchResults() {
@@ -176,6 +184,30 @@ class SearchViewController: UIViewController {
             }
         }
     }
+    
+    private func performSearch() {
+        guard let text = searchView.searchTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else {
+            updateSearchResults()
+            searchView.searchDataTableView.isHidden = true
+            searchView.empty.isHidden = true
+            searchView.recentSearchTableView.isHidden = false
+            return
+        }
+        
+        // 초기화
+        searchData.removeAll()
+        currentPage = 0
+        totalPage = 0
+        isLoading = false
+        
+        searchView.searchDataTableView.reloadData()
+        searchView.searchDataTableView.isHidden = false
+        searchView.empty.isHidden = true
+        searchView.recentSearchTableView.isHidden = true
+        
+        searchManager.saveSearchQuery(text)
+        getSearchData(keyword: text, startPage: 0)
+    }
 }
 
 // MARK: - UITableView Delegate & DataSource
@@ -235,30 +267,7 @@ extension SearchViewController: UITextFieldDelegate {
     // MARK: - TextField에서 엔터를 입력했을 때 실행되는 함수
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        
-        guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else {
-            updateSearchResults()
-            
-            searchView.searchDataTableView.isHidden = true
-            searchView.empty.isHidden = true
-            searchView.recentSearchTableView.isHidden = false
-            return false // 공백이면 최근 검색어를 띄움
-        }
-        
-        // 엔터를 누르면 새로운 데이터를 받아야하므로 모든 값을 초기화
-        searchData.removeAll()
-        currentPage = 0
-        totalPage = 0
-        isLoading = false
-        
-        searchView.searchDataTableView.reloadData()
-        searchView.searchDataTableView.isHidden = false
-        searchView.empty.isHidden = true
-        searchView.recentSearchTableView.isHidden = true
-        
-        // 최근 검색어에 값을 저장하고 검색을 실행
-        searchManager.saveSearchQuery(text)
-        getSearchData(keyword: text, startPage: 0)
+        performSearch()
         return true
     }
 }

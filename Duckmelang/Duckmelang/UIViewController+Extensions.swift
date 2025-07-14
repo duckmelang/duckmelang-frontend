@@ -47,3 +47,38 @@ extension UIViewController {
         }
     }
 }
+
+extension UIViewController {
+    
+    func screen() -> UIScreen? {
+        guard let window = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            // 99.9% 확률로 실패할 일은 없을 것 같은데, 만약 실패 한다면 view로 접근하여 사용하기 (1번 방법)
+            return view.window?.windowScene?.screen
+        }
+        
+        // 2번 방법
+        return window.screen
+    }
+}
+
+extension UIScreen {
+    static var current: UIScreen? {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            return windowScene.screen
+        }
+        return nil
+    }
+
+    static var width: CGFloat {
+        (current?.bounds.width)!
+    }
+
+    static var height: CGFloat {
+        (current?.bounds.height)!
+    }
+
+    static var size: CGSize {
+        (current?.bounds.size)!
+    }
+}
+

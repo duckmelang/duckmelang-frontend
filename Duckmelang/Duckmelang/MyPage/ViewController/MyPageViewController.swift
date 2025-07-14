@@ -113,7 +113,7 @@ class MyPageViewController: UIViewController {
         let VC = AccountClosing1ViewController()
         self.navigationController?.pushViewController(VC, animated: true)
     }
-    
+
     @objc
     private func logoutDidTap() {
         let logoutPopupVC = LogoutPopupViewController()

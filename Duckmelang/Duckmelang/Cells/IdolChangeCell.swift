@@ -29,7 +29,9 @@ class IdolChangeCell: UICollectionViewCell {
         $0.layer.cornerRadius = $0.frame.width/2
     }
     
-    let idolName = Label(text: "", font: .ptdRegularFont(ofSize: 16), color: .grey800)
+    let idolName = Label(text: "", font: .ptdRegularFont(ofSize: 16), color: .grey800).then {
+        $0.numberOfLines = 2
+    }
     
     private func setupView() {
         [idolImage, deleteBtn, idolName].forEach{addSubview($0)}
@@ -47,7 +49,7 @@ class IdolChangeCell: UICollectionViewCell {
         
         idolName.snp.makeConstraints{
             $0.top.equalTo(idolImage.snp.bottom).offset(10)
-            $0.centerX.equalToSuperview()
+            $0.centerX.leading.trailing.equalToSuperview()
         }
     }
     
@@ -127,7 +129,9 @@ class IdolAddCell: UICollectionViewCell {
         $0.layer.cornerRadius = $0.frame.width/2
     }
     
-    let idolName = Label(text: "", font: .ptdRegularFont(ofSize: 16), color: .grey800)
+    let idolName = Label(text: "", font: .ptdRegularFont(ofSize: 16), color: .grey800).then {
+        $0.numberOfLines = 2
+    }
     
     private func setupView() {
         [idolImage, idolName].forEach{addSubview($0)}
@@ -140,7 +144,7 @@ class IdolAddCell: UICollectionViewCell {
    
         idolName.snp.makeConstraints{
             $0.top.equalTo(idolImage.snp.bottom).offset(10)
-            $0.centerX.equalToSuperview()
+            $0.centerX.leading.trailing.equalToSuperview()
         }
     }
 

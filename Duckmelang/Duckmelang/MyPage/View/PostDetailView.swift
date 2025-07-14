@@ -11,7 +11,7 @@ import Kingfisher
 class PostDetailView: UIView {
     
     var imageViewTopConstraint: Constraint!
-    var gradientLayer: CAGradientLayer!
+    var imageViews: [UIImageView] = []
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -40,13 +40,15 @@ class PostDetailView: UIView {
     lazy var postDetailBottomView = PostDetailBottomView()
     
     lazy var backBtn = UIButton().then {
-        $0.setImage(.back, for: .normal)
+        $0.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+        $0.tintColor = .white
     }
     
-    private lazy var title = Label(text: "내 게시글", font: .aritaSemiBoldFont(ofSize: 18), color: .black)
+    private lazy var title = Label(text: "내 게시글", font: .aritaSemiBoldFont(ofSize: 18), color: .white)
     
     lazy var finishBtn = UIButton().then {
         $0.setImage(.moreVertical, for: .normal)
+        $0.tintColor = .white
     }
     
     lazy var imageView = UIScrollView().then {
@@ -54,9 +56,16 @@ class PostDetailView: UIView {
         $0.isPagingEnabled = true
     }
     
-    lazy var imageViews = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.clipsToBounds = true
+    let pageControl = UIPageControl().then {
+        $0.currentPage = 0
+        $0.pageIndicatorTintColor = .lightGray
+        $0.currentPageIndicatorTintColor = .black
+        $0.hidesForSinglePage = true
+    }
+    
+    lazy var shadowView = UIView().then {
+        $0.isUserInteractionEnabled = false
+        $0.backgroundColor = .clear
     }
 
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
@@ -66,14 +75,9 @@ class PostDetailView: UIView {
     }
     
     private func setupView(){
-        [scrollView].forEach{addSubview($0)}
+        [scrollView, shadowView, topStack].forEach{addSubview($0)}
         [contentView].forEach{scrollView.addSubview($0)}
-        [imageView, postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
-        
-        addSubview(topStack)
-        
-        imageView.addSubview(imageViews)
-
+        [imageView, pageControl, postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
         
         imageView.snp.makeConstraints{
             imageViewTopConstraint = $0.top.equalTo(contentView.snp.top).constraint
@@ -83,10 +87,15 @@ class PostDetailView: UIView {
             $0.bottom.equalTo(postDetailTopView.snp.top)
         }
         
-        imageViews.snp.makeConstraints {
-            $0.edges.equalTo(imageView)
+        shadowView.snp.makeConstraints{
+            $0.top.equalTo(safeAreaInsets)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(40)
+        }
+        
+        pageControl.snp.makeConstraints{
             $0.centerX.equalToSuperview()
-            $0.height.equalTo(imageView)
+            $0.bottom.equalTo(imageView.snp.bottom).offset(-8)
         }
         
         topStack.snp.makeConstraints{
@@ -113,15 +122,13 @@ class PostDetailView: UIView {
         postDetailBottomView.snp.makeConstraints{
             $0.top.equalTo(postDetailTopView.profileInfo.snp.bottom).offset(16)
         }
+        
+        applyTopInnerShadow(to: shadowView)
     }
     
     // **UI 업데이트 함수**
     func updateUI(with data: MyPostDetailResponse) {
-        // 이미지 로드 (첫 번째 이미지)
-        if let firstImageUrlString = data.postImageUrl.first,
-           let imageUrl = URL(string: firstImageUrlString) {
-            updateImage(with: imageUrl) // ✅ 이미지 로드 후 그라데이션 추가
-        }
+        updateImages(with: data.postImageUrl)
         
         // 상단 프로필 정보 업데이트
         if let userImageUrl = URL(string: data.latestPublicMemberProfileImage ?? "") {
@@ -141,34 +148,69 @@ class PostDetailView: UIView {
         postDetailBottomView.tableView.reloadData()
     }
     
-    /// ✅ Kingfisher 이미지 로드 후 그라데이션 추가
-    func updateImage(with url: URL?) {
-        guard let url = url else { return }
-        imageViews.kf.setImage(with: url, placeholder: UIImage(), completionHandler: { _ in
-            DispatchQueue.main.async {
-                //self.addGradientLayer()
-                self.imageViews.contentMode = .scaleAspectFill
-                self.imageViews.clipsToBounds = true
+    func updateImages(with urls: [String]) {
+        // 기존 이미지뷰 제거
+        imageViews.forEach { $0.removeFromSuperview() }
+        imageViews.removeAll()
+
+        var previousImageView: UIImageView?
+
+        for (_, urlStr) in urls.enumerated() {
+            guard let url = URL(string: urlStr) else { continue }
+
+            let imageView = UIImageView().then {
+                $0.kf.setImage(with: url)
+                $0.contentMode = .scaleAspectFill
+                $0.clipsToBounds = true
             }
-        })
+
+            imageView.isUserInteractionEnabled = true
+
+            self.imageView.addSubview(imageView)
+            imageViews.append(imageView)
+
+            imageView.snp.makeConstraints {
+                $0.top.equalToSuperview()
+                $0.bottom.equalTo(postDetailTopView.snp.top)
+                $0.width.equalToSuperview() // 전체 화면 크기만큼
+                $0.height.equalTo(UIScreen.main.bounds.height * 0.45)
+
+                if let previous = previousImageView {
+                    $0.leading.equalTo(previous.snp.trailing)
+                } else {
+                    $0.leading.equalToSuperview()
+                }
+            }
+
+            previousImageView = imageView
+        }
+
+        // 마지막 이미지뷰가 있다면 trailing 설정
+        if let lastImageView = imageViews.last {
+            lastImageView.snp.makeConstraints {
+                $0.trailing.equalToSuperview()
+            }
+        }
+
+        // 페이지 인디케이터 업데이트
+        pageControl.numberOfPages = imageViews.count
+        pageControl.currentPage = 0
     }
     
-    func addGradientLayer() {
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.name = "postDetailGradient"
+    private func applyTopInnerShadow(to view: UIView) {
+        view.layer.sublayers?.removeAll(where: { $0.name == "TopInnerShadow" })
 
-        //그라데이션 색상 설정 (위는 투명, 아래는 검정)
-        gradientLayer.colors = [
-            UIColor.clear.cgColor,
-            UIColor.black!.withAlphaComponent(0.5).cgColor
+        let shadowLayer = CAGradientLayer()
+        shadowLayer.name = "TopInnerShadow"
+        shadowLayer.frame = CGRect(x: 0, y: 0, width: UIScreen.width, height: 120)
+        shadowLayer.colors = [
+            UIColor.black!.withAlphaComponent(0.6).cgColor,
+            UIColor.clear.cgColor
         ]
+        shadowLayer.startPoint = CGPoint(x: 0, y: 0)
+        shadowLayer.endPoint = CGPoint(x: 0, y: 1)
 
-        //그라데이션 방향 설정 (위 → 아래)
-        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
-        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
-        gradientLayer.frame = imageViews.bounds
-    
-        imageViews.layer.addSublayer(gradientLayer)
+        view.layer.addSublayer(shadowLayer)
     }
 }
 

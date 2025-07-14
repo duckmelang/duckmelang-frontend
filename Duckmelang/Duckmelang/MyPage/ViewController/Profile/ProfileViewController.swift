@@ -260,12 +260,6 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
             let post = posts[indexPath.row]
             cell.configure(model: post)
             
-            //디버깅용 데이터 출력
-            print("📌 [DEBUG] configure()에 전달되는 Post 데이터:")
-            print("📌 postId: \(post.postId), title: \(post.title), category: \(post.category)")
-            print("📌 date: \(post.date), nickname: \(post.nickname), createdAt: \(post.createdAt)")
-            print("📌 postImageUrl: \(post.postImageUrl), latestProfileImage: \(post.latestPublicMemberProfileImage)")
-            
             return cell
             
         } else if (tableView == profileView.profileBottomView.reviewTableView) {

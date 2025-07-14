@@ -35,6 +35,8 @@ class CompleteResetPasswordViewController: UIViewController {
     }
     
     @objc private func goBack() {
+        print(navigationController?.viewControllers ?? [])
+        print(navigationController == nil)
         self.navigationController?.popViewController(animated: true)
     }
     

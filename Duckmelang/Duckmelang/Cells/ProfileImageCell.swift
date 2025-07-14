@@ -9,6 +9,25 @@ import UIKit
 
 class ProfileImageCell: UITableViewCell {
     static let identifier = "ProfileImageCell"
+    
+    private var isLocked: Bool = true
+    private var imageId: Int? // 서버에 보낼 image 아이디
+    
+    var lockToggleHandler: ((Bool, Int) -> Void)? // 상태 전달 클로저
+    
+    @objc
+    private func lockBtnTapped() {
+        guard let imageId = self.imageId else { return }
+        isLocked.toggle()
+        updateLockButton()
+        
+        lockToggleHandler?(isLocked, imageId)
+    }
+    
+    private func updateLockButton() {
+        let imageName = isLocked ? "lock" : "unLock"
+        lockBtn.setImage(UIImage(named: imageName), for: .normal)
+    }
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -22,6 +41,7 @@ class ProfileImageCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        lockBtn.addTarget(self, action: #selector(lockBtnTapped), for: .touchUpInside)
         self.selectionStyle = .none
         self.setView()
     }
@@ -70,6 +90,10 @@ class ProfileImageCell: UITableViewCell {
         $0.backgroundColor = .white
     }
     
+    let lockBtn = UIButton().then {
+        $0.setImage(UIImage(named: "lock"), for: .normal)
+    }
+    
     private func setView() {
         addSubview(headerView)
         addSubview(largeUserImage)
@@ -79,6 +103,7 @@ class ProfileImageCell: UITableViewCell {
             userImage,
             userName,
             uploadDate,
+            lockBtn
         ].forEach {
             headerView.addSubview($0)
         }
@@ -117,6 +142,13 @@ class ProfileImageCell: UITableViewCell {
             $0.bottom.equalTo(userImage.snp.bottom).offset(-1)
             $0.leading.equalTo(userName.snp.leading)
         }
+        
+        
+        lockBtn.snp.makeConstraints{
+            $0.centerY.equalToSuperview()
+            $0.trailing.equalToSuperview().inset(16)
+            $0.height.width.equalTo(24)
+        }
     }
     
     public func configure(profileData: OtherProfileData, model: OtherImageData) {
@@ -139,6 +171,10 @@ class ProfileImageCell: UITableViewCell {
     }
     
     public func configure(profileData: ProfileData, model: ProfileImageData) {
+        self.imageId = model.imageId
+        self.isLocked = model.publicStatus
+        updateLockButton()
+        
         if let lastestUserImageUrl = URL(string: profileData.latestPublicMemberProfileImage) {
             self.userImage.kf.setImage(
                 with: lastestUserImageUrl,

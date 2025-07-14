@@ -7,6 +7,7 @@
 
 import UIKit
 import Moya
+import SwiftyToaster
 
 class FeedManagementViewController: UIViewController {
     
@@ -89,6 +90,8 @@ class FeedManagementViewController: UIViewController {
                     NotificationCenter.default.post(name: NSNotification.Name("PostDeleted"), object: nil)
                 }
             }
+            
+            self.navigationController?.popViewController(animated: true)
         }
 
         /// ✅ 서버에서 게시물 삭제 요청
@@ -97,7 +100,9 @@ class FeedManagementViewController: UIViewController {
                 do {
                     let response: () = try await networkService.deletePost(postId: postId)
                     print("게시글 삭제 성공: \(response)")
+                    Toaster.shared.makeToast("게시글이 삭제되었습니다.")
                 } catch {
+                    Toaster.shared.makeToast("게시글 삭제에 실패했습니다. \n 잠시 후 다시 시도해주세요")
                     print(error.localizedDescription)
                 }
                 completion?()
@@ -123,6 +128,7 @@ class FeedManagementViewController: UIViewController {
                 } catch {
                     stopLoading()
                     print(error.localizedDescription)
+                    Toaster.shared.makeToast("게시글을 불러오지 못했습니다. \n 잠시 후 다시 시도해주세요")
                 }
             }
         }

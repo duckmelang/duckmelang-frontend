@@ -9,6 +9,10 @@ import UIKit
 import Moya
 import SwiftyToaster
 
+extension Notification.Name {
+    static let bookmarkDidChange = Notification.Name("bookmarkDidChange")
+}
+
 class OtherPostDetailViewController: UIViewController {
     var postId: Int?  // 전달받을 게시물 ID
     var postDetail: MyPostDetailResponse?
@@ -19,14 +23,17 @@ class OtherPostDetailViewController: UIViewController {
 
     let networkServiceMyPage = MyPageService()
     let networkServiceHome = HomeService()
+    let networkServiceMyAccompany = MyAccompanyService()
     
+    private var bookmarkedPostId: Set<Int> = []
     private lazy var isBookmarked: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.view = otherPostDetailView
-        otherPostDetailView.isHidden = true
+        otherPostDetailView.scrollView.isHidden = true
+        otherPostDetailView.shadowView.isHidden = true
         
         startLoading()
         
@@ -34,16 +41,10 @@ class OtherPostDetailViewController: UIViewController {
         
         setupDelegate()
         
-        otherPostDetailView.scrollView.delegate = self
         otherPostDetailView.translatesAutoresizingMaskIntoConstraints = true
         scrollViewDidScroll(otherPostDetailView.scrollView)
       
-        // ✅ postId가 nil이 아니면 API 요청
-        if let postId = postId {
-            fetchPostDetail(postId: postId)
-        } else {
-            print("❌ postId가 nil입니다. API 호출을 하지 않습니다.")
-        }
+        getInitialData()
     }
     
     
@@ -63,20 +64,38 @@ class OtherPostDetailViewController: UIViewController {
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let yOffset = scrollView.contentOffset.y
+        if scrollView == otherPostDetailView.imageView {
+            let pageWidth = UIScreen.width
+            let currentPage = Int((scrollView.contentOffset.x + (0.5 * pageWidth)) / pageWidth)
+            otherPostDetailView.pageControl.currentPage = currentPage
+            return
+        }
         
+        let yOffset = scrollView.contentOffset.y
         if yOffset < 0 {
             let scale = min(1 + abs(yOffset) / 300, 1.1)
             
             otherPostDetailView.imageViewTopConstraint.update(offset: yOffset)
             
+            for imageView in otherPostDetailView.imageViews {
+                imageView.transform = CGAffineTransform(scaleX: scale, y: scale)
+            }
+
             otherPostDetailView.imageView.transform = CGAffineTransform(scaleX: scale, y: scale)
-    
         } else {
             otherPostDetailView.imageView.transform = .identity
     
+            for imageView in otherPostDetailView.imageViews {
+                imageView.transform = .identity
+            }
+            
             otherPostDetailView.imageViewTopConstraint.update(offset: 0)
         }
+        
+        // 페이지 인디케이터 업데이트
+          let pageWidth = UIScreen.main.bounds.width
+          let currentPage = Int((otherPostDetailView.imageView.contentOffset.x + (0.5 * pageWidth)) / pageWidth)
+          otherPostDetailView.pageControl.currentPage = currentPage
     }
     
     @objc private func backBtnDidTap() {
@@ -93,8 +112,10 @@ class OtherPostDetailViewController: UIViewController {
     }
  
     private func setupDelegate() {
+        otherPostDetailView.scrollView.delegate = self
         otherPostDetailView.postDetailBottomView.tableView.delegate = self
         otherPostDetailView.postDetailBottomView.tableView.dataSource = self
+        otherPostDetailView.imageView.delegate = self
     }
     
     private func fetchPostDetail(postId: Int) {
@@ -107,13 +128,14 @@ class OtherPostDetailViewController: UIViewController {
                 DispatchQueue.main.async {
                     self.otherPostDetailView.updateUI(with: self.postDetail!)
                     self.updateAccompanyData(with: self.postDetail!)
-                    self.updateBookmarkState(isBookmarked: self.postDetail!.bookmarkCount > 0) //북마크 상태 업데이트
+                    self.updateBookmarkStateIfNeeded(postId: postId)
                     self.updateScore(averageScore: self.postDetail!.averageScore) //점수 업데이트
                 }
                 //성공 시 데이터 출력
                 print("Post Detail: \(response)")
                 
-                otherPostDetailView.isHidden = false
+                otherPostDetailView.scrollView.isHidden = false
+                otherPostDetailView.shadowView.isHidden = false
                 stopLoading()
             } catch {
                 stopLoading()
@@ -123,14 +145,34 @@ class OtherPostDetailViewController: UIViewController {
         }
     }
     
-    // ✅ 북마크 상태 업데이트 함수
+    private func getInitialData() {
+        _Concurrency.Task {
+            do {
+                let bookmarks = try await networkServiceMyAccompany.getBookmarks(page: 0)
+                self.bookmarkedPostId = Set(bookmarks.bookmarkList.map { $0.post.postId })
+                
+                if let postId = postId {
+                    fetchPostDetail(postId: postId)
+                }
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    // 북마크 상태 업데이트 함수
     private func updateBookmarkState(isBookmarked: Bool) {
         self.isBookmarked = isBookmarked
         let imageName = isBookmarked ? "bookmark.fill" : "bookmark"
         otherPostDetailView.tabBar.scrapBtn.setImage(UIImage(systemName: imageName), for: .normal)
     }
     
-    // ✅ 평균 점수 업데이트 함수
+    private func updateBookmarkStateIfNeeded(postId: Int) {
+        let isBookmarked = bookmarkedPostId.contains(postId)
+        updateBookmarkState(isBookmarked: isBookmarked)
+    }
+    
+    // 평균 점수 업데이트 함수
     private func updateScore(averageScore: Double) {
         otherPostDetailView.tabBar.score1.text = String(format: "%.1f", averageScore)
     }
@@ -138,7 +180,12 @@ class OtherPostDetailViewController: UIViewController {
     // ✅ 북마크 버튼 클릭 시 API 요청
     @objc private func scrapBtnDidTap() {
         guard let postId = postId else { return }
-        addBookmark(postId: postId)
+        
+        if isBookmarked {
+            deleteBookmark(postId: postId)
+        } else {
+            addBookmark(postId: postId)
+        }
     }
     
     // ✅ 채팅 버튼 클릭 시 화면전환
@@ -167,7 +214,9 @@ class OtherPostDetailViewController: UIViewController {
                 let _ = try await networkServiceHome.postBookmark(postId: postId)
                 
                 DispatchQueue.main.async {
-                    self.otherPostDetailView.tabBar.scrapBtn.setImage(UIImage(systemName: "bookmark.fill"), for: .normal)
+                    self.bookmarkedPostId.insert(postId)
+                    self.updateBookmarkState(isBookmarked: true)
+                    NotificationCenter.default.post(name: .bookmarkDidChange, object: nil)
                 }
                 
                 stopLoading()
@@ -176,6 +225,29 @@ class OtherPostDetailViewController: UIViewController {
                 stopLoading()
                 print(error.localizedDescription)
                 Toaster.shared.makeToast("북마크를 추가하는 데 실패했습니다. \n 잠시 후 다시 시도해주세요.")
+            }
+        }
+    }
+    
+    private func deleteBookmark(postId: Int) {
+        _Concurrency.Task {
+            do {
+                startLoading()
+                
+                let _ = try await networkServiceHome.deleteBookmark(postId: postId)
+                
+                DispatchQueue.main.async {
+                    self.bookmarkedPostId.remove(postId)
+                    self.updateBookmarkState(isBookmarked: false)
+                    NotificationCenter.default.post(name: .bookmarkDidChange, object: nil)
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+                Toaster.shared.makeToast("북마크를 삭제하는 데 실패했습니다. \n 잠시 후 다시 시도해주세요.")
             }
         }
     }

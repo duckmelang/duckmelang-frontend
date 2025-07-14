@@ -38,6 +38,7 @@ public enum MyPageEndpoint {
     case getMyProfileImage(page: Int)
     case deleteAccount
     case getLatestProfile
+    case patchProfileImageStatus(imageId: Int, publicStatus: Bool)
 }
 
 extension MyPageEndpoint: TargetType {
@@ -81,8 +82,10 @@ extension MyPageEndpoint: TargetType {
             return "/posts"
         case .getReviews:
             return "/reviews"
-        case .getMyPostDetail(postId: let postId), .deletePost(postId: let postId):
+        case .getMyPostDetail(postId: let postId):
             return "/\(postId)"
+        case .deletePost(postId: let postId):
+            return "/posts/\(postId)"
         case .postProfileImage:
             return "/profile/image/edit"
         case .getIdolList:
@@ -105,6 +108,8 @@ extension MyPageEndpoint: TargetType {
             return "/info"
         case .deleteAccount:
             return "/account/delete"
+        case .patchProfileImageStatus(let imageId, _):
+            return "/profile/image/\(imageId)/status"
         }
     }
     
@@ -112,7 +117,7 @@ extension MyPageEndpoint: TargetType {
         // 가장 많이 호출되는 get을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .patchProfile, .patchPostStatus, .patchNotificationsSetting:
+        case .patchProfile, .patchPostStatus, .patchNotificationsSetting, .patchProfileImageStatus:
             return .patch
         case .postProfileImage, .postIdol, .postLandmines, .postFilters:
             return .post
@@ -144,6 +149,8 @@ extension MyPageEndpoint: TargetType {
             return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
         case .patchPostStatus(let postId, let wanted):
             return .requestParameters(parameters: ["wanted": wanted], encoding: URLEncoding.queryString)
+        case .patchProfileImageStatus(_, let publicStatus):
+            return .requestJSONEncodable(["publicStatus": publicStatus])
         }
     }
     

@@ -78,6 +78,7 @@ class ProfileTopView: UIView {
     
     lazy var setBtn = UIButton().then {
         $0.setImage(.moreVertical, for: .normal)
+        $0.tintColor = .grey600
     }
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)

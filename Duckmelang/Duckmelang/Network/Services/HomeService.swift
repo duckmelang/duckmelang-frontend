@@ -56,6 +56,10 @@ public final class HomeService : NetworkManager {
         return try await requestAsync(target: .postBookmark(postId: postId), decodingType: BookmarkResult.self)
     }
     
+    public func deleteBookmark(postId: Int) async throws {
+        try await requestAsync(target: .deleteBookmark(postId: postId))
+    }
+    
     /// 알림 목록 API
     public func getNotifications() async throws -> NotificationResponse {
         return try await requestAsync(target: .getNotifications, decodingType: NotificationResponse.self)

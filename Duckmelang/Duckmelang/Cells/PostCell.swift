@@ -46,9 +46,9 @@ class PostCell: UITableViewCell {
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.grey300?.cgColor
         $0.layer.cornerRadius = 5
-        $0.clipsToBounds = true
         $0.backgroundColor = .grey200
         $0.contentMode = .scaleAspectFill
+        $0.clipsToBounds = true
     }
     
     let postTitle = UILabel().then {
@@ -147,6 +147,7 @@ class PostCell: UITableViewCell {
         
         if let userImageUrl = URL(string: model.latestPublicMemberProfileImage ?? "") {
             self.userImage.kf.setImage(with: userImageUrl, placeholder: UIImage(named: "defaultUserImage"))
+            self.userImage.clipsToBounds = true
         }
         
         self.userName.text = model.nickname
