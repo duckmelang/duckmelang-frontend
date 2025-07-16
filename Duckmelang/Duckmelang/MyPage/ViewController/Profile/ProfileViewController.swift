@@ -46,6 +46,8 @@ class ProfileViewController: UIViewController{
         NotificationCenter.default.addObserver(self, selector: #selector(updateProfile(_:)), name: NSNotification.Name("ProfileUpdated"), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(PostDeleted(_:)), name: NSNotification.Name("PostDeleted"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(PostDeletedOne), name: NSNotification.Name("postDeleted"), object: nil)
     }
     
     deinit {
@@ -60,6 +62,10 @@ class ProfileViewController: UIViewController{
     @objc private func PostDeleted(_ notification: Notification) {
         fetchMyPosts()
         fetchProfileData()
+    }
+    
+    @objc private func PostDeletedOne(_ notification: Notification) {
+        fetchMyPosts()
     }
     
     private func fetchProfileData() {

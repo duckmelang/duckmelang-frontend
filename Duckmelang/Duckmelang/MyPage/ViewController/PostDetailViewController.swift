@@ -56,6 +56,12 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
         } else {
             print("❌ postId가 nil입니다. API 호출을 하지 않습니다.")
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(backBtnDidTap), name: .postDeleted, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -109,8 +115,8 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
         setBtnDidTap.cancelsTouchesInView = false  // 터치 이벤트가 다른 뷰로 전달되도록 설정
         $0.addGestureRecognizer(setBtnDidTap)
         
-        let feedManagementDidTap = UITapGestureRecognizer(target: self, action: #selector(handleImageTap(_:)))
-        $0.setBtnImage.addGestureRecognizer(feedManagementDidTap)
+        let sectionDidTap = UITapGestureRecognizer(target: self, action: #selector(handleImageTap(_:)))
+        $0.setBtnImage.addGestureRecognizer(sectionDidTap)
     }
 
     private var buttons: [UIButton] {
@@ -120,11 +126,7 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     }
     
     @objc private func backBtnDidTap() {
-        if let navigationController = self.navigationController {
-            navigationController.popViewController(animated: true) // ✅ 네비게이션이 있을 경우 pop 사용
-        } else {
-            dismiss(animated: true) // ✅ 네비게이션이 없으면 dismiss
-        }
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc
@@ -157,9 +159,15 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
             postDetailView.setBtnImage.isHidden = true
         } else {
             // 아랫부분 터치
-            //let feedVC = FeedManagementViewController()
-            //navigationController?.pushViewController(feedVC, animated: true)
-            //postDetailView.profileTopView.setBtnImage.isHidden = true
+            let popupVC = DeletePostPopupViewController()
+            popupVC.postId = self.postId
+            popupVC.modalPresentationStyle = .overFullScreen
+            
+            if postDetailView.setBtnImage.isHidden == false {
+                postDetailView.setBtnImage.isHidden = true
+            }
+            
+            present(popupVC, animated: false)
         }
     }
     
