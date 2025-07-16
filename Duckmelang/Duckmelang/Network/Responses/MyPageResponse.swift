@@ -92,6 +92,7 @@ public struct MyPostDetailResponse: Codable {
 
 public struct ProfileEditInfoResponse: Codable {
     let nickname: String
+    let introduction: String
     let latestPublicMemberProfileImage: String?
 }
 
@@ -151,8 +152,7 @@ public struct myProfileImageResponse: Codable {
 public struct ProfileImageData: Codable {
     let memberProfileImageUrl: String
     let createdAt: String
-    let imageId: Int
-    var publicStatus: Bool
+    let memberProfileImageId: Int
 }
 
 public struct PatchProfileResponse: Codable {

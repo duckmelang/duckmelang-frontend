@@ -171,8 +171,8 @@ class ProfileImageCell: UITableViewCell {
     }
     
     public func configure(profileData: ProfileData, model: ProfileImageData) {
-        self.imageId = model.imageId
-        self.isLocked = model.publicStatus
+        self.imageId = model.memberProfileImageId
+        //self.isLocked = model.publicStatus
         updateLockButton()
         
         if let lastestUserImageUrl = URL(string: profileData.latestPublicMemberProfileImage) {

@@ -14,6 +14,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
     let networkService = MyPageService()
     private lazy var profileModifyView = ProfileModifyView()
     private var uploadedImageURL: String? = nil
+    private var isImageUpdated = false
  
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -51,7 +52,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
 
         resetErrorState()
 
-        if let imageData = profileModifyView.profileImage.image?.jpegData(compressionQuality: 0.8) {
+        if isImageUpdated, let imageData = profileModifyView.profileImage.image?.jpegData(compressionQuality: 0.8) {
             postProfileImage(imageData) // 이미지 업로드
         } else {
             patchProfileInfo() // 이미지 없이 닉네임과 자기소개만 수정
@@ -66,8 +67,8 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
         
         _Concurrency.Task {
             do {
-                try await networkService.patchProfile(profileData: profileData)
-                
+                let response = try await networkService.patchProfile(profileData: profileData)
+                print(response)
                 NotificationCenter.default.post(
                     name: NSNotification.Name("ProfileUpdated"),
                     object: nil,
@@ -117,6 +118,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
             profileModifyView.profileImage.image = editedImage
             profileModifyView.profileImage.layer.cornerRadius = profileModifyView.profileImage.frame.height / 2
             profileModifyView.profileImage.clipsToBounds = true
+            isImageUpdated = true
         }
         picker.dismiss(animated: true)
     }
@@ -157,7 +159,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
 
     private func updateProfileView(with profile: ProfileEditInfoResponse) {
         profileModifyView.nicknameTextField.text = profile.nickname
-        //profileModifyView.selfPRTextField.text = profile.introduction
+        profileModifyView.selfPRTextField.text = profile.introduction
         if let imageUrlString = profile.latestPublicMemberProfileImage, let imageUrl = URL(string: imageUrlString) {
             profileModifyView.profileImage.kf.setImage(with: imageUrl) { result in
                 switch result {
