@@ -51,6 +51,12 @@ class PostDetailView: UIView {
         $0.tintColor = .white
     }
     
+    lazy var setBtnImage = UIImageView().then {
+        $0.image = UIImage(resource: .menu1)
+        $0.isHidden = true
+        $0.isUserInteractionEnabled = true
+    }
+    
     lazy var imageView = UIScrollView().then {
         $0.backgroundColor = .grey200
         $0.isPagingEnabled = true
@@ -75,7 +81,7 @@ class PostDetailView: UIView {
     }
     
     private func setupView(){
-        [scrollView, shadowView, topStack].forEach{addSubview($0)}
+        [scrollView, shadowView, topStack, setBtnImage].forEach{addSubview($0)}
         [contentView].forEach{scrollView.addSubview($0)}
         [imageView, pageControl, postDetailTopView, postDetailBottomView].forEach{contentView.addSubview($0)}
         
@@ -121,6 +127,13 @@ class PostDetailView: UIView {
         
         postDetailBottomView.snp.makeConstraints{
             $0.top.equalTo(postDetailTopView.profileInfo.snp.bottom).offset(16)
+        }
+        
+        setBtnImage.snp.makeConstraints{
+            $0.top.equalTo(safeAreaLayoutGuide).inset(26)
+            $0.right.equalTo(finishBtn.snp.left).offset(-2.25)
+            $0.height.equalTo(80)
+            $0.width.equalTo(96)
         }
         
         applyTopInnerShadow(to: shadowView)

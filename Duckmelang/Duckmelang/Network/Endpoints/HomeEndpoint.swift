@@ -21,6 +21,7 @@ public enum HomeEndpoint {
     case getIdols
     case getEvents
     case postPosts(formData: [MultipartFormData])
+    case patchPosts(postId: Int, formData: [MultipartFormData])
     case postBookmark(postId: Int)
     case deleteBookmark(postId: Int)
     
@@ -79,6 +80,8 @@ extension HomeEndpoint: TargetType {
             return "/\(notificationId)/read"
         case .getSearch, .getFilters, .searchPosts:
             return "/search"
+        case .patchPosts(let postId, _):
+            return "/\(postId)"
         }
     }
     
@@ -88,7 +91,7 @@ extension HomeEndpoint: TargetType {
         switch self {
         case .postPosts, .postBookmark:
             return .post
-        case .patchNotifications:
+        case .patchNotifications, .patchPosts:
             return .patch
         case .deleteBookmark:
             return .delete
@@ -114,6 +117,8 @@ extension HomeEndpoint: TargetType {
             return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
         case .getIdols, .getEvents, .postBookmark, .deleteBookmark, .getNotifications, .patchNotifications, .getFilters:
             return .requestPlain
+        case .patchPosts(_, let formData):
+            return .uploadMultipart(formData)
         }
     }
     

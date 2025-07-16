@@ -18,3 +18,4 @@ public struct PostRequest: Codable {
     let date: String
     let imageInfos: [ImageInfo]
 }
+

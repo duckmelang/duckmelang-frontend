@@ -51,6 +51,11 @@ public final class HomeService : NetworkManager {
         return try await requestAsync(target: .postPosts(formData: formData), decodingType: WrtieResponse.self)
     }
     
+    /// 게시글 수정
+    public func patchPosts(postId: Int, formData: [MultipartFormData]) async throws -> WrtieResponse {
+        return try await requestAsync(target: .patchPosts(postId: postId, formData: formData), decodingType: WrtieResponse.self)
+    }
+    
     /// 스크랩 API
     public func postBookmark(postId: Int) async throws -> BookmarkResult {
         return try await requestAsync(target: .postBookmark(postId: postId), decodingType: BookmarkResult.self)

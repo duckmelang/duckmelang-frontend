@@ -26,6 +26,7 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
     private var currentState: PostProgressState = .inProgress
     
     let networkService = MyPageService()
+    let homeNetworkService = HomeService()
 
     override func loadView() {
         self.view = postDetailView
@@ -97,10 +98,19 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
         $0.postDetailTopView.progressBtn.addTarget(self, action: #selector(progressBtnDidTap), for: .touchUpInside)
         $0.postDetailTopView.progressTapBtn.addTarget(self, action: #selector(topTitleDidTap), for: .touchUpInside)//버튼의 title 클릭시 topTitleDidTap()작동, subtitle 클릭시 bottomTitleDidTap()작동
         $0.postDetailTopView.endBtn.addTarget(self, action: #selector(endBtnDidTap), for: .touchUpInside)
+        $0.finishBtn.addTarget(self, action: #selector(setBtnDidTap), for: .touchUpInside)
         
         // 진행 Tap 버튼에 터치 제스처 추가
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapOnProgressTapBtn(_:)))
         $0.postDetailTopView.progressTapBtn.addGestureRecognizer(tapGesture)
+        
+        let setBtnDidTap = UITapGestureRecognizer(target: self, action: #selector(viewDidTap))
+        setBtnDidTap.numberOfTapsRequired = 1 // 단일 탭, 횟수 설정
+        setBtnDidTap.cancelsTouchesInView = false  // 터치 이벤트가 다른 뷰로 전달되도록 설정
+        $0.addGestureRecognizer(setBtnDidTap)
+        
+        let feedManagementDidTap = UITapGestureRecognizer(target: self, action: #selector(handleImageTap(_:)))
+        $0.setBtnImage.addGestureRecognizer(feedManagementDidTap)
     }
 
     private var buttons: [UIButton] {
@@ -116,7 +126,42 @@ class PostDetailViewController: UIViewController, UIScrollViewDelegate {
             dismiss(animated: true) // ✅ 네비게이션이 없으면 dismiss
         }
     }
-
+    
+    @objc
+    private func setBtnDidTap() {
+        postDetailView.setBtnImage.isHidden = false
+    }
+    
+    // setBtn 창 떠 있는 상태에서 다른 뷰를 누를때
+    @objc
+    private func viewDidTap() {
+        if postDetailView.setBtnImage.isHidden == false {
+            postDetailView.setBtnImage.isHidden = true
+        }
+    }
+    
+    @objc private func handleImageTap(_ sender: UITapGestureRecognizer) {
+        guard let tappedView = sender.view else { return }
+        
+        // 터치한 위치 가져오기
+        let touchPoint = sender.location(in: tappedView)
+        
+        // 이미지를 절반으로 나누기
+        let halfHeight = tappedView.bounds.height / 2
+        
+        if touchPoint.y <= halfHeight {
+            // 윗부분 터치
+            let editPostVC = EditPostViewController()
+            editPostVC.postId = self.postId
+            navigationController?.pushViewController(editPostVC , animated: true)
+            postDetailView.setBtnImage.isHidden = true
+        } else {
+            // 아랫부분 터치
+            //let feedVC = FeedManagementViewController()
+            //navigationController?.pushViewController(feedVC, animated: true)
+            //postDetailView.profileTopView.setBtnImage.isHidden = true
+        }
+    }
     
     // 버튼 상태 업데이트 함수
     private func updateButtonVisibility(state: PostProgressState) {
