@@ -36,11 +36,7 @@ class MyPageTopView: UIView {
     
     lazy var nickname = Label(text: "", font: .ptdMediumFont(ofSize: 16), color: .black)
     
-    lazy var gender = Label(text: "", font: .ptdRegularFont(ofSize: 13), color: .grey600)
-
-    lazy var line = Label(text: "|", font: .ptdMediumFont(ofSize: 13), color: .grey400)
-    
-    lazy var age = Label(text: "", font: .ptdRegularFont(ofSize: 13), color: .grey600)
+    lazy var genderAndAge = Label(text: "|", font: .ptdRegularFont(ofSize: 13), color: .grey600)
     
     lazy var profileSeeBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
@@ -51,13 +47,11 @@ class MyPageTopView: UIView {
         $0.configuration = config
     }
 
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -19, distribution: .equalSpacing)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6)
     private lazy var profileInfo = Stack(axis: .horizontal, spacing: 12, alignment: .center)
     
     private func addStack() {
-        [gender, line, age].forEach{genderAndAgeStack.addArrangedSubview($0)}
-        [nickname, genderAndAgeStack].forEach{nicknameAndInfo.addArrangedSubview($0)}
+        [nickname, genderAndAge].forEach{nicknameAndInfo.addArrangedSubview($0)}
         [profileImage,nicknameAndInfo].forEach{profileInfo.addArrangedSubview($0)}
     }
     

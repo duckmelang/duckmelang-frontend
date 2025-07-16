@@ -12,9 +12,9 @@ public struct ProfileData: Codable {
     let gender: String
     let age: Int
     let latestPublicMemberProfileImage: String
-    let introduction: String
-    let postCount: Int
-    let succeedApplicationCount: Int
+    var introduction: String? = ""
+    var postCount: Int? = 0
+    var matchCount: Int? = 0
     
     var localizedGender: String {
         return gender.lowercased() == "male" ? "남성" : "여성"
@@ -23,16 +23,21 @@ public struct ProfileData: Codable {
     var localizedAge: String {
         return "만 \(age)세"
     }
+}
+
+public struct myPageResponse: Codable {
+    let memberId: Int
+    let nickname: String
+    let gender: String
+    let age: Int
+    let latestPublicMemberProfileImage: String
     
-    enum CodingKeys: String, CodingKey {
-        case memberId
-        case nickname
-        case gender
-        case age
-        case latestPublicMemberProfileImage
-        case introduction
-        case postCount
-        case succeedApplicationCount = "matchCount"  // `matchCount` 키와 매핑
+    var localizedGender: String {
+        return gender.lowercased() == "male" ? "남성" : "여성"
+    }
+    
+    var localizedAge: String {
+        return "만 \(age)세"
     }
 }
 
@@ -79,6 +84,10 @@ public struct MyPostDetailResponse: Codable {
     let postImageUrl: [String]
     let latestPublicMemberProfileImage: String?
     
+    var localizedGender: String {
+        return gender.lowercased() == "male" ? "남성" : "여성"
+    }
+    
     var localizedAge: String {
         return "만 \(age)세"
     }
@@ -92,7 +101,7 @@ public struct MyPostDetailResponse: Codable {
 
 public struct ProfileEditInfoResponse: Codable {
     let nickname: String
-    let introduction: String
+    let introduction: String?
     let latestPublicMemberProfileImage: String?
 }
 

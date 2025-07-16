@@ -161,8 +161,7 @@ class OtherPostDetailView: UIView, UIScrollViewDelegate {
             self.postDetailTopView.profileImage.kf.setImage(with: userImageUrl, placeholder: UIImage())
         }
         postDetailTopView.nickname.text = data.nickname
-        postDetailTopView.gender.text = (data.gender == "MALE") ? "남성" : "여성"
-        postDetailTopView.age.text = "만 \(data.age)세"
+        postDetailTopView.genderAndAge.text = "\(data.localizedGender)  |  \(data.localizedAge)"
         
         // 하단 게시글 정보 업데이트
         postDetailBottomView.title1.text = data.title
@@ -264,44 +263,15 @@ class OtherPostDetailTopView: UIView {
     
     lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 14), color: .black)
     
-    lazy var gender = Label(text: "여성", font: .ptdRegularFont(ofSize: 13), color: .grey600).then {
-        $0.textAlignment = .left
-    }
-    
-    private lazy var line = Label(text: "ㅣ", font: .ptdRegularFont(ofSize: 13), color: .grey400).then {
-        $0.textAlignment = .left
-    }
-    
-    lazy var age = Label(text: "나이", font: .ptdRegularFont(ofSize: 13), color: .grey600).then {
+    lazy var genderAndAge = Label(text: "", font: .ptdRegularFont(ofSize: 13), color: .grey600).then {
         $0.textAlignment = .left
     }
 
-    lazy var genderAndAgeStack = Stack(axis: .horizontal, spacing: -16, distribution: .equalCentering)
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6, alignment: .leading)
     lazy var profileInfo = Stack(axis: .horizontal, spacing: 16, alignment: .center)
-    
-    /*
-    func addGradientLayer() {
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.frame = imageViews.bounds
 
-        //그라데이션 색상 설정 (위는 투명, 아래는 검정)
-        gradientLayer.colors = [
-            UIColor.clear.cgColor,
-            UIColor.black!.withAlphaComponent(0.5).cgColor
-        ]
-
-        //그라데이션 방향 설정 (위 → 아래)
-        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
-        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
-
-        //`imageView`의 `layer`에 추가
-        imageViews.layer.addSublayer(gradientLayer)
-    }*/
-    
     private func addStack(){
-        [gender, line, age].forEach{genderAndAgeStack.addArrangedSubview($0)}
-        [nickname, genderAndAgeStack].forEach{nicknameAndInfo.addArrangedSubview($0)}
+        [nickname, genderAndAge].forEach{nicknameAndInfo.addArrangedSubview($0)}
         [profileImage,nicknameAndInfo].forEach{profileInfo.addArrangedSubview($0)}
     }
     

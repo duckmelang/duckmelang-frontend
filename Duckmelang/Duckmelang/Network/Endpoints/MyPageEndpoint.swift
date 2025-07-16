@@ -15,6 +15,7 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum MyPageEndpoint {
+    case getMyPage
     case getProfile
     case patchProfile(profileData: EditProfileRequest)
     case getMyPosts(page: Int)
@@ -72,6 +73,8 @@ extension MyPageEndpoint: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
+        case .getMyPage:
+            return ""
         case .getMyProfileImage:
             return "/profile/image"
         case .getProfile, .getLatestProfile:
@@ -133,7 +136,7 @@ extension MyPageEndpoint: TargetType {
         switch self {
         case .getMyPosts(let page), .getMyProfileImage(let page):
             return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
-        case .getProfile, .getReviews, .getMyPostDetail, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting, .deleteAccount, .getLatestProfile:
+        case .getProfile, .getReviews, .getMyPostDetail, .deletePost, .getIdolList, .deleteIdol, .postIdol, .getLandmines, .deleteLandmines, .getFilters, .getMyPageLogin, .getNotificationsSetting, .deleteAccount, .getLatestProfile, .getMyPage:
             return .requestPlain
         case .patchProfile(let profileData):
             return .requestJSONEncodable(profileData)

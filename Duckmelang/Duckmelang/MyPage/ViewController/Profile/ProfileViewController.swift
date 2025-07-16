@@ -10,7 +10,7 @@ import Moya
 
 class ProfileViewController: UIViewController{
     var selectedTag: Int = 0
-    var profileData: ProfileData? //MyPage에서 전달받을 변수
+    var profileData: ProfileData?
     
     let networkService = MyPageService()
 
@@ -34,11 +34,11 @@ class ProfileViewController: UIViewController{
         
         setupAction()
         setupDelegate()
-        fetchProfileData()
         
         profileView.profileTopView.isHidden = true
         profileView.profileBottomView.isHidden = true
         
+        fetchProfileData()
         fetchMyPosts()
         fetchReviews()
         
@@ -78,8 +78,10 @@ class ProfileViewController: UIViewController{
                 DispatchQueue.main.async {
                     self.profileData = profile
                     self.updateUI()
+                    self.profileView.profileTopView.isHidden = false
                 }
                 
+    
                 stopLoading()
             } catch {
                 stopLoading()
@@ -99,8 +101,6 @@ class ProfileViewController: UIViewController{
                 profileView.profileTopView.profileImage.kf.setImage(with: imageUrl, options: [.cacheMemoryOnly])
             }
         }
-        
-        profileView.profileTopView.isHidden = false
     }
     
     // 내 게시글 가져오기
@@ -160,7 +160,6 @@ class ProfileViewController: UIViewController{
     @objc
     private func profileDidTap() {
         let VC = MyProfileImageViewController()
-        VC.profileData = self.profileData
         self.navigationController?.pushViewController(VC, animated: true)
     }
     

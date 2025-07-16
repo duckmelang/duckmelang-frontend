@@ -93,11 +93,7 @@ class ProfileTopView: UIView {
     
     private lazy var nickname = Label(text: "닉네임", font: .ptdSemiBoldFont(ofSize: 16), color: .grey800)
     
-    private lazy var gender = Label(text: "여성", font: .ptdMediumFont(ofSize: 13), color: .grey600)
-    
-    private lazy var line = Label(text: "|", font: .ptdMediumFont(ofSize: 13), color: .grey400)
-    
-    private lazy var age = Label(text: "나이", font: .ptdMediumFont(ofSize: 13), color: .grey600)
+    private lazy var genderAndAge = Label(text: "", font: .ptdMediumFont(ofSize: 13), color: .grey600)
     
     private lazy var post = Label(text: "게시글", font: .ptdRegularFont(ofSize: 12), color: .grey700)
     
@@ -134,8 +130,7 @@ class ProfileTopView: UIView {
     
     private func addStack(){
         [backBtn, myProfileTitle, setBtn].forEach{topStack.addArrangedSubview($0)}
-        [gender, line, age].forEach{genderAndAgeStack.addArrangedSubview($0)}
-        [nickname, genderAndAgeStack].forEach{nicknameAndInfo.addArrangedSubview($0)}
+        [nickname, genderAndAge].forEach{nicknameAndInfo.addArrangedSubview($0)}
         [post, postCount].forEach{postStack.addArrangedSubview($0)}
         [matching, matchingCount].forEach{matchingStack.addArrangedSubview($0)}
         [postStack, matchingStack].forEach{postMatchingStack.addArrangedSubview($0)}
@@ -169,11 +164,6 @@ class ProfileTopView: UIView {
             $0.left.equalTo(profileImage.snp.right).offset(16)
         }
         
-        genderAndAgeStack.snp.makeConstraints{
-            $0.top.equalTo(nickname.snp.bottom).offset(6)
-            $0.left.equalTo(profileImage.snp.right).offset(16)
-        }
-        
         postMatchingStack.snp.makeConstraints{
             $0.centerY.equalToSuperview()
             $0.right.equalToSuperview().inset(16)
@@ -200,13 +190,20 @@ class ProfileTopView: UIView {
     
     func updateProfile(with data: ProfileData) {
         nickname.text = data.nickname
-        gender.text = data.localizedGender
-        age.text = data.localizedAge
+        genderAndAge.text = "\(data.localizedGender)  |  \(data.localizedAge)"
         
-        postCount.text = "\(data.postCount)"
-        matchingCount.text = "\(data.succeedApplicationCount)"
-        selfPR.text = "\(data.introduction)"
+        if let postCount1 = data.postCount {
+            postCount.text = "\(postCount1)"
+        }
         
+        if let matchCount = data.matchCount {
+            matchingCount.text = "\(matchCount)"
+        }
+
+        if let introduction = data.introduction {
+            selfPR.text = "\(introduction)"
+        }
+   
         if let url = URL(string: data.latestPublicMemberProfileImage) {
             profileImage.kf.setImage(
                 with: url,

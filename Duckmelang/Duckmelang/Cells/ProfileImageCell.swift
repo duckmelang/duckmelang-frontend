@@ -170,18 +170,18 @@ class ProfileImageCell: UITableViewCell {
         self.uploadDate.text = formatDate(model.createdAt)
     }
     
-    public func configure(profileData: ProfileData, model: ProfileImageData) {
+    public func configure(/*profileData: myPageResponse, */model: ProfileImageData) {
         self.imageId = model.memberProfileImageId
         //self.isLocked = model.publicStatus
         updateLockButton()
-        
+        /*
         if let lastestUserImageUrl = URL(string: profileData.latestPublicMemberProfileImage) {
             self.userImage.kf.setImage(
                 with: lastestUserImageUrl,
                 placeholder: UIImage()
             )
         }
-        
+        */
         if let userImageUrl = URL(string: model.memberProfileImageUrl) {
             self.largeUserImage.kf.setImage(
                 with: userImageUrl,

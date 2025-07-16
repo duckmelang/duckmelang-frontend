@@ -11,7 +11,7 @@ class MyPageViewController: UIViewController {
    
     let networkService = MyPageService()
     
-    private var profileData: ProfileData?
+    private var profileData: myPageResponse?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,18 +46,7 @@ class MyPageViewController: UIViewController {
     
     // MARK: - Notification Handling
     @objc private func updateProfile(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let nickname = userInfo["nickname"] as? String,
-              let imageURLString = userInfo["imageURL"] as? String,
-              let imageURL = URL(string: imageURLString) else { return }
-        
-        print("📢 프로필 업데이트 알림 수신 - UI 갱신")
-        
-        DispatchQueue.main.async {
-            self.myPageView.myPageTopView.nickname.text = nickname
-            self.myPageView.myPageTopView.profileImage.kf.setImage(with: imageURL)
-            self.myPageView.myPageTopView.profileImage.contentMode = .scaleAspectFill
-        }
+        getProfileInfo()
     }
     
     //Notification을 받으면 프로필 정보를 다시 가져오는 함수
@@ -67,14 +56,11 @@ class MyPageViewController: UIViewController {
     }
     
     @objc private func profileSeeBtnDidTap() {
-        guard let data = self.profileData else {
+        let profileVC = ProfileViewController()
+        guard self.profileData != nil else {
             print("프로필 정보를 불러올 수 없음.")
             return
         }
-        
-        let profileVC = ProfileViewController()
-        profileVC.profileData = data // 데이터 전달
-        
         navigationController?.pushViewController(profileVC, animated: true)
     }
     
@@ -127,7 +113,7 @@ class MyPageViewController: UIViewController {
             do {
                 self.startLoading()
                 
-                let result = try await networkService.getProfile()
+                let result = try await networkService.getMyPage()
                 self.profileData = result
                 
                 self.updateMyPageTopView(with: result)
@@ -141,10 +127,9 @@ class MyPageViewController: UIViewController {
         }
     }
     
-    private func updateMyPageTopView(with data: ProfileData) {
+    private func updateMyPageTopView(with data: myPageResponse) {
         self.myPageView.myPageTopView.nickname.text = data.nickname
-        self.myPageView.myPageTopView.gender.text = data.localizedGender
-        self.myPageView.myPageTopView.age.text = data.localizedAge
+        self.myPageView.myPageTopView.genderAndAge.text = "\(data.localizedGender)  |  \(data.localizedAge)"
         
         if let url = URL(string: data.latestPublicMemberProfileImage) {
             myPageView.myPageTopView.profileImage.kf.setImage(with: url, placeholder: UIImage(resource: .profile))

@@ -159,7 +159,7 @@ class ProfileModifyViewController: UIViewController, UIImagePickerControllerDele
 
     private func updateProfileView(with profile: ProfileEditInfoResponse) {
         profileModifyView.nicknameTextField.text = profile.nickname
-        profileModifyView.selfPRTextField.text = profile.introduction
+        profileModifyView.selfPRTextField.text = profile.introduction ?? ""
         if let imageUrlString = profile.latestPublicMemberProfileImage, let imageUrl = URL(string: imageUrlString) {
             profileModifyView.profileImage.kf.setImage(with: imageUrl) { result in
                 switch result {

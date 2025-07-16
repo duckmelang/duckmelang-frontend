@@ -163,7 +163,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
         }
 
         let imageModel = self.profileImageData[indexPath.section]
-        cell.configure(profileData: profileData, model: imageModel)
+        cell.configure(/*profileData: profileData, */model: imageModel)
         
         cell.lockToggleHandler = { [weak self] isLocked, imageId in
             self?.patchImageStatus(isLocked: isLocked, imageId: imageId)

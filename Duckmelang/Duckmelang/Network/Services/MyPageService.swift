@@ -25,6 +25,10 @@ public final class MyPageService : NetworkManager {
     }
     
     //MARK: - API funcs
+    public func getMyPage() async throws -> myPageResponse {
+        return try await requestAsync(target: .getMyPage, decodingType: myPageResponse.self)
+    }
+    
     //fetch할때도 쓰는데 이땐 decodingType이 ProfileEditInfoResponse임.. 그래서 아래에 하나 더!
     public func getProfile() async throws -> ProfileData {
         return try await requestAsync(target: .getProfile, decodingType: ProfileData.self)
