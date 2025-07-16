@@ -10,9 +10,12 @@ import SwiftyToaster
 
 class HomeViewController: UIViewController {
     let networkService = HomeService()
+    let myNetworkService = MyPageService()
     
     // MARK: - 홈에 띄우는 게시물 데이터
     private var currentPostsData: [PostDTO] = []
+    
+    var myPostIdSet: Set<Int> = []
 
     private lazy var homeView: HomeView = {
         let view = HomeView()
@@ -38,6 +41,7 @@ class HomeViewController: UIViewController {
         
         setupDelegate()
         setupActions()
+        getMyPostId(startPage: 0)
         getIdolsAPI()
     }
     
@@ -176,6 +180,34 @@ class HomeViewController: UIViewController {
         }
     }
     
+    private func getMyPostId(startPage: Int) {
+        _Concurrency.Task {
+            do {
+                let result = try await myNetworkService.getMyPosts(page: startPage)
+
+                // postId 누적
+                let ids = result.postList.map { $0.postId }
+                self.myPostIdSet.formUnion(ids)
+
+                if result.isFirst {
+                    self.currentPostsData = result.postList
+                    self.totalPage = result.totalPage
+                } else {
+                    self.currentPostsData.append(contentsOf: result.postList)
+                }
+                self.currentPage = result.currentPage
+
+                // 다음 페이지 있는 경우 재귀 호출
+                if self.currentPage + 1 < self.totalPage {
+                    self.getMyPostId(startPage: self.currentPage + 1)
+                }
+
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     private func getIdolsPosts(idolId: Int, startPage: Int) {
         Task {
             do {
@@ -208,6 +240,18 @@ class HomeViewController: UIViewController {
             }
         }
     }
+    
+    func didSelectPost(_ post: PostDTO) {
+        if myPostIdSet.contains(post.postId) {
+            let vc = PostDetailViewController()
+            vc.postId = post.postId
+            navigationController?.pushViewController(vc, animated: true)
+        } else {
+            let vc = OtherPostDetailViewController()
+            vc.postId = post.postId
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
 }
 
 // MARK: - Delegate
@@ -229,10 +273,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
 
         let post = currentPostsData[indexPath.row]  // 선택한 게시물 가져오기
            
-        // PostDetailViewController로 postId 전달
-        let VC = OtherPostDetailViewController()
-        VC.postId = post.postId
-        navigationController?.pushViewController(VC, animated: true)
+        didSelectPost(post)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
