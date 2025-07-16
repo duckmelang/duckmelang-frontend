@@ -30,6 +30,13 @@ class WarningView: UIView {
         $0.backgroundColor = .clear
     }
     
+    lazy var advert = customWarningBtn(text: "상업적 광고 및 판매")
+    lazy var inappr = customWarningBtn(text: "게시판 성격에 부적절함")
+    lazy var sexual = customWarningBtn(text: "음란물/불건전한 만남 및 대화")
+    lazy var fraud = customWarningBtn(text: "유출/사칭/사기")
+    lazy var insult = customWarningBtn(text: "욕설/비하")
+    lazy var etc = customWarningBtn(text: "기타")
+    
     lazy var warningBtn = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.attributedTitle = AttributedString("신고", attributes: AttributeContainer([.font: UIFont.ptdSemiBoldFont(ofSize: 17), .foregroundColor: UIColor.grey0!]))
@@ -41,17 +48,27 @@ class WarningView: UIView {
     
     private lazy var topStack = Stack(axis: .horizontal, distribution: .equalCentering, alignment: .center)
     
+    private lazy var warnStack = Stack(axis: .vertical, alignment: .leading).then {
+        $0.isUserInteractionEnabled = true
+    }
+    
     private func addStack(){
         [backBtn, title, finishBtn].forEach{topStack.addArrangedSubview($0)}
+        [advert, inappr, sexual, fraud, insult, etc].forEach{warnStack.addArrangedSubview($0)}
     }
     
     private func setupView(){
-        [topStack, warningBtn].forEach{addSubview($0)}
+        [topStack, warnStack, warningBtn].forEach{addSubview($0)}
         
         topStack.snp.makeConstraints{
             $0.top.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(42)
+        }
+        
+        warnStack.snp.makeConstraints{
+            $0.top.equalTo(topStack.snp.bottom)
+            $0.width.equalToSuperview()
         }
         
         warningBtn.snp.makeConstraints {

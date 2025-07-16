@@ -19,4 +19,5 @@ public struct API {
     public static let chatroomURL = "\(baseURL)/chatrooms"
     public static let notificationURL = "\(baseURL)/notifications"
     public static let mySettingURL = "\(baseURL)/settings"
+    public static let reportURL = "\(baseURL)/reports"
 }

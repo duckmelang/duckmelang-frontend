@@ -16,6 +16,7 @@ extension Notification.Name {
 class OtherPostDetailViewController: UIViewController {
     var postId: Int?  // 전달받을 게시물 ID
     var postDetail: MyPostDetailResponse?
+    var nickname: String?
     
     var data = PostDetailAccompanyModel.dummy()
     
@@ -108,6 +109,8 @@ class OtherPostDetailViewController: UIViewController {
     
     @objc private func warningBtnDidTap() {
         let VC = WarningViewController()
+        VC.postId = self.postId
+        VC.nickname = self.nickname
         self.navigationController?.pushViewController(VC, animated: true)
     }
  
@@ -131,6 +134,9 @@ class OtherPostDetailViewController: UIViewController {
                     self.updateBookmarkStateIfNeeded(postId: postId)
                     self.updateScore(averageScore: self.postDetail!.averageScore) //점수 업데이트
                 }
+                
+                self.nickname = response.nickname
+                
                 //성공 시 데이터 출력
                 print("Post Detail: \(response)")
                 

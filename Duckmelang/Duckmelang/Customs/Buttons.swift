@@ -64,3 +64,30 @@ class CustomToggleButton: UIButton {
         self.setImage(newImage, for: .normal)
     }
 }
+
+class customWarningBtn: UIButton {
+    init(text: String?){
+        super.init(frame: .zero)
+        setupStyle()
+        
+        var config = UIButton.Configuration.plain()
+        config.attributedTitle = AttributedString(text!, attributes: AttributeContainer([.font: UIFont.ptdRegularFont(ofSize: 17), .foregroundColor: UIColor.grey800!]))
+        //config.background.backgroundColor = UIColor.bgcPrimary
+        config.titleAlignment = .leading
+        config.contentInsets = .init(top: 0, leading: 16, bottom: 0, trailing: 0)
+        self.configuration = config
+        
+        self.contentHorizontalAlignment = .leading
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupStyle() {
+        self.snp.makeConstraints {
+            $0.width.equalTo(UIScreen.width)
+            $0.height.equalTo(57)
+        }
+    }
+}
