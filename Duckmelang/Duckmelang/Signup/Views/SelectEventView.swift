@@ -34,20 +34,20 @@ class SelectEventView: UIView {
         $0.textColor = .grey600
     }
     
-    public lazy var eventCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.estimatedItemSize = CGSize(width: 80, height: 40)
-        layout.minimumInteritemSpacing = 14  // 좌우 간격
-        layout.minimumLineSpacing = 20  // 위아래 간격
-
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.register(EventSelectionCell.self, forCellWithReuseIdentifier: EventSelectionCell.identifier)
-        cv.backgroundColor = .clear
-        cv.allowsSelection = true
-        cv.isUserInteractionEnabled = true
-        cv.allowsMultipleSelection = true
-        return cv
-    }()
+    public lazy var eventCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
+        $0.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        $0.minimumInteritemSpacing = 14
+        $0.minimumLineSpacing = 20
+        $0.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 34, right: 0)
+        $0.headerReferenceSize = CGSize(width: 40, height: 50)
+    }).then {
+        $0.register(EventSelectionCell.self, forCellWithReuseIdentifier: EventSelectionCell.identifier)
+        $0.register(EventSelectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: EventSelectionHeader.identifier)
+        $0.backgroundColor = .clear
+        $0.allowsSelection = true
+        $0.isUserInteractionEnabled = true
+        $0.allowsMultipleSelection = true
+    }
     
     public let nextBtn = longCustomBtn(title: "다음", isEnabled: false)
     

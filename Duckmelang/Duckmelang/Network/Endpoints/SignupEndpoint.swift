@@ -15,7 +15,9 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum SignupEndpoint {
+    case getCheckNickname(loginId: String) // 아이디 중복 확인
     case postSignUp(signUp: SignupRequest) // 회원가입
+    case postPhoneNum(memberId: Int, phoneNum: String) // 전화번호 등록
     case patchMemberProfile(memberId: Int, profile: PatchMemberProfileRequest) // 닉네임, 생년월일, 성별 설정
     case postMemberProfileImage(memberId: Int, profileImage: [MultipartFormData]) // 프로필 사진 설정
     case getMemberNicknameCheck(nickname: String) // 닉네임 중복 확인
@@ -25,6 +27,7 @@ public enum SignupEndpoint {
     case patchMemberIntroduction(memberId: Int, introduction: SetIntroductionRequest) // 자기소개 문구 설정
     
     case getAllIdols
+    case getSearchIdol(keyword: String) // 아이돌 검색
     case getAllEvents
 }
 
@@ -33,6 +36,16 @@ extension SignupEndpoint: TargetType {
     // 모두 같은 baseURL을 사용한다면 default로 지정하기
     public var baseURL: URL {
         switch self {
+        case .getSearchIdol:
+            guard let url = URL(string: API.mySettingURL) else {
+                fatalError("mySettingURL 오류")
+            }
+            return url
+        case .getCheckNickname, .postPhoneNum:
+            guard let url = URL(string: API.authURL) else {
+                fatalError("authURL 오류")
+            }
+            return url
         case .getAllIdols, .getAllEvents:
             guard let url = URL(string: API.baseURL) else {
                 fatalError("baseURL 오류")
@@ -49,8 +62,12 @@ extension SignupEndpoint: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
+        case .getCheckNickname:
+            return "/nickname"
         case .postSignUp:
             return "/signup"
+        case .postPhoneNum(let memberId, _):
+            return "/\(memberId)/phone"
         case .patchMemberProfile(let memberId, _):
             return "/\(memberId)/profile"
         case .postMemberProfileImage(let memberId, _):
@@ -67,6 +84,8 @@ extension SignupEndpoint: TargetType {
             return "/\(memberId)/introduction"
         case .getAllIdols:
             return "/idols"
+        case .getSearchIdol:
+            return "/idols/search"
         case .getAllEvents:
             return "/events"
         }
@@ -76,7 +95,7 @@ extension SignupEndpoint: TargetType {
         // 가장 많이 호출되는 post을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .getMemberNicknameCheck, .getAllIdols, .getAllEvents:
+        case .getCheckNickname, .getMemberNicknameCheck, .getAllIdols, .getSearchIdol, .getAllEvents:
             return .get
         case .patchMemberProfile, .patchMemberIntroduction:
             return .patch
@@ -87,8 +106,12 @@ extension SignupEndpoint: TargetType {
     
     public var task: Moya.Task {
         switch self {
+        case .getCheckNickname(let loginId):
+            return .requestParameters(parameters: ["loginId": loginId], encoding: URLEncoding.queryString)
         case .postSignUp(let signUp):
             return .requestJSONEncodable(signUp)
+        case .postPhoneNum(_, let phoneNum):
+            return .requestParameters(parameters: ["phoneNum": phoneNum], encoding: URLEncoding.queryString)
         case .postMemberProfileImage(_, let profileImage):
             return .uploadMultipart(profileImage)
         case .patchMemberProfile(_, let PatchMemberProfileRequest):
@@ -105,6 +128,8 @@ extension SignupEndpoint: TargetType {
             return .requestJSONEncodable(SetIntroductionRequest)
         case .getAllIdols, .getAllEvents:
             return .requestPlain
+        case .getSearchIdol(let keyword):
+            return .requestParameters(parameters: ["keyword": keyword], encoding: URLEncoding.queryString)
         }
     }
     

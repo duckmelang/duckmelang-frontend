@@ -13,6 +13,11 @@ public struct RefreshTokenRequest: Codable {
     let refreshToken: String
 }
 
+//카카오 로그인 요청모델
+public struct KakaoLoginRequest: Codable {
+    let accessToken: String
+}
+
 
 //로그인 요청 모델
 public struct LoginRequest: Codable {
@@ -20,9 +25,15 @@ public struct LoginRequest: Codable {
     let password: String
 }
 
+//비밀번호 변경 요청 모델
+public struct NewPasswordRequest: Codable {
+    let loginId: String
+    let newPassword: String
+}
+
 //회원가입 요청 모델
 public struct SignupRequest: Codable {
-    let email: String
+    let loginId: String
     let password: String
 }
 

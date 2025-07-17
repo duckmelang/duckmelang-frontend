@@ -10,7 +10,6 @@ import UIKit
 class SelectFavoriteCelebViewController: UIViewController {
     let networkService = SignupService()
     
-    var memberId: Int?
     private var selectableIdols: [Idol] = []
     var selectedIdols: [Idol] = [] {
         didSet {
@@ -29,6 +28,7 @@ class SelectFavoriteCelebViewController: UIViewController {
     private lazy var selectFavoriteCelebView: SelectFavoriteCelebView = {
         let view = SelectFavoriteCelebView()
         view.nextBtn.addTarget(self, action: #selector(nextBtn), for: .touchUpInside)
+        view.searchButton.addTarget(self, action: #selector(searchIconTapped), for: .touchUpInside)
         return view
     }()
     
@@ -59,6 +59,7 @@ class SelectFavoriteCelebViewController: UIViewController {
     private func setupDelegate() {
         selectFavoriteCelebView.collectionView.dataSource = self
         selectFavoriteCelebView.collectionView.delegate = self
+        selectFavoriteCelebView.celebTextField.delegate = self
     }
     
     private func getIdolsAPI() {
@@ -81,12 +82,54 @@ class SelectFavoriteCelebViewController: UIViewController {
             }
         }
     }
-
+    
+    @objc
+    private func searchIconTapped() {
+        guard let searchText = selectFavoriteCelebView.celebTextField.text else { return }
+        
+        if (searchText.isEmpty) {
+            getIdolsAPI()
+        } else {
+            searchIdols(keyword: searchText)
+        }
+    }
+    
+    // 아이돌 검색 API
+    private func searchIdols(keyword: String) {
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.getSearchIdol(keyword: keyword)
+                
+                self.selectableIdols = result.idolList.map { idol in idol }
+                DispatchQueue.main.async {
+                    self.selectFavoriteCelebView.collectionView.reloadData()
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    // 다음 버튼 눌렀을 때
+    @objc func nextBtn() {
+        // MARK: TEST
+//        navigateToSelectEventView()
+        postInterestCelebAPI()
+    }
+    
     // post
     private func postInterestCelebAPI() {
         Task {
             do {
-                guard let memberId = self.memberId else { return }
+                guard let memberIdString = KeychainManager.shared.load(key: "memberId"),
+                      let memberId = Int(memberIdString) else { return }
+                
                 startLoading()
                 
                 let idolNums = self.selectableIdols.map { idol in idol.idolId }
@@ -106,18 +149,24 @@ class SelectFavoriteCelebViewController: UIViewController {
         }
     }
     
-    // 다음 버튼 눌렀을 때
-    @objc func nextBtn() {
-        // MARK: TEST
-        navigateToSelectEventView()
-//        postInterestCelebAPI()
-    }
-    
     private func navigateToSelectEventView() {
         let eventVC = SelectEventViewController()
         eventVC.hidesBottomBarWhenPushed = true
-        eventVC.memberId = self.memberId
         navigationController?.pushViewController(eventVC, animated: true)
+    }
+}
+
+extension SelectFavoriteCelebViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        guard let searchText = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else { return false }
+        
+        if (searchText.isEmpty) {
+            getIdolsAPI()
+        } else {
+            searchIdols(keyword: searchText)
+        }
+        
+        return true
     }
 }
 
@@ -133,7 +182,12 @@ extension SelectFavoriteCelebViewController: UICollectionViewDataSource, UIColle
         
         let idol = selectableIdols[indexPath.item]
         cell.configure(with: idol)
-        cell.isSelected = selectedIdols.contains(idol)
+        
+        if selectedIdols.contains(idol) {
+            collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+        } else {
+            collectionView.deselectItem(at: indexPath, animated: false)
+        }
         
         return cell
     }
@@ -150,6 +204,7 @@ extension SelectFavoriteCelebViewController: UICollectionViewDataSource, UIColle
         if let cell = collectionView.cellForItem(at: indexPath) as? IdolCollectionViewCell {
             cell.isSelected = selectedIdols.contains(idol)
         }
+        print(selectedIdols)
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -164,5 +219,6 @@ extension SelectFavoriteCelebViewController: UICollectionViewDataSource, UIColle
         if let cell = collectionView.cellForItem(at: indexPath) as? IdolCollectionViewCell {
             cell.isSelected = selectedIdols.contains(idol)
         }
+        print(selectedIdols)
     }
 }

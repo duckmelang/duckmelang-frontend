@@ -60,10 +60,11 @@ class FilterKeywordsView: UIView, UITextFieldDelegate {
     }
 
     public lazy var keywordsCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
+        let layout = LeftAlignedCollectionViewFlowLayout()
         layout.estimatedItemSize = CGSize(width: 80, height: 30)
         layout.minimumInteritemSpacing = 10  // 좌우 간격
         layout.minimumLineSpacing = 17  // 위아래 간격
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear

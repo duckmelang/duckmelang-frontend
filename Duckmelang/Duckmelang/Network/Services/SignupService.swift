@@ -25,9 +25,19 @@ public final class SignupService : NetworkManager {
     }
     
     //MARK: - API funcs
+    /// 아이디 중복 확인 API
+    public func getCheckNickname(loginId: String) async throws -> CheckResult {
+        return try await requestAsync(target: .getCheckNickname(loginId: loginId), decodingType: CheckResult.self)
+    }
+    
     /// 회원가입 API
     public func postSignUp(signUp: SignupRequest) async throws -> SignupResponseResult {
         return try await requestAsync(target: .postSignUp(signUp: signUp), decodingType: SignupResponseResult.self)
+    }
+    
+    /// 전화번호 등록 API
+    public func postPhoneNum(memberId: Int, phoneNum: String) async throws -> CheckResult {
+        return try await requestAsync(target: .postPhoneNum(memberId: memberId, phoneNum: phoneNum), decodingType: CheckResult.self)
     }
 
     /// 닉네임, 생년월일, 성별 설정 API
@@ -65,9 +75,14 @@ public final class SignupService : NetworkManager {
         return try await requestAsync(target: .getAllIdols, decodingType: IdolListResult.self)
     }
 
+    /// 아이돌 검색 조회 API
+    public func getSearchIdol(keyword: String) async throws -> IdolListResult {
+        return try await requestAsync(target: .getSearchIdol(keyword: keyword), decodingType: IdolListResult.self)
+    }
+
     /// 모든 행사 리스트 조회 API
-    public func getAllEvents() async throws -> EventResult {
-        return try await requestAsync(target: .getAllEvents, decodingType: EventResult.self)
+    public func getAllEvents() async throws -> EventResponse {
+        return try await requestAsync(target: .getAllEvents, decodingType: EventResponse.self)
     }
 
 }

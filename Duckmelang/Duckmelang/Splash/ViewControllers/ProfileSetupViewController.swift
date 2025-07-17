@@ -1,17 +1,17 @@
 //
-//  SignUpCompleteViewController.swift
+//  ProfileSplashViewController.swift
 //  Duckmelang
 //
-//  Created by 주민영 on 5/10/25.
+//  Created by 주민영 on 3/30/25.
 //
 
 import UIKit
 
-class SignUpCompleteViewController: UIViewController {
+class ProfileSplashViewController: UIViewController {
     override func loadView() {
         self.view = BlueSplashView(
-            title: "환영해요!",
-            subTitle: "나와 잘 맞는 메랑이를 찾아봐요!"
+            title: "아직 프로필이 완성되지 않았어요",
+            subTitle: "메랑이가 되기 위한 준비를 해볼까요?"
         )
     }
     
@@ -19,13 +19,12 @@ class SignUpCompleteViewController: UIViewController {
         super.viewDidAppear(animated)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.transitionToOnBoarding()
+            self.transitionToNextScreen()
         }
     }
     
-    private func transitionToOnBoarding() {
-        // 온보딩 화면으로 전환
-        let view = OnBoardingViewController()
+    private func transitionToNextScreen() {
+        let view = SetupNickBirthGenViewController()
         let navigationController = UINavigationController(rootViewController: view)
         navigationController.modalTransitionStyle = .crossDissolve
         navigationController.modalPresentationStyle = .fullScreen

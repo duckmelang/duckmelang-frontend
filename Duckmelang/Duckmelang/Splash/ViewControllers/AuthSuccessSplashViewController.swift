@@ -8,8 +8,6 @@
 import UIKit
 
 class AuthSuccessSplashViewController: UIViewController {
-    var memberId: Int?
-    
     override func loadView() {
         self.view = BlueSplashView(
             title: "인증이 완료되었어요!",
