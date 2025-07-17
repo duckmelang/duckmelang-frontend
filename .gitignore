@@ -1,2 +1,4 @@
 *.xcconfig
 Duckmelang/Duckmelang/GoogleService-Info.plist
+**/info.plist
+
