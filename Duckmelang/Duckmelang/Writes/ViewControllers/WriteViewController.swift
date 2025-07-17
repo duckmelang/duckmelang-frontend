@@ -8,6 +8,7 @@
 import UIKit
 import Moya
 import PhotosUI
+import SwiftyToaster
 
 protocol WriteViewControllerDelegate: AnyObject {
     func didUpdateSelectedCeleb(_ celeb: IdolListDTO?)
@@ -349,18 +350,24 @@ extension WriteViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true)
         
         let dispatchGroup = DispatchGroup()
-            var newImages: [UIImage] = []
-
-            for result in results {
-                dispatchGroup.enter()
-                result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
-                    defer { dispatchGroup.leave() }
-                    
-                    if let image = object as? UIImage {
-                        newImages.append(image)
-                    }
+        var newImages: [UIImage] = []
+        
+        let availablesSlots = max(0, 10 - selectedImages.count)
+        if availablesSlots == 0 {
+            Toaster.shared.makeToast("사진은 최대 10장까지입니다.")
+            return 
+        }
+        
+        for result in results {
+            dispatchGroup.enter()
+            result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
+                defer { dispatchGroup.leave() }
+                
+                if let image = object as? UIImage {
+                    newImages.append(image)
                 }
             }
+        }
         
         dispatchGroup.notify(queue: .main) {
             // 기존 이미지에 추가로 붙임
