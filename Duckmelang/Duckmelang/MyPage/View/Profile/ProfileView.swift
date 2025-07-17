@@ -19,7 +19,9 @@ class ProfileView: UIView {
     }
     
     let profileTopView = ProfileTopView()
-    let profileBottomView = ProfileBottomView()
+    let profileBottomView = ProfileBottomView().then {
+        $0.isUserInteractionEnabled = true
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -265,6 +267,7 @@ class ProfileBottomView: UIView {
         $0.separatorStyle = .none
         $0.rowHeight = 72
         $0.isHidden = true
+        $0.isUserInteractionEnabled = true
     }
     
     lazy var cosmosView = CosmosView().then {

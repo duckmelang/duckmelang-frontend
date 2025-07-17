@@ -11,7 +11,7 @@ import UIKit
 class WarningViewController: UIViewController {
     let networkService = ReportService()
     
-    var postId: Int?
+    var targetId: Int?
     var nickname: String?
     
     override func viewDidLoad() {
@@ -42,7 +42,7 @@ class WarningViewController: UIViewController {
     
     @objc
     private func warningBtnDidTap() {
-        guard let reason = selectedReason, let postId = postId else { return }
+        guard let reason = selectedReason, let postId = targetId else { return }
         
         report(id: postId, reason: reason.rawValue)
         

@@ -109,7 +109,7 @@ class OtherPostDetailViewController: UIViewController {
     
     @objc private func warningBtnDidTap() {
         let VC = WarningViewController()
-        VC.postId = self.postId
+        VC.targetId = self.postId
         VC.nickname = self.nickname
         self.navigationController?.pushViewController(VC, animated: true)
     }
