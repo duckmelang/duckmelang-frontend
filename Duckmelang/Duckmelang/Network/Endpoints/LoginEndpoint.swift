@@ -21,6 +21,8 @@ public enum LoginEndpoint {
     case postLogin(login: LoginRequest) // 로그인
     case patchPassword(login: NewPasswordRequest) // 비밀번호 변경
     case getFindId(phoneNum: String) // 아이디 찾기
+    
+    case kakaoLogin(accessToken: KakaoLoginRequest) // 카카오 로그인
 }
 
 extension LoginEndpoint: TargetType {
@@ -51,6 +53,8 @@ extension LoginEndpoint: TargetType {
             return "/find-password"
         case .getFindId:
             return "/find-id"
+        case .kakaoLogin:
+            return "/kakao-login"
         }
     }
     
@@ -58,7 +62,7 @@ extension LoginEndpoint: TargetType {
         // 가장 많이 호출되는 post을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
-        case .postRefreshToken, .postLogin:
+        case .postRefreshToken, .postLogin, .kakaoLogin:
             return .post
         case .patchPassword:
             return .patch
@@ -79,6 +83,8 @@ extension LoginEndpoint: TargetType {
             return .requestJSONEncodable(login)
         case .getCheckPhoneNum(let phoneNum), .getFindId(let phoneNum):
             return .requestParameters(parameters: ["phoneNum": phoneNum], encoding: URLEncoding.queryString)
+        case .kakaoLogin(let accessToken):
+            return .requestJSONEncodable(accessToken)
         }
     }
         

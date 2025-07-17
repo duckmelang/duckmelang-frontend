@@ -54,4 +54,9 @@ public final class LoginService : NetworkManager {
     public func getFindId(phoneNum: String) async throws -> FindIdResult {
         return try await requestAsync(target: .getFindId(phoneNum: phoneNum), decodingType: FindIdResult.self)
     }
+    
+    /// 카카오 로그인 API
+    public func kakaoLogin(accessToken: KakaoLoginRequest) async throws -> LoginResult {
+        return try await requestAsync(target: .kakaoLogin(accessToken: accessToken), decodingType: LoginResult.self)
+    }
 }
