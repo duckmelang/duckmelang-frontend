@@ -13,7 +13,7 @@ class NoticeViewController: UIViewController {
     
     private var notices: [NotificationModel] = []
 
-override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         self.view = noticeView
         setupActions()
@@ -136,8 +136,8 @@ extension NoticeViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let notificationId = notices[indexPath.row].id
-        patchReadAPI(notificationId: notificationId)
+        let notification = notices[indexPath.row]
+        patchReadAPI(notificationId: notification.id)
     }
     
     func tableView(_ tableView: UITableView,

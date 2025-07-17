@@ -175,6 +175,15 @@ extension RequestViewController: UITableViewDelegate, UITableViewDataSource, MyA
         postFailedAPI(selectedItem.applicationId, cell)
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let postId = requestData[indexPath.row].postId
+        let detailVC = OtherPostDetailViewController()
+        
+        detailVC.postId = postId
+        
+        self.navigationController?.pushViewController(detailVC, animated: true)
+    }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
