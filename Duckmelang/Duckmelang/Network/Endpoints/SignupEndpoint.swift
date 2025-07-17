@@ -17,7 +17,7 @@ import Moya
 public enum SignupEndpoint {
     case getCheckNickname(loginId: String) // 아이디 중복 확인
     case postSignUp(signUp: SignupRequest) // 회원가입
-    case postPhoneNum(phoneNum: String) // 전화번호 등록
+    case postPhoneNum(memberId: Int, phoneNum: String) // 전화번호 등록
     case patchMemberProfile(memberId: Int, profile: PatchMemberProfileRequest) // 닉네임, 생년월일, 성별 설정
     case postMemberProfileImage(memberId: Int, profileImage: [MultipartFormData]) // 프로필 사진 설정
     case getMemberNicknameCheck(nickname: String) // 닉네임 중복 확인
@@ -66,8 +66,8 @@ extension SignupEndpoint: TargetType {
             return "/nickname"
         case .postSignUp:
             return "/signup"
-        case .postPhoneNum:
-            return "/phone"
+        case .postPhoneNum(let memberId, _):
+            return "/\(memberId)/phone"
         case .patchMemberProfile(let memberId, _):
             return "/\(memberId)/profile"
         case .postMemberProfileImage(let memberId, _):
@@ -110,7 +110,7 @@ extension SignupEndpoint: TargetType {
             return .requestParameters(parameters: ["loginId": loginId], encoding: URLEncoding.queryString)
         case .postSignUp(let signUp):
             return .requestJSONEncodable(signUp)
-        case .postPhoneNum(let phoneNum):
+        case .postPhoneNum(_, let phoneNum):
             return .requestParameters(parameters: ["phoneNum": phoneNum], encoding: URLEncoding.queryString)
         case .postMemberProfileImage(_, let profileImage):
             return .uploadMultipart(profileImage)

@@ -175,8 +175,14 @@ class SignUpViewController: UIViewController {
         Task {
             do {
                 startLoading()
-                //MARK: - FIX-ME memberId 추가하기
-                _ = try await networkService.postPhoneNum(phoneNum: phoneNum)
+                
+                guard let memberIdString = KeychainManager.shared.load(key: "memberId"),
+                      let memberId = Int(memberIdString) else {
+                    Toaster.shared.makeToast("회원 정보를 불러올 수 없습니다.\n잠시 후 다시 시도해주세요.")
+                    return
+                }
+                
+                _ = try await networkService.postPhoneNum(memberId: memberId, phoneNum: phoneNum)
                 
                 stopLoading()
             }

@@ -158,7 +158,7 @@ class SignUpView: UIView {
         }
         
         descriptionLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(12)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(8)
             $0.leading.equalToSuperview().inset(16)
         }
         
