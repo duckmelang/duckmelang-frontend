@@ -112,7 +112,7 @@ class SearchViewController: UIViewController {
                 } else {
                     self.searchData.append(contentsOf: result.postList)
                 }
-//                self.currentPage = result.currentPage
+                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
                     self.searchView.empty.isHidden = !self.searchData.isEmpty
@@ -166,7 +166,7 @@ class SearchViewController: UIViewController {
                 } else {
                     self.searchData.append(contentsOf: result.postList)
                 }
-//                self.currentPage = result.currentPage
+                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
                     self.searchView.empty.isHidden = !self.searchData.isEmpty

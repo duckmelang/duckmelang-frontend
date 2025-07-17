@@ -6,9 +6,11 @@
 //
 
 import UIKit
+import SwiftyToaster
 
 class MessageViewController: UIViewController, ConfirmPopupViewController.ModalDelegate, OtherMessageCellDelegate {
     private let networkService = ChatService()
+    
     private let socketManager = SocketManager()
     
     private var messageData: [MessageModel] = []
@@ -16,6 +18,16 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     var chat: ChatDTO?
     var isLoading = false               // 중복 로딩 방지
     private var lastMessageId: String? // 페이지네이션을 위한 lastMessageId
+    private var memberId: Int?
+    
+    // MARK: - Properties
+    
+    private lazy var messageView: MessageView = {
+        let view = MessageView()
+        return view
+    }()
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +37,7 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         
         self.view = messageView
         
+        loadMemberId()
         setupNavigationBar()
         setupDelegate()
         setupAction()
@@ -50,19 +63,152 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         setupNavigationBar()
     }
     
-    private lazy var messageView: MessageView = {
-        let view = MessageView()
-        return view
-    }()
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        socketManager.disConnect()
+    }
     
-    func getMessagesAPI(lastMessageId: String?) {
+    deinit {
+        socketManager.disConnect()
+    }
+    
+    // MARK: - Setup
+    
+    private func setupNavigationBar() {
+        self.navigationController?.navigationBar.backgroundColor = .white
+        
+        self.navigationItem.title = chat?.oppositeNickname
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
+        
+        let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
+        leftBarButton.tintColor = .grey600
+        self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
+    }
+    
+    @objc private func goBack() {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    private func setupDelegate() {
+        messageView.messageCollectionView.delegate = self
+        messageView.messageCollectionView.dataSource = self
+        messageView.bottomMessageView.messageTextField.delegate = self
+    }
+    
+    private func setupAction() {
+        messageView.topMessageView.confirmBtn.addTarget(self, action: #selector(openConfirmPopup), for: .touchUpInside)
+        messageView.topMessageView.reviewBtn.addTarget(self, action: #selector(openReview), for: .touchUpInside)
+        messageView.bottomMessageView.sendBtn.addTarget(self, action: #selector(sendNewMessage), for: .touchUpInside)
+    }
+    
+    // MARK: - WebSocket
+    
+    private func connectWebSocket() {
+        guard let memberId = self.memberId,
+              let otherId = self.chat?.oppositeId else { return }
+        
+        let url = URL(string: "wss://13.125.217.231.nip.io/wss/chat")!
+
+        socketManager.connect(to: url)
+        
+        // 연결 후 받은 메세지 받아오기
+        socketManager.receiveMessage { result in
+            switch result {
+            case .success(let response):
+                var newChatType: ChatType = .receive
+                
+                if (response.receiverId == memberId && response.senderId == otherId) {
+                    newChatType = .receive
+                } else if (response.receiverId == otherId && response.senderId == memberId) {
+                    newChatType = .send
+                } else {
+                    return
+                }
+                
+                let message = MessageModel(
+                    text: response.text,
+                    chatType: newChatType,
+                    date: Date()
+                )
+                
+                self.messageData.append(message)
+                DispatchQueue.main.async {
+                    self.reloadMessage()
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func sendMessage(with text: String) {
+        guard let memberId = self.memberId,
+              let chat = self.chat  else { return }
+        
+        let newMessage = MessageRequest(
+            senderId: memberId,
+            receiverId: chat.oppositeId,
+            postId: chat.postId,
+            messageType: "TEXT",
+            text: text
+        )
+        
+        socketManager.sendMessage(messageRequest: newMessage) { [weak self] result in
+            switch result {
+            case .success(_):
+                DispatchQueue.main.async {
+                    
+                    let newMessageModel = MessageModel(
+                        text: text,
+                        chatType: .send,
+                        date: Date()
+                    )
+                    self?.messageData.append(newMessageModel)
+                    
+                    self?.reloadMessage()
+                    self?.messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
+                    
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    // MARK: - API
+    
+    private func getDetailChatroomsAPI() {
+        guard let chatRoomId = self.chat?.chatRoomId else { return }
+        
         Task {
             do {
                 startLoading()
-                guard let chatRoomId = chat?.chatRoomId else { return }
+                
+                let result = try await networkService.getDetailChatroom(chatRoomId: chatRoomId)
+
+                DispatchQueue.main.async {
+                    self.messageView.detailChatroomResponse = result
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func getMessagesAPI(lastMessageId: String?) {
+        Task {
+            do {
+                startLoading()
+                
+                guard let memberId = self.memberId,
+                      let chat = chat else { return }
                 
                 let response = try await networkService.getMessages(
-                    chatRoomId: chatRoomId,
+                    chatRoomId: chat.chatRoomId,
                     lastMessageId: lastMessageId,
                     size: 20
                 )
@@ -77,14 +223,13 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
                 
                 results.forEach { result in
                     var newChatType: ChatType = .receive
-                    if let myId = KeychainManager.shared.load(key: "memberId") {
-                        if (result.receiverId == Int(myId)) {
-                            newChatType = .receive
-                        } else if (result.senderId == self.chat?.oppositeId) {
-                            newChatType = .send
-                        } else {
-                            return
-                        }
+                    
+                    if (result.receiverId == memberId && result.senderId == chat.oppositeId) {
+                        newChatType = .receive
+                    } else if (result.receiverId == chat.oppositeId && result.senderId == memberId) {
+                        newChatType = .send
+                    } else {
+                        return
                     }
                     
                     var newDate = Date()
@@ -129,98 +274,24 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         }
     }
     
-    private func connectWebSocket() {
-        let url = URL(string: "wss://13.125.217.231.nip.io/wss/chat")!
-
-        socketManager.connect(to: url)
-        
-        // 연결 후 받은 메세지 받아오기
-        socketManager.receiveMessage { result in
-            switch result {
-            case .success(let response):
-                var newChatType: ChatType = .receive
-                if let myId = KeychainManager.shared.load(key: "memberId") {
-                    if (response.receiverId == Int(myId)) {
-                        newChatType = .receive
-                    } else if (response.senderId == self.chat?.oppositeId) {
-                        newChatType = .send
-                    } else {
-                        return
-                    }
-                }
-                
-                let message = MessageModel(
-                    text: response.text,
-                    chatType: newChatType,
-                    date: Date()
-                )
-                
-                self.messageData.append(message)
-                DispatchQueue.main.async {
-                    self.reloadMessage()
-                }
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
-    }
+    // MARK: - Actions
     
-    func getDetailChatroomsAPI() {
-        guard let chatRoomId = self.chat?.chatRoomId else { return }
-        
-        Task {
-            do {
-                startLoading()
-                let result = try await networkService.getDetailChatroom(chatRoomId: chatRoomId)
-
-                stopLoading()
-                DispatchQueue.main.async {
-                    self.messageView.detailChatroomResponse = result
-                }
-            }
-            catch {
-                stopLoading()
-                print(error.localizedDescription)
-            }
+    // 뷰 생성 시에 멤버아이디 불러와서 저장하는 함수
+    private func loadMemberId() {
+        guard let memberIdString = KeychainManager.shared.load(key: "memberId"),
+              let id = Int(memberIdString) else {
+            Toaster.shared.makeToast("내 정보를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.")
+            return
         }
+
+        self.memberId = id
     }
     
     @objc private func sendNewMessage() {
-        if (messageView.bottomMessageView.messageTextField.text == "") {
-            return
-        }
+        guard let text = messageView.bottomMessageView.messageTextField.text else { return }
+        if text.isEmpty { return }
         
-        if let text = messageView.bottomMessageView.messageTextField.text {
-            sendMessage(with: text)
-        }
-    }
-    
-    private func sendMessage(with text: String) {
-        guard let chat = chat else { return }
-        guard let myId = Int(KeychainManager.shared.load(key: "memberId") ?? "변환실패") else { return }
-        
-        let newMessage = MessageRequest(
-            senderId: myId,
-            receiverId: chat.oppositeId,
-            postId: chat.postId,
-            messageType: "TEXT",
-            text: text
-        )
-        
-        let newMessageModel = MessageModel(text: text, chatType: .send, date: Date())
-        
-        socketManager.sendMessage(messageRequest: newMessage) { [weak self] result in
-            switch result {
-            case .success(_):
-                DispatchQueue.main.async {
-                    self?.messageData.append(newMessageModel)
-                    self?.reloadMessage()
-                    self?.messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
-                }
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
+        sendMessage(with: text)
     }
     
     private func reloadMessage() {
@@ -228,40 +299,13 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         self.scrollToLastItem()
     }
     
-    private func setupNavigationBar() {
-        self.navigationController?.navigationBar.backgroundColor = .white
-        
-        self.navigationItem.title = chat?.oppositeNickname
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.font: UIFont.aritaSemiBoldFont(ofSize: 18)]
-        
-        let leftBarButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(goBack))
-        leftBarButton.tintColor = .grey600
-        self.navigationItem.setLeftBarButton(leftBarButton, animated: true)
-    }
-    
-    @objc private func goBack() {
-        self.navigationController?.popViewController(animated: true)
-    }
-    
-    private func setupDelegate() {
-        messageView.messageCollectionView.delegate = self
-        messageView.messageCollectionView.dataSource = self
-        messageView.bottomMessageView.messageTextField.delegate = self
-    }
-    
-    private func setupAction() {
-        messageView.topMessageView.confirmBtn.addTarget(self, action: #selector(openConfirmPopup), for: .touchUpInside)
-        messageView.topMessageView.reviewBtn.addTarget(self, action: #selector(openReview), for: .touchUpInside)
-        messageView.bottomMessageView.sendBtn.addTarget(self, action: #selector(sendNewMessage), for: .touchUpInside)
-    }
-    
     @objc private func openConfirmPopup() {
         let popupVC = ConfirmPopupViewController()
         popupVC.modalPresentationStyle = .overFullScreen
         
-        popupVC.postId = chat?.postId
-        popupVC.oppositeNickname = chat?.oppositeNickname
-        popupVC.oppositeProfileImage = chat?.oppositeProfileImage
+        popupVC.postId = self.chat?.postId
+        popupVC.oppositeNickname = self.chat?.oppositeNickname
+        popupVC.oppositeProfileImage = self.chat?.oppositeProfileImage
         
         popupVC.delegate = self
         present(popupVC, animated: false)
@@ -269,8 +313,8 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     
     @objc private func openReview() {
         let afterReviewVC = AfterReviewViewController()
-        afterReviewVC.oppositeId = chat?.oppositeId
-        afterReviewVC.postId = chat?.postId
+        afterReviewVC.oppositeId = self.chat?.oppositeId
+        afterReviewVC.postId = self.chat?.postId
         navigationController?.pushViewController(afterReviewVC, animated: true)
     }
     
@@ -300,6 +344,8 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
         messageView.topMessageView.confirmBtn.isHidden = true
     }
 }
+
+// MARK: - CollectionView 설정
 
 extension MessageViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {

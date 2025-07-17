@@ -47,7 +47,7 @@ class OtherPostsViewController: UIViewController {
                 } else {
                     self.otherPostsData.append(contentsOf: result.postList)
                 }
-//                self.currentPage = result.currentPage
+                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
                     self.otherPostsView.empty.isHidden = !self.otherPostsData.isEmpty

@@ -75,6 +75,11 @@ public final class HomeService : NetworkManager {
         return try await requestAsync(target: .patchNotifications(notificationId: notificationId), decodingType: ReadResponse.self)
     }
     
+    /// 알림 삭제 API
+    public func deleteNotifications(notificationId: Int) async throws -> String {
+        return try await requestAsync(target: .deleteNotifications(notificationId: notificationId), decodingType: String.self)
+    }
+    
     /// 검색 API
     public func getSearch(page: Int, searchKeyword: String) async throws -> PostResponse {
         return try await requestAsync(target: .getSearch(page: page, searchKeyword: searchKeyword), decodingType: PostResponse.self)

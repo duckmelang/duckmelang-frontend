@@ -12,15 +12,24 @@ final class SocketManager {
     private var webSocketTask: URLSessionWebSocketTask?
     // URLSession 인스턴스 입니다.
     private let urlSession = URLSession(configuration: .default)
+    // 연결 상태 플래그
+    private var isConnected = false
     
     // 1. WebSocket 연결을 시작하는 함수
     func connect(to url: URL) {
+        print("📡 connecting to WebSocket URL: \(url.absoluteString)")
         webSocketTask = urlSession.webSocketTask(with: url)
         webSocketTask?.resume()
+        isConnected = true
     }
     
     // 2. 메시지를 수신하는 함수
     func receiveMessage(completion: @escaping (Result<MessageRequest, Error>) -> Void) {
+        guard isConnected else {
+            print("🛑 연결이 종료되어 더 이상 수신하지 않음")
+            return
+        }
+        
         webSocketTask?.receive { [weak self] result in
             switch result {
             case .success(let message):
@@ -92,6 +101,8 @@ final class SocketManager {
     
     // 4. WebSocket 연결을 종료하는 힘수
     func disConnect() {
+        isConnected = false
         webSocketTask?.cancel(with: .goingAway, reason: nil)
+        print("🛑 WebSocket 연결 해제 완료")
     }
 }

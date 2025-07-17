@@ -13,7 +13,7 @@ class NoticeViewController: UIViewController {
     
     private var notices: [NotificationModel] = []
 
-override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         self.view = noticeView
         setupActions()
@@ -46,6 +46,8 @@ override func viewDidLoad() {
         noticeView.noticeTableView.delegate = self
         noticeView.noticeTableView.dataSource = self
     }
+    
+    // MARK: - APIs
     
     private func getNotificationsAPI() {
         Task {
@@ -90,9 +92,31 @@ override func viewDidLoad() {
             }
         }
     }
+    
+    private func deleteNotificationsAPI(notificationId: Int) {
+        Task {
+            do {
+                startLoading()
+                
+                _ = try await networkService.deleteNotifications(notificationId: notificationId)
+                
+                DispatchQueue.main.async {
+                    self.noticeView.noticeTableView.reloadData()
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+                Toaster.shared.makeToast("알림 상태를 삭제하지 못했습니다. \n 잠시 후 다시 시도해주세요.")
+            }
+        }
+    }
 }
 
 // MARK: - UITableView Delegate & DataSource
+
 extension NoticeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return notices.count
@@ -112,7 +136,22 @@ extension NoticeViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let notificationId = notices[indexPath.row].id
-        patchReadAPI(notificationId: notificationId)
+        let notification = notices[indexPath.row]
+        patchReadAPI(notificationId: notification.id)
+    }
+    
+    func tableView(_ tableView: UITableView,
+                       commit editingStyle: UITableViewCell.EditingStyle,
+                       forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            deleteNotificationsAPI(notificationId: notices[indexPath.row].id)
+            notices.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView,
+                   titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
+        return "삭제"
     }
 }

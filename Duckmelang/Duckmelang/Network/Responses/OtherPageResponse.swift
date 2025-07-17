@@ -25,9 +25,11 @@ public struct OtherImageResponse: Codable {
     let totalElements: Int
     let isFirst: Bool
     let isLast: Bool
+    let currentPage: Int
 }
 
 public struct OtherImageData: Codable {
+    let memberProfileImageId: Int
     let memberProfileImageUrl: String
     let createdAt: String
 }

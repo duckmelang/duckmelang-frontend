@@ -20,6 +20,11 @@ class MyAccompanyViewController: UIViewController {
         switchSegment(segment: myAccompanyView.segmentedControl)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        self.tabBarController?.tabBar.isHidden = false
+    }
+    
     private lazy var myAccompanyView: MyAccompanyView = {
         let view = MyAccompanyView()
         return view
