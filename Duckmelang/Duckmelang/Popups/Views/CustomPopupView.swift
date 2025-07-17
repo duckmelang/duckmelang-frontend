@@ -17,6 +17,19 @@ class CustomPopupView: UIView {
     ) {
         super.init(frame: .zero)
         
+        self.backgroundColor = .clear
+        self.addSubview(self.panel)
+        self.addSubview(self.popupView)
+        
+        [self.userImage, self.textStackView, self.btnStackView]
+          .forEach(self.popupView.addSubview(_:))
+        [self.title, self.subTitle]
+          .forEach(self.textStackView.addArrangedSubview(_:))
+        [self.leftBtn, self.rightBtn]
+            .forEach(self.btnStackView.addArrangedSubview(_:))
+        
+        setupView()
+        
         if (userImage == nil) {
             self.userImage.isHidden = true
         } else {
@@ -35,18 +48,23 @@ class CustomPopupView: UIView {
             self.rightBtn.setTitle(rightBtnTitle, for: .normal)
         }
         
-        self.backgroundColor = .clear
-        self.addSubview(self.panel)
-        self.addSubview(self.popupView)
-        
-        [self.userImage, self.textStackView, self.btnStackView]
-          .forEach(self.popupView.addSubview(_:))
-        [self.title, self.subTitle]
-          .forEach(self.textStackView.addArrangedSubview(_:))
-        [self.leftBtn, self.rightBtn]
-            .forEach(self.btnStackView.addArrangedSubview(_:))
-        
-        setupView()
+        if self.btnStackView.isHidden {
+            // 버튼이 없으면 textStackView의 bottom을 popupView에 붙임
+            self.textStackView.snp.makeConstraints {
+                $0.bottom.equalToSuperview().inset(20)
+            }
+        } else {
+            // 버튼이 있으면 btnStackView 추가 및 아래쪽에 위치
+            self.textStackView.snp.makeConstraints {
+                $0.bottom.lessThanOrEqualTo(btnStackView.snp.top).offset(-32)
+            }
+
+            self.btnStackView.snp.makeConstraints {
+                $0.top.equalTo(textStackView.snp.bottom).offset(32)
+                $0.leading.trailing.equalToSuperview().inset(24)
+                $0.bottom.equalToSuperview().inset(20)
+            }
+        }
         
         self.popupView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
