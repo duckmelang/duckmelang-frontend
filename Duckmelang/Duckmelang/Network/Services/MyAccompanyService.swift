@@ -41,14 +41,14 @@ public final class MyAccompanyService : NetworkManager {
         return try await requestAsync(target: .getReceivedRequests(page: page), decodingType: RequestResponse.self)
     }
     
-    /// 요청 수락  API
+    /// 요청 수락 API
     public func postRequestSucceed(applicationId: Int) async throws -> AcceptRequestResponse {
         return try await requestAsync(target: .postRequestSucceed(applicationId: applicationId), decodingType: AcceptRequestResponse.self)
     }
     
-    /// 요청 거절  API
-    public func postRequestFailed(applicationId: Int) async throws -> AcceptRequestResponse {
-        return try await requestAsync(target: .postRequestFailed(applicationId: applicationId), decodingType: AcceptRequestResponse.self)
+    /// 요청 거절 API
+    public func postRequestFailed(applicationId: Int) async throws -> FailedRequestResponse {
+        return try await requestAsync(target: .postRequestFailed(applicationId: applicationId), decodingType: FailedRequestResponse.self)
     }
     
     /// 스크랩  API

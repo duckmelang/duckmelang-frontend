@@ -108,7 +108,7 @@ class RequestViewController: UIViewController {
         }
     }
     
-    private func postSucceedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
+    @objc private func postSucceedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
         Task {
             do {
                 startLoading()
@@ -128,7 +128,7 @@ class RequestViewController: UIViewController {
         }
     }
     
-    private func postFailedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
+    @objc private func postFailedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
         Task {
             do {
                 startLoading()

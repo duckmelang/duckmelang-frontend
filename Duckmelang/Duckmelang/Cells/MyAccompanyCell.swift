@@ -95,13 +95,6 @@ class MyAccompanyCell: UITableViewCell {
         $0.backgroundColor = .dmrBlue
         $0.setTitleColor(.grey0, for: .normal)
         $0.layer.cornerRadius = 15
-        $0.addTarget(MyAccompanyCell.self, action: #selector(acceptBtnTapped), for: .touchUpInside)
-    }
-    
-    // TODO: delegate로 구현
-    @objc private func acceptBtnTapped() {
-        print("수락")
-        delegate?.acceptBtnTapped(cell: self)
     }
     
     let rejectBtn = UIButton().then {
@@ -110,13 +103,6 @@ class MyAccompanyCell: UITableViewCell {
         $0.backgroundColor = .white
         $0.setTitleColor(.dmrBlue, for: .normal)
         $0.layer.cornerRadius = 15
-        $0.addTarget(MyAccompanyCell.self, action: #selector(rejectBtnTapped), for: .touchUpInside)
-    }
-    
-    // TODO: delegate로 구현
-    @objc private func rejectBtnTapped() {
-        print("거절")
-        delegate?.rejectBtnTapped(cell: self)
     }
     
     let btnStackView = UIStackView().then {
@@ -127,7 +113,20 @@ class MyAccompanyCell: UITableViewCell {
         $0.isHidden = true
     }
     
+    @objc private func acceptBtnTapped() {
+        print("수락")
+        delegate?.acceptBtnTapped(cell: self)
+    }
+    
+    @objc private func rejectBtnTapped() {
+        print("거절")
+        delegate?.rejectBtnTapped(cell: self)
+    }
+    
     private func setView() {
+        acceptBtn.addTarget(self, action: #selector(acceptBtnTapped), for: .touchUpInside)
+        rejectBtn.addTarget(self, action: #selector(rejectBtnTapped), for: .touchUpInside)
+        
         [
             userImage,
             postImage,
@@ -236,6 +235,8 @@ class MyAccompanyCell: UITableViewCell {
             statusText = "수락 대기중"
             self.status.textColor = .grey600
             self.status.text = statusText
+            self.btnStackView.isHidden = true
+            self.status.isHidden = false
             return
         }
         

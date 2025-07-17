@@ -69,8 +69,14 @@ public struct RequestResponse: Codable {
     let isLast: Bool
 }
 
-// 수락, 거절 성공 시 받아오는 구조체
+// 수락 성공 시 받아오는 구조체
 public struct AcceptRequestResponse: Codable {
     let mateRelationshipId: Int
     let createdAt: String
+}
+
+// 거절 성공 시 받아오는 구조체
+public struct FailedRequestResponse: Codable {
+    let newStatus: String
+    let modifiedAt: String
 }
