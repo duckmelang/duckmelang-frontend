@@ -244,8 +244,8 @@ class WriteViewController: UIViewController, CelebSelectionDelegate, EventSelect
     func didSelectCeleb(_ celeb: IdolListDTO?) {
         self.selectedCeleb = celeb
         writeView.idolSelectButton.setTitle(celeb?.idolName, for: .normal)
-        writeView.idolSelectButton.setTitleColor(.black, for: .normal)
-        writeView.idolSelectButton.layer.borderColor = UIColor.black!.cgColor
+        writeView.idolSelectButton.setTitleColor(.grey800, for: .normal)
+        writeView.idolSelectButton.layer.borderColor = UIColor.grey600!.cgColor
         checkAllFieldsFilled()
     }
     
@@ -253,8 +253,8 @@ class WriteViewController: UIViewController, CelebSelectionDelegate, EventSelect
     func didSelectEvent(_ event: EventDTO) {
         self.selectedEvent = event
         writeView.eventTypeSelectButton.setTitle(event.eventName, for: .normal)
-        writeView.eventTypeSelectButton.setTitleColor(.black, for: .normal)
-        writeView.eventTypeSelectButton.layer.borderColor = UIColor.black!.cgColor
+        writeView.eventTypeSelectButton.setTitleColor(.grey800, for: .normal)
+        writeView.eventTypeSelectButton.layer.borderColor = UIColor.grey600!.cgColor
         checkAllFieldsFilled()
     }
     
@@ -266,8 +266,8 @@ class WriteViewController: UIViewController, CelebSelectionDelegate, EventSelect
         
         self.selectedDate = selectedDate
         writeView.eventDateSelectButton.setTitle(selectedDate, for: .normal)
-        writeView.eventDateSelectButton.setTitleColor(.black, for: .normal)
-        writeView.eventDateSelectButton.layer.borderColor = UIColor.black!.cgColor
+        writeView.eventDateSelectButton.setTitleColor(.grey800, for: .normal)
+        writeView.eventDateSelectButton.layer.borderColor = UIColor.grey600!.cgColor
         
         checkAllFieldsFilled()
     }
@@ -349,24 +349,30 @@ extension WriteViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true)
         
         let dispatchGroup = DispatchGroup()
-        var loadedImages: [UIImage] = []
-        
-        for result in results {
-            dispatchGroup.enter()
-            result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
-                defer { dispatchGroup.leave() }
-                if let image = object as? UIImage {
-                    loadedImages.append(image)
+            var newImages: [UIImage] = []
+
+            for result in results {
+                dispatchGroup.enter()
+                result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
+                    defer { dispatchGroup.leave() }
+                    
+                    if let image = object as? UIImage {
+                        newImages.append(image)
+                    }
                 }
             }
-        }
         
         dispatchGroup.notify(queue: .main) {
-            self.selectedImages = loadedImages
+            // 기존 이미지에 추가로 붙임
+            self.selectedImages.append(contentsOf: newImages)
+            
+            // UI 갱신
             self.writeView.imageCollectionView.reloadData()
-            self.writeView.imageCountLabel.text = "\(loadedImages.count)/10"
-            self.writeView.pageControl.numberOfPages = loadedImages.count
+            self.writeView.pageControl.numberOfPages = self.selectedImages.count
             self.writeView.pageControl.currentPage = 0
+            self.writeView.imageCountLabel.text = "\(self.selectedImages.count)/10"
+            
+            // 버튼 활성화 체크 등
             self.checkAllFieldsFilled()
         }
     }
@@ -381,7 +387,26 @@ extension WriteViewController: UICollectionViewDataSource, UICollectionViewDeleg
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: WriteImageCell.identifier, for: indexPath) as? WriteImageCell else {
             return UICollectionViewCell()
         }
-        cell.configure(image: selectedImages[indexPath.row])
+        
+        let image = selectedImages[indexPath.item]
+        
+        cell.configure(image: image) {
+            let currentPage = Int(self.writeView.imageCollectionView.contentOffset.x / self.writeView.imageCollectionView.frame.width)
+            
+            self.selectedImages.remove(at: indexPath.item)
+            
+            let newPage = min(currentPage, self.selectedImages.count - 1)
+            
+            self.writeView.imageCollectionView.reloadData()
+            self.writeView.pageControl.numberOfPages = self.selectedImages.count
+            self.writeView.pageControl.currentPage = max(newPage, 0)
+            
+            let offset = CGFloat(newPage) * self.writeView.imageCollectionView.frame.width
+            self.writeView.imageCollectionView.setContentOffset(CGPoint(x: offset, y: 0), animated: true)
+            
+            self.writeView.imageCountLabel.text = "\(self.selectedImages.count)/10"
+        }
+        
         return cell
     }
 }

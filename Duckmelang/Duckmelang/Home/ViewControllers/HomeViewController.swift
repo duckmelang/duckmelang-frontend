@@ -269,6 +269,10 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard indexPath.row < currentPostsData.count else {
+            print("indexPath.row 초과")
+            return
+        }
         print("📌 didSelectRowAt 호출됨 - IndexPath: \(indexPath.row)")
 
         let post = currentPostsData[indexPath.row]  // 선택한 게시물 가져오기

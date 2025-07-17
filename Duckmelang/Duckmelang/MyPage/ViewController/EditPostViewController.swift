@@ -306,8 +306,8 @@ class EditPostViewController: UIViewController, EditPostViewDelegate, EventSelec
     func didSelectCeleb(_ celeb: IdolListDTO?) {
         self.selectedCeleb = celeb
         editPostView.idolSelectButton.setTitle(celeb?.idolName, for: .normal)
-        editPostView.idolSelectButton.setTitleColor(.black, for: .normal)
-        editPostView.idolSelectButton.layer.borderColor = UIColor.black!.cgColor
+        editPostView.idolSelectButton.setTitleColor(.grey800, for: .normal)
+        editPostView.idolSelectButton.layer.borderColor = UIColor.grey600!.cgColor
         checkAllFieldsFilled()
     }
     
@@ -315,8 +315,8 @@ class EditPostViewController: UIViewController, EditPostViewDelegate, EventSelec
     func didSelectEvent(_ event: EventDTO) {
         self.selectedEvent = event
         editPostView.eventTypeSelectButton.setTitle(event.eventName, for: .normal)
-        editPostView.eventTypeSelectButton.setTitleColor(.black, for: .normal)
-        editPostView.eventTypeSelectButton.layer.borderColor = UIColor.black!.cgColor
+        editPostView.eventTypeSelectButton.setTitleColor(.grey800, for: .normal)
+        editPostView.eventTypeSelectButton.layer.borderColor = UIColor.grey600!.cgColor
         checkAllFieldsFilled()
     }
     
@@ -328,8 +328,8 @@ class EditPostViewController: UIViewController, EditPostViewDelegate, EventSelec
         
         self.selectedDate = selectedDate
         editPostView.eventDateSelectButton.setTitle(selectedDate, for: .normal)
-        editPostView.eventDateSelectButton.setTitleColor(.black, for: .normal)
-        editPostView.eventDateSelectButton.layer.borderColor = UIColor.black!.cgColor
+        editPostView.eventDateSelectButton.setTitleColor(.grey800, for: .normal)
+        editPostView.eventDateSelectButton.layer.borderColor = UIColor.grey600!.cgColor
         
         checkAllFieldsFilled()
     }
@@ -394,24 +394,30 @@ extension EditPostViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true)
         
         let dispatchGroup = DispatchGroup()
-        var loadedImages: [UIImage] = []
-        
-        for result in results {
-            dispatchGroup.enter()
-            result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
-                defer { dispatchGroup.leave() }
-                if let image = object as? UIImage {
-                    loadedImages.append(image)
+            var newImages: [UIImage] = []
+
+            for result in results {
+                dispatchGroup.enter()
+                result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
+                    defer { dispatchGroup.leave() }
+                    
+                    if let image = object as? UIImage {
+                        newImages.append(image)
+                    }
                 }
             }
-        }
         
         dispatchGroup.notify(queue: .main) {
-            self.selectedImages = loadedImages
+            // 기존 이미지에 추가로 붙임
+            self.selectedImages.append(contentsOf: newImages)
+            
+            // UI 갱신
             self.editPostView.imageCollectionView.reloadData()
-            self.editPostView.imageCountLabel.text = "\(loadedImages.count)/10"
-            self.editPostView.pageControl.numberOfPages = loadedImages.count
+            self.editPostView.pageControl.numberOfPages = self.selectedImages.count
             self.editPostView.pageControl.currentPage = 0
+            self.editPostView.imageCountLabel.text = "\(self.selectedImages.count)/10"
+            
+            // 버튼 활성화 체크 등
             self.checkAllFieldsFilled()
         }
     }
@@ -426,7 +432,26 @@ extension EditPostViewController: UICollectionViewDataSource, UICollectionViewDe
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: WriteImageCell.identifier, for: indexPath) as? WriteImageCell else {
             return UICollectionViewCell()
         }
-        cell.configure(image: selectedImages[indexPath.row])
+        
+        let image = selectedImages[indexPath.item]
+        
+        cell.configure(image: image) {
+            let currentPage = Int(self.editPostView.imageCollectionView.contentOffset.x / self.editPostView.imageCollectionView.frame.width)
+            
+            self.selectedImages.remove(at: indexPath.item)
+            
+            let newPage = min(currentPage, self.selectedImages.count - 1)
+            
+            self.editPostView.imageCollectionView.reloadData()
+            self.editPostView.pageControl.numberOfPages = self.selectedImages.count
+            self.editPostView.pageControl.currentPage = max(newPage, 0)
+            
+            let offset = CGFloat(newPage) * self.editPostView.imageCollectionView.frame.width
+            self.editPostView.imageCollectionView.setContentOffset(CGPoint(x: offset, y: 0), animated: true)
+            
+            self.editPostView.imageCountLabel.text = "\(self.selectedImages.count)/10"
+        }
+        
         return cell
     }
 }

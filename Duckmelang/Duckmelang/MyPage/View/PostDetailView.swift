@@ -53,6 +53,7 @@ class PostDetailView: UIView {
     
     lazy var setBtnImage = UIImageView().then {
         $0.image = UIImage(resource: .menu1)
+        $0.alpha = 0.95
         $0.isHidden = true
         $0.isUserInteractionEnabled = true
     }

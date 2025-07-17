@@ -177,7 +177,7 @@ class EditPostView: UIView, UITextViewDelegate {
         navibar.snp.makeConstraints {
             $0.top.equalTo(safeAreaInsets)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(110)
+            $0.height.equalTo(105)
         }
         
         scrollView.snp.makeConstraints {
@@ -191,7 +191,8 @@ class EditPostView: UIView, UITextViewDelegate {
         }
 
         imageCollectionView.snp.makeConstraints {
-            $0.top.leading.trailing.equalToSuperview()
+            $0.top.equalToSuperview().offset(40)
+            $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(UIScreen.main.bounds.width)
         }
 
