@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import SwiftyToaster
 
 class NewMessageViewController: UIViewController, OtherMessageCellDelegate, ConfirmPopupViewController.ModalDelegate {
+    
     func hideConfirmBtn() {
         messageView.topMessageView.confirmBtn.isHidden = true
     }
@@ -16,8 +18,18 @@ class NewMessageViewController: UIViewController, OtherMessageCellDelegate, Conf
     
     private var messageData: [MessageModel] = []
     
+    private var memberId: Int?
     var postId: Int?
     var postDetail: MyPostDetailResponse?
+    
+    // MARK: - Properties
+    
+    private lazy var messageView: MessageView = {
+        let view = MessageView()
+        return view
+    }()
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,6 +39,7 @@ class NewMessageViewController: UIViewController, OtherMessageCellDelegate, Conf
         
         self.view = messageView
         
+        loadMemberId()
         setupNavigationBar()
         setupDelegate()
         setupAction()
@@ -38,88 +51,16 @@ class NewMessageViewController: UIViewController, OtherMessageCellDelegate, Conf
         connectWebSocket()
     }
     
-    private lazy var messageView: MessageView = {
-        let view = MessageView()
-        return view
-    }()
-    
-    private func connectWebSocket() {
-        let url = URL(string: "wss://13.125.217.231.nip.io/wss/chat")!
-
-        socketManager.connect(to: url)
-        
-        // 연결 후 받은 메세지 받아오기
-        socketManager.receiveMessage { result in
-            switch result {
-            case .success(let response):
-                var newChatType: ChatType = .receive
-                if let myId = KeychainManager.shared.load(key: "memberId") {
-                    if (response.receiverId == Int(myId)) {
-                        newChatType = .receive
-                    } else if (response.senderId == self.postDetail?.memberId) {
-                        newChatType = .send
-                    } else {
-                        return
-                    }
-                }
-                          
-                let message = MessageModel(
-                    text: response.text,
-                    chatType: newChatType,
-                    date: Date()
-                )
-                
-                self.messageData.append(message)
-                DispatchQueue.main.async {
-                    self.reloadMessage()
-                }
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        socketManager.disConnect()
     }
     
-    @objc private func sendNewMessage() {
-        if (messageView.bottomMessageView.messageTextField.text == "") {
-            return
-        }
-        
-        if let text = messageView.bottomMessageView.messageTextField.text {
-            sendMessage(with: text)
-        }
+    deinit {
+        socketManager.disConnect()
     }
     
-    private func sendMessage(with text: String) {
-        if let myId = KeychainManager.shared.load(key: "memberId"),
-           let myId = Int(myId), let otherId = self.postDetail?.memberId, let postId = self.postId {
-            let newMessage = MessageRequest(
-                senderId: myId,
-                receiverId: otherId,
-                postId: postId,
-                messageType: "TEXT",
-                text: text
-            )
-            
-            socketManager.sendMessage(messageRequest: newMessage) { [weak self] result in
-                switch result {
-                case .success(_):
-                    DispatchQueue.main.async {
-                        let newMessageModel = MessageModel(text: text, chatType: .send, date: Date())
-                        self?.messageData.append(newMessageModel)
-                        self?.reloadMessage()
-                        self?.messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
-                    }
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
-        }
-    }
-    
-    private func reloadMessage() {
-        self.messageView.messageCollectionView.reloadData()
-        self.scrollToLastItem()
-    }
+    // MARK: - Setup
     
     private func setupNavigationBar() {
         self.navigationController?.navigationBar.backgroundColor = .white
@@ -147,13 +88,106 @@ class NewMessageViewController: UIViewController, OtherMessageCellDelegate, Conf
         messageView.bottomMessageView.sendBtn.addTarget(self, action: #selector(sendNewMessage), for: .touchUpInside)
     }
     
+    // MARK: - WebSocket
+    
+    private func connectWebSocket() {
+        guard let memberId = self.memberId,
+              let otherId = self.postDetail?.memberId else { return }
+        
+        let url = URL(string: "wss://13.125.217.231.nip.io/wss/chat")!
+
+        socketManager.connect(to: url)
+        
+        // 연결 후 받은 메세지 받아오기
+        socketManager.receiveMessage { result in
+            switch result {
+            case .success(let response):
+                var newChatType: ChatType = .receive
+                
+                if (response.receiverId == memberId && response.senderId == otherId) {
+                    newChatType = .receive
+                } else if (response.receiverId == otherId && response.senderId == memberId) {
+                    newChatType = .send
+                } else {
+                    return
+                }
+                          
+                let message = MessageModel(
+                    text: response.text,
+                    chatType: newChatType,
+                    date: Date()
+                )
+                
+                self.messageData.append(message)
+                DispatchQueue.main.async {
+                    self.reloadMessage()
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func sendMessage(with text: String) {
+        guard let memberId = self.memberId,
+              let otherId = self.postDetail?.memberId,
+              let postId = self.postId else { return }
+        
+        let newMessage = MessageRequest(
+            senderId: memberId,
+            receiverId: otherId,
+            postId: postId,
+            messageType: "TEXT",
+            text: text
+        )
+        
+        socketManager.sendMessage(messageRequest: newMessage) { [weak self] result in
+            switch result {
+            case .success:
+                DispatchQueue.main.async {
+                    let newMessageModel = MessageModel(text: text, chatType: .send, date: Date())
+                    self?.messageData.append(newMessageModel)
+                    self?.reloadMessage()
+                    self?.messageView.bottomMessageView.messageTextField.text = "" // 입력창 초기화
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    // MARK: - Actions
+    
+    // 뷰 생성 시에 멤버아이디 불러와서 저장하는 함수
+    private func loadMemberId() {
+        guard let memberIdString = KeychainManager.shared.load(key: "memberId"),
+              let id = Int(memberIdString) else {
+            Toaster.shared.makeToast("내 정보를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.")
+            return
+        }
+
+        self.memberId = id
+    }
+    
+    @objc private func sendNewMessage() {
+        guard let text = messageView.bottomMessageView.messageTextField.text else { return }
+        if text.isEmpty { return }
+        
+        sendMessage(with: text)
+    }
+    
+    private func reloadMessage() {
+        self.messageView.messageCollectionView.reloadData()
+        self.scrollToLastItem()
+    }
+    
     @objc private func openConfirmPopup() {
         let popupVC = ConfirmPopupViewController()
         popupVC.modalPresentationStyle = .overFullScreen
         
         popupVC.postId = self.postId
-        popupVC.oppositeNickname = postDetail?.nickname
-        popupVC.oppositeProfileImage = postDetail?.latestPublicMemberProfileImage
+        popupVC.oppositeNickname = self.postDetail?.nickname
+        popupVC.oppositeProfileImage = self.postDetail?.latestPublicMemberProfileImage
         
         popupVC.delegate = self
         present(popupVC, animated: false)
@@ -170,6 +204,8 @@ class NewMessageViewController: UIViewController, OtherMessageCellDelegate, Conf
         messageView.messageCollectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
     }
 }
+
+// MARK: - CollectionView 설정
 
 extension NewMessageViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
