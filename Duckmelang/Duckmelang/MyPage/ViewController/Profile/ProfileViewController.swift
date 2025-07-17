@@ -13,15 +13,14 @@ class ProfileViewController: UIViewController{
     var profileData: ProfileData?
     
     let networkService = MyPageService()
+    
+    var nickname: String?
+    var reviewId: Int?
 
     private var posts: [PostDTO] = []
   
     //리뷰 데이터를 저장할 배열
     private var reviews: [myReviewDTO] = []
-    
-    let data1 = PostModel.dummy1()
-
-    let data2 = ReviewModel.dummy()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -274,7 +273,20 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
             }
             
             let review = reviews[indexPath.row]
-            cell.configure(model: review)
+            let reviewCount = reviews.count
+            let matchingCount = profileData?.matchCount ?? 0
+            cell.configure(model: review, reviewCount: reviewCount, matchingCount: matchingCount) {
+                self.nickname = review.nickname
+                self.reviewId = review.reviewId
+    
+                let popupVC = AccompanyWarnPopupViewController()
+                popupVC.nickname = self.nickname
+                popupVC.targetId = self.reviewId
+                
+                popupVC.modalPresentationStyle = .overFullScreen
+                
+                self.present(popupVC, animated: false)
+            }
             
             //데이터 출력
             print("📝 [ReviewCell] 셀 \(indexPath.row + 1) 데이터 설정:")

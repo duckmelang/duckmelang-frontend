@@ -23,6 +23,9 @@ class ReviewCell: UITableViewCell {
         self.selectionStyle = .none
         self.addStack()
         self.setupView()
+
+        warningBtn.addTarget(self, action: #selector(warningBtnTapped), for: .touchUpInside)
+        bringSubviewToFront(warningBtn)
     }
     
     override func prepareForReuse() {
@@ -33,6 +36,8 @@ class ReviewCell: UITableViewCell {
         self.age.text = nil
         self.review.text = nil
     }
+    
+    var onTapped: (() -> Void)?
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -55,6 +60,20 @@ class ReviewCell: UITableViewCell {
         $0.lineBreakMode = .byCharWrapping
     }
     
+    let warningBtn = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        let imageConfig = UIImage.SymbolConfiguration(pointSize: 12)
+        let image = UIImage(systemName: "exclamationmark.triangle", withConfiguration: imageConfig)
+        config.imagePlacement = .top
+        config.imagePadding = 5
+        $0.configuration = config
+        config.attributedTitle = AttributedString("", attributes: AttributeContainer([.font: UIFont.ptdRegularFont(ofSize: 12), .foregroundColor: UIColor.grey600!]))
+        config.image = image
+        $0.tintColor = UIColor.grey600
+        $0.configuration = config
+        $0.isUserInteractionEnabled = true
+    }
+    
     let genderAndAgeStack = Stack(axis: .horizontal, spacing: -19, distribution: .equalSpacing)
 
     let nicknameAndInfr = Stack(axis: .vertical, spacing: 5, alignment: .leading)
@@ -65,7 +84,7 @@ class ReviewCell: UITableViewCell {
     }
     
     private func setupView(){
-        [nicknameAndInfr, review].forEach{addSubview($0)}
+        [nicknameAndInfr, review, warningBtn].forEach{contentView.addSubview($0)}
         
         nicknameAndInfr.snp.makeConstraints{
             $0.height.equalTo(40)
@@ -78,6 +97,12 @@ class ReviewCell: UITableViewCell {
             $0.height.equalTo(48)
             $0.leading.equalTo(nicknameAndInfr.snp.trailing).offset(12)
             $0.top.equalToSuperview().inset(12)
+            $0.trailing.equalTo(warningBtn.snp.leading).offset(-9)
+        }
+        
+        warningBtn.snp.makeConstraints{
+            $0.centerY.equalToSuperview()
+            $0.width.equalTo(24)
             $0.trailing.equalToSuperview().inset(12)
         }
     }
@@ -89,11 +114,13 @@ class ReviewCell: UITableViewCell {
         self.review.text = model.review
     }
     
-    public func configure(model: myReviewDTO) {
+    public func configure(model: myReviewDTO, reviewCount: Int ,matchingCount: Int, onTapped: @escaping () -> Void) {
         self.nickname.text = model.nickname
         self.gender.text = model.gender == "true" ? "남성" : "여성"
         self.age.text = "만 \(model.age)세"
         self.review.text = model.content
+        self.warningBtn.configuration?.attributedTitle = AttributedString("\(reviewCount)/\(matchingCount)", attributes: AttributeContainer([.font: UIFont.ptdRegularFont(ofSize: 12), .foregroundColor: UIColor.grey600!]))
+        self.onTapped = onTapped
     }
     
     public func configure(model: OtherReviewDTO) {
@@ -101,5 +128,10 @@ class ReviewCell: UITableViewCell {
         self.gender.text = model.gender == "true" ? "남성" : "여성"
         self.age.text = "만 \(model.age)세"
         self.review.text = model.content
+    }
+  
+    @objc private func warningBtnTapped() {
+        print("신고 버튼 눌림")
+        onTapped?()
     }
 }

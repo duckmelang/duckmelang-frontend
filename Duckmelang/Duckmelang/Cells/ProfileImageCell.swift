@@ -17,6 +17,7 @@ class ProfileImageCell: UITableViewCell {
     
     @objc
     private func lockBtnTapped() {
+        print("버튼 탭")
         guard let imageId = self.imageId else { return }
         isLocked.toggle()
         updateLockButton()
@@ -60,6 +61,8 @@ class ProfileImageCell: UITableViewCell {
     
     let headerView = UIView().then {
         $0.backgroundColor = .white
+        $0.isUserInteractionEnabled = true
+        $0.clipsToBounds = false
     }
     
     let userImage = UIImageView().then {
@@ -95,9 +98,9 @@ class ProfileImageCell: UITableViewCell {
     }
     
     private func setView() {
-        addSubview(headerView)
-        addSubview(largeUserImage)
-        addSubview(footerView)
+        contentView.addSubview(headerView)
+        contentView.addSubview(largeUserImage)
+        contentView.addSubview(footerView)
         
         [
             userImage,
@@ -170,18 +173,19 @@ class ProfileImageCell: UITableViewCell {
         self.uploadDate.text = formatDate(model.createdAt)
     }
     
-    public func configure(/*profileData: myPageResponse, */model: ProfileImageData) {
+    public func configure(profileData: myPageResponse, model: ProfileImageData, handler: @escaping (Bool, Int) -> Void) {
+        self.lockToggleHandler = nil
         self.imageId = model.memberProfileImageId
-        //self.isLocked = model.publicStatus
+        self.isLocked = model.publicStatus
         updateLockButton()
-        /*
+
         if let lastestUserImageUrl = URL(string: profileData.latestPublicMemberProfileImage) {
             self.userImage.kf.setImage(
                 with: lastestUserImageUrl,
                 placeholder: UIImage()
             )
         }
-        */
+        
         if let userImageUrl = URL(string: model.memberProfileImageUrl) {
             self.largeUserImage.kf.setImage(
                 with: userImageUrl,
@@ -191,6 +195,7 @@ class ProfileImageCell: UITableViewCell {
         
         self.userName.text = "나의 프로필 사진"
         self.uploadDate.text = formatDate(model.createdAt)
+        self.lockToggleHandler = handler
     }
     
     private func formatDate(_ isoDateString: String) -> String {

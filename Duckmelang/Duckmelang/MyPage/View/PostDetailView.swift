@@ -318,7 +318,7 @@ class PostDetailTopView: UIView {
         }
         
         profileInfo.snp.makeConstraints{
-            $0.top.equalToSuperview().offset(15)
+            $0.top.equalToSuperview().offset(16)
             $0.leading.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }

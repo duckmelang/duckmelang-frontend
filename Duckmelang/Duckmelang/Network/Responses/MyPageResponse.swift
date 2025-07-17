@@ -160,6 +160,7 @@ public struct myProfileImageResponse: Codable {
 
 public struct ProfileImageData: Codable {
     let memberProfileImageUrl: String
+    var publicStatus: Bool = false
     let createdAt: String
     let memberProfileImageId: Int
 }
@@ -171,5 +172,6 @@ public struct PatchProfileResponse: Codable {
 }
 
 public struct ProfileImageStatusResponse: Codable {
-    let changedStatus: String
+    let memberProfileImageId: Int
+    let publicStatus: Bool
 }
