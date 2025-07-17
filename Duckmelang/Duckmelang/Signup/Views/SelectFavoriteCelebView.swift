@@ -34,7 +34,14 @@ class SelectFavoriteCelebView: UIView {
         $0.textColor = .grey600
     }
     
-    private let celebTextField = UITextField().then {
+    public lazy var searchButton = UIButton(type: .system).then {
+        let image = UIImage(systemName: "magnifyingglass")?.withRenderingMode(.alwaysTemplate)
+        $0.setImage(image, for: .normal)
+        $0.tintColor = .grey600
+        $0.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
+    }
+    
+    public lazy var celebTextField = UITextField().then {
         $0.placeholder = "텍스트 입력"
         $0.borderStyle = .roundedRect
         $0.keyboardType = .asciiCapable
@@ -46,17 +53,13 @@ class SelectFavoriteCelebView: UIView {
         $0.leftViewMode = .always
 
         // 돋보기 아이콘 추가 (오른쪽)
-        let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        searchIcon.tintColor = .grey600
-        searchIcon.contentMode = .scaleAspectFit
-        searchIcon.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        let rightContainer = UIView(frame: CGRect(x: 0, y: 0, width: 56, height: 56))
+        searchButton.center = CGPoint(x: rightContainer.frame.width / 2, y: rightContainer.frame.height / 2)
+        rightContainer.addSubview(searchButton)
 
-        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 56, height: 56))
-        searchIcon.center = CGPoint(x: rightPaddingView.frame.width / 2, y: rightPaddingView.frame.height / 2)
-        rightPaddingView.addSubview(searchIcon)
-
-        $0.rightView = rightPaddingView
+        $0.rightView = rightContainer
         $0.rightViewMode = .always
+        
         $0.autocapitalizationType = .none
         $0.returnKeyType = .done
     }

@@ -10,9 +10,10 @@ import UIKit
 class SelectEventViewController: UIViewController {
     let networkService = SignupService()
     
-    var memberId: Int?
+    var eventKinds: [String] = ["공연", "행사"]
+    var concertEvents: [EventDTO] = []
+    var festivalEvents: [EventDTO] = []
     
-    private var events: [EventCategoryList] = []
     private var selectedEventIds: [Int] = [] {
         didSet {
             self.selectEventView.nextBtn.setEnabled(!selectedEventIds.isEmpty)
@@ -68,7 +69,8 @@ class SelectEventViewController: UIViewController {
                 startLoading()
                 
                 let result = try await networkService.getAllEvents()
-                self.events = result.eventCategoryList
+                self.concertEvents = result.eventCategoryList.filter { $0.eventKind == "공연" }
+                self.festivalEvents = result.eventCategoryList.filter { $0.eventKind == "행사" }
                 
                 DispatchQueue.main.async {
                     self.selectEventView.eventCollectionView.reloadData()
@@ -81,6 +83,13 @@ class SelectEventViewController: UIViewController {
                 print(error.localizedDescription)
             }
         }
+    }
+    
+    // 다음 버튼 눌렀을 때
+    @objc func nextBtn() {
+        // MARK: TEST
+//        navigateToFilterKeywordsView()
+        postSelectedEvents()
     }
     
     private func postSelectedEvents() {
@@ -96,13 +105,14 @@ class SelectEventViewController: UIViewController {
     }
     
     private func postMemberInterestEventAPI(eventNums: SelectFavoriteEventRequest) {
-        guard let memberId = self.memberId else { return }
+        guard let memberIdString = KeychainManager.shared.load(key: "memberId"),
+              let memberId = Int(memberIdString) else { return }
         
         Task {
             do {
                 startLoading()
                 
-                let result = try await networkService.postMemberInterestEvent(
+                _ = try await networkService.postMemberInterestEvent(
                     memberId: memberId,
                     eventNums: eventNums
                 )
@@ -120,63 +130,94 @@ class SelectEventViewController: UIViewController {
         }
     }
     
-    // 다음 버튼 눌렀을 때
-    @objc func nextBtn() {
-        // MARK: TEST
-        navigateToFilterKeywordsView()
-//        postSelectedEvents()
-    }
-    
     private func navigateToFilterKeywordsView() {
         let filterVC = FilterKeywordsViewController()
         filterVC.hidesBottomBarWhenPushed = true
-        filterVC.memberId = self.memberId
         navigationController?.pushViewController(filterVC, animated: true)
     }
 }
 
 extension SelectEventViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return events.count
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return eventKinds.count
     }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EventSelectionCell.identifier, for: indexPath) as? EventSelectionCell else {
-            return UICollectionViewCell()
+
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        let kind = eventKinds[section]
+        if kind == eventKinds[0] {
+            return concertEvents.count
+        } else if kind == eventKinds[1] {
+            return festivalEvents.count
         }
-        
-        let event = events[indexPath.item]
+        return 0
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EventSelectionCell.identifier, for: indexPath) as! EventSelectionCell
+        let kind = eventKinds[indexPath.section]
+        let event: EventDTO
+
+        if kind == eventKinds[0] { // 공연
+            event = concertEvents[indexPath.row]
+        } else { // 행사
+            event = festivalEvents[indexPath.row]
+        }
+
         cell.configure(event: event)
-        cell.isSelected = selectedEventIds.contains(event.eventID)
+        
+        if selectedEventIds.contains(event.eventId) {
+            collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+        } else {
+            collectionView.deselectItem(at: indexPath, animated: false)
+        }
         
         return cell
     }
+
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: EventSelectionHeader.identifier, for: indexPath) as! EventSelectionHeader
+        headerView.configure(text: eventKinds[indexPath.section])
+        return headerView
+    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let eventID = events[indexPath.item].eventID
-        
-        if selectedEventIds.contains(where: { $0 == eventID }) {
-            selectedEventIds.removeAll(where: { $0 == eventID })
-        } else {
-            selectedEventIds.append(eventID)
+        let section = indexPath.section
+        let eventId: Int
+
+        if section == 0 { // 공연
+            eventId = concertEvents[indexPath.row].eventId
+        } else { // 행사
+            eventId = festivalEvents[indexPath.row].eventId
         }
-        
-        if let cell = collectionView.cellForItem(at: indexPath) as? EventSelectionCell {
-            cell.isSelected = selectedEventIds.contains(eventID)
+
+        if let index = selectedEventIds.firstIndex(of: eventId) {
+            // 이미 선택된 상태면 → 선택 해제
+            selectedEventIds.remove(at: index)
+            collectionView.deselectItem(at: indexPath, animated: true)
+        } else {
+            // 선택 안된 상태면 → 선택
+            selectedEventIds.append(eventId)
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        let eventID = events[indexPath.item].eventID
-        
-        if selectedEventIds.contains(where: { $0 == eventID }) {
-            selectedEventIds.removeAll(where: { $0 == eventID })
-        } else {
-            selectedEventIds.append(eventID)
+        let section = indexPath.section
+        let eventId: Int
+
+        if section == 0 { // 공연
+            eventId = concertEvents[indexPath.row].eventId
+        } else { // 행사
+            eventId = festivalEvents[indexPath.row].eventId
         }
-        
-        if let cell = collectionView.cellForItem(at: indexPath) as? EventSelectionCell {
-            cell.isSelected = selectedEventIds.contains(eventID)
+
+        if let index = selectedEventIds.firstIndex(of: eventId) {
+            // 이미 선택된 상태면 → 선택 해제
+            selectedEventIds.remove(at: index)
+            collectionView.deselectItem(at: indexPath, animated: true)
+        } else {
+            // 선택 안된 상태면 → 선택
+            selectedEventIds.append(eventId)
         }
     }
+
 }

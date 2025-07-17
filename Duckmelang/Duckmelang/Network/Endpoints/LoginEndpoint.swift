@@ -15,9 +15,18 @@ import Moya
 // 예) .postReviews(let memberId) : X / .postReviews : O
 
 public enum LoginEndpoint {
+    case getCheckNickname(loginId: String) // 아이디 중복 확인
     case postRefreshToken(refreshToken: RefreshTokenRequest) // 토큰 재발급
+    case getCheckPhoneNum(phoneNum: String) // 전화번호 중복 확인
     case postLogin(login: LoginRequest) // 로그인
+
     case deleteAccount
+
+    case patchPassword(login: NewPasswordRequest) // 비밀번호 변경
+    case getFindId(phoneNum: String) // 아이디 찾기
+    
+    case kakaoLogin(accessToken: KakaoLoginRequest) // 카카오 로그인
+
 }
 
 extension LoginEndpoint: TargetType {
@@ -27,7 +36,7 @@ extension LoginEndpoint: TargetType {
         switch self {
         default:
             guard let url = URL(string: API.authURL) else {
-                fatalError("baseURL 오류")
+                fatalError("authURL 오류")
             }
             return url
         }
@@ -36,12 +45,22 @@ extension LoginEndpoint: TargetType {
     public var path: String {
         // 기본 URL + path로 URL 구성
         switch self {
+        case .getCheckNickname:
+            return "/nickname"
         case .postRefreshToken:
             return "/token/refresh"
+        case .getCheckPhoneNum:
+            return "/phone"
         case .postLogin:
             return "/login"
         case .deleteAccount:
             return "/me"
+        case .patchPassword:
+            return "/find-password"
+        case .getFindId:
+            return "/find-id"
+        case .kakaoLogin:
+            return "/kakao-login"
         }
     }
     
@@ -52,18 +71,31 @@ extension LoginEndpoint: TargetType {
         case .deleteAccount:
             return .delete
         default:
+        case .postRefreshToken, .postLogin, .kakaoLogin:
             return .post
+        case .patchPassword:
+            return .patch
+        default:
+            return .get
         }
     }
     
     public var task: Moya.Task {
         switch self {
+        case .getCheckNickname(let loginId):
+            return .requestParameters(parameters: ["loginId": loginId], encoding: URLEncoding.queryString)
         case .postRefreshToken(let refreshToken):
             return .requestJSONEncodable(refreshToken)
         case .postLogin(let login):
             return .requestJSONEncodable(login)
         case .deleteAccount:
             return .requestPlain
+        case .patchPassword(let login):
+            return .requestJSONEncodable(login)
+        case .getCheckPhoneNum(let phoneNum), .getFindId(let phoneNum):
+            return .requestParameters(parameters: ["phoneNum": phoneNum], encoding: URLEncoding.queryString)
+        case .kakaoLogin(let accessToken):
+            return .requestJSONEncodable(accessToken)
         }
     }
         

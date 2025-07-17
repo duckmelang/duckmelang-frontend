@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import SwiftyToaster
 
 class FoundPasswordViewController: UIViewController {
+    let networkService = LoginService()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = foundPasswordView
@@ -56,14 +59,38 @@ class FoundPasswordViewController: UIViewController {
         foundPasswordView.verifyButton.isEnabled = !text.isEmpty
     }
     
-    @objc func didTapVerifyButton(_ textField: UITextField) {
-        // 이건 아이디가 있을 때
-        let newPwdVC = NewPasswordViewController()
-        self.navigationController?.pushViewController(newPwdVC, animated: true)
-        
-        // 이건 아이디가 없을 떄
-//        foundPasswordView.idTextField.setErrorState(true)
-//        foundPasswordView.verifyButton.isEnabled = false
-//        foundPasswordView.alertLabel.isHidden = false
+    // 아이디 입력 후 확인 버튼 누를 때
+    @objc func didTapVerifyButton() {
+        guard let loginId = foundPasswordView.idTextField.text else { return }
+        getCheckNicknameAPI(loginId: loginId)
+    }
+    
+    // 아이디가 있는 지 확인하기
+    private func getCheckNicknameAPI(loginId: String) {
+        Task {
+            do {
+                startLoading()
+                
+                let result = try await networkService.getCheckNickname(loginId: loginId)
+                if (result.isDuplicate) {
+                    // 아이디가 있는 경우
+                    let newPwdVC = NewPasswordViewController()
+                    newPwdVC.id = loginId
+                    self.navigationController?.pushViewController(newPwdVC, animated: true)
+                } else {
+                    // 아이디가 없는 경우
+                    foundPasswordView.idTextField.setErrorState(true)
+                    foundPasswordView.verifyButton.isEnabled = false
+                    foundPasswordView.alertLabel.isHidden = false
+                }
+                
+                stopLoading()
+            }
+            catch {
+                stopLoading()
+                print(error.localizedDescription)
+                Toaster.shared.makeToast(error.localizedDescription)
+            }
+        }
     }
 }

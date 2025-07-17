@@ -6,19 +6,31 @@
 //
 
 import UIKit
+import KakaoSDKCommon
+import FirebaseCore
+import FirebaseAuth
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    
+    var window: UIWindow?
     var sseClient = SSEClient()
 
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        //MARK: - 파이어베이스 설정
+        FirebaseApp.configure()
+        Auth.auth().languageCode = "kr"
         
         UNUserNotificationCenter.current().delegate = self
         NotificationManager.shared.requestNotificationPermission()
+        
         sseClient.connectToSSE()
+        
+        //MARK: - 카카오로그인 설정
+        KakaoSDK.initSDK(appKey: "\(Config.nativeAppKey)")
         
         return true
     }

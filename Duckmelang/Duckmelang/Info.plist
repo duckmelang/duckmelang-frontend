@@ -9,12 +9,18 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>$(FIREBASE_APP_KEY)</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
 				<string>kakao$(NATIVE_APP_KEY)</string>
 			</array>
 		</dict>
 	</array>
-	<key>FIREBASE_APP_KEY</key>
-	<string>${FIRE_BASE_APP_KEY}</string>
 	<key>NATIVE_APP_KEY</key>
 	<string>$(NATIVE_APP_KEY)</string>
 	<key>UIAppFonts</key>

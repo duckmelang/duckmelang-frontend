@@ -19,7 +19,6 @@ class FoundIDView: UIView {
     }
     
     public let idLabel = UILabel().then {
-        $0.text = "Deokmerang1234" // 임시 텍스트
         $0.font = .ptdSemiBoldFont(ofSize: 17)
         $0.textColor = .grey800
         $0.numberOfLines = 0
@@ -32,7 +31,6 @@ class FoundIDView: UIView {
     }
     
     public let phoneNumLabel = UILabel().then {
-        $0.text = "(전화번호)로 저장된 아이디에요"
         $0.font = .ptdRegularFont(ofSize: 16)
         $0.textColor = .grey700
         $0.numberOfLines = 0

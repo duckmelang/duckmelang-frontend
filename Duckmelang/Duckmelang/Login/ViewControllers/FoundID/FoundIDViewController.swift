@@ -6,14 +6,17 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class FoundIDViewController: UIViewController {
     var phoneNum: String = ""
+    var foundId: String = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = foundIDView
         
+        foundIDView.idLabel.text = "\(foundId)"
         foundIDView.phoneNumLabel.text = "\(phoneNum)로 저장된 아이디에요"
         self.navigationController?.navigationBar.isHidden = false
         setupNavigationBar()

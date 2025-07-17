@@ -10,8 +10,6 @@ import UIKit
 class FilterKeywordsViewController: UIViewController {
     let networkService = SignupService()
     
-    var memberId: Int?
-    
     private var keywords: [String] = []
     
     override func viewDidLoad() {
@@ -67,9 +65,17 @@ class FilterKeywordsViewController: UIViewController {
             self.filterKeywordsView.keywordsCollectionView.reloadData()
         }
     }
-
+    
+    // 다음 버튼 눌렀을 때
+    @objc func nextBtn() {
+        // MARK: TEST
+//        navigateToHomeView()
+        postKeywords()
+    }
+    
     private func postKeywords() {
-        guard let memberId = self.memberId else { return }
+        guard let memberIdString = KeychainManager.shared.load(key: "memberId"),
+              let memberId = Int(memberIdString) else { return }
         
         Task {
             do {
@@ -77,6 +83,7 @@ class FilterKeywordsViewController: UIViewController {
                 
                 let request = SetLandmineKeywordRequest(landmineContents: keywords)
                 _ = try await networkService.postLandMines(memberId: memberId, landmineString: request)
+                
                 DispatchQueue.main.async {
                     self.navigateToHomeView()
                 }
@@ -88,13 +95,6 @@ class FilterKeywordsViewController: UIViewController {
                 print(error.localizedDescription)
             }
         }
-    }
-    
-    // 다음 버튼 눌렀을 때
-    @objc func nextBtn() {
-        // MARK: TEST
-        navigateToHomeView()
-//        postKeywords()
     }
     
     private func navigateToHomeView() {
