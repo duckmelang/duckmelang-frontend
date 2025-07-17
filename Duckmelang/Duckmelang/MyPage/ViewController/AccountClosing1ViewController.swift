@@ -8,6 +8,8 @@
 import UIKit
 
 class AccountClosing1ViewController: UIViewController {
+    
+    let networkService = LoginService()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,8 +31,26 @@ class AccountClosing1ViewController: UIViewController {
     
     @objc
     private func outBtnDidTap() {
-        let out2VC = UINavigationController(rootViewController: AccountClosing2ViewController())
-        out2VC.modalPresentationStyle = .fullScreen
-        present(out2VC, animated: true)
+        _Concurrency.Task {
+            do {
+                let response: () = try await networkService.deleteAccount()
+                print("회원 탈퇴 성공: \(response)")
+                self.logoutAndRedirectToOnboarding()
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+
+    private func logoutAndRedirectToOnboarding() {
+        DispatchQueue.main.async {
+            // Keychain에서 저장된 토큰 삭제
+            KeychainManager.shared.delete(key: "accessToken")
+            KeychainManager.shared.delete(key: "refreshToken")
+            
+            let vc = UINavigationController(rootViewController: AccountClosing2ViewController())
+            vc.modalPresentationStyle = .fullScreen
+            self.present(vc, animated: true)
+        }
     }
 }

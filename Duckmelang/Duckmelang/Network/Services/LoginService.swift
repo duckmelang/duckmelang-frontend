@@ -35,4 +35,8 @@ public final class LoginService : NetworkManager {
     public func postLogin(login: LoginRequest) async throws -> LoginResult {
         return try await requestAsync(target: .postLogin(login: login), decodingType: LoginResult.self)
     }
+    
+    public func deleteAccount() async throws {
+        try await requestAsync(target: .deleteAccount)
+    }
 }

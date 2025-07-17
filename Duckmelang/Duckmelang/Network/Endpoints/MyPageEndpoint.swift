@@ -110,7 +110,7 @@ extension MyPageEndpoint: TargetType {
         case .getMyPageLogin:
             return "/info"
         case .deleteAccount:
-            return "/account/delete"
+            return "/auth"
         case .patchProfileImageStatus(let imageId, _):
             return "/profile/image/\(imageId)/status"
         }

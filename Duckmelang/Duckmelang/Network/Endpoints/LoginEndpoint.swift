@@ -17,6 +17,7 @@ import Moya
 public enum LoginEndpoint {
     case postRefreshToken(refreshToken: RefreshTokenRequest) // 토큰 재발급
     case postLogin(login: LoginRequest) // 로그인
+    case deleteAccount
 }
 
 extension LoginEndpoint: TargetType {
@@ -39,6 +40,8 @@ extension LoginEndpoint: TargetType {
             return "/token/refresh"
         case .postLogin:
             return "/login"
+        case .deleteAccount:
+            return "/me"
         }
     }
     
@@ -46,6 +49,8 @@ extension LoginEndpoint: TargetType {
         // 가장 많이 호출되는 post을 default로 처리하기
         // 동일한 method는 한 case로 처리할 수 있음
         switch self {
+        case .deleteAccount:
+            return .delete
         default:
             return .post
         }
@@ -57,6 +62,8 @@ extension LoginEndpoint: TargetType {
             return .requestJSONEncodable(refreshToken)
         case .postLogin(let login):
             return .requestJSONEncodable(login)
+        case .deleteAccount:
+            return .requestPlain
         }
     }
         
