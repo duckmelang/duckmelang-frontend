@@ -70,7 +70,6 @@ extension LoginEndpoint: TargetType {
         switch self {
         case .deleteAccount:
             return .delete
-        default:
         case .postRefreshToken, .postLogin, .kakaoLogin:
             return .post
         case .patchPassword:

@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		01997BE52D62DD120008A90C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01997BE42D62DD120008A90C /* WebKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5D1CD04F2E0AF02F009901BD /* SwiftyToaster in Frameworks */ = {isa = PBXBuildFile; productRef = 5D1CD04E2E0AF02F009901BD /* SwiftyToaster */; };
+		5DE491552E29315C007D9DFD /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 5DE491542E29315C007D9DFD /* FirebaseAI */; };
+		5DE491572E29315C007D9DFD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 5DE491562E29315C007D9DFD /* FirebaseAnalytics */; };
+		5DE491592E29315C007D9DFD /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5DE491582E29315C007D9DFD /* FirebaseAnalyticsCore */; };
+		5DE4915B2E29315C007D9DFD /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = 5DE4915A2E29315C007D9DFD /* FirebaseAnalyticsIdentitySupport */; };
+		5DE4915D2E29315C007D9DFD /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 5DE4915C2E29315C007D9DFD /* FirebaseAppCheck */; };
+		5DE4915F2E2933EB007D9DFD /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5DE4915E2E2933EB007D9DFD /* FirebaseAuth */; };
 		AF1C01462D4DDF6E008AF4DE /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 991E292D2D39EE460036A9AC /* Then */; };
 		C07F4E142DDDE01A009B4C21 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E132DDDE01A009B4C21 /* KakaoSDKAuth */; };
 		C07F4E162DDDE01A009B4C21 /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = C07F4E152DDDE01A009B4C21 /* KakaoSDKCommon */; };
@@ -66,7 +72,10 @@
 				C0E103382D9BE91800342F01 /* SnapKit in Frameworks */,
 				C0E103372D9BE91800342F01 /* Then in Frameworks */,
 				C07F4E272DDDE06D009B4C21 /* Then in Frameworks */,
+				5DE491572E29315C007D9DFD /* FirebaseAnalytics in Frameworks */,
 				C07F4E1E2DDDE036009B4C21 /* Kingfisher in Frameworks */,
+				5DE4915D2E29315C007D9DFD /* FirebaseAppCheck in Frameworks */,
+				5DE4915B2E29315C007D9DFD /* FirebaseAnalyticsIdentitySupport in Frameworks */,
 				C0E103362D9BE91800342F01 /* SnapKit in Frameworks */,
 				C0E103352D9BE91800342F01 /* Then in Frameworks */,
 				C0E103342D9BE91800342F01 /* SnapKit in Frameworks */,
@@ -74,10 +83,13 @@
 				C0E103322D9BE91800342F01 /* Then in Frameworks */,
 				C0E103312D9BE91800342F01 /* SnapKit in Frameworks */,
 				C0E103302D9BE91800342F01 /* Then in Frameworks */,
+				5DE491552E29315C007D9DFD /* FirebaseAI in Frameworks */,
 				C07F4E182DDDE01A009B4C21 /* KakaoSDKUser in Frameworks */,
 				01997BE52D62DD120008A90C /* WebKit.framework in Frameworks */,
 				C07F4E242DDDE060009B4C21 /* SnapKit in Frameworks */,
 				5D1CD04F2E0AF02F009901BD /* SwiftyToaster in Frameworks */,
+				5DE491592E29315C007D9DFD /* FirebaseAnalyticsCore in Frameworks */,
+				5DE4915F2E2933EB007D9DFD /* FirebaseAuth in Frameworks */,
 				AF1C01462D4DDF6E008AF4DE /* Then in Frameworks */,
 				C07F4E142DDDE01A009B4C21 /* KakaoSDKAuth in Frameworks */,
 			);
@@ -142,6 +154,12 @@
 				C07F4E232DDDE060009B4C21 /* SnapKit */,
 				C07F4E262DDDE06D009B4C21 /* Then */,
 				5D1CD04E2E0AF02F009901BD /* SwiftyToaster */,
+				5DE491542E29315C007D9DFD /* FirebaseAI */,
+				5DE491562E29315C007D9DFD /* FirebaseAnalytics */,
+				5DE491582E29315C007D9DFD /* FirebaseAnalyticsCore */,
+				5DE4915A2E29315C007D9DFD /* FirebaseAnalyticsIdentitySupport */,
+				5DE4915C2E29315C007D9DFD /* FirebaseAppCheck */,
+				5DE4915E2E2933EB007D9DFD /* FirebaseAuth */,
 			);
 			productName = Duckmelang;
 			productReference = AF1C01482D4DDF6E008AF4DE /* Duckmelang.app */;
@@ -179,6 +197,7 @@
 				C07F4E222DDDE060009B4C21 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				C07F4E252DDDE06D009B4C21 /* XCRemoteSwiftPackageReference "Then" */,
 				5D1CD04D2E0AF02F009901BD /* XCRemoteSwiftPackageReference "SwiftyToaster" */,
+				5DE491532E29315C007D9DFD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FA4FE3FE2D2FA23D007423E3;
@@ -416,6 +435,14 @@
 				minimumVersion = 1.0.2;
 			};
 		};
+		5DE491532E29315C007D9DFD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
 		C07F4E122DDDE01A009B4C21 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
@@ -471,6 +498,36 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5D1CD04D2E0AF02F009901BD /* XCRemoteSwiftPackageReference "SwiftyToaster" */;
 			productName = SwiftyToaster;
+		};
+		5DE491542E29315C007D9DFD /* FirebaseAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DE491532E29315C007D9DFD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAI;
+		};
+		5DE491562E29315C007D9DFD /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DE491532E29315C007D9DFD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		5DE491582E29315C007D9DFD /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DE491532E29315C007D9DFD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
+		};
+		5DE4915A2E29315C007D9DFD /* FirebaseAnalyticsIdentitySupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DE491532E29315C007D9DFD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsIdentitySupport;
+		};
+		5DE4915C2E29315C007D9DFD /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DE491532E29315C007D9DFD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		5DE4915E2E2933EB007D9DFD /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DE491532E29315C007D9DFD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
 		991E291A2D39ECEB0036A9AC /* Then */ = {
 			isa = XCSwiftPackageProductDependency;
