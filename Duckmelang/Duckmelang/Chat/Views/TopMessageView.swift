@@ -35,7 +35,7 @@ class TopMessageView: UIView {
     
     lazy var postImage = UIImageView().then {
         $0.backgroundColor = .grey300
-        $0.contentMode = .scaleAspectFit
+        $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 2.4
         $0.clipsToBounds = true
     }

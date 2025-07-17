@@ -108,7 +108,7 @@ class RequestViewController: UIViewController {
         }
     }
     
-    private func postSucceedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
+    @objc private func postSucceedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
         Task {
             do {
                 startLoading()
@@ -128,7 +128,7 @@ class RequestViewController: UIViewController {
         }
     }
     
-    private func postFailedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
+    @objc private func postFailedAPI(_ applicationId: Int, _ cell: MyAccompanyCell) {
         Task {
             do {
                 startLoading()
@@ -173,6 +173,15 @@ extension RequestViewController: UITableViewDelegate, UITableViewDataSource, MyA
         guard let indexPath = requestView.requestTableView.indexPath(for: cell) else { return }
         let selectedItem = requestData[indexPath.row]
         postFailedAPI(selectedItem.applicationId, cell)
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let postId = requestData[indexPath.row].postId
+        let detailVC = OtherPostDetailViewController()
+        
+        detailVC.postId = postId
+        
+        self.navigationController?.pushViewController(detailVC, animated: true)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

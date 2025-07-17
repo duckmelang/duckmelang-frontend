@@ -31,7 +31,7 @@ class ConfirmPopupViewController: UIViewController {
     }
     
     private lazy var confirmPopupView: CustomPopupView = {
-    let view = CustomPopupView(userImage: UIImage(), title: "\(self.oppositeNickname ?? "유저") 님께 동행을 요청할까요?", subTitle: "", leftBtnTitle: "취소", rightBtnTitle: "요청")
+        let view = CustomPopupView(userImage: UIImage(), title: "\(self.oppositeNickname ?? "유저") 님께 동행을 요청할까요?", subTitle: "", leftBtnTitle: "취소", rightBtnTitle: "요청")
         
         view.panel.addTarget(self, action: #selector(closeModal), for: .touchUpInside)
         view.leftBtn.addTarget(self, action: #selector(leftBtnTap), for: .touchUpInside)
@@ -68,6 +68,8 @@ class ConfirmPopupViewController: UIViewController {
                 if let presentingVC = self.presentingViewController {
                     self.dismiss(animated: false) {
                         let successPopupVC = SuccessPopupViewController()
+                        successPopupVC.oppositeNickname = self.oppositeNickname
+                        successPopupVC.oppositeProfileImage = self.oppositeProfileImage
                         successPopupVC.modalPresentationStyle = .overFullScreen
                         presentingVC.present(successPopupVC, animated: false, completion: nil)
                     }

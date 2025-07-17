@@ -13,7 +13,7 @@ final class TokenPlugin: PluginType {
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
         
-        if target.path.contains("/login") || target.path.contains("/refresh") {
+        if target.path.contains("/login") || target.path.contains("/token/refresh") {
             return request
         }
         
@@ -99,7 +99,7 @@ final class TokenPlugin: PluginType {
                  let window = scene.windows.first else {
                print("❌ 윈도우 찾기 실패")
               return
-        }
+           }
 
            // ✅ OnBoardingViewController를 새로운 루트 뷰 컨트롤러로 설정
            let onboardingVC = OnBoardingViewController()

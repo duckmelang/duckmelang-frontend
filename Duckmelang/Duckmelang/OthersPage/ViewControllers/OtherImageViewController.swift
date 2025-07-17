@@ -68,7 +68,7 @@ class OtherImageViewController: UIViewController, UITableViewDelegate, UITableVi
                 } else {
                     self.profileImageData.append(contentsOf: result.profileImageList)
                 }
-//                self.currentPage = result.currentPage
+                self.currentPage = result.currentPage
                 
                 DispatchQueue.main.async {
                     self.otherImageView.imageTableView.reloadData()

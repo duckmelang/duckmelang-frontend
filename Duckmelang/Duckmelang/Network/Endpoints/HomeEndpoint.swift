@@ -28,6 +28,7 @@ public enum HomeEndpoint {
     // Notification
     case getNotifications
     case patchNotifications(notificationId: Int)
+    case deleteNotifications(notificationId: Int)
     
     // Search
     case getSearch(page: Int, searchKeyword: String)
@@ -45,14 +46,9 @@ extension HomeEndpoint: TargetType {
                 fatalError("baseURL 오류")
             }
             return url
-        case .getNotifications, .patchNotifications:
+        case .getNotifications, .patchNotifications, .deleteNotifications:
             guard let url = URL(string: API.notificationURL) else {
                 fatalError("notificationURL 오류")
-            }
-            return url
-        case .getIdols:
-            guard let url = URL(string: API.baseURL) else {
-                fatalError("BaseURL 오류")
             }
             return url
         default:
@@ -78,6 +74,8 @@ extension HomeEndpoint: TargetType {
             return "/\(postId)/bookmarks"
         case .patchNotifications(let notificationId):
             return "/\(notificationId)/read"
+        case .deleteNotifications(let notificationId):
+            return "/\(notificationId)"
         case .getSearch, .getFilters, .searchPosts:
             return "/search"
         case .patchPosts(let postId, _):
@@ -93,7 +91,7 @@ extension HomeEndpoint: TargetType {
             return .post
         case .patchNotifications, .patchPosts:
             return .patch
-        case .deleteBookmark:
+        case .deleteBookmark, .deleteNotifications:
             return .delete
         default:
             return .get
@@ -115,7 +113,7 @@ extension HomeEndpoint: TargetType {
             if let minAge = minAge { parameters["minAge"] = minAge }
             if let maxAge = maxAge { parameters["maxAge"] = maxAge }
             return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
-        case .getIdols, .getEvents, .postBookmark, .deleteBookmark, .getNotifications, .patchNotifications, .getFilters:
+        case .getIdols, .getEvents, .postBookmark, .deleteBookmark, .getNotifications, .patchNotifications, .getFilters, .deleteNotifications:
             return .requestPlain
         case .patchPosts(_, let formData):
             return .uploadMultipart(formData)
