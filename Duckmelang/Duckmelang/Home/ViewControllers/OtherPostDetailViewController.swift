@@ -62,6 +62,7 @@ class OtherPostDetailViewController: UIViewController {
         $0.tabBar.scrapBtn.addTarget(self, action: #selector(scrapBtnDidTap), for: .touchUpInside)
         $0.tabBar.chatBtn.addTarget(self, action: #selector(chatBtnDidTap), for: .touchUpInside)
         $0.postDetailBottomView.warningBtn.addTarget(self, action: #selector(warningBtnDidTap), for: .touchUpInside)
+        $0.postDetailTopView.goBtn.addTarget(self, action: #selector(goBtnDidTap), for: .touchUpInside)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -111,6 +112,12 @@ class OtherPostDetailViewController: UIViewController {
         let VC = WarningViewController()
         VC.targetId = self.postId
         VC.nickname = self.nickname
+        self.navigationController?.pushViewController(VC, animated: true)
+    }
+    
+    @objc private func goBtnDidTap() {
+        let VC = OtherProfileViewController()
+        VC.oppositeId = self.postDetail?.memberId
         self.navigationController?.pushViewController(VC, animated: true)
     }
  

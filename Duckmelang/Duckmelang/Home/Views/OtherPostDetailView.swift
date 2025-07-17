@@ -266,6 +266,11 @@ class OtherPostDetailTopView: UIView {
     lazy var genderAndAge = Label(text: "", font: .ptdRegularFont(ofSize: 13), color: .grey600).then {
         $0.textAlignment = .left
     }
+    
+    lazy var goBtn = UIButton().then {
+        $0.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+        $0.tintColor = UIColor.grey500
+    }
 
     lazy var nicknameAndInfo = Stack(axis: .vertical, spacing: 6, alignment: .leading)
     lazy var profileInfo = Stack(axis: .horizontal, spacing: 16, alignment: .center)
@@ -276,16 +281,22 @@ class OtherPostDetailTopView: UIView {
     }
     
     private func setupView(){
-        [profileInfo].forEach{addSubview($0)}
+        [profileInfo, goBtn].forEach{addSubview($0)}
 
-        profileImage.snp.makeConstraints{
+        profileImage.snp.makeConstraints {
             $0.height.width.equalTo(36)
         }
         
-        profileInfo.snp.makeConstraints{
-            $0.top.equalToSuperview().offset(15)
+        profileInfo.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(16)
             $0.leading.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
+        }
+        
+        goBtn.snp.makeConstraints {
+            $0.centerY.equalTo(profileInfo)
+            $0.trailing.equalToSuperview().inset(24)
+            $0.width.equalTo(18)
         }
     }
 }
