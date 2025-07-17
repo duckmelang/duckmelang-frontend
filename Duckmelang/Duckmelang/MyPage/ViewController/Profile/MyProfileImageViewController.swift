@@ -14,7 +14,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
     private var profileImageData: [ProfileImageData] = []
     
     var oppositeId: Int?
-    var profileData: ProfileData?
+    var profileData: myPageResponse?
     
     var isLoading = false   // 중복 로딩 방지
     var isLastPage = false  // 마지막 페이지인지 여부
@@ -29,6 +29,7 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
         
         setupDelegate()
         setupNavigationBar()
+        getProfileInfo()
         getMyProfileImageAPI()
     }
     
@@ -96,6 +97,22 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
         }
     }*/
     
+    private func getProfileInfo() {
+        _Concurrency.Task {
+            do {
+                self.startLoading()
+                
+                let result = try await networkService.getMyPage()
+                self.profileData = result
+
+                self.stopLoading()
+            } catch {
+                self.stopLoading()
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     private func getMyProfileImageAPI() {
         guard !isLoading && !isLastPage else { return }
         isLoading = true
@@ -157,16 +174,13 @@ class MyProfileImageViewController: UIViewController, UITableViewDelegate, UITab
             return UITableViewCell()
         }
         
-        
         guard let profileData = self.profileData else {
             return UITableViewCell()
         }
 
         let imageModel = self.profileImageData[indexPath.section]
-        cell.configure(/*profileData: profileData, */model: imageModel)
-        
-        cell.lockToggleHandler = { [weak self] isLocked, imageId in
-            self?.patchImageStatus(isLocked: isLocked, imageId: imageId)
+        cell.configure(profileData: profileData, model: imageModel) { isLocked, imageId in
+            self.patchImageStatus(isLocked: isLocked, imageId: imageId)
         }
         
         return cell
