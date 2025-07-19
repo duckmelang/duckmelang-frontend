@@ -67,6 +67,7 @@ public struct RequestResponse: Codable {
     let totalElements: Int
     let isFirst: Bool
     let isLast: Bool
+    let currentPage: Int
 }
 
 // 수락 성공 시 받아오는 구조체

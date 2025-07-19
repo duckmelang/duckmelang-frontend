@@ -33,6 +33,7 @@ class ChatViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         self.tabBarController?.tabBar.isHidden = false
+        fetchChatrooms(startPage: 0)
     }
     
     private lazy var chatView: ChatView = {
@@ -60,12 +61,12 @@ class ChatViewController: UIViewController {
                     return
                 }
                 
-    //                if (results.currentPage == 0) {
+                if (results.currentPage == 0) {
                     self.chatData.removeAll()
-    //                    self.totalPage[selectedTag] = results.totalPage
-    //                }
-                self.chatData = results.chatRoomList
-    //                self.currentPage[selectedTag] = results.currentPage
+                    self.totalPage[selectedTag] = results.totalPage
+                }
+                self.chatData = results.chatRoomList.reversed()
+                self.currentPage[selectedTag] = results.currentPage
                 
                 DispatchQueue.main.async {
                     self.chatView.empty.isHidden = !self.chatData.isEmpty
