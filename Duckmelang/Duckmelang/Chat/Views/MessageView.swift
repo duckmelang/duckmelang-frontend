@@ -42,30 +42,13 @@ class MessageView: UIView {
         self.topMessageView.postTitle.text = data.postTitle
         
         switch data.applicationStatus {
-        case "PENDING":
-            if !data.postOwner {
-                // 진행 중인데 내가 쓴 글이 아님 -> 동행요청 버튼 활성화
-                topMessageView.confirmBtn.isHidden = false
-                topMessageView.reviewBtn.isHidden = true
-                
-                topMessageView.postTitle.snp.makeConstraints {
-                    $0.trailing.equalTo(topMessageView.confirmBtn.snp.leading).offset(-8)
-                }
-            } else {
-                // 진행 중인데 내가 쓴 글임 -> 아무버튼도 띄우지 않음
-                topMessageView.confirmBtn.isHidden = true
-                topMessageView.reviewBtn.isHidden = true
-                
-                topMessageView.postTitle.snp.makeConstraints {
-                    $0.trailing.equalToSuperview().offset(20)
-                }
-            }
-            topMessageView.inProgress.text = "진행 중"
-            topMessageView.isHidden = false
-            bottomMessageView.setupIncompleteView()
+        case "FAILED":
+            // 실패한 경우 -> 탑뷰를 띄우지 않음
+            topMessageView.isHidden = true
+            bottomMessageView.setupCompleteView()
             
             messageCollectionView.snp.makeConstraints {
-                $0.top.equalTo(topMessageView.snp.bottom).offset(5)
+                $0.top.equalTo(safeAreaLayoutGuide).offset(5)
             }
         case "SUCCEED":
             if (data.reviewId == -1) {
@@ -91,12 +74,31 @@ class MessageView: UIView {
             topMessageView.inProgress.text = "종료"
             bottomMessageView.setupCompleteView()
         default:
-            // 실패한 경우 -> 탑뷰를 띄우지 않음
-            topMessageView.isHidden = true
-            bottomMessageView.setupCompleteView()
+            // 진행 중이거나 아직 요청을 보내지 않아서 nil
+            if data.postOwner || data.applicationId != -1 {
+                // 진행 중인데 내가 쓴 글임 -> 아무버튼도 띄우지 않음
+                // 내가 쓴 글이 아니고 진행 중인데, 동행 신청을 이미 했음
+                topMessageView.confirmBtn.isHidden = true
+                topMessageView.reviewBtn.isHidden = true
+                
+                topMessageView.postTitle.snp.makeConstraints {
+                    $0.trailing.equalToSuperview().offset(20)
+                }
+            } else {
+                // 진행 중인데 내가 쓴 글이 아님 -> 동행요청 버튼 활성화
+                topMessageView.confirmBtn.isHidden = false
+                topMessageView.reviewBtn.isHidden = true
+                
+                topMessageView.postTitle.snp.makeConstraints {
+                    $0.trailing.equalTo(topMessageView.confirmBtn.snp.leading).offset(-8)
+                }
+            }
+            topMessageView.inProgress.text = "진행 중"
+            topMessageView.isHidden = false
+            bottomMessageView.setupIncompleteView()
             
             messageCollectionView.snp.makeConstraints {
-                $0.top.equalTo(safeAreaLayoutGuide).offset(5)
+                $0.top.equalTo(topMessageView.snp.bottom).offset(5)
             }
         }
     }
