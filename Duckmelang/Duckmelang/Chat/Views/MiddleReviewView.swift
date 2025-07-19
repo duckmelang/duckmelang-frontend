@@ -58,6 +58,7 @@ class MiddleReviewView: UIView {
         $0.layer.borderColor = UIColor.grey300?.cgColor
         $0.layer.cornerRadius = 36/2
         $0.backgroundColor = .grey200
+        $0.contentMode = .scaleAspectFill
     }
     
     let postImage = UIImageView().then {
@@ -67,6 +68,7 @@ class MiddleReviewView: UIView {
         $0.layer.cornerRadius = 5
         $0.clipsToBounds = true
         $0.backgroundColor = .grey200
+        $0.contentMode = .scaleAspectFill
     }
     
     let userName = UILabel().then {
@@ -133,7 +135,7 @@ class MiddleReviewView: UIView {
         userName.snp.makeConstraints {
             $0.top.equalToSuperview().offset(8)
             $0.leading.equalTo(postImage.snp.trailing).offset(16)
-            $0.width.equalTo(35)
+            $0.width.equalTo(45)
         }
         
         postTitle.snp.makeConstraints {
@@ -145,7 +147,7 @@ class MiddleReviewView: UIView {
         category.snp.makeConstraints {
             $0.top.equalTo(userName.snp.bottom).offset(6)
             $0.leading.equalTo(userName.snp.leading)
-            $0.width.equalTo(30)
+            $0.width.equalTo(45)
         }
         
         divider.snp.makeConstraints {
