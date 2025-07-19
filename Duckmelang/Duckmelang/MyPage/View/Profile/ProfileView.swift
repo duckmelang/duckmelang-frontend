@@ -202,6 +202,10 @@ class ProfileTopView: UIView {
 
         if let introduction = data.introduction {
             selfPR.text = "\(introduction)"
+            selfPR.textColor = .grey800
+        } else {
+            selfPR.text = "아직 자기소개를 작성하지 않았어요."
+            selfPR.textColor = .grey600
         }
    
         if let url = URL(string: data.latestPublicMemberProfileImage) {

@@ -75,7 +75,14 @@ class OtherProfileTopView: UIView {
         age.text = "만 \(data.age)세"
         postCount.text = "\(data.postCount)"
         matchingCount.text = "\(data.matchCount)"
-        selfPR.text = data.introduction
+        
+        if let introduction = data.introduction {
+            selfPR.text = "\(introduction)"
+            selfPR.textColor = .grey800
+        } else {
+            selfPR.text = "아직 자기소개를 작성하지 않았어요."
+            selfPR.textColor = .grey600
+        }
         
         //Kingfisher로 이미지 로딩 (URL이 유효한 경우만)
         if let url = URL(string: data.latestPublicMemberProfileImage) {
