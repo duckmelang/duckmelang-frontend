@@ -91,9 +91,10 @@ class AfterReviewViewController: UIViewController {
             do {
                 startLoading()
                 guard let oppositeId = oppositeId, let applicationId = applicationId else { return }
+                let convertedRating = Double(String(format: "%.1f", afterReviewView.cosmosView.rating)) ?? afterReviewView.cosmosView.rating
                 
                 let newReview = networkService.makeReview(
-                    score: afterReviewView.cosmosView.rating,
+                    score: convertedRating,
                     content: afterReviewView.reviewTextView.text,
                     receiverId: oppositeId,
                     applicationId: applicationId
