@@ -17,8 +17,14 @@ final class SocketManager {
     
     // 1. WebSocket 연결을 시작하는 함수
     func connect(to url: URL) {
+        var request = URLRequest(url: url)
+        
+        if let accessToken = KeychainManager.shared.load(key: "accessToken") {
+            request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        }
+        
         print("📡 connecting to WebSocket URL: \(url.absoluteString)")
-        webSocketTask = urlSession.webSocketTask(with: url)
+        webSocketTask = urlSession.webSocketTask(with: request)
         webSocketTask?.resume()
         isConnected = true
     }
@@ -75,12 +81,21 @@ final class SocketManager {
                 completion(.failure(error))
             }
             
-            self?.receiveMessage(completion: completion)
+            // 다음 메시지 대기 (연결 유지 중일 때만)
+            if let isConnected = self?.isConnected, isConnected {
+                self?.receiveMessage(completion: completion)
+            }
         }
     }
     
     // 3. 메시지를 송신하는 함수
     func sendMessage(messageRequest: MessageRequest, completion: @escaping (Result<MessageRequest, Error>) -> Void) {
+        guard isConnected else {
+            completion(.failure(NSError(domain: "WebSocketNotConnected", code: -1)))
+            print("🛑 소켓이 연결되지 않아 메시지 전송 불가")
+            return
+        }
+        
         do {
             let jsonData = try JSONEncoder().encode(messageRequest)
             print(jsonData)
