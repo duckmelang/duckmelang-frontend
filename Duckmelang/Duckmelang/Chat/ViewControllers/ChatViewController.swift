@@ -32,6 +32,7 @@ class ChatViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        self.navigationController?.isNavigationBarHidden = false
         self.tabBarController?.tabBar.isHidden = false
         fetchChatrooms(startPage: 0)
     }
@@ -154,7 +155,7 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         let chat = chatData[indexPath.row]
         
         let messageVC = MessageViewController()
-        messageVC.chat = chat
+        messageVC.chatRoomId = chat.chatRoomId
         navigationController?.pushViewController(messageVC, animated: true)
     }
     

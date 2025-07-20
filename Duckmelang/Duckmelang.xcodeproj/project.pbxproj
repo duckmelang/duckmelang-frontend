@@ -286,6 +286,8 @@
 		};
 		FA4FE41D2D2FA23E007423E3 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = FA4FE4092D2FA23D007423E3 /* Duckmelang */;
+			baseConfigurationReferenceRelativePath = Network/Secret.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -349,6 +351,8 @@
 		};
 		FA4FE41E2D2FA23E007423E3 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = FA4FE4092D2FA23D007423E3 /* Duckmelang */;
+			baseConfigurationReferenceRelativePath = Network/Secret.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
