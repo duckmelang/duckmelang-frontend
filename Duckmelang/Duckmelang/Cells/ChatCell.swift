@@ -45,6 +45,7 @@ class ChatCell: UITableViewCell {
         $0.layer.borderColor = UIColor.grey300?.cgColor
         $0.clipsToBounds = true
         $0.backgroundColor = .grey200
+        $0.contentMode = .scaleAspectFill
     }
     
     let postImage = UIImageView().then {
@@ -53,6 +54,7 @@ class ChatCell: UITableViewCell {
         $0.layer.cornerRadius = 5
         $0.clipsToBounds = true
         $0.backgroundColor = .grey300
+        $0.contentMode = .scaleAspectFill
     }
     
     let userName = UILabel().then {

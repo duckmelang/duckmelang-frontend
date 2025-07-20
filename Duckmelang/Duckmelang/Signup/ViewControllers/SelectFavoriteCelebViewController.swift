@@ -132,7 +132,7 @@ class SelectFavoriteCelebViewController: UIViewController {
                 
                 startLoading()
                 
-                let idolNums = self.selectableIdols.map { idol in idol.idolId }
+                let idolNums = self.selectedIdols.map { idol in idol.idolId }
                 let request = SelectFavoriteIdolRequest(idolCategoryIds: idolNums)
                 _ = try await networkService.postMemberInterestCeleb(memberId: memberId, idolNums: request)
                 

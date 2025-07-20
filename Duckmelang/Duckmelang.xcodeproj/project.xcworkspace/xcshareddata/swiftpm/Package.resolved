@@ -1,5 +1,5 @@
 {
-  "originHash" : "a65e95b3a1e581eb2773c363a5475e9b08ceedf09928fcbe30d771e1c853b36e",
+  "originHash" : "1e9edb023a13ca213d4d87bb89da8b18b40b239ca823fcbbb20991c22d898133",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/gtm-session-fetcher.git",
       "state" : {
-        "revision" : "fb7f2740b1570d2f7599c6bb9531bf4fad6974b7",
-        "version" : "5.0.0"
+        "revision" : "c756a29784521063b6a1202907e2cc47f41b667c",
+        "version" : "4.5.0"
       }
     },
     {
@@ -202,7 +202,7 @@
     {
       "identity" : "swiftytoaster",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/noeyiz/SwiftyToaster.git",
+      "location" : "https://github.com/noeyiz/SwiftyToaster",
       "state" : {
         "revision" : "4ed905fdecf7426e3e7a7af03b09674980f9c1a7",
         "version" : "1.0.2"

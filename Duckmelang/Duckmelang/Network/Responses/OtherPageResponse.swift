@@ -12,7 +12,7 @@ public struct OtherProfileData: Codable {
     let gender: String
     let age: Int
     let latestPublicMemberProfileImage: String
-    let introduction: String
+    let introduction: String?
     let postCount: Int
     let matchCount: Int
 }

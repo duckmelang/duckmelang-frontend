@@ -15,7 +15,10 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     
     private var messageData: [MessageModel] = []
     
-    var chat: ChatDTO?
+    var chatRoomId: Int?
+    
+    var chat: DetailChatroomResponse?
+    
     var isLoading = false               // 중복 로딩 방지
     private var lastMessageId: String? // 페이지네이션을 위한 lastMessageId
     private var memberId: Int?
@@ -46,9 +49,8 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
             self.scrollToLastItem()
         }
         
-        getMessagesAPI(lastMessageId: nil)
-        connectWebSocket()
         getDetailChatroomsAPI()
+        connectWebSocket()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -178,16 +180,18 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
     // MARK: - API
     
     private func getDetailChatroomsAPI() {
-        guard let chatRoomId = self.chat?.chatRoomId else { return }
+        guard let chatRoomId = self.chatRoomId else { return }
         
         Task {
             do {
                 startLoading()
                 
                 let result = try await networkService.getDetailChatroom(chatRoomId: chatRoomId)
-
+                self.chat = result
+                
                 DispatchQueue.main.async {
                     self.messageView.detailChatroomResponse = result
+                    self.getMessagesAPI(lastMessageId: nil)
                 }
                 
                 stopLoading()
@@ -204,11 +208,10 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
             do {
                 startLoading()
                 
-                guard let memberId = self.memberId,
-                      let chat = chat else { return }
+                guard let memberId = self.memberId, let chatRoomId = self.chatRoomId, let chat = self.chat else { return }
                 
                 let response = try await networkService.getMessages(
-                    chatRoomId: chat.chatRoomId,
+                    chatRoomId: chatRoomId,
                     lastMessageId: lastMessageId,
                     size: 20
                 )
@@ -249,19 +252,17 @@ class MessageViewController: UIViewController, ConfirmPopupViewController.ModalD
                 }
                 
                 if lastMessageId == nil {
-                    self.messageData = newMessages
-                    self.messageData = self.messageData.reversed()
+                    self.messageData = newMessages.reversed()
                     DispatchQueue.main.async {
                         self.reloadMessage()
                     }
                 } else {
-                    newMessages = newMessages.reversed()
-                    self.messageData.insert(contentsOf: newMessages, at: 0)
+                    self.messageData.insert(contentsOf: newMessages.reversed(), at: 0)
                     DispatchQueue.main.async {
-                        self.messageView.messageCollectionView.reloadData()
-                        self.scrollToLastMessages()
+                        self.reloadMessage()
                     }
                 }
+                
                 stopLoading()
                 isLoading = false
                 print("메세지: \(self.messageData)")

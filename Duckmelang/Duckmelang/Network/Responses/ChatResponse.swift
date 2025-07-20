@@ -22,7 +22,7 @@ public struct MessageDTO: Codable {
 public struct MessageResponse: Codable {
     public let chatMessageList: [MessageDTO]
     public let hasNext: Bool
-    public let lastMessageId: String
+    public let lastMessageId: String?
 }
 
 public struct ChatDTO: Codable {
@@ -45,6 +45,7 @@ public struct ChatResponse: Codable {
     let totalElements: Int
     let isFirst: Bool
     let isLast: Bool
+    let currentPage: Int
 }
 
 public struct DetailChatroomResponse: Codable {

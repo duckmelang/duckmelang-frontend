@@ -36,8 +36,8 @@ public final class SignupService : NetworkManager {
     }
     
     /// 전화번호 등록 API
-    public func postPhoneNum(memberId: Int, phoneNum: String) async throws -> CheckResult {
-        return try await requestAsync(target: .postPhoneNum(memberId: memberId, phoneNum: phoneNum), decodingType: CheckResult.self)
+    public func postPhoneNum(memberId: Int, phoneNum: String) async throws -> PhoneNumResult {
+        return try await requestAsync(target: .postPhoneNum(memberId: memberId, phoneNum: phoneNum), decodingType: PhoneNumResult.self)
     }
 
     /// 닉네임, 생년월일, 성별 설정 API

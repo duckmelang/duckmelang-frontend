@@ -86,12 +86,12 @@ class RequestViewController: UIViewController {
                     return
                 }
                 
-    //                if (results.currentPage == 0) {
+                if (results.currentPage == 0) {
                     self.requestData.removeAll()
                     self.totalPage[selectedTag] = results.totalPage
-    //                }
+                }
                 self.requestData = results.applicationList
-    //                self.currentPage[selectedTag] = results.currentPage
+                self.currentPage[selectedTag] = results.currentPage
                 
                 DispatchQueue.main.async {
                     self.requestView.empty.isHidden = !self.requestData.isEmpty

@@ -21,7 +21,7 @@ public struct ReviewInformation: Codable {
 // 후기글 작성 성공 후 받아오는 구조체
 public struct PostReviewResponse: Codable {
     public let reviewId: Int
-    public let score: Int
+    public let score: Double
     public let content: String
     public let receiverId: Int
 }
