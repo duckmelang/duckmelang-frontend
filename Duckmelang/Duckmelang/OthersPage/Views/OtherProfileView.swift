@@ -76,6 +76,15 @@ class OtherProfileTopView: UIView {
         postCount.text = "\(data.postCount)"
         matchingCount.text = "\(data.matchCount)"
         
+        if (data.nickname == "탈퇴한 회원") {
+            self.middleView.layer.opacity = 0.4
+            self.backView.layer.opacity = 0.4
+            
+            selfPR.text = "탈퇴한 회원입니다"
+            selfPR.textColor = .errorPrimary
+            return
+        }
+        
         if let introduction = data.introduction {
             selfPR.text = "\(introduction)"
             selfPR.textColor = .grey800

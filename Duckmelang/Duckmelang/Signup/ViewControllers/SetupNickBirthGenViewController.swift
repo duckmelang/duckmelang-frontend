@@ -157,13 +157,21 @@ class SetupNickBirthGenViewController: UIViewController, UIImagePickerController
     // 닉네임 체크 버튼
     @objc func checkNickname() {
         guard let nickname = setupNickBirthGenView.nicknameTextField.text else { return }
+        
+        if (nickname == "탈퇴한 회원") {
+            let alert = UIAlertController(title: "경고", message: "'탈퇴한 회원'은 사용할 수 없는 이름입니다.", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "확인", style: .default, handler: nil)
+            
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        
         checkNicknameAPI(nickname: nickname)
     }
     
     // 다음 버튼 눌렀을 때
     @objc func nextBtn() {
-//        self.navigateToSelectFavoriteCelebView()
-
         // 닉네임 입력 확인
         guard let nickname = setupNickBirthGenView.nicknameTextField.text, !nickname.isEmpty else {
             Toaster.shared.makeToast("닉네임을 입력해주세요.")
