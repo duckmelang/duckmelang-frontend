@@ -48,8 +48,6 @@ class OtherPostDetailViewController: UIViewController {
         getInitialData()
     }
     
-    
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -201,22 +199,42 @@ class OtherPostDetailViewController: UIViewController {
         }
     }
     
-    // ✅ 채팅 버튼 클릭 시 화면전환
+    // 채팅 버튼 클릭 시
     @objc private func chatBtnDidTap() {
-        if let myId = KeychainManager.shared.load(key: "memberId") {
-            if (postDetail?.memberId == Int(myId)) {
-                let alert = UIAlertController(title: "경고", message: "나의 게시글에는 채팅을 보낼 수 없습니다.", preferredStyle: .alert)
-                let okAction = UIAlertAction(title: "확인", style: .default, handler: nil)
-                
-                alert.addAction(okAction)
-                present(alert, animated: true, completion: nil)
-                return
-            }
+        guard let myId = KeychainManager.shared.load(key: "memberId") else { return }
+        
+        // 나의 게시글인 경우 -> 채팅을 보낼 수 없음
+        if (postDetail?.memberId == Int(myId)) {
+            let alert = UIAlertController(title: "경고", message: "나의 게시글에는 채팅을 보낼 수 없습니다.", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "확인", style: .default, handler: nil)
+            
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+            return
         }
-        let newMessageVC = NewMessageViewController()
-        newMessageVC.postId = postId
-        newMessageVC.postDetail = postDetail
-        navigationController?.pushViewController(newMessageVC, animated: true)
+        
+        // 탈퇴한 회원인 경우 -> 채팅을 보낼 수 없음
+        if (postDetail?.nickname == "탈퇴한 회원") {
+            let alert = UIAlertController(title: "경고", message: "탈퇴한 회원에게는 채팅을 보낼 수 없습니다.", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "확인", style: .default, handler: nil)
+            
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        
+        if (postDetail?.chatRoomId != nil) {
+            // 채팅방이 이미 있는 경우
+            let messageVC = MessageViewController()
+            messageVC.chatRoomId = postDetail?.chatRoomId
+            navigationController?.pushViewController(messageVC, animated: true)
+        } else {
+            // 채팅방이 없는 경우 -> 새로 생성
+            let newMessageVC = NewMessageViewController()
+            newMessageVC.postId = postId
+            newMessageVC.postDetail = postDetail
+            navigationController?.pushViewController(newMessageVC, animated: true)
+        }
     }
     
     private func addBookmark(postId: Int) {

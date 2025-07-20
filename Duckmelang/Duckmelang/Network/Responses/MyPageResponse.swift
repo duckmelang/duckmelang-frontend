@@ -74,6 +74,7 @@ public struct MyPostDetailResponse: Codable {
     let bookmarkCount: Int
     let viewCount: Int
     let chatCount: Int
+    let chatRoomId: Int?
     let title: String
     let content: String
     let wanted: Int
