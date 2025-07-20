@@ -442,6 +442,7 @@ extension EditPostViewController: UICollectionViewDataSource, UICollectionViewDe
         
         let image = selectedImages[indexPath.item]
         
+        
         cell.configure(image: image) {
             let currentPage = Int(self.editPostView.imageCollectionView.contentOffset.x / self.editPostView.imageCollectionView.frame.width)
             

@@ -45,6 +45,10 @@ public final class LoginService : NetworkManager {
         return try await requestAsync(target: .postLogin(login: login), decodingType: LoginResult.self)
     }
     
+    public func deleteAccount() async throws {
+        try await requestAsync(target: .deleteAccount)
+    }
+    
     /// 비밀번호 변경 API
     public func patchPassword(login: NewPasswordRequest) async throws -> String {
         return try await requestAsync(target: .patchPassword(login: login), decodingType: String.self)
@@ -60,3 +64,4 @@ public final class LoginService : NetworkManager {
         return try await requestAsync(target: .kakaoLogin(accessToken: accessToken), decodingType: LoginResult.self)
     }
 }
+

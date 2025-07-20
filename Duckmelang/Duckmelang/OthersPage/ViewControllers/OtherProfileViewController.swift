@@ -23,6 +23,8 @@ class OtherProfileViewController: UIViewController {
         navigationController?.isNavigationBarHidden = true
         self.tabBarController?.tabBar.isHidden = false
         
+        navigationController?.isNavigationBarHidden = true
+        
         setupAction()
         getProfileInfo()
         segmentedControlValueChanged(
