@@ -16,6 +16,10 @@ class NoticeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = noticeView
+        
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
+        self.tabBarController?.tabBar.isHidden = true
+        
         setupActions()
         setupTableView()
         getNotificationsAPI()
@@ -71,12 +75,12 @@ class NoticeViewController: UIViewController {
         }
     }
     
-    private func patchReadAPI(notificationId: Int) {
+    private func patchReadAPI(notificationId: Int, notificationType: String) {
         Task {
             do {
                 startLoading()
                 
-                let _ = try await networkService.patchNotifications(notificationId: notificationId)
+                _ = try await networkService.patchNotifications(notificationId: notificationId)
                 
                 DispatchQueue.main.async {
                     self.getNotificationsAPI()
@@ -137,7 +141,7 @@ extension NoticeViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let notification = notices[indexPath.row]
-        patchReadAPI(notificationId: notification.id)
+        patchReadAPI(notificationId: notification.id, notificationType: notification.type)
     }
     
     func tableView(_ tableView: UITableView,
